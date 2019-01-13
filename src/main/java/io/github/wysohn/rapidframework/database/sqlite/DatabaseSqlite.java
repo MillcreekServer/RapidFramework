@@ -1,0 +1,39 @@
+package io.github.wysohn.rapidframework.database.sqlite;
+
+import io.github.wysohn.rapidframework.database.Database;
+
+import java.util.Set;
+
+public class DatabaseSqlite<T> extends Database<T> {
+
+    @Override
+    public T load(String key, T def) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void save(String key, T value) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean has(String key) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Set<String> getKeys() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void clear() {
+        // TODO Auto-generated method stub
+
+    }
+
+}

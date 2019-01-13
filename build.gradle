@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+ext{
+    plugin_version = '0.0.1'
+    bukkit_version = '1.12.2'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+    }
+    maven {
+        url "http://nexus.hc.to/content/repositories/pub_releases/"
+    }
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
+dependencies {
+    compile fileTree(dir: "libs", includes: ['*.jar'])
+    compile "org.bukkit:bukkit:$bukkit_version-R0.1-SNAPSHOT"
+
+    testCompile 'junit:junit:4.+'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'org.powermock:powermock-module-junit4:1.5.6'
+    testCompile 'org.javassist:javassist:3.20.0-GA'
+}
