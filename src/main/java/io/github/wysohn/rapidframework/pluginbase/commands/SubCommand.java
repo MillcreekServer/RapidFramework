@@ -25,6 +25,15 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.Console;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public abstract class SubCommand {
     protected final PluginBase base;
@@ -37,6 +46,8 @@ public abstract class SubCommand {
     protected Language permissionDeniedMessage = DefaultLanguages.General_NotEnoughPermission;
     protected Language description;
     protected Language[] usage;
+    private Map<Predicate<CommandSender>, Language> predicates = new HashMap<>();
+    private List<ArgumentMapper<?>> argumentMappers = new ArrayList<>();
     private CommandAction<ConsoleCommandSender> action_console;
     private CommandAction<Player> action_player;
 
@@ -96,6 +107,16 @@ public abstract class SubCommand {
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
         if (arguments != -1 && args.length != arguments)
             return false;
+        
+        for(Entry<Predicate<CommandSender>, Language> entry : this.predicates.entrySet()) {
+        	Predicate<CommandSender> pred = entry.getKey();
+        	Language failLang = entry.getValue();
+        	
+        	if(!pred.test(sender)) {
+        		base.sendMessage(sender, failLang);
+        		return true;
+        	}
+        }
 
         if (sender == null || sender instanceof ConsoleCommandSender) {
             return executeConsole((ConsoleCommandSender) sender, args);
@@ -109,21 +130,23 @@ public abstract class SubCommand {
         }
     }
 
-    protected boolean executeConsole(ConsoleCommandSender sender, String[] args) {
+    protected boolean executeConsole(ConsoleCommandSender sender, Object[] args) {
         if(action_console != null)
-            action_console.execute(sender, args);
+            action_console.execute(sender, IntStream.range(args.length));
 
         base.getLogger().info("Not allowed to execute from Console.");
         return true;
     }
 
-    protected boolean executeOp(Player op, String[] args) {
+    protected boolean executeOp(Player op, Object[] args) {
         return executeUser(op, args);
     }
 
     protected boolean executeUser(Player player, String[] args) {
-        player.sendMessage(ChatColor.RED + "Not allowed to execute from Player.");
-        return true;
+    	if(action_player != null)
+    		action_player.execute(player, args);
+    	
+    	return true;
     }
 
     public boolean testPermission(CommandSender sender) {
@@ -186,13 +209,30 @@ public abstract class SubCommand {
     public interface CommandAction<T extends CommandSender>{
         boolean execute(T sender, String[] args);
     }
+    
+    @FunctionalInterface
+    public interface ArgumentMapper<R>{
+    	public R apply(String arg) throws InvalidArgumentException;
+    	
+    	static ArgumentMapper<String> IDENTITY = (arg) -> arg;
+    }
+    
+    @SuppressWarnings("serial")
+	public class InvalidArgumentException extends Exception{
+    	private final Language lang;
+
+		public InvalidArgumentException(Language lang) {
+			super();
+			this.lang = lang;
+		}
+    }
 
     public static class Builder{
         private SubCommand command;
 
         private Builder(PluginBase base, String cmd, int numArgs){
             command = new SubCommand(base, cmd, numArgs){};
-            command.permission = base.executor.mainCommand+"."+cmd;
+            command.permission = base.commandExecutor.mainCommand+"."+cmd;
         }
 
         public static Builder forCommand(String cmd, PluginBase base){
@@ -241,6 +281,22 @@ public abstract class SubCommand {
         public Builder actOnPlayer(CommandAction<Player> action){
             command.action_player = action;
             return this;
+        }
+        
+        public Builder addRequirement(Predicate<CommandSender> predicate, Language failLang) {
+        	command.predicates.put(predicate, failLang);
+        	return this;
+        }
+        
+        public Builder addArgumentMapper(int index, ArgumentMapper<?> mapper) {
+        	if(mapper == null)
+        		throw new RuntimeException("Cannot use null for mapper! Use ArgumentMapper.IDENTITY if "
+        				+ "mapping is not required.");
+        	
+        	while(command.argumentMappers.size() <= index)
+        		command.argumentMappers.add(ArgumentMapper.IDENTITY);
+        	command.argumentMappers.add(mapper);
+        	return this;
         }
 
         public SubCommand create(){

@@ -88,6 +88,13 @@ public final class PluginCommandExecutor implements PluginProcedure {
                 .withColor(ChatColor.LIGHT_PURPLE)
                 .create());
 
+        addCommand(SubCommand.Builder.forCommand("help", base, 1)
+        		.withPermission(null)
+        		.withDescription(DefaultLanguages.Command_Help_Description)
+        		.withUsage(DefaultLanguages.Command_Help_Usage)
+        		.ac
+        		.create());
+        
 //        addCommand(SubCommand.Builder.forCommand("import", base, 1)
 //                .withPermission(adminPermission)
 //                .withDescription(DefaultLanguages.Command_Import_Description)

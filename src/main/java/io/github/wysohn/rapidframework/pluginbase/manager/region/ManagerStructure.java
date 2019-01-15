@@ -333,7 +333,7 @@ public class ManagerStructure extends ManagerElementCaching<SimpleLocation, Stru
             return;
 
         UUID ownerUuid = structure.getOwnerUuid();
-        if(ownerUuid == null && e.getPlayer().hasPermission(base.executor.adminPermission)) {
+        if(ownerUuid == null && e.getPlayer().hasPermission(base.commandExecutor.adminPermission)) {
             //this shouldn't happen but allow admins to fix it manually if it happens
             this.save(sloc, null);
             return;

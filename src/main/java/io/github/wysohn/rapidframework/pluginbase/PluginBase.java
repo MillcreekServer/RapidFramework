@@ -45,9 +45,8 @@ public abstract class PluginBase extends JavaPlugin {
 
     private PluginConfig config;
     public PluginLanguage lang;
-    // backward compatible
-    public PluginCommandExecutor executor;
-    public Map<String, PluginCommandExecutor> executors;
+    public PluginCommandExecutor commandExecutor;
+    public Map<String, PluginCommandExecutor> commandExecutors;
     public PluginAPISupport APISupport;
 
     private String[] mainCommand;
@@ -96,7 +95,7 @@ public abstract class PluginBase extends JavaPlugin {
 
         try {
             if (this.isEnabled()) {
-                for (PluginCommandExecutor executor : executors.values())
+                for (PluginCommandExecutor executor : commandExecutors.values())
                     executor.onEnable(this);
             }
 
@@ -170,7 +169,7 @@ public abstract class PluginBase extends JavaPlugin {
         }
 
         try {
-            for (PluginCommandExecutor executor : executors.values())
+            for (PluginCommandExecutor executor : commandExecutors.values())
                 executor.onDisable(this);
         } catch (Exception e) {
             e.printStackTrace();
@@ -234,7 +233,7 @@ public abstract class PluginBase extends JavaPlugin {
         }
 
         try {
-            for (PluginCommandExecutor executor : executors.values())
+            for (PluginCommandExecutor executor : commandExecutors.values())
                 executor.onReload(this);
         } catch (Exception e) {
             e.printStackTrace();
@@ -296,19 +295,19 @@ public abstract class PluginBase extends JavaPlugin {
         list.addAll(config.Plugin_Language_List);
 
         this.lang = new PluginLanguage(list, def);
-        this.executors = new HashMap<>();
+        this.commandExecutors = new HashMap<>();
         for (int i = 0; i < mainCommand.length; i++)
-            this.executors.put(mainCommand[i], new PluginCommandExecutor(mainCommand[i], adminPermission));
-        this.executor = this.executors.get(mainCommand[0]);
+            this.commandExecutors.put(mainCommand[i], new PluginCommandExecutor(mainCommand[i], adminPermission));
+        this.commandExecutor = this.commandExecutors.get(mainCommand[0]);
         this.APISupport = new PluginAPISupport();
 
         preEnable();
         initLangauges().forEach((language) -> lang.registerLanguage(language));
         initCommands().forEach((cmd) -> {
             if(cmd.getParent() != null)
-                executors.get(cmd.getParent()).addCommand(cmd);
+                commandExecutors.get(cmd.getParent()).addCommand(cmd);
             else
-                executor.addCommand(cmd);
+                commandExecutor.addCommand(cmd);
         });
         initAPIs().forEach((entry)->APISupport.hookAPI(entry.getKey(), entry.getValue()));
         initManagers().forEach(this::registerManager);
@@ -337,7 +336,7 @@ public abstract class PluginBase extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        PluginCommandExecutor executor = executors.get(command.getName());
+        PluginCommandExecutor executor = commandExecutors.get(command.getName());
         if (executor == null)
             return true;
 
