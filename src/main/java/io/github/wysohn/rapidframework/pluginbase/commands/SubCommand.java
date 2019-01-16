@@ -26,12 +26,14 @@ import org.bukkit.entity.Player;
 
 import java.io.Console;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -47,9 +49,9 @@ public abstract class SubCommand {
     protected Language description;
     protected Language[] usage;
     private Map<Predicate<CommandSender>, Language> predicates = new HashMap<>();
-    private List<ArgumentMapper<?>> argumentMappers = new ArrayList<>();
-    private CommandAction<ConsoleCommandSender> action_console;
-    private CommandAction<Player> action_player;
+    private List<ArgumentMapper> argumentMappers = new ArrayList<>();
+    private CommandAction action_console;
+    private CommandAction action_player;
 
     protected ChatColor commandColor = ChatColor.GOLD;
 
@@ -108,6 +110,8 @@ public abstract class SubCommand {
         if (arguments != -1 && args.length != arguments)
             return false;
         
+        Arguments argsObj = new Arguments(sender, args);
+        
         for(Entry<Predicate<CommandSender>, Language> entry : this.predicates.entrySet()) {
         	Predicate<CommandSender> pred = entry.getKey();
         	Language failLang = entry.getValue();
@@ -119,30 +123,30 @@ public abstract class SubCommand {
         }
 
         if (sender == null || sender instanceof ConsoleCommandSender) {
-            return executeConsole((ConsoleCommandSender) sender, args);
+            return executeConsole((ConsoleCommandSender) sender, argsObj);
         } else {
             Player player = (Player) sender;
             if (player.isOp()) {
-                return executeOp(player, args);
+                return executeOp(player, argsObj);
             } else {
-                return executeUser(player, args);
+                return executeUser(player, argsObj);
             }
         }
     }
 
-    protected boolean executeConsole(ConsoleCommandSender sender, Object[] args) {
+    protected boolean executeConsole(CommandSender sender, Arguments args) {
         if(action_console != null)
-            action_console.execute(sender, IntStream.range(args.length));
+            action_console.execute(sender, args);
 
         base.getLogger().info("Not allowed to execute from Console.");
         return true;
     }
 
-    protected boolean executeOp(Player op, Object[] args) {
+    protected boolean executeOp(Player op, Arguments args) {
         return executeUser(op, args);
     }
 
-    protected boolean executeUser(Player player, String[] args) {
+    protected boolean executeUser(Player player, Arguments args) {
     	if(action_player != null)
     		action_player.execute(player, args);
     	
@@ -206,19 +210,58 @@ public abstract class SubCommand {
     }
 
     @FunctionalInterface
-    public interface CommandAction<T extends CommandSender>{
-        boolean execute(T sender, String[] args);
+    public interface CommandAction{
+        boolean execute(CommandSender sender, Arguments args);
     }
     
     @FunctionalInterface
-    public interface ArgumentMapper<R>{
-    	public R apply(String arg) throws InvalidArgumentException;
+    public interface ArgumentMapper{
+    	Object apply(String arg) throws InvalidArgumentException;
     	
-    	static ArgumentMapper<String> IDENTITY = (arg) -> arg;
+    	static ArgumentMapper IDENTITY = arg -> arg;
+    	static ArgumentMapper INTEGER = arg -> {
+            try {
+                return Integer.parseInt(arg);
+            } catch (NumberFormatException ex) {
+                throw new InvalidArgumentException(DefaultLanguages.General_NotInteger);
+            }
+    	};
+    	static ArgumentMapper DOUBLE = arg -> {
+            try {
+                return Double.parseDouble(arg);
+            } catch (NumberFormatException ex) {
+                throw new InvalidArgumentException(DefaultLanguages.General_NotDecimal);
+            }
+    	};
+    }
+    
+    public class Arguments{
+    	private CommandSender sender;
+    	private String[] args;
+    	
+    	public Arguments(CommandSender sender, String[] args) {
+			super();
+			this.sender = sender;
+			this.args = args;
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T> T get(int index, T def) {
+    		try {
+    			if(index > argumentMappers.size())
+    				return (T) ArgumentMapper.IDENTITY.apply(args[index]);
+    			else
+    				return (T) argumentMappers.get(index).apply(args[index]);
+			} catch (InvalidArgumentException e) {
+				base.lang.addString(args[index]);
+				base.sendMessage(sender, e.lang);
+				return null;
+			}
+    	}
     }
     
     @SuppressWarnings("serial")
-	public class InvalidArgumentException extends Exception{
+	public static class InvalidArgumentException extends Exception{
     	private final Language lang;
 
 		public InvalidArgumentException(Language lang) {
@@ -273,13 +316,20 @@ public abstract class SubCommand {
             return this;
         }
 
-        public Builder actOnConsole(CommandAction<ConsoleCommandSender> action){
+        public Builder actOnConsole(CommandAction action){
             command.action_console = action;
+            	
             return this;
         }
 
-        public Builder actOnPlayer(CommandAction<Player> action){
+        public Builder actOnPlayer(CommandAction action){
+            return actOnPlayer(action, false);
+        }
+        
+        public Builder actOnPlayer(CommandAction action, boolean alsoConsole){
             command.action_player = action;
+            if(alsoConsole)
+                command.action_console = action;
             return this;
         }
         
@@ -288,14 +338,15 @@ public abstract class SubCommand {
         	return this;
         }
         
-        public Builder addArgumentMapper(int index, ArgumentMapper<?> mapper) {
+        public Builder addArgumentMapper(int index, ArgumentMapper mapper) {
         	if(mapper == null)
         		throw new RuntimeException("Cannot use null for mapper! Use ArgumentMapper.IDENTITY if "
         				+ "mapping is not required.");
         	
         	while(command.argumentMappers.size() <= index)
         		command.argumentMappers.add(ArgumentMapper.IDENTITY);
-        	command.argumentMappers.add(mapper);
+        	command.argumentMappers.set(index, mapper);
+        	
         	return this;
         }
 

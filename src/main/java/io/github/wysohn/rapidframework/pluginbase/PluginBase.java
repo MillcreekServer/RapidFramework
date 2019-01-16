@@ -22,6 +22,8 @@ import io.github.wysohn.rapidframework.pluginbase.commands.SubCommand;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
 import io.github.wysohn.rapidframework.pluginbase.manager.*;
 import io.github.wysohn.rapidframework.pluginbase.manager.gui.ManagerGUI;
+import io.github.wysohn.rapidframework.pluginbase.manager.tasks.ManagerSequentialTask;
+import io.github.wysohn.rapidframework.pluginbase.manager.tasks.ManagerVolatileTask;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -77,6 +79,7 @@ public abstract class PluginBase extends JavaPlugin {
         registerManager(ManagerPlayerLocation.getSharedInstance(this));
         registerManager(new ManagerAreaSelection(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerVolatileTask(this, PluginManager.NORM_PRIORITY));
+        registerManager(new ManagerSequentialTask(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerTargetBlock(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerPropertyEdit(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerGUI(this, PluginManager.NORM_PRIORITY));

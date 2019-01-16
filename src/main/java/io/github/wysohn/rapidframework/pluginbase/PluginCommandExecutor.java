@@ -75,25 +75,13 @@ public final class PluginCommandExecutor implements PluginProcedure {
                 .withPermission(adminPermission)
                 .withDescription(DefaultLanguages.Command_Reload_Description)
                 .withUsage(DefaultLanguages.Command_Reload_Usage)
-                .actOnConsole(((sender, args) -> {
-                    base.reloadPluginProcedures();
-                    base.getLogger().info("Plugin is reloaded.");
-                    return true;
-                }))
                 .actOnPlayer(((sender, args) -> {
                     base.reloadPluginProcedures();
                     base.getLogger().info("Plugin is reloaded.");
                     return true;
-                }))
+                }), true)
                 .withColor(ChatColor.LIGHT_PURPLE)
                 .create());
-
-        addCommand(SubCommand.Builder.forCommand("help", base, 1)
-        		.withPermission(null)
-        		.withDescription(DefaultLanguages.Command_Help_Description)
-        		.withUsage(DefaultLanguages.Command_Help_Usage)
-        		.ac
-        		.create());
         
 //        addCommand(SubCommand.Builder.forCommand("import", base, 1)
 //                .withPermission(adminPermission)
@@ -142,7 +130,7 @@ public final class PluginCommandExecutor implements PluginProcedure {
                     page = Integer.parseInt(args[1]) - 1;
                 } catch (NumberFormatException ex) {
                     base.lang.addString(args[1]);
-                    base.sendMessage(sender, DefaultLanguages.General_NotANumber);
+                    base.sendMessage(sender, DefaultLanguages.General_NotInteger);
                     return true;
                 }
             }

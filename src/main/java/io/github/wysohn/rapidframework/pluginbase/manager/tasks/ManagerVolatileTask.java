@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework.pluginbase.manager;
+package io.github.wysohn.rapidframework.pluginbase.manager.tasks;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginManager;
