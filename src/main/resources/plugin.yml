@@ -1,0 +1,12 @@
+author: wysohn
+name: RapidFramework
+main: io.github.wysohn.rapidframework.main.FakePlugin
+softdepend:
+- Vault
+version: 0.0.1
+commands:
+  rapidframework:
+    aliases:
+    - rf
+    - rframe
+    description: some description

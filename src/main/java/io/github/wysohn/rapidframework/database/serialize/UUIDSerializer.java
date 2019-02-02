@@ -25,13 +25,12 @@ public class UUIDSerializer implements Serializer<UUID> {
 
     @Override
     public JsonElement serialize(UUID arg0, Type arg1, JsonSerializationContext arg2) {
-        return new JsonPrimitive(arg0.toString());
+        return arg2.serialize(arg0.toString());
     }
 
     @Override
     public UUID deserialize(JsonElement arg0, Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
-        // TODO Auto-generated method stub
-        return UUID.fromString(arg0.getAsString());
+        return UUID.fromString(arg2.deserialize(arg0, String.class));
     }
 
 }

@@ -55,7 +55,7 @@ public class ManagerSequentialTask extends PluginManager<PluginBase> {
 	public static class Tasks implements Callable<Void>{
 		private final PluginBase base;
 		private final TaskNode root;
-		private Runnable onFail;
+		private Runnable onFinish;
 		
 		private Tasks(PluginBase base, TaskNode root) {
 			this.base = base;
@@ -76,8 +76,10 @@ public class ManagerSequentialTask extends PluginManager<PluginBase> {
 				e.printStackTrace();
 				if(current != null)
 					current.onFail.run();
-				onFail.run();
-			} 
+			} finally {
+				if(onFinish != null)
+					onFinish.run();
+			}
 
 			return null;
 		}
@@ -105,8 +107,8 @@ public class ManagerSequentialTask extends PluginManager<PluginBase> {
 				return this;
 			}
 			
-			public Builder onFailWhole(Runnable onFail) {
-				tasks.onFail = onFail;
+			public Builder onFinish(Runnable onFinish) {
+				tasks.onFinish = onFinish;
 				return this;
 			}
 			

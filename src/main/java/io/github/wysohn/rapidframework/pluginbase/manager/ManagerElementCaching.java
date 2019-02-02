@@ -38,8 +38,6 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
     private final Map<String, K> nameMap = new HashMap<>();
     private Database<V> db;
 
-    private CacheUpdateThread cacheUpdateThread;
-
     private boolean dbWriting = false;
 
     public ManagerElementCaching(PluginBase base, int loadPriority) {
@@ -48,7 +46,6 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
 
     @Override
     protected void onDisable() throws Exception {
-        cacheUpdateThread.interrupt();
         saveTaskPool.shutdown();
 
         base.getLogger().info("Waiting for the save tasks to be done...");
@@ -72,9 +69,6 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
         }
 
         onReload();
-
-        cacheUpdateThread = new CacheUpdateThread();
-        cacheUpdateThread.start();
     }
 
     @Override
@@ -85,28 +79,14 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
         updateCache();
     }
 
-    public void setCacheUpdaterStatus(boolean status) {
-        synchronized(this.cacheUpdateThread) {
-            this.cacheUpdateThread.enabled = status;
-            if(status) {
-                this.cacheUpdateThread.notifyAll();
-            }
-        }
-    }
-
-    public boolean getCacheUpdaterStatus() {
-        return this.cacheUpdateThread.enabled;
-    }
-
     public DatabaseFile<V> createFileDB() {
-        return new DatabaseFile<V>(new File(base.getDataFolder(), getTableName()), getType());
+        return new DatabaseFile<V>(getType(), new File(base.getDataFolder(), getTableName()));
     }
 
     public DatabaseMysql<V> createMysqlDB()
             throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-        return new DatabaseMysql<V>(base.getPluginConfig().MySql_DBAddress, base.getPluginConfig().MySql_DBName,
-                getTableName(), base.getPluginConfig().MySql_DBUser, base.getPluginConfig().MySql_DBPassword,
-                getType());
+        return new DatabaseMysql<V>(getType(), base.getPluginConfig().MySql_DBAddress, base.getPluginConfig().MySql_DBName,
+                getTableName(), base.getPluginConfig().MySql_DBUser, base.getPluginConfig().MySql_DBPassword);
     }
 
     /**
@@ -119,7 +99,7 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
      *
      * @return The data type to be used when serializing/deserializing the data.
      */
-    protected abstract Type getType();
+    protected abstract Class<V> getType();
 
     /**
      * Generate key from the given String.

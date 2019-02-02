@@ -18,8 +18,16 @@ package io.github.wysohn.rapidframework.pluginbase;
 
 import io.github.wysohn.rapidframework.database.tasks.DatabaseTransferTask.TransferPair;
 import io.github.wysohn.rapidframework.pluginbase.manager.TransferPairProvider;
+import io.github.wysohn.rapidframework.utils.serializations.Utf8YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
+
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  * expected to register it in {@link PluginManager}
@@ -35,6 +43,8 @@ public abstract class PluginManager<T extends PluginBase> implements TransferPai
 
     protected final T base;
     private final int loadPriority;
+    
+    private final ManagerConfig config;
 
     public PluginManager(T base, int loadPriority) {
         this.base = base;
@@ -42,13 +52,40 @@ public abstract class PluginManager<T extends PluginBase> implements TransferPai
             throw new IllegalArgumentException("load priority out of bound.");
 
         this.loadPriority = loadPriority;
-        /*
-         * base.pluginManagers.put(this.getClass(), this);
-         */
+        
+        File folder = new File(base.getDataFolder(), "config");
+        this.config = initConfig(folder);
     }
 
     public int getLoadPriority() {
         return loadPriority;
+    }
+    
+    void onInitInternal() throws Exception{
+    	if(this.config != null)
+    		this.config.onEnable(base);
+    }
+    
+    void onDisableInternal() throws Exception{
+    	if(this.config != null)
+    		this.config.onDisable(base);
+    }
+    
+    void onReloadInternal() throws Exception{
+    	if(this.config != null)
+    		this.config.onReload(base);
+    }
+    
+    /**
+     * Initialize manager specific config. You may extend {@link ManagerConfig}
+     * to create a custom config type.
+     * Override this method to use custom config; otherwise,
+     *   no manger specific config will be used.
+     * @param folder
+     * @return the ManagerConfig to be used as config of this manager instance. 
+     */
+    protected ManagerConfig initConfig(File folder) {
+    	return new ManagerConfig();
     }
 
     protected abstract void onEnable() throws Exception;
@@ -57,7 +94,11 @@ public abstract class PluginManager<T extends PluginBase> implements TransferPai
 
     protected abstract void onReload() throws Exception;
 
-    @Override
+    public <C extends ManagerConfig> C getManagerConfig() {
+		return (C) config;
+	}
+
+	@Override
     public Set<String> getValidDBTypes() {
         return null;
     }
@@ -66,5 +107,18 @@ public abstract class PluginManager<T extends PluginBase> implements TransferPai
     public Set<TransferPair> getTransferPair(String dbTypeFrom) {
         return null;
     }
+    
+    protected class ManagerConfig extends ConfigBase{
 
+    	/**
+    	 * Do not override this method unless you want to use very specific folder.
+    	 * This method is already overriden by ManagerConfig and will create appropriate
+    	 * config file without extra works.
+    	 */
+		@Override
+		protected File initConfigFile(PluginBase base) {
+			 File folder = new File(base.getDataFolder(), "config");
+			 return new File(folder, PluginManager.this.getClass().getSimpleName()+".yml");
+		}
+    }
 }

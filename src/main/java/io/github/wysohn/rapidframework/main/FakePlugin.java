@@ -22,6 +22,7 @@ import io.github.wysohn.rapidframework.main.nms.world.BlockFilter;
 import io.github.wysohn.rapidframework.main.nms.world.INmsWorldManager;
 import io.github.wysohn.rapidframework.pluginbase.PluginAPISupport;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
+import io.github.wysohn.rapidframework.pluginbase.PluginConfig;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage;
 import io.github.wysohn.rapidframework.pluginbase.PluginManager;
 import io.github.wysohn.rapidframework.pluginbase.commands.SubCommand;
@@ -34,6 +35,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,10 +52,15 @@ public class FakePlugin extends PluginBase {
     public static INmsParticleSender nmsParticleSender;
 
     public FakePlugin() {
-        super(new FakePluginConfig(), "glib", "glib.admin");
+        super("rapidframework", "rapidframework.admin");
     }
 
     @Override
+	protected PluginConfig initConfig() {
+		return new FakePluginConfig();
+	}
+
+	@Override
     protected void preEnable() {
         instance = this;
 
@@ -70,7 +77,7 @@ public class FakePlugin extends PluginBase {
         }
     }
 
-    private static final String packageName = "org.generallib.nms";
+    private static final String packageName = "io.github.wysohn.rapidframework.main.nms";
 
     private void initWorldNms(String version)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -104,7 +111,7 @@ public class FakePlugin extends PluginBase {
         if (sender instanceof Player && !((Player) sender).isOp())
             return true;
 
-        if (!label.equals("glib"))
+        if (!label.equals("rapidframework"))
             return true;
 
         try {

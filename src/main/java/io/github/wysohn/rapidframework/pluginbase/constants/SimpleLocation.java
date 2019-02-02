@@ -55,7 +55,15 @@ public class SimpleLocation implements Cloneable {
         return z;
     }
 
-    public SimpleLocation add(int x, int y, int z) {
+    public float getPitch() {
+		return pitch;
+	}
+
+	public float getYaw() {
+		return yaw;
+	}
+
+	public SimpleLocation add(int x, int y, int z) {
         return new SimpleLocation(this.world, this.x + x, this.y + y, this.z + z);
     }
 

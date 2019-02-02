@@ -32,6 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
@@ -64,15 +65,14 @@ public abstract class PluginBase extends JavaPlugin {
     protected PluginBase() {
         throw new RuntimeException(
                 "Please override default constructor in order to establish PluginBase. This overriden constructor"
-                        + " should also call super constructor(PluginConfig, String, String).");
+                        + " should also call super constructor(String, String).");
     }
 
-    public PluginBase(final PluginConfig config, String mainCommand, String adminPermission) {
-        this(config, new String[] { mainCommand }, adminPermission);
+    public PluginBase(String mainCommand, String adminPermission) {
+        this(new String[] { mainCommand }, adminPermission);
     }
 
-    public PluginBase(final PluginConfig config, String[] mainCommand, String adminPermission) {
-        this.config = config;
+    public PluginBase(String[] mainCommand, String adminPermission) {
         this.mainCommand = mainCommand;
         this.adminPermission = adminPermission;
 
@@ -86,6 +86,17 @@ public abstract class PluginBase extends JavaPlugin {
     }
 
     private void initiatePluginProcedures() {
+    	config = this.initConfig();
+        try {
+            if (config != null && this.isEnabled())
+            	config.onEnable(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.getLogger().severe("While loading config:");
+            this.getLogger().severe(e.getClass().getSimpleName() + "@" + e.getMessage());
+            this.setEnabled(false);
+        }
+    	
         try {
             if (this.isEnabled())
                 lang.onEnable(this);
@@ -134,6 +145,7 @@ public abstract class PluginBase extends JavaPlugin {
 
             for (PluginManager manager : managers) {
                 try {
+                	manager.onInitInternal();
                     manager.onEnable();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -145,8 +157,8 @@ public abstract class PluginBase extends JavaPlugin {
                     return;
                 }
 
-                if (manager instanceof Listener) {
-                    getServer().getPluginManager().registerEvents((Listener) manager, this);
+                if (manager instanceof Listener && this.isEnabled()) {
+                	Bukkit.getPluginManager().registerEvents((Listener) manager, this);
                 }
             }
         }
@@ -204,6 +216,7 @@ public abstract class PluginBase extends JavaPlugin {
 
             for (PluginManager manager : managers) {
                 try {
+                	manager.onDisableInternal();
                     manager.onDisable();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -220,7 +233,8 @@ public abstract class PluginBase extends JavaPlugin {
 
     public void reloadPluginProcedures() {
         try {
-            config.onReload(this);
+        	if(config != null)
+        		config.onReload(this);
         } catch (Exception e) {
             e.printStackTrace();
             this.getLogger().severe("While reloading config:");
@@ -267,8 +281,10 @@ public abstract class PluginBase extends JavaPlugin {
 
             for (PluginManager manager : managers) {
                 try {
-                    if (this.isEnabled())
+                    if (this.isEnabled()) {
+                    	manager.onReloadInternal();
                         manager.onReload();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     this.getLogger().severe("While Enabling [" + manager.getClass().getSimpleName() + "]:");
@@ -284,6 +300,8 @@ public abstract class PluginBase extends JavaPlugin {
 
     @Override
     public void onEnable() {
+    	config = this.initConfig();
+    	
         try {
             config.onEnable(this);
         } catch (Exception e) {
@@ -317,8 +335,15 @@ public abstract class PluginBase extends JavaPlugin {
 
         initiatePluginProcedures();
     }
-
     protected abstract void preEnable();
+    /**
+     * Override this to use custom version of config.
+     * Default one will be used otherwise.
+     * @return the custom config that will be used by plugin.
+     */
+    protected PluginConfig initConfig() {
+		return new PluginConfig();
+    }
     protected Stream<Language> initLangauges(){
         return Stream.of();
     }

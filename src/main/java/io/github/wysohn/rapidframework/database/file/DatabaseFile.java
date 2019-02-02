@@ -34,12 +34,12 @@ import java.util.Set;
  * @param <T>
  */
 public class DatabaseFile<T> extends Database<T> {
-    private final Type type;
+    
     private File folder;
 
-    public DatabaseFile(File folder, Type type) {
+    public DatabaseFile(Class<T> type, File folder) {
+    	super(type);
         this.folder = folder;
-        this.type = type;
 
         folder.mkdirs();
     }

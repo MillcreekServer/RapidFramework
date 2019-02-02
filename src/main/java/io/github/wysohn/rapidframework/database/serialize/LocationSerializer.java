@@ -33,12 +33,12 @@ public class LocationSerializer implements Serializer<Location> {
             return json;
         }
 
-        json.addProperty("world", arg0.getWorld().getName());
-        json.addProperty("x", arg0.getX());
-        json.addProperty("y", arg0.getY());
-        json.addProperty("z", arg0.getZ());
-        json.addProperty("pitch", arg0.getPitch());
-        json.addProperty("yaw", arg0.getYaw());
+        json.add("world", arg2.serialize(arg0.getWorld().getName(), String.class));
+        json.add("x", arg2.serialize(arg0.getX(), Double.class));
+        json.add("y", arg2.serialize(arg0.getY(), Double.class));
+        json.add("z", arg2.serialize(arg0.getZ(), Double.class));
+        json.add("pitch", arg2.serialize(arg0.getPitch(), Float.class));
+        json.add("yaw", arg2.serialize(arg0.getYaw(), Float.class));
 
         return json;
     }
@@ -52,18 +52,18 @@ public class LocationSerializer implements Serializer<Location> {
         if (worldElem == null)
             return null;
 
-        String worldName = worldElem.getAsString();
-        World world = Bukkit.getWorld(worldName);
-        if (world == null)
-            return null;
+		String worldName = worldElem.getAsString();
+		World world = Bukkit.getWorld(worldName);
+		if (world == null)
+			return null;
 
-        double x = json.get("x").getAsDouble();
-        double y = json.get("y").getAsDouble();
-        double z = json.get("z").getAsDouble();
-        float pitch = json.get("pitch") == null ? 0.0F : json.get("pitch").getAsFloat();
-        float yaw = json.get("yaw") == null ? 0.0F : json.get("yaw").getAsFloat();
+		double x = json.get("x").getAsDouble();
+		double y = json.get("y").getAsDouble();
+		double z = json.get("z").getAsDouble();
+		float pitch = arg2.deserialize(json.has("pitch") ? json.get("pitch") : new JsonPrimitive(0.0f), Float.class);
+		float yaw = arg2.deserialize(json.has("yaw") ? json.get("yaw") : new JsonPrimitive(0.0f), Float.class);
 
-        return new Location(world, x, y, z, pitch, yaw);
+		return new Location(world, x, y, z, pitch, yaw);
     }
 
 }

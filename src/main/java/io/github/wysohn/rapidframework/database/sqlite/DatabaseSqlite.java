@@ -6,7 +6,11 @@ import java.util.Set;
 
 public class DatabaseSqlite<T> extends Database<T> {
 
-    @Override
+    public DatabaseSqlite(Class<T> type) {
+		super(type);
+	}
+
+	@Override
     public T load(String key, T def) {
         // TODO Auto-generated method stub
         return null;

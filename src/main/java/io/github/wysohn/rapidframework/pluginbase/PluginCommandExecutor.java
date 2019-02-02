@@ -207,7 +207,8 @@ public final class PluginCommandExecutor implements PluginProcedure {
                     builder.append(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Aliases) + "\n");
 
                     for (PluginLanguage.Language lang : c.getUsage())
-                        builder.append(base.lang.parseFirstString(sender, lang) + "\n");
+                    	Stream.of(base.lang.parseStrings(sender, lang))
+                    		.forEach(str -> builder.append(str+"\n"));
 
                     Message[] message = JsonApiAPI.MessageBuilder
                             .forMessage(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Description))
@@ -234,9 +235,11 @@ public final class PluginCommandExecutor implements PluginProcedure {
             } else {
                 base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
                 for (PluginLanguage.Language lang : c.getUsage()) {
-                    String usage = base.lang.parseFirstString(sender, lang);
-                    base.lang.addString(usage);
-                    base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
+                	Stream.of(base.lang.parseStrings(sender, lang))
+            			.forEach(str -> {
+                            base.lang.addString(str);
+                            base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
+            			});
                 }
             }
         }

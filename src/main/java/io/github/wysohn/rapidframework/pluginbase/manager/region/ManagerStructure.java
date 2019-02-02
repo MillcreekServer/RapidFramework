@@ -88,7 +88,7 @@ public class ManagerStructure extends ManagerElementCaching<SimpleLocation, Stru
     }
 
     @Override
-    protected Type getType() {
+    protected Class<Structure> getType() {
         return Structure.class;
     }
 

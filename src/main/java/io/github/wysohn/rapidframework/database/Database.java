@@ -18,20 +18,118 @@ package io.github.wysohn.rapidframework.database;
 
 import copy.com.google.gson.Gson;
 import copy.com.google.gson.GsonBuilder;
+import copy.com.google.gson.JsonSyntaxException;
+import copy.com.google.gson.TypeAdapter;
+import copy.com.google.gson.TypeAdapterFactory;
+import copy.com.google.gson.internal.bind.TypeAdapters;
+import copy.com.google.gson.reflect.TypeToken;
+import copy.com.google.gson.stream.JsonReader;
+import copy.com.google.gson.stream.JsonToken;
+import copy.com.google.gson.stream.JsonWriter;
 import io.github.wysohn.rapidframework.database.serialize.*;
 import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
 import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Set;
 import java.util.UUID;
 
 public abstract class Database<T> {
+    private static final TypeAdapter<String> NULL_ADAPTER_STRING = new TypeAdapter<String>() {
+
+		@Override
+		public void write(JsonWriter out, String value) throws IOException {
+			out.value(value);
+		}
+
+		@Override
+		public String read(JsonReader in) throws IOException {
+			JsonToken token = in.peek();
+			if(token == JsonToken.NULL) {
+				in.nextNull();
+				return "";
+			} else if(token == JsonToken.NUMBER
+					|| token == JsonToken.STRING) {
+				return in.nextString();
+			} else {
+				throw new JsonSyntaxException(token+" is not valid value for String!");
+			}
+		}
+    	
+    };
+    private static final TypeAdapter<Number> NULL_ADAPTER_NUMBER = new TypeAdapter<Number>() {
+
+		@Override
+		public void write(JsonWriter out, Number value) throws IOException {
+			if(value == null) {
+				out.value(0);
+			}else {
+				out.value(value);
+			}
+		}
+
+		@Override
+		public Number read(JsonReader in) throws IOException {
+			JsonToken token = in.peek();
+			
+			if(token == JsonToken.NULL) {
+				in.nextNull();
+				return 0;
+			} else if (token == JsonToken.NUMBER) {
+				String value = in.nextString();
+				if(value.contains("."))
+					return Double.parseDouble(value);
+				else
+					return Integer.parseInt(value);
+			} else {
+				throw new JsonSyntaxException(token+" is not valid value for Number!");
+			}
+		}
+    	
+    };
+    
+    private static final TypeAdapter<Float> NULL_ADAPTER_FLOAT = new TypeAdapter<Float>() {
+
+		@Override
+		public void write(JsonWriter out, Float value) throws IOException {
+			if(value == null) {
+				out.value(0);
+			}else {
+				out.value(value);
+			}
+		}
+
+		@Override
+		public Float read(JsonReader in) throws IOException {
+			JsonToken token = in.peek();
+			
+			if(token == JsonToken.NULL) {
+				in.nextNull();
+				return 0f;
+			} else if (token == JsonToken.NUMBER) {
+				String value = in.nextString();
+				return Float.parseFloat(value);
+			} else {
+				throw new JsonSyntaxException(token+" is not valid value for Float!");
+			}
+		}
+    	
+    };
     private static GsonBuilder builder = new GsonBuilder()
-            .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
+            .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC)
+            .enableComplexMapKeySerialization()
+            .serializeNulls()
+            .setPrettyPrinting()
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(String.class, NULL_ADAPTER_STRING))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(int.class, Integer.class, NULL_ADAPTER_NUMBER))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(long.class, Long.class, NULL_ADAPTER_NUMBER))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(float.class, Float.class, NULL_ADAPTER_FLOAT))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(double.class, Double.class, NULL_ADAPTER_NUMBER))
             .registerTypeAdapter(Location.class, new LocationSerializer())
             .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
@@ -47,7 +145,14 @@ public abstract class Database<T> {
         }
     }
 
-    /**
+    protected final Class<T> type;
+
+    public Database(Class<T> type) {
+		super();
+		this.type = type;
+	}
+
+	/**
      * Deserialize the data from the database and return
      * 
      * @param key
@@ -100,11 +205,8 @@ public abstract class Database<T> {
      * @param obj
      * @return serialized string
      */
-    public String serialize(Object obj) {
-        if (gson == null)
-            gson = builder.create();
-
-        return gson.toJson(obj);
+    protected String serialize(Object obj) {
+        return serialize(obj, obj.getClass());
     }
 
     /**
@@ -114,7 +216,7 @@ public abstract class Database<T> {
      * @param clazz
      * @return serialzied string
      */
-    public String serialize(Object obj, Type clazz) {
+    protected String serialize(Object obj, Type clazz) {
         if (gson == null)
             gson = builder.create();
 
@@ -128,11 +230,10 @@ public abstract class Database<T> {
      * @param clazz
      * @return deserialized object
      */
-    public Object deserialize(String ser, Type clazz) {
+    protected <R> R deserialize(String ser, Class<R> clazz) {
         if (gson == null)
             gson = builder.create();
 
         return gson.fromJson(ser, clazz);
     }
-
 }

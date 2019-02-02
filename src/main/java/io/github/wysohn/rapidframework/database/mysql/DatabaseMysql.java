@@ -38,8 +38,6 @@ import java.util.Set;
  * @param <T>
  */
 public class DatabaseMysql<T> extends Database<T> {
-    private final Type type;
-
     private String dbName;
     private String tablename;
 
@@ -49,22 +47,23 @@ public class DatabaseMysql<T> extends Database<T> {
     private final MysqlConnectionPoolDataSource ds;
     private final MiniConnectionPoolManager pool;
 
-    public DatabaseMysql(String address, String dbName, String tablename, String userName, String password, Type type)
+    public DatabaseMysql(Class<T> type, String address, String dbName, String tablename, String userName, String password)
             throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        this.type = type;
+        super(type);
 
         this.dbName = dbName;
         this.tablename = tablename;
 
-        ds = new MysqlConnectionPoolDataSource();
-        ds.setURL("jdbc:mysql://" + address + "/" + dbName);
-        ds.setUser(userName);
-        ds.setPassword(password);
-        ds.setCharacterEncoding("UTF-8");
-        ds.setUseUnicode(true);
+		ds = new MysqlConnectionPoolDataSource();
+		ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
+		ds.setUser(userName);
+		ds.setPassword(password);
+		ds.setCharacterEncoding("UTF-8");
+		ds.setUseUnicode(true);
         ds.setAutoReconnectForPools(true);
         ds.setAutoReconnect(true);
         ds.setAutoReconnectForConnectionPools(true);
+        ds.setUseSSL(false);
 
         pool = new MiniConnectionPoolManager(ds, 2);
 

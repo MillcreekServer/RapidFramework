@@ -248,16 +248,46 @@ public abstract class SubCommand {
 		@SuppressWarnings("unchecked")
 		public <T> T get(int index, T def) {
     		try {
-    			if(index > argumentMappers.size())
-    				return (T) ArgumentMapper.IDENTITY.apply(args[index]);
-    			else
+    			if(index >= args.length)
+    				return def;
+    			
+    			if(index < argumentMappers.size())
     				return (T) argumentMappers.get(index).apply(args[index]);
+    			else
+    				return (T) ArgumentMapper.IDENTITY.apply(args[index]);
 			} catch (InvalidArgumentException e) {
 				base.lang.addString(args[index]);
 				base.sendMessage(sender, e.lang);
 				return null;
 			}
     	}
+		
+		/**
+		 * get all arguments starting from 'index' to the end as a string
+		 * @param index
+		 * @return null if index is out of bound; string otherwise
+		 */
+		public String getAsString(int index) {
+			return getAsString(index, args.length - 1);
+		}
+		
+		/**
+		 * get all arguments starting from 'index' to the 'end'
+		 * @param index inclusive
+		 * @param end inclusive
+		 * @return null if index is out of bound; string otherwise
+		 */
+		public String getAsString(int index, int end) {
+			if(index > args.length - 1)
+				return null;
+			
+	        StringBuilder builder = new StringBuilder(args[index]);
+	        for(int i = index + 1; i <= end; i++){
+	            builder.append(" "+args[i]);
+	        }
+	        return builder.toString();
+
+		}
     }
     
     @SuppressWarnings("serial")

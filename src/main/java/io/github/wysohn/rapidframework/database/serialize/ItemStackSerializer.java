@@ -26,16 +26,14 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Type;
 
 public class ItemStackSerializer implements Serializer<ItemStack> {
-
+	private static final String KEY = "ItemStack";
     @Override
     public JsonElement serialize(ItemStack arg0, Type arg1, JsonSerializationContext arg2) {
-        JsonObject obj = new JsonObject();
-
         String ser = null;
 
         try {
             FileConfiguration fc = new Utf8YamlConfiguration();
-            fc.set("ItemStack", arg0);
+            fc.set(KEY, arg0);
             ser = fc.saveToString();
         } catch (Exception e) {
 
@@ -44,19 +42,16 @@ public class ItemStackSerializer implements Serializer<ItemStack> {
                 ser = "";
         }
 
-        obj.addProperty("IS", ser);
-
-        return obj;
+        return new JsonPrimitive(ser);
     }
 
     @Override
     public ItemStack deserialize(JsonElement arg0, Type arg1, JsonDeserializationContext arg2)
             throws JsonParseException {
-        JsonObject obj = (JsonObject) arg0;
         FileConfiguration fc = new Utf8YamlConfiguration();
         try {
-            fc.loadFromString(obj.get("IS").getAsString());
-            return fc.getItemStack("ItemStack", new ItemStack(Material.AIR));
+            fc.loadFromString(arg0.isJsonNull() ? "" : arg0.getAsString());
+            return fc.getItemStack(KEY, new ItemStack(Material.AIR));
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
             return null;
