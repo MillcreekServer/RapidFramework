@@ -18,13 +18,20 @@ package io.github.wysohn.rapidframework.pluginbase.commands;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
+import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.PreParseHandle;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
+import io.github.wysohn.rapidframework.utils.strings.EnglishChecker;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.Console;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,12 +53,12 @@ public abstract class SubCommand {
     protected String[] aliases;
     protected String permission;
     protected Language permissionDeniedMessage = DefaultLanguages.General_NotEnoughPermission;
-    protected Language description;
-    protected Language[] usage;
+    protected AbstractMap.SimpleEntry<Language, PreParseHandle> description;
+    protected List<AbstractMap.SimpleEntry<Language, PreParseHandle>> usage = new ArrayList<>();
     private Map<Predicate<CommandSender>, Language> predicates = new HashMap<>();
     private List<ArgumentMapper> argumentMappers = new ArrayList<>();
-    private CommandAction action_console;
-    private CommandAction action_player;
+    private CommandAction<CommandSender> action_console;
+    private CommandAction<Player> action_player;
 
     protected ChatColor commandColor = ChatColor.GOLD;
 
@@ -67,16 +74,17 @@ public abstract class SubCommand {
         this.arguments = numArgs;
     }
 
-    protected SubCommand(PluginBase base, String permission, Language description, Language[] usage, int arguments,
-                      String name, String... aliases) {
-        this.base = base;
-        this.name = name;
-        this.aliases = aliases;
-        this.permission = permission;
-        this.description = description;
-        this.usage = usage;
-        this.arguments = arguments;
-    }
+	protected SubCommand(PluginBase base, String permission,
+			AbstractMap.SimpleEntry<Language, PreParseHandle> description,
+			List<SimpleEntry<Language, PreParseHandle>> usage, int arguments, String name, String... aliases) {
+		this.base = base;
+		this.name = name;
+		this.aliases = aliases;
+		this.permission = permission;
+		this.description = description;
+		this.usage = usage;
+		this.arguments = arguments;
+	}
 
     public String getParent() {
         return parent;
@@ -196,29 +204,49 @@ public abstract class SubCommand {
         return permission;
     }
 
-    public Language getDescription() {
+    public SimpleEntry<Language, PreParseHandle> getDescription() {
         return description;
     }
 
-    public Language[] getUsage() {
-        return usage;
+    public SimpleEntry<Language, PreParseHandle>[] getUsage() {
+        return usage.toArray(new AbstractMap.SimpleEntry[0]);
     }
 
     @Override
     public String toString() {
         return name;
     }
-
+    
     @FunctionalInterface
-    public interface CommandAction{
-        boolean execute(CommandSender sender, Arguments args);
+    public interface CommandAction<Sender extends CommandSender>{
+        boolean execute(Sender sender, Arguments args);
     }
     
     @FunctionalInterface
     public interface ArgumentMapper{
+    	/**
+    	 * Try to convert the arg(String) to appropriate instance.
+    	 * Should throw InvalidArgumentException with Language enum passed
+    	 * if cannot be converted.
+    	 * 
+    	 * @param arg the current argument to convert
+    	 * @return the converted value
+    	 * @throws InvalidArgumentException the exception to be thrown if
+    	 * the given value cannot be converted. This Language can have
+    	 * one ${string} placeholder which will be automatically converted
+    	 * into the input argument. (e.g. if your error message is 
+    	 * "invalid argument ${string}!" and the argument was "help", then it 
+    	 * will be parsed into "invalid argument help!"
+    	 */
     	Object apply(String arg) throws InvalidArgumentException;
     	
     	static ArgumentMapper IDENTITY = arg -> arg;
+    	static ArgumentMapper STRING = arg ->{
+    		if(arg == null || !EnglishChecker.isValidName(arg))
+    			throw new InvalidArgumentException(DefaultLanguages.General_InvalidString);
+    		
+    		return arg;
+    	};
     	static ArgumentMapper INTEGER = arg -> {
             try {
                 return Integer.parseInt(arg);
@@ -233,6 +261,20 @@ public abstract class SubCommand {
                 throw new InvalidArgumentException(DefaultLanguages.General_NotDecimal);
             }
     	};
+    	static ArgumentMapper PLAYER = arg -> {
+    		Player player = Bukkit.getPlayer(arg);
+    		if(player == null)
+    			throw new InvalidArgumentException(DefaultLanguages.General_PlayerNotOnline);
+    		
+    		return player;
+    	};
+    	static ArgumentMapper OFFLINE_PLAYER = arg -> {
+    		OfflinePlayer oplayer = Bukkit.getOfflinePlayer(arg);
+    		if(oplayer == null || oplayer.getLastPlayed() < 1)
+    			throw new InvalidArgumentException(DefaultLanguages.General_NoSuchPlayer);
+    		
+    		return oplayer;
+    	};
     }
     
     public class Arguments{
@@ -245,11 +287,22 @@ public abstract class SubCommand {
 			this.args = args;
 		}
 
+    	/**
+    	 * Try to get argument at the index. If index is out of range, the provided
+    	 * default value will be used. You may add ArgumentMapper when building
+    	 * the command to automatically convert the input to appropriate value
+    	 * (e.g. argument to integer). If the ArgumentMapper cannot convert the
+    	 * argument for some reason (like trying to convert non-number string
+    	 * to an integer), it will automatically show error message to the user.
+    	 * @param index index of argument
+    	 * @param def the value to be used if index is out of range
+    	 * @return the argument
+    	 */
 		@SuppressWarnings("unchecked")
 		public <T> T get(int index, T def) {
     		try {
     			if(index >= args.length)
-    				return def;
+    				return null;
     			
     			if(index < argumentMappers.size())
     				return (T) argumentMappers.get(index).apply(args[index]);
@@ -327,39 +380,50 @@ public abstract class SubCommand {
         }
 
         public Builder withPermission(String permission){
-            command.permission = permission;
-            return this;
-        }
+			command.permission = permission;
+			return this;
+		}
 
-        public Builder withDescription(Language description){
-            command.description = description;
-            return this;
-        }
+		public Builder withDescription(Language description) {
+			return withDescription(description, (l, p) -> {});
+		}
 
-        public Builder withUsage(Language... usage){
-            command.usage = usage;
-            return this;
-        }
+		public Builder withDescription(Language description, PreParseHandle handle) {
+			command.description = new AbstractMap.SimpleEntry<Language, PreParseHandle>(description, handle);
+			return this;
+		}
+
+		/**
+		 * ${command} is built-in placeholder for 'this command' without slash(/)
+		 * @param usage
+		 * @return
+		 */
+		public Builder addUsage(Language usage) {
+			return addUsage(usage, (l, p) -> {});
+		}
+
+		/**
+		 * ${command} is built-in placeholder for 'this command' without slash(/)
+		 * @param usage
+		 * @return
+		 */
+		public Builder addUsage(Language usage, PreParseHandle handle) {
+			command.usage.add(new AbstractMap.SimpleEntry<Language, PreParseHandle>(usage, handle));
+			return this;
+		}
 
         public Builder withColor(ChatColor color){
             command.commandColor = color;
             return this;
         }
 
-        public Builder actOnConsole(CommandAction action){
+        public Builder actOnConsole(CommandAction<CommandSender> action){
             command.action_console = action;
-            	
             return this;
         }
-
-        public Builder actOnPlayer(CommandAction action){
-            return actOnPlayer(action, false);
-        }
         
-        public Builder actOnPlayer(CommandAction action, boolean alsoConsole){
+        public Builder actOnPlayer(CommandAction<Player> action){
             command.action_player = action;
-            if(alsoConsole)
-                command.action_console = action;
             return this;
         }
         

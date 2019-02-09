@@ -16,11 +16,12 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework.pluginbase.manager.event;
 
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
+
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
 
 /**
  * This event fires depends on the player's block location. Unlike the

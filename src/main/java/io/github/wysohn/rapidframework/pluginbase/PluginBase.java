@@ -18,6 +18,7 @@ package io.github.wysohn.rapidframework.pluginbase;
 
 import io.github.wysohn.rapidframework.main.FakePlugin;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
+import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.PreParseHandle;
 import io.github.wysohn.rapidframework.pluginbase.commands.SubCommand;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
 import io.github.wysohn.rapidframework.pluginbase.manager.*;
@@ -35,6 +36,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -76,6 +79,8 @@ public abstract class PluginBase extends JavaPlugin {
         this.mainCommand = mainCommand;
         this.adminPermission = adminPermission;
 
+        registerManager(new ManagerCustomPermission(this, PluginManager.FASTEST_PRIORITY));
+        
         registerManager(ManagerPlayerLocation.getSharedInstance(this));
         registerManager(new ManagerAreaSelection(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerVolatileTask(this, PluginManager.NORM_PRIORITY));
@@ -83,6 +88,7 @@ public abstract class PluginBase extends JavaPlugin {
         registerManager(new ManagerTargetBlock(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerPropertyEdit(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerGUI(this, PluginManager.NORM_PRIORITY));
+        registerManager(new ManagerGroup(this, PluginManager.NORM_PRIORITY));     
     }
 
     private void initiatePluginProcedures() {
@@ -96,7 +102,13 @@ public abstract class PluginBase extends JavaPlugin {
             this.getLogger().severe(e.getClass().getSimpleName() + "@" + e.getMessage());
             this.setEnabled(false);
         }
-    	
+        
+        if(config.Plugin_Debugging) {
+        	this.getLogger().setLevel(Level.FINE);
+        } else {
+        	this.getLogger().setLevel(Level.INFO);
+        }
+        
         try {
             if (this.isEnabled())
                 lang.onEnable(this);
@@ -240,6 +252,12 @@ public abstract class PluginBase extends JavaPlugin {
             this.getLogger().severe("While reloading config:");
             this.getLogger().severe(e.getClass().getSimpleName() + "@" + e.getMessage());
         }
+        
+        if(config.Plugin_Debugging) {
+        	this.getLogger().setLevel(Level.FINE);
+        } else {
+        	this.getLogger().setLevel(Level.INFO);
+        }
 
         try {
             lang.onReload(this);
@@ -323,6 +341,7 @@ public abstract class PluginBase extends JavaPlugin {
         this.APISupport = new PluginAPISupport();
 
         preEnable();
+        
         initLangauges().forEach((language) -> lang.registerLanguage(language));
         initCommands().forEach((cmd) -> {
             if(cmd.getParent() != null)
@@ -334,8 +353,20 @@ public abstract class PluginBase extends JavaPlugin {
         initManagers().forEach(this::registerManager);
 
         initiatePluginProcedures();
+        
+        postEnable();
     }
+    
+    /**
+     * Called before managers, language, commands, etc. are initialized
+     */
     protected abstract void preEnable();
+    
+    /**
+     * Called after managers, language, commands, etc. are initialized
+     */
+    protected abstract void postEnable();
+    
     /**
      * Override this to use custom version of config.
      * Default one will be used otherwise.
@@ -419,7 +450,7 @@ public abstract class PluginBase extends JavaPlugin {
         broadcast(language, null, null);
     }
 
-    public void broadcast(Language language, PlayerFilter filter) {
+    public void broadcast(Language language, Predicate<Player> filter) {
         broadcast(language, filter, null);
     }
 
@@ -427,26 +458,16 @@ public abstract class PluginBase extends JavaPlugin {
         broadcast(language, null, parseHandle);
     }
 
-    public void broadcast(Language language, PlayerFilter filter, PreParseHandle parseHandle) {
+    public void broadcast(Language language, Predicate<Player> filter, PreParseHandle parseHandle) {
         for(Player player : Bukkit.getOnlinePlayers()){
-            if(filter != null && !filter.accept(player))
+            if(filter != null && !filter.test(player))
                 continue;
 
             if(parseHandle != null)
-                parseHandle.onParse(lang);
+                parseHandle.onParse(lang, player);
 
             sendMessage(player, language);
         }
-    }
-
-    @FunctionalInterface
-    public interface PlayerFilter{
-        boolean accept(Player player);
-    }
-
-    @FunctionalInterface
-    public interface PreParseHandle{
-        void onParse(PluginLanguage lang);
     }
 
     @SuppressWarnings("unchecked")

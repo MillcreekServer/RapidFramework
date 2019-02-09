@@ -15,8 +15,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginManager;
-import io.github.wysohn.rapidframework.pluginbase.constants.Area;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.Area;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 import io.github.wysohn.rapidframework.utils.BukkitUtil;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 

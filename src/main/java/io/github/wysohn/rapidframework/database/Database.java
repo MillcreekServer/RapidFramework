@@ -27,8 +27,9 @@ import copy.com.google.gson.stream.JsonReader;
 import copy.com.google.gson.stream.JsonToken;
 import copy.com.google.gson.stream.JsonWriter;
 import io.github.wysohn.rapidframework.database.serialize.*;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +41,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public abstract class Database<T> {
-    private static final TypeAdapter<String> NULL_ADAPTER_STRING = new TypeAdapter<String>() {
+    private static final TypeAdapter<String> NULL_ADOPTER_STRING = new TypeAdapter<String>() {
 
 		@Override
 		public void write(JsonWriter out, String value) throws IOException {
@@ -62,7 +63,28 @@ public abstract class Database<T> {
 		}
     	
     };
-    private static final TypeAdapter<Number> NULL_ADAPTER_NUMBER = new TypeAdapter<Number>() {
+    private static final TypeAdapter<Boolean> NULL_ADOPTER_BOOLEAN = new TypeAdapter<Boolean>() {
+
+		@Override
+		public void write(JsonWriter out, Boolean value) throws IOException {
+			out.value(value);
+		}
+
+		@Override
+		public Boolean read(JsonReader in) throws IOException {
+			JsonToken token = in.peek();
+			if(token == JsonToken.NULL) {
+				in.nextNull();
+				return false;
+			} else if(token == JsonToken.BOOLEAN) {
+				return in.nextBoolean();
+			} else {
+				throw new JsonSyntaxException(token+" is not valid value for Boolean!");
+			}
+		}
+    	
+    };
+    private static final TypeAdapter<Number> NULL_ADOPTER_NUMBER = new TypeAdapter<Number>() {
 
 		@Override
 		public void write(JsonWriter out, Number value) throws IOException {
@@ -93,7 +115,7 @@ public abstract class Database<T> {
     	
     };
     
-    private static final TypeAdapter<Float> NULL_ADAPTER_FLOAT = new TypeAdapter<Float>() {
+    private static final TypeAdapter<Float> NULL_ADOPTER_FLOAT = new TypeAdapter<Float>() {
 
 		@Override
 		public void write(JsonWriter out, Float value) throws IOException {
@@ -125,11 +147,12 @@ public abstract class Database<T> {
             .enableComplexMapKeySerialization()
             .serializeNulls()
             .setPrettyPrinting()
-            .registerTypeAdapterFactory(TypeAdapters.newFactory(String.class, NULL_ADAPTER_STRING))
-            .registerTypeAdapterFactory(TypeAdapters.newFactory(int.class, Integer.class, NULL_ADAPTER_NUMBER))
-            .registerTypeAdapterFactory(TypeAdapters.newFactory(long.class, Long.class, NULL_ADAPTER_NUMBER))
-            .registerTypeAdapterFactory(TypeAdapters.newFactory(float.class, Float.class, NULL_ADAPTER_FLOAT))
-            .registerTypeAdapterFactory(TypeAdapters.newFactory(double.class, Double.class, NULL_ADAPTER_NUMBER))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(String.class, NULL_ADOPTER_STRING))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(boolean.class, Boolean.class, NULL_ADOPTER_BOOLEAN))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(int.class, Integer.class, NULL_ADOPTER_NUMBER))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(long.class, Long.class, NULL_ADOPTER_NUMBER))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(float.class, Float.class, NULL_ADOPTER_FLOAT))
+            .registerTypeAdapterFactory(TypeAdapters.newFactory(double.class, Double.class, NULL_ADOPTER_NUMBER))
             .registerTypeAdapter(Location.class, new LocationSerializer())
             .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())

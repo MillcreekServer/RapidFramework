@@ -47,6 +47,7 @@ public final class PluginLanguage implements PluginProcedure {
 
     private PluginBase base;
 
+    private String command = null;
     private Queue<Double> doub = new LinkedList<Double>();
     private Queue<Integer> integer = new LinkedList<Integer>();
     private Queue<Long> llong = new LinkedList<Long>();
@@ -167,7 +168,11 @@ public final class PluginLanguage implements PluginProcedure {
         base.getLogger().info("Added [" + i + "] new langauges to [" + locale + "] locale.");
     }
 
-    public void addDouble(double doub) {
+    public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public void addDouble(double doub) {
         this.doub.add(Double.valueOf(doub));
     }
 
@@ -279,6 +284,7 @@ public final class PluginLanguage implements PluginProcedure {
 
         replaceVariables(sender, str);
 
+        this.command = null;
         this.doub.clear();
         this.integer.clear();
         this.string.clear();
@@ -374,8 +380,11 @@ public final class PluginLanguage implements PluginProcedure {
 
                         str = leftStr + dbTypes + rightStr;
                         break;
+                    case "command":
+                    	str = leftStr + String.valueOf(command) + rightStr;
+                    	break;
                     default:
-                        str = leftStr + String.valueOf("[?]") + rightStr;
+                        str = leftStr + String.valueOf("?") + rightStr;
                         break;
                     }
                 }
@@ -393,8 +402,13 @@ public final class PluginLanguage implements PluginProcedure {
      * @author wysohn
      *
      */
-    public static interface Language {
+    public interface Language {
         public String[] getEngDefault();
+    }
+    
+    @FunctionalInterface
+    public interface PreParseHandle{
+        void onParse(PluginLanguage lang, Player player);
     }
 
     private class LanguageFileSession {

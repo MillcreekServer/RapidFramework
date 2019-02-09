@@ -17,8 +17,9 @@
 package io.github.wysohn.rapidframework.utils.locations;
 
 import io.github.wysohn.rapidframework.main.FakePlugin;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

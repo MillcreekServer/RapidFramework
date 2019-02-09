@@ -111,6 +111,11 @@ public final class PluginAPISupport implements PluginProcedure {
     public boolean isExist(String pluginName) {
         return base.getServer().getPluginManager().getPlugin(pluginName) != null;
     }
+    
+    public void assertAPI(String pluginName) {
+    	if(base.getServer().getPluginManager().getPlugin(pluginName) == null)
+    		throw new RuntimeException(pluginName+ " is not enabled!");
+    }
 
     /**
      *

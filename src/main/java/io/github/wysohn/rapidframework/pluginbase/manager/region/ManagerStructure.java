@@ -5,24 +5,24 @@ import io.github.wysohn.rapidframework.database.Database;
 import io.github.wysohn.rapidframework.database.serialize.Serializer;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
-import io.github.wysohn.rapidframework.pluginbase.constants.Area;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.Structure;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.filter.EntityFilter;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.interact.ClickableLeft;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.interact.ClickablePhysics;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.interact.ClickableRight;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.interact.ClickableRightShift;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.ticking.Tickable;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.trigger.EntityTrackingRegionTrigger;
-import io.github.wysohn.rapidframework.pluginbase.constants.structure.interfaces.trigger.RegionTrigger;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerPropertyEdit;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.CacheDeleteHandle;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.CacheUpdateHandle;
 import io.github.wysohn.rapidframework.pluginbase.manager.event.PlayerBlockLocationEvent;
+import io.github.wysohn.rapidframework.pluginbase.objects.Area;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.Structure;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.filter.EntityFilter;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.interact.ClickableLeft;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.interact.ClickablePhysics;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.interact.ClickableRight;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.interact.ClickableRightShift;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.ticking.Tickable;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.trigger.EntityTrackingRegionTrigger;
+import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.trigger.RegionTrigger;
 import io.github.wysohn.rapidframework.utils.items.InventoryUtil;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 import org.bukkit.Bukkit;
@@ -57,12 +57,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class ManagerStructure extends ManagerElementCaching<SimpleLocation, Structure> implements Listener {
-    private static final String STRUCTURE_TAG = ChatColor.AQUA+"[Structure]";
+public class ManagerStructure<PB extends PluginBase> extends ManagerElementCaching<PB, SimpleLocation, Structure>
+		implements Listener {
+	private static final String STRUCTURE_TAG = ChatColor.AQUA + "[Structure]";
 
-    private final String STRUCTUREPACKAGEPATH;
+	private final String STRUCTUREPACKAGEPATH;
 
-    private final Map<SimpleChunkLocation, Set<SimpleLocation>> structuresInChunk = new ConcurrentHashMap<>();
+	private final Map<SimpleChunkLocation, Set<SimpleLocation>> structuresInChunk = new ConcurrentHashMap<>();
 
     private final List<PermissionHandler> permissionHandlers = new ArrayList<>();
     private ItemDescriptionHandler itemDescriptionHandler;
@@ -73,7 +74,7 @@ public class ManagerStructure extends ManagerElementCaching<SimpleLocation, Stru
     private final Map<UUID, WeakReference<Entity>> entityTrackMap = new ConcurrentHashMap<>();
 
     private long tick = 0;
-    public ManagerStructure(PluginBase base, int loadPriority, String structureClassParentPath) {
+    public ManagerStructure(PB base, int loadPriority, String structureClassParentPath) {
         super(base, loadPriority);
         if(structureClassParentPath == null)
             throw new RuntimeException("structureClassParentPath must be set in order for ManagerStructure " +

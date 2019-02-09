@@ -1,15 +1,15 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
-import io.github.wysohn.rapidframework.pluginbase.constants.Area;
-import io.github.wysohn.rapidframework.pluginbase.constants.ClaimInfo;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.CacheDeleteHandle;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.CacheUpdateHandle;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.SaveHandle;
+import io.github.wysohn.rapidframework.pluginbase.objects.Area;
+import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,7 +20,7 @@ import org.bukkit.plugin.EventExecutor;
 
 import java.util.*;
 
-public abstract class ManagerRegion<T extends PluginBase, V extends ClaimInfo> extends ManagerElementCaching<Area, V>
+public abstract class ManagerRegion<PB extends PluginBase, V extends ClaimInfo> extends ManagerElementCaching<PB, Area, V>
         implements Listener {
     private final Map<SimpleChunkLocation, Set<Area>> regionsCache = new HashMap<>();
     private final Set<Class<? extends Event>> registeredEventTypes = new HashSet<>();
@@ -29,7 +29,7 @@ public abstract class ManagerRegion<T extends PluginBase, V extends ClaimInfo> e
         return false;
     };
 
-    public ManagerRegion(T base, int loadPriority) {
+    public ManagerRegion(PB base, int loadPriority) {
         super(base, loadPriority);
     }
 

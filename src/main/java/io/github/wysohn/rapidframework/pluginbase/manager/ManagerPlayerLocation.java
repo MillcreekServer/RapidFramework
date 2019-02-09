@@ -18,10 +18,10 @@ package io.github.wysohn.rapidframework.pluginbase.manager;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginManager;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
 import io.github.wysohn.rapidframework.pluginbase.manager.event.PlayerBlockLocationEvent;
 import io.github.wysohn.rapidframework.pluginbase.manager.event.PlayerChunkLocationEvent;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

@@ -108,6 +108,11 @@ public abstract class PluginManager<T extends PluginBase> implements TransferPai
         return null;
     }
     
+    /**
+     * Look {@link ConfigBase} for details
+     * @author wysohn
+     *
+     */
     protected class ManagerConfig extends ConfigBase{
 
     	/**

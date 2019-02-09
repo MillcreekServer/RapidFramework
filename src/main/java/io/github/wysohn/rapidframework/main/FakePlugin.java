@@ -77,7 +77,12 @@ public class FakePlugin extends PluginBase {
         }
     }
 
-    private static final String packageName = "io.github.wysohn.rapidframework.main.nms";
+    @Override
+	protected void postEnable() {
+
+	}
+
+	private static final String packageName = "io.github.wysohn.rapidframework.main.nms";
 
     private void initWorldNms(String version)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {

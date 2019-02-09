@@ -17,6 +17,8 @@
 package io.github.wysohn.rapidframework.pluginbase;
 
 import io.github.wysohn.rapidframework.database.tasks.DatabaseTransferTask;
+import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
+import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.PreParseHandle;
 import io.github.wysohn.rapidframework.pluginbase.api.JsonApiAPI;
 import io.github.wysohn.rapidframework.pluginbase.api.JsonApiAPI.Message;
 import io.github.wysohn.rapidframework.pluginbase.commands.SubCommand;
@@ -28,6 +30,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
@@ -74,12 +77,12 @@ public final class PluginCommandExecutor implements PluginProcedure {
         addCommand(SubCommand.Builder.forCommand("reload", base, 0)
                 .withPermission(adminPermission)
                 .withDescription(DefaultLanguages.Command_Reload_Description)
-                .withUsage(DefaultLanguages.Command_Reload_Usage)
+                .addUsage(DefaultLanguages.Command_Reload_Usage)
                 .actOnPlayer(((sender, args) -> {
                     base.reloadPluginProcedures();
                     base.getLogger().info("Plugin is reloaded.");
                     return true;
-                }), true)
+                }))
                 .withColor(ChatColor.LIGHT_PURPLE)
                 .create());
         
@@ -189,7 +192,10 @@ public final class PluginCommandExecutor implements PluginProcedure {
             ChatColor color = ChatColor.GOLD;
             color = c.getCommandColor();
 
-            String desc = base.lang.parseFirstString(sender, c.getDescription());
+            SimpleEntry<Language, PreParseHandle> descPair = c.getDescription();
+            descPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+            String desc = base.lang.parseFirstString(sender, descPair.getKey());
+            
             base.lang.addString(label);
             base.lang.addString(color + c.toString());
             base.lang.addString(desc);
@@ -206,9 +212,13 @@ public final class PluginCommandExecutor implements PluginProcedure {
                     base.lang.addString(builderAliases.toString());
                     builder.append(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Aliases) + "\n");
 
-                    for (PluginLanguage.Language lang : c.getUsage())
+                    for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
+                    	Language lang = langPair.getKey();
+                    	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+                    	base.lang.setCommand("/"+mainCommand+" "+c.getName());
                     	Stream.of(base.lang.parseStrings(sender, lang))
                     		.forEach(str -> builder.append(str+"\n"));
+                    }
 
                     Message[] message = JsonApiAPI.MessageBuilder
                             .forMessage(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Description))
@@ -226,7 +236,9 @@ public final class PluginCommandExecutor implements PluginProcedure {
                     base.lang.addString(builder.toString());
                     base.sendMessage(sender, DefaultLanguages.Command_Format_Aliases);
 
-                    for (PluginLanguage.Language lang : c.getUsage()) {
+                    for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
+                    	Language lang = langPair.getKey();
+                    	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
                         String usage = base.lang.parseFirstString(sender, lang);
                         base.lang.addString(usage);
                         base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
@@ -234,7 +246,9 @@ public final class PluginCommandExecutor implements PluginProcedure {
                 }
             } else {
                 base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
-                for (PluginLanguage.Language lang : c.getUsage()) {
+                for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
+                	Language lang = langPair.getKey();
+                	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
                 	Stream.of(base.lang.parseStrings(sender, lang))
             			.forEach(str -> {
                             base.lang.addString(str);
@@ -295,7 +309,7 @@ public final class PluginCommandExecutor implements PluginProcedure {
             aliasMap.clear();
         }
 
-        public boolean dispatch(CommandSender arg0, String arg1) throws CommandException {
+        public boolean dispatch(CommandSender sender, String arg1) throws CommandException {
             String[] split = arg1.split(" ");
 
             String cmd = split[0];
@@ -313,61 +327,70 @@ public final class PluginCommandExecutor implements PluginProcedure {
             if (command != null) {
                 if (command.getArguments() != -1 && command.getArguments() != args.length) {
                     ChatColor color = command.getCommandColor();
-                    String desc = base.lang.parseFirstString(arg0, command.getDescription());
+                    SimpleEntry<Language, PreParseHandle> descPair = command.getDescription();
+                    descPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+                    String desc = base.lang.parseFirstString(sender, descPair.getKey());
                     base.lang.addString(mainCommand);
                     base.lang.addString(color + command.toString());
                     base.lang.addString(desc);
-                    base.sendMessage(arg0, DefaultLanguages.Command_Format_Description);
+                    base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
 
                     StringBuilder builder = new StringBuilder();
                     for (String alias : command.getAliases()) {
                         builder.append(" " + alias);
                     }
                     base.lang.addString(builder.toString());
-                    base.sendMessage(arg0, DefaultLanguages.Command_Format_Aliases);
+                    base.sendMessage(sender, DefaultLanguages.Command_Format_Aliases);
 
-                    for (PluginLanguage.Language lang : command.getUsage()) {
-                        String usage = base.lang.parseFirstString(arg0, lang);
+                    for (SimpleEntry<Language, PreParseHandle> langPair : command.getUsage()) {
+                    	Language lang = langPair.getKey();
+                    	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+                    	base.lang.setCommand("/"+mainCommand+" "+cmd);
+                        String usage = base.lang.parseFirstString(sender, lang);
                         base.lang.addString(usage);
-                        base.sendMessage(arg0, DefaultLanguages.Command_Format_Usage);
+                        base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
                     }
                     return true;
                 }
 
-                if (command.getPermission() != null && !arg0.hasPermission(adminPermission)
-                        && !arg0.hasPermission(command.getPermission())) {
-                    base.sendMessage(arg0, DefaultLanguages.General_NotEnoughPermission);
+                if (command.getPermission() != null && !sender.hasPermission(adminPermission)
+                        && !sender.hasPermission(command.getPermission())) {
+                    base.sendMessage(sender, DefaultLanguages.General_NotEnoughPermission);
                     return true;
                 }
 
-                boolean result = command.execute(arg0, cmd, args);
+                boolean result = command.execute(sender, cmd, args);
                 if (!result) {
                     ChatColor color = command.getCommandColor();
-                    String desc = base.lang.parseFirstString(arg0, command.getDescription());
+                    SimpleEntry<Language, PreParseHandle> descPair = command.getDescription();
+                    descPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+                    String desc = base.lang.parseFirstString(sender, descPair.getKey());
                     base.lang.addString(mainCommand);
                     base.lang.addString(color + command.toString());
                     base.lang.addString(desc);
-                    base.sendMessage(arg0, DefaultLanguages.Command_Format_Description);
+                    base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
 
                     StringBuilder builder = new StringBuilder();
                     for (String alias : command.getAliases()) {
                         builder.append(" " + alias);
                     }
                     base.lang.addString(builder.toString());
-                    base.sendMessage(arg0, DefaultLanguages.Command_Format_Aliases);
+                    base.sendMessage(sender, DefaultLanguages.Command_Format_Aliases);
 
-                    for (PluginLanguage.Language lang : command.getUsage()) {
-                        String usage = base.lang.parseFirstString(arg0, lang);
+                    for (SimpleEntry<Language, PreParseHandle> langPair : command.getUsage()) {
+                    	Language lang = langPair.getKey();
+                    	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+                        String usage = base.lang.parseFirstString(sender, lang);
                         base.lang.addString(usage);
-                        base.sendMessage(arg0, DefaultLanguages.Command_Format_Usage);
+                        base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
                     }
                 }
                 return true;
             } else if (cmd.equals("")) {
-                return dispatch(arg0, "help");
+                return dispatch(sender, "help");
             } else {
                 base.lang.addString(cmd);
-                base.sendMessage(arg0, DefaultLanguages.General_NoSuchCommand);
+                base.sendMessage(sender, DefaultLanguages.General_NoSuchCommand);
                 return true;
             }
         }

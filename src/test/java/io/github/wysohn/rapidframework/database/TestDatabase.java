@@ -20,8 +20,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Bukkit.class)
@@ -72,7 +72,8 @@ public class TestDatabase {
 				"  \"str\": \"test\",\n" + 
 				"  \"testInt\": -1,\n" + 
 				"  \"testLong\": -2,\n" + 
-				"  \"testDouble\": -3.0\n" + 
+				"  \"testDouble\": -3.0,\n" + 
+				"  \"testBool\": true\n" + 
 				"}", serialized);
 	}
 	
@@ -83,7 +84,8 @@ public class TestDatabase {
 				"  \"str\": \"test2\",\n" + 
 				"  \"testInt\": -4,\n" + 
 				"  \"testLong\": -5,\n" + 
-				"  \"testDouble\": -6.0\n" + 
+				"  \"testDouble\": -6.0,\n" + 
+				"  \"testBool\": true\n" + 
 				"}";
 		
 		DummyObject deserialized = db.deserialize(value, DummyObject.class);
@@ -92,6 +94,7 @@ public class TestDatabase {
 		assertEquals(-4, deserialized.testInt);
 		assertEquals(-5L, deserialized.testLong);
 		assertEquals(-6.0, deserialized.testDouble, 0.000001);
+		assertTrue(deserialized.testBool);
 	}
 	
 	@Test
@@ -101,7 +104,8 @@ public class TestDatabase {
 				"  \"str\": \"test2\",\n" + 
 				"  \"testInt\": null,\n" + 
 				"  \"testLong\": null,\n" + 
-				"  \"testDouble\": null\n" + 
+				"  \"testDouble\": null,\n" + 
+				"  \"testBool\": null\n" + 
 				"}";
 		
 		DummyObject deserialized = db.deserialize(value, DummyObject.class);
@@ -110,6 +114,7 @@ public class TestDatabase {
 		assertEquals(0, deserialized.testInt);
 		assertEquals(0, deserialized.testLong);
 		assertEquals(0.0, deserialized.testDouble, 0.000001);
+		assertFalse(deserialized.testBool);
 	}
 	
 	@Test
@@ -248,5 +253,6 @@ public class TestDatabase {
 		private int testInt = -1;
 		private long testLong = -2L;
 		private double testDouble = -3.0;
+		private boolean testBool = true;
 	}
 }

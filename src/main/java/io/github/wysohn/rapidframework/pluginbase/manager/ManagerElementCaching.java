@@ -14,13 +14,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.NamedElement>
-        extends PluginManager<PluginBase> {
+public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends ManagerElementCaching.NamedElement>
+        extends PluginManager<PB> {
     /*
      * Lock ordering should be cachedElements -> db if it has to be nested.
      */
@@ -38,13 +39,18 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
     private final Map<String, K> nameMap = new HashMap<>();
     private Database<V> db;
 
+    private boolean useNameMap = false;
     private boolean dbWriting = false;
 
-    public ManagerElementCaching(PluginBase base, int loadPriority) {
+    public ManagerElementCaching(PB base, int loadPriority) {
         super(base, loadPriority);
     }
 
-    @Override
+    public void setUseNameMap(boolean useNameMap) {
+		this.useNameMap = useNameMap;
+	}
+
+	@Override
     protected void onDisable() throws Exception {
         saveTaskPool.shutdown();
 
@@ -269,7 +275,7 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
      * Get copy of keys. This only represent snapshot of keys at the moment when this method is invoked.
      * @return snapshot of key set.
      */
-    protected Set<K> getAllKeys() {
+    public Set<K> getAllKeys() {
         synchronized (cachedElements) {
             Set<K> newSet = new HashSet<>();
             newSet.addAll(cachedElements.keySet());
@@ -287,7 +293,7 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
         }
     }
 
-    protected void save(K key, V value) {
+    public void save(K key, V value) {
         save(key, value, null);
     }
 
@@ -324,7 +330,7 @@ public abstract class ManagerElementCaching<K, V extends ManagerElementCaching.N
         });
     }
 
-    protected void delete(final K key) {
+    public void delete(final K key) {
         dbWriting = true;
 
         synchronized (cachedElements) {

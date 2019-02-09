@@ -1,8 +1,8 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
-import io.github.wysohn.rapidframework.pluginbase.constants.ClaimInfo;
-import io.github.wysohn.rapidframework.pluginbase.constants.SimpleLocation;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 import org.bukkit.Location;
 

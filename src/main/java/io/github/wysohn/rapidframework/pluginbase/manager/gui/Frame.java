@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
-import io.github.wysohn.rapidframework.pluginbase.constants.gui.handlers.frame.FrameCloseEventHandler;
-import io.github.wysohn.rapidframework.pluginbase.constants.gui.handlers.frame.FrameOpenEventHandler;
+import io.github.wysohn.rapidframework.pluginbase.objects.gui.handlers.frame.FrameCloseEventHandler;
+import io.github.wysohn.rapidframework.pluginbase.objects.gui.handlers.frame.FrameOpenEventHandler;
 
 /**
  * Frames register itself automatically as constructor is called

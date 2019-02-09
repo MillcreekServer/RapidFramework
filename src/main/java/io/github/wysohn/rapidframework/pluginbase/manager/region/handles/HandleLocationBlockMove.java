@@ -1,9 +1,9 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
-import io.github.wysohn.rapidframework.pluginbase.constants.ClaimInfo;
 import io.github.wysohn.rapidframework.pluginbase.manager.event.PlayerBlockLocationEvent;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;

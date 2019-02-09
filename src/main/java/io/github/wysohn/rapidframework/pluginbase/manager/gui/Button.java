@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
-import io.github.wysohn.rapidframework.pluginbase.constants.gui.handlers.button.ButtonEventHandler;
+import io.github.wysohn.rapidframework.pluginbase.objects.gui.handlers.button.ButtonEventHandler;
 
 public class Button {
 	protected transient final PluginBase base;
