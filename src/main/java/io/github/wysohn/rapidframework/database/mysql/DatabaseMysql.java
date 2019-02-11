@@ -54,40 +54,15 @@ public class DatabaseMysql<T> extends Database<T> {
         this.dbName = dbName;
         this.tablename = tablename;
 
-		ds = new MysqlConnectionPoolDataSource();
-		ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
-		ds.setUser(userName);
-		ds.setPassword(password);
-		ds.setCharacterEncoding("UTF-8");
-		ds.setUseUnicode(true);
-        ds.setAutoReconnectForPools(true);
-        ds.setAutoReconnect(true);
-        ds.setAutoReconnectForConnectionPools(true);
-        ds.setUseSSL(false);
+		ds = createDataSource(address, dbName, userName, password);
+        pool = new MiniConnectionPoolManager(ds, 2, 0.5);
 
-        pool = new MiniConnectionPoolManager(ds, 2);
-
-        Connection conn = createConnection();
+        Connection conn = pool.getConnection();
         initTable(conn);
         conn.close();
     }
 
     private final String CREATEDATABASEQUARY = "" + "CREATE DATABASE IF NOT EXISTS %s";
-
-    private Connection createConnection() {
-        Connection conn = null;
-
-        try {
-            conn = pool.getConnection();
-        } catch (SQLException e) {
-            // e.printStackTrace();
-        } finally {
-            if (conn == null)
-                conn = pool.getValidConnection();
-        }
-
-        return conn;
-    }
 
     private final String CREATETABLEQUARY = "" + "CREATE TABLE IF NOT EXISTS %s (" + "" + KEY
             + " CHAR(128) PRIMARY KEY," + "" + VALUE + " MEDIUMBLOB" + ")";
@@ -106,7 +81,7 @@ public class DatabaseMysql<T> extends Database<T> {
         T result = def;
 
         try {
-            conn = createConnection();
+            conn = pool.getConnection();
 
             PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEY, tablename));
             pstmt.setString(1, key);
@@ -143,7 +118,7 @@ public class DatabaseMysql<T> extends Database<T> {
     public synchronized void save(String key, T value) {
         Connection conn = null;
         try {
-            conn = createConnection();
+            conn = pool.getConnection();
 
             if (value != null) {
                 String ser = serialize(value, type);
@@ -181,7 +156,7 @@ public class DatabaseMysql<T> extends Database<T> {
 
         Connection conn = null;
         try {
-            conn = createConnection();
+            conn = pool.getConnection();
 
             PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEYS, tablename));
             ResultSet rs = pstmt.executeQuery();
@@ -213,7 +188,7 @@ public class DatabaseMysql<T> extends Database<T> {
 
         Connection conn = null;
         try {
-            conn = createConnection();
+            conn = pool.getConnection();
 
             PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEYSWHERE, tablename));
             pstmt.setString(1, key);
@@ -251,7 +226,7 @@ public class DatabaseMysql<T> extends Database<T> {
     public void clear() {
         Connection conn = null;
         try {
-            conn = createConnection();
+            conn = pool.getConnection();
 
             PreparedStatement pstmt = conn.prepareStatement(String.format(DELETEALL, tablename));
             pstmt.executeLargeUpdate();
@@ -268,5 +243,20 @@ public class DatabaseMysql<T> extends Database<T> {
             }
         }
     }
+    
+	public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
+			String password) throws SQLException {
+		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+		ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
+		ds.setUser(userName);
+		ds.setPassword(password);
+		ds.setCharacterEncoding("UTF-8");
+		ds.setUseUnicode(true);
+		ds.setAutoReconnectForPools(true);
+		ds.setAutoReconnect(true);
+		ds.setAutoReconnectForConnectionPools(true);
+		ds.setUseSSL(false);
 
+		return ds;
+	}
 }

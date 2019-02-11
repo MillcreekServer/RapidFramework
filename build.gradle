@@ -27,7 +27,7 @@ dependencies {
     compile fileTree(dir: "libs", includes: ['*.jar'])
     compile "org.bukkit:bukkit:$bukkit_version-R0.1-SNAPSHOT"
 
-    testCompile 'junit:junit:4.+'
+    testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile 'org.powermock:powermock:1.5.6'
     testCompile 'org.powermock:powermock-module-junit4:1.5.6'

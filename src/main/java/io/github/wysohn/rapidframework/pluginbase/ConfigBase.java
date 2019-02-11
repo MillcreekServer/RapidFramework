@@ -81,12 +81,16 @@ abstract class ConfigBase implements PluginProcedure {
         if (!file.getParentFile().exists())
         	file.getParentFile().mkdirs();
 
+        Field[] fields = this.getClass().getFields();
+        if(fields.length < 1)
+        	return;
+        
         if (!file.exists())
             file.createNewFile();
 
         config.load(file);
-
-        validateAndLoad();
+        
+        validateAndLoad(fields);
     }
 
     @Override
@@ -110,14 +114,13 @@ abstract class ConfigBase implements PluginProcedure {
     /**
      * check all the config and add necessary/remove unnecessary configs.
      */
-    protected void validateAndLoad() {
+    protected void validateAndLoad(Field[] fields) {
         base.getLogger().info("Validating config ["+this.file.getName()+"]");
-
-        Field[] fields = this.getClass().getFields();
-
+        
         int addedNew = 0;
         // fill empty config
         for (Field field : fields) {
+        	field.setAccessible(true);
             try {
                 String configName = convertToConfigName(field.getName());
                 Object obj = field.get(this);
@@ -149,6 +152,7 @@ abstract class ConfigBase implements PluginProcedure {
                 String fieldName = converToFieldName(key);
 
                 Field field = this.getClass().getField(fieldName);
+                field.setAccessible(true);
 
                 field.set(this, config.get(key));
                 loaded++;
@@ -182,6 +186,7 @@ abstract class ConfigBase implements PluginProcedure {
 
         Field[] fields = this.getClass().getFields();
         for (Field field : fields) {
+        	field.setAccessible(true);
             try {
                 Object obj = field.get(this);
                 if (obj != null) {
@@ -218,11 +223,15 @@ abstract class ConfigBase implements PluginProcedure {
      * @throws InvalidConfigurationException
      */
     public void reload() throws IOException, InvalidConfigurationException {
+        Field[] fields = this.getClass().getFields();
+        if(fields.length < 1)
+        	return;
+        
         base.getLogger().info("Loading [" + file.getName() + "]...");
         config.load(file);
         base.getLogger().info("Complete!");
-
-        validateAndLoad();
+        
+        validateAndLoad(fields);
     }
 
     public ConfigurationSection getSection(String key){

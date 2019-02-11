@@ -80,7 +80,12 @@ public final class PluginCommandExecutor implements PluginProcedure {
                 .addUsage(DefaultLanguages.Command_Reload_Usage)
                 .actOnPlayer(((sender, args) -> {
                     base.reloadPluginProcedures();
-                    base.getLogger().info("Plugin is reloaded.");
+                    sender.sendMessage("Plugin is reloaded.");
+                    return true;
+                }))
+                .actOnConsole(((sender, args) -> {
+                    base.reloadPluginProcedures();
+                    sender.sendMessage("Plugin is reloaded.");
                     return true;
                 }))
                 .withColor(ChatColor.LIGHT_PURPLE)
@@ -170,6 +175,8 @@ public final class PluginCommandExecutor implements PluginProcedure {
             list.add(cmd);
         }
 
+        base.sendMessage(sender, DefaultLanguages.General_Line);
+        
         base.lang.addString(base.getDescription().getName());
         base.sendMessage(sender, DefaultLanguages.General_Header);
         sender.sendMessage("");
@@ -194,78 +201,61 @@ public final class PluginCommandExecutor implements PluginProcedure {
 
             SimpleEntry<Language, PreParseHandle> descPair = c.getDescription();
             descPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-            String desc = base.lang.parseFirstString(sender, descPair.getKey());
+            String descValue = base.lang.parseFirstString(sender, descPair.getKey());
             
+            //description
             base.lang.addString(label);
             base.lang.addString(color + c.toString());
-            base.lang.addString(desc);
-            if (base.APISupport.isHooked("JsonApi")) {
-                if (sender instanceof Player) {
-                    JsonApiAPI api = base.APISupport.getAPI("JsonApi");
+            base.lang.addString(descValue);
+            String description = base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Description);
+            
+            StringBuilder builder = new StringBuilder();
 
-                    StringBuilder builder = new StringBuilder();
+            //aliases
+            StringBuilder builderAliases = new StringBuilder();
+            for (String alias : c.getAliases()) {
+                builderAliases.append(" " + alias);
+            }
+            if(builderAliases.length() > 0) {
+                base.lang.addString(builderAliases.toString());
+                builder.append(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Aliases) + "\n");
+            }
 
-                    StringBuilder builderAliases = new StringBuilder();
-                    for (String alias : c.getAliases()) {
-                        builderAliases.append(" " + alias);
-                    }
-                    base.lang.addString(builderAliases.toString());
-                    builder.append(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Aliases) + "\n");
-
-                    for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
-                    	Language lang = langPair.getKey();
-                    	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                    	base.lang.setCommand("/"+mainCommand+" "+c.getName());
-                    	Stream.of(base.lang.parseStrings(sender, lang))
-                    		.forEach(str -> builder.append(str+"\n"));
-                    }
-
-                    Message[] message = JsonApiAPI.MessageBuilder
-                            .forMessage(base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Description))
-                            .withHoverShowText(builder.toString())
-                            .withClickRunCommand("/" + mainCommand + " " + c.toString() + " ")
-                            .build();
-                    api.send((Player) sender, message);
-                } else {
-                    base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
-
-                    StringBuilder builder = new StringBuilder();
-                    for (String alias : c.getAliases()) {
-                        builder.append(" " + alias);
-                    }
-                    base.lang.addString(builder.toString());
-                    base.sendMessage(sender, DefaultLanguages.Command_Format_Aliases);
-
-                    for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
-                    	Language lang = langPair.getKey();
-                    	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                        String usage = base.lang.parseFirstString(sender, lang);
-                        base.lang.addString(usage);
-                        base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
-                    }
-                }
+            //usages
+            for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
+            	Language lang = langPair.getKey();
+            	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
+            	base.lang.setCommand("/"+label+" "+c.getName());
+            	for(String parsedUsage : base.lang.parseStrings(sender, lang)) {
+            		base.lang.addString(parsedUsage);
+            		String usage = base.lang.parseFirstString(sender, DefaultLanguages.Command_Format_Usage);
+            		builder.append(usage+"\n");
+            	}
+            }
+            
+            if (sender instanceof Player && base.APISupport.isHooked("JsonApi")) {
+                JsonApiAPI api = base.APISupport.getAPI("JsonApi");
+                Message[] message = JsonApiAPI.MessageBuilder
+                        .forMessage(description)
+                        .withHoverShowText(builder.toString())
+                        .withClickRunCommand("/" + label + " " + c.toString() + " ")
+                        .build();
+                api.send((Player) sender, message);
             } else {
-                base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
-                for (SimpleEntry<Language, PreParseHandle> langPair : c.getUsage()) {
-                	Language lang = langPair.getKey();
-                	langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                	Stream.of(base.lang.parseStrings(sender, lang))
-            			.forEach(str -> {
-                            base.lang.addString(str);
-                            base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
-            			});
-                }
+                sender.sendMessage(description);
+                Stream.of(builder.toString().split("\n"))
+                	.forEach(msg -> sender.sendMessage(msg));
             }
         }
 
-        sender.sendMessage(ChatColor.LIGHT_PURPLE + "");
+        base.sendMessage(sender, DefaultLanguages.General_Line);
 
+        //page
         base.lang.addInteger(page + 1);
         base.lang.addInteger(outof);
         base.sendMessage(sender, DefaultLanguages.Command_Help_PageDescription);
 
-        base.lang.addString(mainCommand);
-        base.sendMessage(sender, DefaultLanguages.Command_Help_TypeHelpToSeeMore);
+        //page navigation help
         if (base.APISupport.isHooked("JsonApi") && sender instanceof Player) {
             JsonApiAPI api = base.APISupport.getAPI("JsonApi");
 
@@ -282,12 +272,12 @@ public final class PluginCommandExecutor implements PluginProcedure {
                     .withClickRunCommand(previousCmd)
                     .build();
             Message[] jsonHome = JsonApiAPI.MessageBuilder.forMessage(home)
-                    .withHoverShowText(previousCmd)
-                    .withClickRunCommand(previousCmd)
+                    .withHoverShowText(homeCmd)
+                    .withClickRunCommand(homeCmd)
                     .build();
             Message[] jsonNext = JsonApiAPI.MessageBuilder.forMessage(rightArrow)
-                    .withHoverShowText(previousCmd)
-                    .withClickRunCommand(previousCmd)
+                    .withHoverShowText(nextCmd)
+                    .withClickRunCommand(nextCmd)
                     .build();
 
             Stream<Message> stream = Stream.of();
@@ -296,6 +286,9 @@ public final class PluginCommandExecutor implements PluginProcedure {
             stream = Stream.concat(stream, Arrays.stream(jsonNext));
 
             api.send((Player) sender, stream.toArray(Message[]::new));
+        } else {
+            base.lang.addString(label);
+            base.sendMessage(sender, DefaultLanguages.Command_Help_TypeHelpToSeeMore);
         }
         sender.sendMessage(ChatColor.GRAY + "");
     }

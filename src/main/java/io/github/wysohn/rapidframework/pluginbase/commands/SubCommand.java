@@ -50,7 +50,7 @@ public abstract class SubCommand {
 
     protected String parent = null;
 
-    protected String[] aliases;
+    protected String[] aliases = new String[0];
     protected String permission;
     protected Language permissionDeniedMessage = DefaultLanguages.General_NotEnoughPermission;
     protected AbstractMap.SimpleEntry<Language, PreParseHandle> description;
@@ -302,7 +302,7 @@ public abstract class SubCommand {
 		public <T> T get(int index, T def) {
     		try {
     			if(index >= args.length)
-    				return null;
+    				return def;
     			
     			if(index < argumentMappers.size())
     				return (T) argumentMappers.get(index).apply(args[index]);

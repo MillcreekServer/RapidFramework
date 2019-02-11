@@ -27,7 +27,12 @@ public enum DefaultLanguages implements Language {
     General_NotDecimal("&c${string} is not a decimal!"),
     General_OutOfBound("&c${string} is out of bound!"),
     General_OutOfBound_RangeIs("&crange: &6${integer} &7< &fvalue &7< &6${integer}"),
-    General_Header("&7======== &6${string}&7 ========"),
+    General_Line("&6&m &6&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m "
+    		+ "&7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m "
+    		+ "&7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m "
+    		+ "&7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m "
+    		+ "&6&m &6&m "),
+    General_Header("  &8&L<< &6${string} &8&L>>"),
     General_InvalidString("&c${string} is too long or contains invalid character!"),
     General_InvalidType("&c${string} is not a valid type!"),
     General_PlayerNotOnline("&cPlayer ${string} is not found in server!"),
@@ -59,8 +64,8 @@ public enum DefaultLanguages implements Language {
     Economy_TookMoney("&aTook [&6${double}&a] from your account!"),
 
     Command_Format_Description("&6/${string} ${string} &5- &7${string}"),
-    Command_Format_Aliases("  &5Aliases&7: &a${string}"),
-    Command_Format_Usage("  &7${string}"),
+    Command_Format_Aliases("&8&m &f &5Aliases&7: &a${string}"),
+    Command_Format_Usage("&8&m &f &7${string}"),
 
     Command_Help_PageDescription("&6Page &7${integer}/${integer}"),
     Command_Help_TypeHelpToSeeMore("&6Type &6/${string} help &7<page> &6to see next pages."),
@@ -68,7 +73,7 @@ public enum DefaultLanguages implements Language {
     Command_Help_Usage("<page> for page to see."),
 
     Command_Reload_Description("reload config"),
-    Command_Reload_Usage("to reload config"),
+    Command_Reload_Usage("&6${command} &8- &7reload config"),
 
     Command_Import_Description("DB types: ${dbtype}"),
     Command_Import_Usage("<dbtype> to import data from <dbtype>."),

@@ -100,10 +100,10 @@ public class MiniConnectionPoolManager {
      * @param timeout
      *            the maximum time in seconds to wait for a free connection.
      */
-    public MiniConnectionPoolManager(ConnectionPoolDataSource dataSource, int maxConnections, int timeout) {
+    public MiniConnectionPoolManager(ConnectionPoolDataSource dataSource, int maxConnections, double timeout) {
         this.dataSource = dataSource;
         this.maxConnections = maxConnections;
-        this.timeoutMs = timeout * 1000L;
+        this.timeoutMs = (long) (timeout * 1000);
         try {
             logWriter = dataSource.getLogWriter();
         } catch (SQLException e) {
@@ -250,7 +250,7 @@ public class MiniConnectionPoolManager {
             if (triesWithoutDelay <= 0) {
                 triesWithoutDelay = 0;
                 try {
-                    Thread.sleep(250);
+                    Thread.sleep(250L);
                 } catch (InterruptedException e) {
                     throw new RuntimeException("Interrupted while waiting for a valid database connection.", e);
                 }

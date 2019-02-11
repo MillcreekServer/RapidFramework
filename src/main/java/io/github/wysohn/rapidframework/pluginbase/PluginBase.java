@@ -48,7 +48,8 @@ import java.util.stream.Stream;
  */
 public abstract class PluginBase extends JavaPlugin {
     final Map<Class<? extends PluginManager>, PluginManager> pluginManagers = new HashMap<Class<? extends PluginManager>, PluginManager>();
-
+    private Map<String, PluginManager> pluginManagersString = new HashMap<String, PluginManager>();
+    
     private PluginConfig config;
     public PluginLanguage lang;
     public PluginCommandExecutor commandExecutor;
@@ -426,7 +427,7 @@ public abstract class PluginBase extends JavaPlugin {
             // silently fail
         } finally {
             for (String msg : lang.parseStrings(player, language, localeSimplified))
-                sendMessage(player, lang.colorize(getPluginConfig().Plugin_Prefix) + " " + msg, 1000);
+                sendMessage(player, msg, 1000);
         }
     }
 
@@ -481,10 +482,15 @@ public abstract class PluginBase extends JavaPlugin {
 
     public void registerManager(PluginManager manager) {
         pluginManagers.put(manager.getClass(), manager);
+        pluginManagersString.put(manager.getClass().getSimpleName(), manager);
     }
 
     public <T extends PluginManager> T getManager(Class<? extends PluginManager> clazz) {
         return (T) pluginManagers.get(clazz);
+    }
+    
+    public <T extends PluginManager> T getManager(String managerClassSimpleName) {
+    	return (T) pluginManagersString.get(managerClassSimpleName);
     }
 
     public static void main(String[] ar) {

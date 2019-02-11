@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework.pluginbase.manager;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,7 +41,12 @@ public abstract class ManagerUsers<PB extends PluginBase, U extends ManagerUsers
 
 	@Override
 	protected CacheUpdateHandle<UUID, U> getUpdateHandle() {
-		return null;
+		return (key, original) -> {
+			original.player = Bukkit.getOfflinePlayer(key);
+			if(original.player.isOnline())
+				original.player = Bukkit.getPlayer(key);
+			return original;
+		};
 	}
 
 	@Override
@@ -53,8 +59,10 @@ public abstract class ManagerUsers<PB extends PluginBase, U extends ManagerUsers
 		U user = this.get(ev.getUniqueId());
 		if(user == null) {
 			user = createNewUser(ev.getUniqueId());
-			this.save(ev.getUniqueId(), user);
 		}
+		user.player = Bukkit.getOfflinePlayer(ev.getUniqueId());
+		user.lastKnownName = ev.getName();
+		this.save(ev.getUniqueId(), user);
 	}
 	
 	/**
@@ -75,11 +83,14 @@ public abstract class ManagerUsers<PB extends PluginBase, U extends ManagerUsers
 		}
 		
 		user.player = player;
+		user.lastKnownName = player.getName();
 		this.save(player.getUniqueId(), user);
 	}
 	
 	public static class User implements ManagerElementCaching.NamedElement, PermissionHolder{
 		transient OfflinePlayer player;
+		
+		String lastKnownName = "";
 		
 		private UUID parentUuid;
 
@@ -87,9 +98,13 @@ public abstract class ManagerUsers<PB extends PluginBase, U extends ManagerUsers
 			return player;
 		}
 
+		public String getLastKnownName() {
+			return lastKnownName;
+		}
+
 		@Override
 		public String getName() {
-			return player.getName();
+			return lastKnownName;
 		}
 
 		@Override

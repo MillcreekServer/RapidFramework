@@ -35,6 +35,9 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
         }
     });
 
+    private final Object cacheLock = new Object();
+    private final Object dbLock = new Object();
+    
     private final Map<K, V> cachedElements = new HashMap<>();
     private final Map<String, K> nameMap = new HashMap<>();
     private Database<V> db;
@@ -61,25 +64,27 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
 
     @Override
     protected void onEnable() throws Exception {
-        try {
-            if (base.getPluginConfig().MySql_Enabled) {
-                db = createMysqlDB();
-            }
-        } catch (Exception e) {
-            base.getLogger().warning(e.getMessage());
-            base.getLogger().warning("Failed to initialize Mysql. file database. -- " + getClass().getSimpleName());
-        } finally {
-            if (db == null) {
-                db = createFileDB();
-            }
-        }
-
         onReload();
     }
 
     @Override
     protected void onReload() throws Exception {
-        synchronized (cachedElements) {
+    	synchronized(dbLock) {
+            try {
+                if (base.getPluginConfig().MySql_Enabled) {
+                    db = createMysqlDB();
+                }
+            } catch (Exception e) {
+                base.getLogger().warning(e.getMessage());
+                base.getLogger().warning("Failed to initialize Mysql. file database. -- " + getClass().getSimpleName());
+            } finally {
+                if (db == null) {
+                    db = createFileDB();
+                }
+            }
+    	}
+        
+        synchronized (cacheLock) {
             cachedElements.clear();
         }
         updateCache();
@@ -140,7 +145,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
         Set<K> keys = new HashSet<>();
         Set<K> remove = new HashSet<>();
 
-        synchronized (cachedElements) {
+        synchronized (cacheLock) {
             for (K key : cachedElements.keySet()) {
                 if (!strKeys.contains(key.toString()))
                     remove.add(key);
@@ -175,7 +180,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
     private void updateCache(K key) {
         V newVal;
 
-        synchronized (db) {
+        synchronized (dbLock) {
             newVal = db.load(key.toString(), null);
         }
 
@@ -187,7 +192,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
     }
 
     protected void cache(K key, V newVal, CacheUpdateHandle<K, V> updateHndle, CacheDeleteHandle<K, V> deleteHandle) {
-        synchronized (cachedElements) {
+        synchronized (cacheLock) {
             if (newVal == null) {
                 V original = cachedElements.remove(key);
 
@@ -232,9 +237,9 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
      * @return
      */
     protected V get(K key, boolean lock) {
-        synchronized (cachedElements) {
+        synchronized (cacheLock) {
             if (lock) {
-                synchronized (db) {
+                synchronized (dbLock) {
                     return cachedElements.get(key);
                 }
             } else {
@@ -252,9 +257,9 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
      * @return
      */
     protected V get(String name, boolean lock) {
-        synchronized (cachedElements) {
+        synchronized (cacheLock) {
             if (lock) {
-                synchronized (db) {
+                synchronized (dbLock) {
                     K key = nameMap.get(name);
                     if (key == null)
                         return null;
@@ -276,7 +281,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
      * @return snapshot of key set.
      */
     public Set<K> getAllKeys() {
-        synchronized (cachedElements) {
+        synchronized (cacheLock) {
             Set<K> newSet = new HashSet<>();
             newSet.addAll(cachedElements.keySet());
             return newSet;
@@ -289,7 +294,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
      * @param key
      */
     public void check() {
-        synchronized (db) {
+        synchronized (dbLock) {
         }
     }
 
@@ -313,7 +318,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
         saveTaskPool.submit(new Runnable() {
             @Override
             public void run() {
-                synchronized (db) {
+                synchronized (dbLock) {
                     try {
                         db.save(key.toString(), value);
 
@@ -333,7 +338,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
     public void delete(final K key) {
         dbWriting = true;
 
-        synchronized (cachedElements) {
+        synchronized (cacheLock) {
             V original = cachedElements.get(key);
             if (original != null && original.getName() != null)
                 nameMap.remove(original.getName());
@@ -342,7 +347,7 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
         saveTaskPool.submit(new Runnable() {
             @Override
             public void run() {
-                synchronized (db) {
+                synchronized (dbLock) {
                     try {
                         db.save(key.toString(), null);
                     } catch (Exception e) {
