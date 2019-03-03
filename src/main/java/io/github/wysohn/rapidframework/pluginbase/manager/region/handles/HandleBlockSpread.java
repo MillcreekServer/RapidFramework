@@ -9,16 +9,16 @@ import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManager
 
 public class HandleBlockSpread extends DefaultHandle implements AbstractManagerRegion.EventHandle {
     public HandleBlockSpread(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(Event e) {
-        return null;
+	return null;
     }
 
     @Override
     public Location getLocation(Event e) {
-        return null;
+	return null;
     }
 }

@@ -11,24 +11,25 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 
 import java.util.Iterator;
 
-public class HandlePistonRetract extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockPistonRetractEvent> {
+public class HandlePistonRetract extends DefaultHandle
+	implements AbstractManagerRegion.EventHandle<BlockPistonRetractEvent> {
     public HandlePistonRetract(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(BlockPistonRetractEvent e) {
-        return null;
+	return null;
     }
 
     @Override
     public Location getLocation(BlockPistonRetractEvent e) {
-        for(Iterator<Block> iter = e.getBlocks().iterator(); iter.hasNext();){
-            Location location = iter.next().getLocation();
-            ClaimInfo info = getInfo(location);
-            if(info != null)
-                return location;
-        }
-        return null;
+	for (Iterator<Block> iter = e.getBlocks().iterator(); iter.hasNext();) {
+	    Location location = iter.next().getLocation();
+	    ClaimInfo info = getInfo(location);
+	    if (info != null)
+		return location;
+	}
+	return null;
     }
 }

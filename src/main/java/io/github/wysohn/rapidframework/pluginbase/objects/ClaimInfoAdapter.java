@@ -14,7 +14,7 @@ public abstract class ClaimInfoAdapter implements ClaimInfo {
     private Set<UUID> trusts = new HashSet<>();
 
     public ClaimInfoAdapter(String name) {
-        this.name = name;
+	this.name = name;
     }
 
     /*
@@ -24,19 +24,17 @@ public abstract class ClaimInfoAdapter implements ClaimInfo {
      */
     @Override
     public String getName() {
-        return name;
+	return name;
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see
-     * ClaimInfo#setArea(org.generallib.
-     * pluginbase.constants.Area)
+     * @see ClaimInfo#setArea(org.generallib. pluginbase.constants.Area)
      */
     @Override
     public void setArea(Area area) {
-        this.area = area;
+	this.area = area;
     }
 
     /*
@@ -46,14 +44,12 @@ public abstract class ClaimInfoAdapter implements ClaimInfo {
      */
     @Override
     public Area getArea() {
-        return area;
+	return area;
     }
-
-
 
     @Override
     public void setPublic(boolean bool) {
-        isPublic = bool;
+	isPublic = bool;
     }
 
     /*
@@ -63,7 +59,7 @@ public abstract class ClaimInfoAdapter implements ClaimInfo {
      */
     @Override
     public boolean isPublic() {
-        return isPublic;
+	return isPublic;
     }
 
     /*
@@ -73,18 +69,17 @@ public abstract class ClaimInfoAdapter implements ClaimInfo {
      */
     @Override
     public UUID getOwner() {
-        return owner;
+	return owner;
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see
-     * ClaimInfo#setOwner(java.util.UUID)
+     * @see ClaimInfo#setOwner(java.util.UUID)
      */
     @Override
     public void setOwner(UUID uuid) {
-        this.owner = uuid;
+	this.owner = uuid;
     }
 
     /*
@@ -94,6 +89,6 @@ public abstract class ClaimInfoAdapter implements ClaimInfo {
      */
     @Override
     public Set<UUID> getTrusts() {
-        return trusts;
+	return trusts;
     }
 }

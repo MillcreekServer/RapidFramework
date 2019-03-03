@@ -9,16 +9,16 @@ import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManager
 
 public class HandleCartBreak extends DefaultHandle implements AbstractManagerRegion.EventHandle<VehicleDestroyEvent> {
     public HandleCartBreak(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(VehicleDestroyEvent e) {
-        return e.getAttacker();
+	return e.getAttacker();
     }
 
     @Override
     public Location getLocation(VehicleDestroyEvent e) {
-        return e.getVehicle().getLocation();
+	return e.getVehicle().getLocation();
     }
 }

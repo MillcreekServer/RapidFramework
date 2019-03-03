@@ -26,33 +26,34 @@ import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 
 /**
  * Called when player equip an armor.
+ * 
  * @author wysohn
  *
  */
 public class PlayerEquipItemEvent extends PlayerEquipmentEvent implements Cancellable {
-	private static final HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
 
     public PlayerEquipItemEvent(Player who, ItemStack item) {
-		super(who, item);
-	}
-    
+	super(who, item);
+    }
+
     @Override
     public boolean isCancelled() {
-        return cancelled;
+	return cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-        cancelled = cancel;
+	cancelled = cancel;
     }
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
+	return handlers;
     }
 
     public static HandlerList getHandlerList() {
-        return handlers;
+	return handlers;
     }
 }

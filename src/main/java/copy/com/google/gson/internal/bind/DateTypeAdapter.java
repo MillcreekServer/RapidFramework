@@ -41,51 +41,51 @@ import java.util.Locale;
  */
 public final class DateTypeAdapter extends TypeAdapter<Date> {
     public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
-        @SuppressWarnings("unchecked") // we use a runtime check to make sure
-                                       // the 'T's equal
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-            return typeToken.getRawType() == Date.class ? (TypeAdapter<T>) new DateTypeAdapter() : null;
-        }
+	@SuppressWarnings("unchecked") // we use a runtime check to make sure
+				       // the 'T's equal
+	@Override
+	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+	    return typeToken.getRawType() == Date.class ? (TypeAdapter<T>) new DateTypeAdapter() : null;
+	}
     };
 
     private final DateFormat enUsFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT,
-            Locale.US);
+	    Locale.US);
     private final DateFormat localFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
 
     @Override
     public Date read(JsonReader in) throws IOException {
-        if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-        }
-        return deserializeToDate(in.nextString());
+	if (in.peek() == JsonToken.NULL) {
+	    in.nextNull();
+	    return null;
+	}
+	return deserializeToDate(in.nextString());
     }
 
     private synchronized Date deserializeToDate(String json) {
-        try {
-            return localFormat.parse(json);
-        } catch (ParseException ignored) {
-        }
-        try {
-            return enUsFormat.parse(json);
-        } catch (ParseException ignored) {
-        }
-        try {
-            return ISO8601Utils.parse(json, new ParsePosition(0));
-        } catch (ParseException e) {
-            throw new JsonSyntaxException(json, e);
-        }
+	try {
+	    return localFormat.parse(json);
+	} catch (ParseException ignored) {
+	}
+	try {
+	    return enUsFormat.parse(json);
+	} catch (ParseException ignored) {
+	}
+	try {
+	    return ISO8601Utils.parse(json, new ParsePosition(0));
+	} catch (ParseException e) {
+	    throw new JsonSyntaxException(json, e);
+	}
     }
 
     @Override
     public synchronized void write(JsonWriter out, Date value) throws IOException {
-        if (value == null) {
-            out.nullValue();
-            return;
-        }
-        String dateFormatAsString = enUsFormat.format(value);
-        out.value(dateFormatAsString);
+	if (value == null) {
+	    out.nullValue();
+	    return;
+	}
+	String dateFormatAsString = enUsFormat.format(value);
+	out.value(dateFormatAsString);
     }
 
 }

@@ -11,24 +11,25 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 
 import java.util.Iterator;
 
-public class HandlePistonExtend extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockPistonExtendEvent> {
+public class HandlePistonExtend extends DefaultHandle
+	implements AbstractManagerRegion.EventHandle<BlockPistonExtendEvent> {
     public HandlePistonExtend(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(BlockPistonExtendEvent e) {
-        return null;
+	return null;
     }
 
     @Override
     public Location getLocation(BlockPistonExtendEvent e) {
-        for(Iterator<Block> iter = e.getBlocks().iterator(); iter.hasNext();){
-            Location location = iter.next().getLocation();
-            ClaimInfo info = getInfo(location);
-            if(info != null)
-                return location;
-        }
-        return null;
+	for (Iterator<Block> iter = e.getBlocks().iterator(); iter.hasNext();) {
+	    Location location = iter.next().getLocation();
+	    ClaimInfo info = getInfo(location);
+	    if (info != null)
+		return location;
+	}
+	return null;
     }
 }

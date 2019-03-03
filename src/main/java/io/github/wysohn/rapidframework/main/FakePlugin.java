@@ -55,183 +55,178 @@ public class FakePlugin extends PluginBase {
     public static INmsParticleSender nmsParticleSender;
 
     public FakePlugin() {
-        super("rapidframework", "rapidframework.admin");
+	super("rapidframework", "rapidframework.admin");
     }
 
     @Override
-	protected PluginConfig initConfig() {
-		return new FakePluginConfig();
-	}
+    protected PluginConfig initConfig() {
+	return new FakePluginConfig();
+    }
 
-	@Override
+    @Override
     protected void preEnable() {
-        instance = this;
+	instance = this;
 
-        String packageName = getServer().getClass().getPackage().getName();
-        String version = packageName.substring(packageName.lastIndexOf('.') + 1);
+	String packageName = getServer().getClass().getPackage().getName();
+	String version = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-        try {
-            initWorldNms(version);
-            initEntityrNms(version);
-            initParticleNms(version);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            getLogger().severe("Version [" + version + "] is not supported by this plugin.");
-            this.setEnabled(false);
-        }
+	try {
+	    initWorldNms(version);
+	    initEntityrNms(version);
+	    initParticleNms(version);
+	} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+	    getLogger().severe("Version [" + version + "] is not supported by this plugin.");
+	    this.setEnabled(false);
+	}
     }
 
     @Override
-	protected void postEnable() {
+    protected void postEnable() {
 
-	}
+    }
 
-	@Override
-	protected void initLangauges(List<Language> languages) {
-		
-	}
+    @Override
+    protected void initLangauges(List<Language> languages) {
 
-	@Override
-	protected void initCommands(List<SubCommand> subcommands) {
-		
-	}
+    }
 
-	@Override
-	protected void initAPIs(Map<String, Class<? extends APISupport>> apisupports) {
-		
-	}
+    @Override
+    protected void initCommands(List<SubCommand> subcommands) {
 
-	@Override
-	protected void initManagers(List<PluginManager<? extends PluginBase>> pluginmanagers) {
-		
-	}
+    }
 
-	private static final String packageName = "io.github.wysohn.rapidframework.main.nms";
+    @Override
+    protected void initAPIs(Map<String, Class<? extends APISupport>> apisupports) {
+
+    }
+
+    @Override
+    protected void initManagers(List<PluginManager<? extends PluginBase>> pluginmanagers) {
+
+    }
+
+    private static final String packageName = "io.github.wysohn.rapidframework.main.nms";
 
     private void initWorldNms(String version)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Class<?> clazz = Class.forName(packageName + ".world." + version + "." + "NmsChunkManager");
-        nmsWorldManager = (INmsWorldManager) clazz.newInstance();
+	    throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	Class<?> clazz = Class.forName(packageName + ".world." + version + "." + "NmsChunkManager");
+	nmsWorldManager = (INmsWorldManager) clazz.newInstance();
     }
 
     private void initEntityrNms(String version)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Class<?> clazz = Class.forName(packageName + ".entity." + version + "." + "NmsEntityProvider");
-        nmsEntityManager = (INmsEntityManager) clazz.newInstance();
+	    throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	Class<?> clazz = Class.forName(packageName + ".entity." + version + "." + "NmsEntityProvider");
+	nmsEntityManager = (INmsEntityManager) clazz.newInstance();
     }
 
     private void initParticleNms(String version)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Class<?> clazz = Class.forName(packageName + ".particle." + version + "." + "NmsParticleSender");
-        nmsParticleSender = (INmsParticleSender) clazz.newInstance();
+	    throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	Class<?> clazz = Class.forName(packageName + ".particle." + version + "." + "NmsParticleSender");
+	nmsParticleSender = (INmsParticleSender) clazz.newInstance();
     }
 
     private static Set<Integer> ores = new HashSet<Integer>() {
-        {
-            for (Material mat : Material.values())
-                if (mat.name().endsWith("_ORE"))
-                    add(mat.getId());
-        }
+	{
+	    for (Material mat : Material.values())
+		if (mat.name().endsWith("_ORE"))
+		    add(mat.getId());
+	}
     };
     private static UUID temp = UUID.randomUUID();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player && !((Player) sender).isOp())
-            return true;
+	if (sender instanceof Player && !((Player) sender).isOp())
+	    return true;
 
-        if (!label.equals("rapidframework"))
-            return true;
+	if (!label.equals("rapidframework"))
+	    return true;
 
-        try {
-            if (args.length == 1) {
-                if (args[0].equalsIgnoreCase("glow")) {
-                    Player player = (Player) sender;
-                    int x = player.getLocation().getBlockX();
-                    int y = player.getLocation().getBlockY();
-                    int z = player.getLocation().getBlockZ();
+	try {
+	    if (args.length == 1) {
+		if (args[0].equalsIgnoreCase("glow")) {
+		    Player player = (Player) sender;
+		    int x = player.getLocation().getBlockX();
+		    int y = player.getLocation().getBlockY();
+		    int z = player.getLocation().getBlockZ();
 
-                    nmsParticleSender.showGlowingBlock(new Player[] { player }, -700, temp, x, y, z);
-                } else if (args[0].equalsIgnoreCase("del")) {
-                    Player player = (Player) sender;
+		    nmsParticleSender.showGlowingBlock(new Player[] { player }, -700, temp, x, y, z);
+		} else if (args[0].equalsIgnoreCase("del")) {
+		    Player player = (Player) sender;
 
-                    nmsEntityManager.destroyEntity(new Player[] { player }, new int[] { -700 });
-                } else if (args[0].equalsIgnoreCase("color")) {
-                    Player player = (Player) sender;
+		    nmsEntityManager.destroyEntity(new Player[] { player }, new int[] { -700 });
+		} else if (args[0].equalsIgnoreCase("color")) {
+		    Player player = (Player) sender;
 
-                    nmsEntityManager.sendTeamColor(new Player[] { player }, "temp", ChatColor.RED + "",
-                            new HashSet<String>() {
-                                {
-                                    add(temp.toString());
-                                }
-                            }, 2);
-                }
-            } else if (args.length == 3) {
-                if (args[0].equalsIgnoreCase("chunk")) {
-                    Player player = (Player) sender;
-                    int i = Integer.parseInt(args[1]);
-                    int j = Integer.parseInt(args[2]);
+		    nmsEntityManager.sendTeamColor(new Player[] { player }, "temp", ChatColor.RED + "",
+			    new HashSet<String>() {
+				{
+				    add(temp.toString());
+				}
+			    }, 2);
+		}
+	    } else if (args.length == 3) {
+		if (args[0].equalsIgnoreCase("chunk")) {
+		    Player player = (Player) sender;
+		    int i = Integer.parseInt(args[1]);
+		    int j = Integer.parseInt(args[2]);
 
-                    nmsWorldManager.regenerateChunk(player.getWorld(), i, j, new BlockFilter() {
-                        @Override
-                        public boolean allow(int blockID, byte data) {
-                            return ores.contains(blockID);
-                        }
-                    });
-                }
-            } else if (args.length == 4) {
-                if (args[0].equalsIgnoreCase("chunk")) {
-                    World world = Bukkit.getWorld(args[3]);
-                    int i = Integer.parseInt(args[1]);
-                    int j = Integer.parseInt(args[2]);
+		    nmsWorldManager.regenerateChunk(player.getWorld(), i, j, new BlockFilter() {
+			@Override
+			public boolean allow(int blockID, byte data) {
+			    return ores.contains(blockID);
+			}
+		    });
+		}
+	    } else if (args.length == 4) {
+		if (args[0].equalsIgnoreCase("chunk")) {
+		    World world = Bukkit.getWorld(args[3]);
+		    int i = Integer.parseInt(args[1]);
+		    int j = Integer.parseInt(args[2]);
 
-                    nmsWorldManager.regenerateChunk(world, i, j, new BlockFilter() {
-                        @Override
-                        public boolean allow(int blockID, byte data) {
-                            return ores.contains(blockID);
-                        }
-                    });
-                }
-            }/* else if(args.length == 2) {
-                if(args[0].equalsIgnoreCase("prop")) {
-                    if(args[1].equals("show")) {
-                        printProp(sender, 0, props);
-                    }else if(args[1].equals("start")) {
-                        ManagerPropertyEdit m = this.getManager(ManagerPropertyEdit.class);
-                        m.startEdit((Player) sender, DefaultLanguages.General_Header, props, new ConversationAbandonedListener() {
+		    nmsWorldManager.regenerateChunk(world, i, j, new BlockFilter() {
+			@Override
+			public boolean allow(int blockID, byte data) {
+			    return ores.contains(blockID);
+			}
+		    });
+		}
+	    } /*
+	       * else if(args.length == 2) { if(args[0].equalsIgnoreCase("prop")) {
+	       * if(args[1].equals("show")) { printProp(sender, 0, props); }else
+	       * if(args[1].equals("start")) { ManagerPropertyEdit m =
+	       * this.getManager(ManagerPropertyEdit.class); m.startEdit((Player) sender,
+	       * DefaultLanguages.General_Header, props, new ConversationAbandonedListener() {
+	       * 
+	       * @Override public void conversationAbandoned(ConversationAbandonedEvent arg0)
+	       * { printProp(sender, 0, (Map<String, Object>) arg0.getContext()
+	       * .getSessionData(ManagerPropertyEdit.PROPERTY_SESSIONDATANAME)); }
+	       * 
+	       * }); } } }
+	       */
+	} catch (Exception e) {
+	    sender.sendMessage(ChatColor.RED + e.getMessage());
+	    return true;
+	}
 
-                            @Override
-                            public void conversationAbandoned(ConversationAbandonedEvent arg0) {
-                                printProp(sender, 0, (Map<String, Object>) arg0.getContext()
-                                        .getSessionData(ManagerPropertyEdit.PROPERTY_SESSIONDATANAME));
-                            }
-
-                        });
-                    }
-                }
-            }*/
-        } catch (Exception e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-            return true;
-        }
-
-        return true;
+	return true;
     }
 
     private static void printProp(CommandSender sender, int level, Map<String, Object> map) {
-        for(Entry<String, Object> entry : map.entrySet()) {
-            if(entry.getValue() instanceof Map) {
-                StringBuilder builder = new StringBuilder();
-                for(int i = 0; i < level * 4; i++)
-                    builder.append(' ');
-                sender.sendMessage(builder.toString()+entry.getKey()+":");
-                printProp(sender, level + 1, (Map<String, Object>) entry.getValue());
-            }else {
-                StringBuilder builder = new StringBuilder();
-                for(int i = 0; i < level * 4; i++)
-                    builder.append(' ');
-                sender.sendMessage(builder.toString()+String.valueOf(entry));
-            }
-        }
+	for (Entry<String, Object> entry : map.entrySet()) {
+	    if (entry.getValue() instanceof Map) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < level * 4; i++)
+		    builder.append(' ');
+		sender.sendMessage(builder.toString() + entry.getKey() + ":");
+		printProp(sender, level + 1, (Map<String, Object>) entry.getValue());
+	    } else {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < level * 4; i++)
+		    builder.append(' ');
+		sender.sendMessage(builder.toString() + String.valueOf(entry));
+	    }
+	}
     }
 
 }

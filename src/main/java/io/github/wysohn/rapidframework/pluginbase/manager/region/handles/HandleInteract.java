@@ -9,19 +9,19 @@ import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManager
 
 public class HandleInteract extends DefaultHandle implements AbstractManagerRegion.EventHandle<PlayerInteractEvent> {
     public HandleInteract(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(PlayerInteractEvent e) {
-        return e.getPlayer();
+	return e.getPlayer();
     }
 
     @Override
     public Location getLocation(PlayerInteractEvent e) {
-        if(e.getClickedBlock() == null)
-            return null;
+	if (e.getClickedBlock() == null)
+	    return null;
 
-        return e.getClickedBlock().getLocation();
+	return e.getClickedBlock().getLocation();
     }
 }

@@ -31,14 +31,14 @@ final class JsonScope {
     static final int EMPTY_ARRAY = 1;
 
     /**
-     * A array with at least one value requires a comma and newline before the
-     * next element.
+     * A array with at least one value requires a comma and newline before the next
+     * element.
      */
     static final int NONEMPTY_ARRAY = 2;
 
     /**
-     * An object with no name/value pairs requires no separators or newlines
-     * before it is closed.
+     * An object with no name/value pairs requires no separators or newlines before
+     * it is closed.
      */
     static final int EMPTY_OBJECT = 3;
 

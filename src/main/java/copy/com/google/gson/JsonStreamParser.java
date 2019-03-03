@@ -41,7 +41,7 @@ import java.util.NoSuchElementException;
  * JsonElement element;
  * synchronized (parser) { // synchronize on an object shared by threads
  *     if (parser.hasNext()) {
- *         element = parser.next();
+ * 	element = parser.next();
  *     }
  * }
  * </pre>
@@ -55,51 +55,47 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     private final Object lock;
 
     /**
-     * @param json
-     *            The string containing JSON elements concatenated to each
-     *            other.
+     * @param json The string containing JSON elements concatenated to each other.
      * @since 1.4
      */
     public JsonStreamParser(String json) {
-        this(new StringReader(json));
+	this(new StringReader(json));
     }
 
     /**
-     * @param reader
-     *            The data stream containing JSON elements concatenated to each
-     *            other.
+     * @param reader The data stream containing JSON elements concatenated to each
+     *               other.
      * @since 1.4
      */
     public JsonStreamParser(Reader reader) {
-        parser = new JsonReader(reader);
-        parser.setLenient(true);
-        lock = new Object();
+	parser = new JsonReader(reader);
+	parser.setLenient(true);
+	lock = new Object();
     }
 
     /**
-     * Returns the next available {@link JsonElement} on the reader. Null if
-     * none available.
+     * Returns the next available {@link JsonElement} on the reader. Null if none
+     * available.
      * 
-     * @return the next available {@link JsonElement} on the reader. Null if
-     *         none available.
-     * @throws JsonParseException
-     *             if the incoming stream is malformed JSON.
+     * @return the next available {@link JsonElement} on the reader. Null if none
+     *         available.
+     * @throws JsonParseException if the incoming stream is malformed JSON.
      * @since 1.4
      */
     public JsonElement next() throws JsonParseException {
-        if (!hasNext()) {
-            throw new NoSuchElementException();
-        }
+	if (!hasNext()) {
+	    throw new NoSuchElementException();
+	}
 
-        try {
-            return Streams.parse(parser);
-        } catch (StackOverflowError e) {
-            throw new JsonParseException("Failed parsing JSON source to Json", e);
-        } catch (OutOfMemoryError e) {
-            throw new JsonParseException("Failed parsing JSON source to Json", e);
-        } catch (JsonParseException e) {
-            throw e.getCause() instanceof EOFException ? new NoSuchElementException() : e;
-        }
+	try {
+	    return Streams.parse(parser);
+	} catch (StackOverflowError e) {
+	    throw new JsonParseException("Failed parsing JSON source to Json", e);
+	} catch (OutOfMemoryError e) {
+	    throw new JsonParseException("Failed parsing JSON source to Json", e);
+	} catch (JsonParseException e) {
+	    throw e.getCause() instanceof EOFException ? new NoSuchElementException() : e;
+	}
     }
 
     /**
@@ -111,24 +107,24 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
      * @since 1.4
      */
     public boolean hasNext() {
-        synchronized (lock) {
-            try {
-                return parser.peek() != JsonToken.END_DOCUMENT;
-            } catch (MalformedJsonException e) {
-                throw new JsonSyntaxException(e);
-            } catch (IOException e) {
-                throw new JsonIOException(e);
-            }
-        }
+	synchronized (lock) {
+	    try {
+		return parser.peek() != JsonToken.END_DOCUMENT;
+	    } catch (MalformedJsonException e) {
+		throw new JsonSyntaxException(e);
+	    } catch (IOException e) {
+		throw new JsonIOException(e);
+	    }
+	}
     }
 
     /**
-     * This optional {@link Iterator} method is not relevant for stream parsing
-     * and hence is not implemented.
+     * This optional {@link Iterator} method is not relevant for stream parsing and
+     * hence is not implemented.
      * 
      * @since 1.4
      */
     public void remove() {
-        throw new UnsupportedOperationException();
+	throw new UnsupportedOperationException();
     }
 }

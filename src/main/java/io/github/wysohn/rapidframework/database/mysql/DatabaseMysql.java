@@ -47,216 +47,217 @@ public class DatabaseMysql<T> extends Database<T> {
     private final MysqlConnectionPoolDataSource ds;
     private final MiniConnectionPoolManager pool;
 
-    public DatabaseMysql(Class<T> type, String address, String dbName, String tablename, String userName, String password)
-            throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        super(type, tablename);
+    public DatabaseMysql(Class<T> type, String address, String dbName, String tablename, String userName,
+	    String password)
+	    throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	super(type, tablename);
 
-        this.dbName = dbName;
-        this.tablename = tablename;
+	this.dbName = dbName;
+	this.tablename = tablename;
 
-		ds = createDataSource(address, dbName, userName, password);
-        pool = new MiniConnectionPoolManager(ds, 2, 0.5);
+	ds = createDataSource(address, dbName, userName, password);
+	pool = new MiniConnectionPoolManager(ds, 2, 0.5);
 
-        Connection conn = pool.getConnection();
-        initTable(conn);
-        conn.close();
+	Connection conn = pool.getConnection();
+	initTable(conn);
+	conn.close();
     }
 
     private final String CREATEDATABASEQUARY = "" + "CREATE DATABASE IF NOT EXISTS %s";
 
     private final String CREATETABLEQUARY = "" + "CREATE TABLE IF NOT EXISTS %s (" + "" + KEY
-            + " CHAR(128) PRIMARY KEY," + "" + VALUE + " MEDIUMBLOB" + ")";
+	    + " CHAR(128) PRIMARY KEY," + "" + VALUE + " MEDIUMBLOB" + ")";
 
     private void initTable(Connection conn) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement(String.format(CREATETABLEQUARY, tablename));
-        pstmt.executeUpdate();
-        pstmt.close();
+	PreparedStatement pstmt = conn.prepareStatement(String.format(CREATETABLEQUARY, tablename));
+	pstmt.executeUpdate();
+	pstmt.close();
     }
 
     private final String SELECTKEY = "" + "SELECT " + VALUE + " FROM %s WHERE " + KEY + " = ?";
 
     @Override
     public synchronized T load(String key, T def) {
-        Connection conn = null;
-        T result = def;
+	Connection conn = null;
+	T result = def;
 
-        try {
-            conn = pool.getConnection();
+	try {
+	    conn = pool.getConnection();
 
-            PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEY, tablename));
-            pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                InputStream input = rs.getBinaryStream(VALUE);
-                InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
-                BufferedReader br = new BufferedReader(isr);
+	    PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEY, tablename));
+	    pstmt.setString(1, key);
+	    ResultSet rs = pstmt.executeQuery();
+	    if (rs.next()) {
+		InputStream input = rs.getBinaryStream(VALUE);
+		InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
+		BufferedReader br = new BufferedReader(isr);
 
-                String ser = br.readLine();
-                result = (T) deserialize(ser, type);
-            }
-            pstmt.close();
+		String ser = br.readLine();
+		result = (T) deserialize(ser, type);
+	    }
+	    pstmt.close();
 
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	} catch (SQLException | IOException e) {
+	    e.printStackTrace();
+	} finally {
+	    try {
+		if (conn != null)
+		    conn.close();
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    }
+	}
 
-        return result;
+	return result;
     }
 
     private final String UPDATEQUARY = "INSERT INTO %s VALUES (" + "?," + "?" + ") " + "ON DUPLICATE KEY UPDATE " + ""
-            + VALUE + " = VALUES(" + VALUE + ")";
+	    + VALUE + " = VALUES(" + VALUE + ")";
     private final String DELETEQUARY = "DELETE FROM %s WHERE " + KEY + " = ?";
 
     @Override
     public synchronized void save(String key, T value) {
-        Connection conn = null;
-        try {
-            conn = pool.getConnection();
+	Connection conn = null;
+	try {
+	    conn = pool.getConnection();
 
-            if (value != null) {
-                String ser = serialize(value, type);
-                InputStream input = new ByteArrayInputStream(ser.getBytes(StandardCharsets.UTF_8));
+	    if (value != null) {
+		String ser = serialize(value, type);
+		InputStream input = new ByteArrayInputStream(ser.getBytes(StandardCharsets.UTF_8));
 
-                PreparedStatement pstmt = conn.prepareStatement(String.format(UPDATEQUARY, tablename));
-                pstmt.setString(1, key);
-                pstmt.setBinaryStream(2, input);
-                pstmt.executeUpdate();
-                pstmt.close();
-            } else {
-                PreparedStatement pstmt = conn.prepareStatement(String.format(DELETEQUARY, tablename));
-                pstmt.setString(1, key);
-                pstmt.executeUpdate();
-                pstmt.close();
-            }
+		PreparedStatement pstmt = conn.prepareStatement(String.format(UPDATEQUARY, tablename));
+		pstmt.setString(1, key);
+		pstmt.setBinaryStream(2, input);
+		pstmt.executeUpdate();
+		pstmt.close();
+	    } else {
+		PreparedStatement pstmt = conn.prepareStatement(String.format(DELETEQUARY, tablename));
+		pstmt.setString(1, key);
+		pstmt.executeUpdate();
+		pstmt.close();
+	    }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	} finally {
+	    try {
+		if (conn != null)
+		    conn.close();
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    }
+	}
     }
 
     private final String SELECTKEYS = "" + "SELECT " + KEY + " FROM %s";
 
     @Override
     public synchronized Set<String> getKeys() {
-        Set<String> keys = new HashSet<String>();
+	Set<String> keys = new HashSet<String>();
 
-        Connection conn = null;
-        try {
-            conn = pool.getConnection();
+	Connection conn = null;
+	try {
+	    conn = pool.getConnection();
 
-            PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEYS, tablename));
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                keys.add(rs.getString(KEY));
-            }
-            rs.close();
-            pstmt.close();
+	    PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEYS, tablename));
+	    ResultSet rs = pstmt.executeQuery();
+	    while (rs.next()) {
+		keys.add(rs.getString(KEY));
+	    }
+	    rs.close();
+	    pstmt.close();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	} finally {
+	    try {
+		if (conn != null)
+		    conn.close();
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    }
+	}
 
-        return keys;
+	return keys;
     }
 
     private final String SELECTKEYSWHERE = "" + "SELECT " + KEY + " FROM %s WHERE " + KEY + " = ?";
 
     @Override
     public synchronized boolean has(String key) {
-        boolean result = false;
+	boolean result = false;
 
-        Connection conn = null;
-        try {
-            conn = pool.getConnection();
+	Connection conn = null;
+	try {
+	    conn = pool.getConnection();
 
-            PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEYSWHERE, tablename));
-            pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
+	    PreparedStatement pstmt = conn.prepareStatement(String.format(SELECTKEYSWHERE, tablename));
+	    pstmt.setString(1, key);
+	    ResultSet rs = pstmt.executeQuery();
 
-            result = rs.next();
+	    result = rs.next();
 
-            rs.close();
-            pstmt.close();
-            return result;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	    rs.close();
+	    pstmt.close();
+	    return result;
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	} finally {
+	    try {
+		if (conn != null)
+		    conn.close();
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    }
+	}
 
-        return result;
+	return result;
     }
 
     @Override
     protected void finalize() throws Throwable {
-        if (pool != null)
-            pool.dispose();
-        super.finalize();
+	if (pool != null)
+	    pool.dispose();
+	super.finalize();
     }
 
     private final String DELETEALL = "" + "DELETE FROM %s";
 
     @Override
     public void clear() {
-        Connection conn = null;
-        try {
-            conn = pool.getConnection();
+	Connection conn = null;
+	try {
+	    conn = pool.getConnection();
 
-            PreparedStatement pstmt = conn.prepareStatement(String.format(DELETEALL, tablename));
-            pstmt.executeLargeUpdate();
+	    PreparedStatement pstmt = conn.prepareStatement(String.format(DELETEALL, tablename));
+	    pstmt.executeLargeUpdate();
 
-            pstmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-	public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
-			String password) throws SQLException {
-		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-		ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
-		ds.setUser(userName);
-		ds.setPassword(password);
-		ds.setCharacterEncoding("UTF-8");
-		ds.setUseUnicode(true);
-		ds.setAutoReconnectForPools(true);
-		ds.setAutoReconnect(true);
-		ds.setAutoReconnectForConnectionPools(true);
-		ds.setUseSSL(false);
-
-		return ds;
+	    pstmt.close();
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	} finally {
+	    try {
+		if (conn != null)
+		    conn.close();
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    }
 	}
+    }
+
+    public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
+	    String password) throws SQLException {
+	MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+	ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
+	ds.setUser(userName);
+	ds.setPassword(password);
+	ds.setCharacterEncoding("UTF-8");
+	ds.setUseUnicode(true);
+	ds.setAutoReconnectForPools(true);
+	ds.setAutoReconnect(true);
+	ds.setAutoReconnectForConnectionPools(true);
+	ds.setUseSSL(false);
+
+	return ds;
+    }
 }

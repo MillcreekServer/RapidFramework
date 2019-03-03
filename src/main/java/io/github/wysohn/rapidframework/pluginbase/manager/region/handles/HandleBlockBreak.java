@@ -9,16 +9,16 @@ import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManager
 
 public class HandleBlockBreak extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockBreakEvent> {
     public HandleBlockBreak(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(BlockBreakEvent e) {
-        return e.getPlayer();
+	return e.getPlayer();
     }
 
     @Override
     public Location getLocation(BlockBreakEvent e) {
-        return e.getBlock().getLocation();
+	return e.getBlock().getLocation();
     }
 }

@@ -7,33 +7,33 @@ import java.util.UUID;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.NamedElement;
 
 public class Permissions implements NamedElement {
-	private final UUID playerUuid;
-	private String playerName;
-	
-	private Set<String> permissions = new HashSet<>();
-	
-	public Permissions(UUID playerUuid) {
-		this.playerUuid = playerUuid;
-	}
+    private final UUID playerUuid;
+    private String playerName;
 
-	public UUID getPlayerUuid() {
-		return playerUuid;
-	}
+    private Set<String> permissions = new HashSet<>();
 
-	public String getPlayerName() {
-		return playerName;
-	}
+    public Permissions(UUID playerUuid) {
+	this.playerUuid = playerUuid;
+    }
 
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
+    public UUID getPlayerUuid() {
+	return playerUuid;
+    }
 
-	public Set<String> getPermissions() {
-		return permissions;
-	}
+    public String getPlayerName() {
+	return playerName;
+    }
 
-	@Override
-	public String getName() {
-		return playerName;
-	}
+    public void setPlayerName(String playerName) {
+	this.playerName = playerName;
+    }
+
+    public Set<String> getPermissions() {
+	return permissions;
+    }
+
+    @Override
+    public String getName() {
+	return playerName;
+    }
 }

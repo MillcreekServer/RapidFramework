@@ -41,34 +41,30 @@ public class JsonParseException extends RuntimeException {
      * exception, consider using {@link #JsonParseException(String, Throwable)}
      * instead.
      *
-     * @param msg
-     *            error message describing a possible cause of this exception.
+     * @param msg error message describing a possible cause of this exception.
      */
     public JsonParseException(String msg) {
-        super(msg);
+	super(msg);
     }
 
     /**
      * Creates exception with the specified message and cause.
      *
-     * @param msg
-     *            error message describing what happened.
-     * @param cause
-     *            root exception that caused this exception to be thrown.
+     * @param msg   error message describing what happened.
+     * @param cause root exception that caused this exception to be thrown.
      */
     public JsonParseException(String msg, Throwable cause) {
-        super(msg, cause);
+	super(msg, cause);
     }
 
     /**
      * Creates exception with the specified cause. Consider using
-     * {@link #JsonParseException(String, Throwable)} instead if you can
-     * describe what happened.
+     * {@link #JsonParseException(String, Throwable)} instead if you can describe
+     * what happened.
      *
-     * @param cause
-     *            root exception that caused this exception to be thrown.
+     * @param cause root exception that caused this exception to be thrown.
      */
     public JsonParseException(Throwable cause) {
-        super(cause);
+	super(cause);
     }
 }

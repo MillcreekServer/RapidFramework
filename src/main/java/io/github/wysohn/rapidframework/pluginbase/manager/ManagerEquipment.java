@@ -25,132 +25,133 @@ import io.github.wysohn.rapidframework.utils.items.InventoryUtil;
 
 public class ManagerEquipment extends PluginManager<PluginBase> implements Listener {
 
-	public ManagerEquipment(PluginBase base, int loadPriority) {
-		super(base, loadPriority);
-	}
+    public ManagerEquipment(PluginBase base, int loadPriority) {
+	super(base, loadPriority);
+    }
 
-	@Override
-	protected void onEnable() throws Exception {
-		
-	}
+    @Override
+    protected void onEnable() throws Exception {
 
-	@Override
-	protected void onDisable() throws Exception {
-		
-	}
+    }
 
-	@Override
-	protected void onReload() throws Exception {
-		
-	}
+    @Override
+    protected void onDisable() throws Exception {
 
-	/**
-	 * Shift click on item 
-	 * set by clicking slot with item on cursor
-	 * 
-	 * @param ev
-	 */
-	@EventHandler
-	public void onEquip(InventoryClickEvent ev) {
-		if(ev.getInventory().getType() != InventoryType.CRAFTING)
-			return;
-		
-		if (ev.isShiftClick()) {
-			int rawSlot = InventoryUtil.getRawSlotOfEquipment(ev.getCurrentItem());
-			ItemStack previousItem = ev.getView().getItem(rawSlot);
-			if (previousItem == null || previousItem.getType() == Material.AIR) {
-				if (ev.getWhoClicked() instanceof Player) {
-					ev.setCancelled(onEquip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
-				}
-			}
-		} else {
-			if (ev.getSlotType() != SlotType.ARMOR)
-				return;
+    }
 
-			if (!InventoryUtil.isEquipment(ev.getCursor()))
-				return;
+    @Override
+    protected void onReload() throws Exception {
 
-			if (ev.getRawSlot() != InventoryUtil.getRawSlotOfEquipment(ev.getCursor()))
-				return;
-			
-			if (ev.getWhoClicked() instanceof Player) {
-				ev.setCancelled(onEquip((Player) ev.getWhoClicked(), ev.getCursor()).isCancelled());
-			}
-		}
-	}
-	
-	/**
-	 * Drag item to slot
-	 * @param ev
-	 */
-	@EventHandler
-	public void onEquip(InventoryDragEvent ev) {
-		if(ev.getInventory().getType() != InventoryType.PLAYER)
-			return;
-		
-		if(!InventoryUtil.isEquipment(ev.getOldCursor()))
-			return;
-		
+    }
+
+    /**
+     * Shift click on item set by clicking slot with item on cursor
+     * 
+     * @param ev
+     */
+    @EventHandler
+    public void onEquip(InventoryClickEvent ev) {
+	if (ev.getInventory().getType() != InventoryType.CRAFTING)
+	    return;
+
+	if (ev.isShiftClick()) {
+	    int rawSlot = InventoryUtil.getRawSlotOfEquipment(ev.getCurrentItem());
+	    ItemStack previousItem = ev.getView().getItem(rawSlot);
+	    if (previousItem == null || previousItem.getType() == Material.AIR) {
 		if (ev.getWhoClicked() instanceof Player) {
-			ev.setCancelled(onEquip((Player) ev.getWhoClicked(), ev.getOldCursor()).isCancelled());
+		    ev.setCancelled(onEquip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
 		}
+	    }
+	} else {
+	    if (ev.getSlotType() != SlotType.ARMOR)
+		return;
+
+	    if (!InventoryUtil.isEquipment(ev.getCursor()))
+		return;
+
+	    if (ev.getRawSlot() != InventoryUtil.getRawSlotOfEquipment(ev.getCursor()))
+		return;
+
+	    if (ev.getWhoClicked() instanceof Player) {
+		ev.setCancelled(onEquip((Player) ev.getWhoClicked(), ev.getCursor()).isCancelled());
+	    }
 	}
-	
-	/**
-	 * Right click while item on hand
-	 * @param ev
-	 */
-	@EventHandler
-	public void onEquip(PlayerInteractEvent ev) {
-		if(ev.getAction() != Action.RIGHT_CLICK_AIR
-				&& ev.getAction() != Action.RIGHT_CLICK_BLOCK)
-			return;
-		
-		ItemStack IS = ev.getPlayer().getItemInHand();
-		if(IS != null && InventoryUtil.isEquipment(IS)) {
-			ev.setCancelled(onEquip(ev.getPlayer(), IS).isCancelled());
-		}
+    }
+
+    /**
+     * Drag item to slot
+     * 
+     * @param ev
+     */
+    @EventHandler
+    public void onEquip(InventoryDragEvent ev) {
+	if (ev.getInventory().getType() != InventoryType.PLAYER)
+	    return;
+
+	if (!InventoryUtil.isEquipment(ev.getOldCursor()))
+	    return;
+
+	if (ev.getWhoClicked() instanceof Player) {
+	    ev.setCancelled(onEquip((Player) ev.getWhoClicked(), ev.getOldCursor()).isCancelled());
 	}
-	
-	/**
-	 * Dispense item to player. Just cancel as player is not tracked.
-	 * @param ev
-	 */
-	@EventHandler
-	public void onEquip(BlockDispenseEvent ev) {
-		if(!InventoryUtil.isEquipment(ev.getItem()))
-			return;
-		
-		ev.setCancelled(true);
+    }
+
+    /**
+     * Right click while item on hand
+     * 
+     * @param ev
+     */
+    @EventHandler
+    public void onEquip(PlayerInteractEvent ev) {
+	if (ev.getAction() != Action.RIGHT_CLICK_AIR && ev.getAction() != Action.RIGHT_CLICK_BLOCK)
+	    return;
+
+	ItemStack IS = ev.getPlayer().getItemInHand();
+	if (IS != null && InventoryUtil.isEquipment(IS)) {
+	    ev.setCancelled(onEquip(ev.getPlayer(), IS).isCancelled());
 	}
-	
-	private PlayerEquipItemEvent onEquip(Player player, ItemStack item) {
-		PlayerEquipItemEvent peie = new PlayerEquipItemEvent(player, item);
-		Bukkit.getPluginManager().callEvent(peie);
-		return peie;
+    }
+
+    /**
+     * Dispense item to player. Just cancel as player is not tracked.
+     * 
+     * @param ev
+     */
+    @EventHandler
+    public void onEquip(BlockDispenseEvent ev) {
+	if (!InventoryUtil.isEquipment(ev.getItem()))
+	    return;
+
+	ev.setCancelled(true);
+    }
+
+    private PlayerEquipItemEvent onEquip(Player player, ItemStack item) {
+	PlayerEquipItemEvent peie = new PlayerEquipItemEvent(player, item);
+	Bukkit.getPluginManager().callEvent(peie);
+	return peie;
+    }
+
+    /**
+     * DROP_ONE_SLOT (when cursor is on armor and q is pressed) click on the item in
+     * armor slot
+     * 
+     * @param ev
+     */
+    @EventHandler
+    public void onUnequip(InventoryClickEvent ev) {
+	if (!(ev.getWhoClicked() instanceof Player))
+	    return;
+
+	if (ev.getAction() == InventoryAction.DROP_ONE_SLOT && ev.getSlotType() == SlotType.ARMOR) {
+	    ev.setCancelled(onUnequip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
+	} else if (ev.getSlotType() == SlotType.ARMOR && InventoryUtil.isEquipment(ev.getCurrentItem())) {
+	    ev.setCancelled(onUnequip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
 	}
-	
-	/**
-	 * DROP_ONE_SLOT (when cursor is on armor and q is pressed)
-	 * click on the item in armor slot
-	 * @param ev
-	 */
-	@EventHandler
-	public void onUnequip(InventoryClickEvent ev) {
-		if(!(ev.getWhoClicked() instanceof Player))
-			return;
-		
-		if (ev.getAction() == InventoryAction.DROP_ONE_SLOT && ev.getSlotType() == SlotType.ARMOR) {
-			ev.setCancelled(onUnequip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
-		} else if (ev.getSlotType() == SlotType.ARMOR
-				&& InventoryUtil.isEquipment(ev.getCurrentItem())) {
-			ev.setCancelled(onUnequip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
-		}
-	}
-	
-	private PlayerUnequipItemEvent onUnequip(Player player, ItemStack item) {
-		PlayerUnequipItemEvent puie = new PlayerUnequipItemEvent(player, item);
-		Bukkit.getPluginManager().callEvent(puie);
-		return puie;
-	}
+    }
+
+    private PlayerUnequipItemEvent onUnequip(Player player, ItemStack item) {
+	PlayerUnequipItemEvent puie = new PlayerUnequipItemEvent(player, item);
+	Bukkit.getPluginManager().callEvent(puie);
+	return puie;
+    }
 }

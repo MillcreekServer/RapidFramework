@@ -7,11 +7,11 @@ import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.manager.gui.Button;
 import io.github.wysohn.rapidframework.pluginbase.manager.gui.Frame;
 
-public class PageButton extends Button{
+public class PageButton extends Button {
 
-	public PageButton(PluginBase base, Frame parent) {
-		super(base, parent, new ItemStack(Material.BOOK_AND_QUILL, 1));
-		// TODO Auto-generated constructor stub
-	}
+    public PageButton(PluginBase base, Frame parent) {
+	super(base, parent, new ItemStack(Material.BOOK_AND_QUILL, 1));
+	// TODO Auto-generated constructor stub
+    }
 
 }

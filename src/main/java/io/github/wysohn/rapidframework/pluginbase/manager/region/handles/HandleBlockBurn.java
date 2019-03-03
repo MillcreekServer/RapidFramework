@@ -9,16 +9,16 @@ import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManager
 
 public class HandleBlockBurn extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockBurnEvent> {
     public HandleBlockBurn(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(BlockBurnEvent e) {
-        return null;
+	return null;
     }
 
     @Override
     public Location getLocation(BlockBurnEvent e) {
-        return e.getBlock().getLocation();
+	return e.getBlock().getLocation();
     }
 }

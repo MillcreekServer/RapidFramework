@@ -104,8 +104,8 @@ import java.lang.annotation.Target;
 public @interface JsonAdapter {
 
     /**
-     * Either a {@link TypeAdapter} or {@link TypeAdapterFactory}, or one or
-     * both of {@link JsonDeserializer} or {@link JsonSerializer}.
+     * Either a {@link TypeAdapter} or {@link TypeAdapterFactory}, or one or both of
+     * {@link JsonDeserializer} or {@link JsonSerializer}.
      */
     Class<?> value();
 

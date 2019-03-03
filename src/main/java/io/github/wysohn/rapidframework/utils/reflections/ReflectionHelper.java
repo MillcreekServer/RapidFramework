@@ -21,46 +21,46 @@ import java.lang.reflect.Modifier;
 
 public class ReflectionHelper {
     public static Object getPrivateField(Class<? extends Object> c, Object object, String fieldName) {
-        try {
-            Field field = c.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.get(object);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+	try {
+	    Field field = c.getDeclaredField(fieldName);
+	    field.setAccessible(true);
+	    return field.get(object);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	return null;
     }
 
     public static Object getPrivateField(Object object, String fieldName) {
-        return getPrivateField(object.getClass(), object, fieldName);
+	return getPrivateField(object.getClass(), object, fieldName);
     }
 
     public static void setPrivateField(Class<? extends Object> c, Object object, String fieldName, Object value) {
-        try {
-            Field field = c.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(object, value);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	try {
+	    Field field = c.getDeclaredField(fieldName);
+	    field.setAccessible(true);
+	    field.set(object, value);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     public static void setPrivateField(Object object, String fieldName, Object value) {
-        setPrivateField(object.getClass(), object, fieldName, value);
+	setPrivateField(object.getClass(), object, fieldName, value);
     }
 
     public static void setPrivateFinal(Object object, String fieldName, Object value) {
-        try {
-            Field field = object.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
+	try {
+	    Field field = object.getClass().getDeclaredField(fieldName);
+	    field.setAccessible(true);
 
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+	    Field modifiersField = Field.class.getDeclaredField("modifiers");
+	    modifiersField.setAccessible(true);
+	    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-            field.set(object, value);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    field.set(object, value);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 }

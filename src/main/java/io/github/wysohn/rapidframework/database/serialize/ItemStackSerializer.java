@@ -26,36 +26,37 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Type;
 
 public class ItemStackSerializer implements Serializer<ItemStack> {
-	private static final String KEY = "ItemStack";
+    private static final String KEY = "ItemStack";
+
     @Override
     public JsonElement serialize(ItemStack arg0, Type arg1, JsonSerializationContext arg2) {
-        String ser = null;
+	String ser = null;
 
-        try {
-            FileConfiguration fc = new Utf8YamlConfiguration();
-            fc.set(KEY, arg0);
-            ser = fc.saveToString();
-        } catch (Exception e) {
+	try {
+	    FileConfiguration fc = new Utf8YamlConfiguration();
+	    fc.set(KEY, arg0);
+	    ser = fc.saveToString();
+	} catch (Exception e) {
 
-        } finally {
-            if (ser == null)
-                ser = "";
-        }
+	} finally {
+	    if (ser == null)
+		ser = "";
+	}
 
-        return new JsonPrimitive(ser);
+	return new JsonPrimitive(ser);
     }
 
     @Override
     public ItemStack deserialize(JsonElement arg0, Type arg1, JsonDeserializationContext arg2)
-            throws JsonParseException {
-        FileConfiguration fc = new Utf8YamlConfiguration();
-        try {
-            fc.loadFromString(arg0.isJsonNull() ? "" : arg0.getAsString());
-            return fc.getItemStack(KEY, new ItemStack(Material.AIR));
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-            return null;
-        }
+	    throws JsonParseException {
+	FileConfiguration fc = new Utf8YamlConfiguration();
+	try {
+	    fc.loadFromString(arg0.isJsonNull() ? "" : arg0.getAsString());
+	    return fc.getItemStack(KEY, new ItemStack(Material.AIR));
+	} catch (InvalidConfigurationException e) {
+	    e.printStackTrace();
+	    return null;
+	}
     }
 
 }

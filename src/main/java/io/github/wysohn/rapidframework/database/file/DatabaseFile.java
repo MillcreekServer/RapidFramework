@@ -34,141 +34,139 @@ import java.util.Set;
  * @param <T>
  */
 public class DatabaseFile<T> extends Database<T> {
-    
+
     private File folder;
 
     public DatabaseFile(Class<T> type, File folder) {
-    	super(type, folder.getName());
-        this.folder = folder;
+	super(type, folder.getName());
+	this.folder = folder;
 
-        folder.mkdirs();
+	folder.mkdirs();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public synchronized T load(String key, T def) {
-        File file = new File(folder, key);
-        if (!file.exists())
-            return def;
+	File file = new File(folder, key);
+	if (!file.exists())
+	    return def;
 
-        FileInputStream fis = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
+	FileInputStream fis = null;
+	InputStreamReader isr = null;
+	BufferedReader br = null;
 
-        T result = def;
-        String ser = "";
-        try {
-            fis = new FileInputStream(file);
-            isr = new InputStreamReader(fis, Charset.forName("UTF-8").newDecoder());
-            br = new BufferedReader(isr);
+	T result = def;
+	String ser = "";
+	try {
+	    fis = new FileInputStream(file);
+	    isr = new InputStreamReader(fis, Charset.forName("UTF-8").newDecoder());
+	    br = new BufferedReader(isr);
 
-            String buff;
-            while ((buff = br.readLine()) != null)
-                ser += buff;
-            result = (T) deserialize(ser, type);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (br != null)
-                    br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+	    String buff;
+	    while ((buff = br.readLine()) != null)
+		ser += buff;
+	    result = (T) deserialize(ser, type);
+	} catch (IOException e) {
+	    e.printStackTrace();
+	} finally {
+	    try {
+		if (br != null)
+		    br.close();
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
 
-            try {
-                if (isr != null)
-                    isr.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+	    try {
+		if (isr != null)
+		    isr.close();
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
 
-            try {
-                if (fis != null)
-                    fis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+	    try {
+		if (fis != null)
+		    fis.close();
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
+	}
 
-        return result;
+	return result;
     }
 
     @Override
     public synchronized void save(String key, T value) {
-        File dest = new File(folder, key);
-        if (value == null) {
-            dest.delete();
-            return;
-        }
+	File dest = new File(folder, key);
+	if (value == null) {
+	    dest.delete();
+	    return;
+	}
 
-        String ser = serialize(value, type);
+	String ser = serialize(value, type);
 
-        try {
-            FileUtil.writeToFile(dest, ser);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	try {
+	    FileUtil.writeToFile(dest, ser);
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
 
-        /*
-         * File file = new File(folder, key+"_tmp");
-         * file.getParentFile().mkdirs();
-         * 
-         * FileChannel fc = null; FileOutputStream fos = null; BufferedWriter bw
-         * = null; FileLock lock = null;
-         * 
-         * try { fos = new FileOutputStream(file); fc = fos.getChannel(); bw =
-         * new BufferedWriter(new OutputStreamWriter(fos,
-         * Charset.forName("UTF-8").newEncoder()));
-         * 
-         * String ser = serialize(value, type);
-         * 
-         * lock = fc.lock(); bw.write(ser);
-         * 
-         * } catch (Exception e) { e.printStackTrace(); } finally { try {
-         * if(lock != null) lock.release(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         * 
-         * try { if(bw != null) bw.close(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         * 
-         * try { if(fc != null) fc.close(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         * 
-         * try { if(fos != null) fos.close(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         * 
-         * try { if(file != null && dest != null) Files.move(file.toPath(),
-         * dest.toPath(), StandardCopyOption.REPLACE_EXISTING); } catch
-         * (IOException e) { e.printStackTrace(); }
-         * 
-         * file.delete(); }
-         */
+	/*
+	 * File file = new File(folder, key+"_tmp"); file.getParentFile().mkdirs();
+	 * 
+	 * FileChannel fc = null; FileOutputStream fos = null; BufferedWriter bw = null;
+	 * FileLock lock = null;
+	 * 
+	 * try { fos = new FileOutputStream(file); fc = fos.getChannel(); bw = new
+	 * BufferedWriter(new OutputStreamWriter(fos,
+	 * Charset.forName("UTF-8").newEncoder()));
+	 * 
+	 * String ser = serialize(value, type);
+	 * 
+	 * lock = fc.lock(); bw.write(ser);
+	 * 
+	 * } catch (Exception e) { e.printStackTrace(); } finally { try { if(lock !=
+	 * null) lock.release(); } catch (IOException e) { e.printStackTrace(); }
+	 * 
+	 * try { if(bw != null) bw.close(); } catch (IOException e) {
+	 * e.printStackTrace(); }
+	 * 
+	 * try { if(fc != null) fc.close(); } catch (IOException e) {
+	 * e.printStackTrace(); }
+	 * 
+	 * try { if(fos != null) fos.close(); } catch (IOException e) {
+	 * e.printStackTrace(); }
+	 * 
+	 * try { if(file != null && dest != null) Files.move(file.toPath(),
+	 * dest.toPath(), StandardCopyOption.REPLACE_EXISTING); } catch (IOException e)
+	 * { e.printStackTrace(); }
+	 * 
+	 * file.delete(); }
+	 */
     }
 
     @Override
     public synchronized Set<String> getKeys() {
-        Set<String> keys = new HashSet<String>();
+	Set<String> keys = new HashSet<String>();
 
-        for (File file : folder.listFiles()) {
-            keys.add(file.getName());
-        }
+	for (File file : folder.listFiles()) {
+	    keys.add(file.getName());
+	}
 
-        return keys;
+	return keys;
     }
 
     @Override
     public synchronized boolean has(String key) {
-        for (String fileName : folder.list()) {
-            if (fileName.equalsIgnoreCase(key))
-                return true;
-        }
+	for (String fileName : folder.list()) {
+	    if (fileName.equalsIgnoreCase(key))
+		return true;
+	}
 
-        return false;
+	return false;
     }
 
     @Override
     public void clear() {
-        FileUtil.delete(folder);
+	FileUtil.delete(folder);
     }
 }

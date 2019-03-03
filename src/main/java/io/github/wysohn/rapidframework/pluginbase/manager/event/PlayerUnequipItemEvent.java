@@ -25,35 +25,36 @@ import org.bukkit.inventory.ItemStack;
 import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 
 /**
- * Called when a player unequip an armor.
- * This does not be called when player dies.
+ * Called when a player unequip an armor. This does not be called when player
+ * dies.
+ * 
  * @author wysohn
  *
  */
 public class PlayerUnequipItemEvent extends PlayerEquipmentEvent implements Cancellable {
-	private static final HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
 
     public PlayerUnequipItemEvent(Player who, ItemStack item) {
-		super(who, item);
-	}
-    
+	super(who, item);
+    }
+
     @Override
     public boolean isCancelled() {
-        return cancelled;
+	return cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-        cancelled = cancel;
+	cancelled = cancel;
     }
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
+	return handlers;
     }
 
     public static HandlerList getHandlerList() {
-        return handlers;
+	return handlers;
     }
 }

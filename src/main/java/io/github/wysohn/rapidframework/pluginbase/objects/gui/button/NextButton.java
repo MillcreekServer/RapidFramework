@@ -13,32 +13,31 @@ import io.github.wysohn.rapidframework.pluginbase.objects.gui.frame.PageNodeFram
 import io.github.wysohn.rapidframework.pluginbase.objects.gui.handlers.button.ButtonEventHandler;
 
 public class NextButton extends Button {
-	@SuppressWarnings("deprecation")
-	public NextButton(PluginBase base, Frame parent) {
-		super(base, parent, new ItemStack(Material.WOOL, 1, (short) 13));
+    @SuppressWarnings("deprecation")
+    public NextButton(PluginBase base, Frame parent) {
+	super(base, parent, new ItemStack(Material.WOOL, 1, (short) 13));
 
-		
-		ClickEventHandler handler = new ClickEventHandler();
-		this.setLeftClickEventHandler(handler);
-		this.setRightClickEventHandler(handler);
-		
-		this.updateDisplayName(ChatColor.RED+">");
+	ClickEventHandler handler = new ClickEventHandler();
+	this.setLeftClickEventHandler(handler);
+	this.setRightClickEventHandler(handler);
+
+	this.updateDisplayName(ChatColor.RED + ">");
+    }
+
+    private class ClickEventHandler implements ButtonEventHandler {
+	@Override
+	public void onClick(Player player) {
+	    Frame frame = getParent();
+	    if (!(frame instanceof PageNodeFrame))
+		return;
+
+	    PageNodeFrame pagedFrame = (PageNodeFrame) frame;
+	    PageNodeFrame nextFrame = pagedFrame.getNext();
+	    if (nextFrame != null) {
+		nextFrame.show(player);
+	    } else {
+		// UserInterfaceLib.sendMessage(player, Languages.Button_PagedFrame_OutOfBound);
+	    }
 	}
-	
-	private class ClickEventHandler implements ButtonEventHandler{
-		@Override
-		public void onClick(Player player) {
-			Frame frame = getParent();
-			if(!(frame instanceof PageNodeFrame))
-				return;
-			
-			PageNodeFrame pagedFrame = (PageNodeFrame) frame;
-			PageNodeFrame nextFrame = pagedFrame.getNext();
-			if(nextFrame != null){
-				nextFrame.show(player);
-			}else{
-				//UserInterfaceLib.sendMessage(player, Languages.Button_PagedFrame_OutOfBound);
-			}
-		}
-	}
+    }
 }

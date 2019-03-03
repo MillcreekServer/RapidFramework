@@ -32,40 +32,40 @@ import copy.com.google.gson.reflect.TypeToken;
  *     &#64;code
  *
  *     public class LowercaseEnumTypeAdapterFactory implements TypeAdapterFactory {
- *         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
- *             Class<T> rawType = (Class<T>) type.getRawType();
- *             if (!rawType.isEnum()) {
- *                 return null;
- *             }
+ * 	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+ * 	    Class<T> rawType = (Class<T>) type.getRawType();
+ * 	    if (!rawType.isEnum()) {
+ * 		return null;
+ * 	    }
  *
- *             final Map<String, T> lowercaseToConstant = new HashMap<String, T>();
- *             for (T constant : rawType.getEnumConstants()) {
- *                 lowercaseToConstant.put(toLowercase(constant), constant);
- *             }
+ * 	    final Map<String, T> lowercaseToConstant = new HashMap<String, T>();
+ * 	    for (T constant : rawType.getEnumConstants()) {
+ * 		lowercaseToConstant.put(toLowercase(constant), constant);
+ * 	    }
  *
- *             return new TypeAdapter<T>() {
- *                 public void write(JsonWriter out, T value) throws IOException {
- *                     if (value == null) {
- *                         out.nullValue();
- *                     } else {
- *                         out.value(toLowercase(value));
- *                     }
- *                 }
+ * 	    return new TypeAdapter<T>() {
+ * 		public void write(JsonWriter out, T value) throws IOException {
+ * 		    if (value == null) {
+ * 			out.nullValue();
+ * 		    } else {
+ * 			out.value(toLowercase(value));
+ * 		    }
+ * 		}
  *
- *                 public T read(JsonReader reader) throws IOException {
- *                     if (reader.peek() == JsonToken.NULL) {
- *                         reader.nextNull();
- *                         return null;
- *                     } else {
- *                         return lowercaseToConstant.get(reader.nextString());
- *                     }
- *                 }
- *             };
- *         }
+ * 		public T read(JsonReader reader) throws IOException {
+ * 		    if (reader.peek() == JsonToken.NULL) {
+ * 			reader.nextNull();
+ * 			return null;
+ * 		    } else {
+ * 			return lowercaseToConstant.get(reader.nextString());
+ * 		    }
+ * 		}
+ * 	    };
+ * 	}
  *
- *         private String toLowercase(Object o) {
- *             return o.toString().toLowerCase(Locale.US);
- *         }
+ * 	private String toLowercase(Object o) {
+ * 	    return o.toString().toLowerCase(Locale.US);
+ * 	}
  *     }
  * }
  * </pre>
@@ -120,51 +120,51 @@ import copy.com.google.gson.reflect.TypeToken;
  *     &#64;code
  *
  *     public class MultisetTypeAdapterFactory implements TypeAdapterFactory {
- *         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
- *             Type type = typeToken.getType();
- *             if (typeToken.getRawType() != Multiset.class || !(type instanceof ParameterizedType)) {
- *                 return null;
- *             }
+ * 	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+ * 	    Type type = typeToken.getType();
+ * 	    if (typeToken.getRawType() != Multiset.class || !(type instanceof ParameterizedType)) {
+ * 		return null;
+ * 	    }
  *
- *             Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
- *             TypeAdapter<?> elementAdapter = gson.getAdapter(TypeToken.get(elementType));
- *             return (TypeAdapter<T>) newMultisetAdapter(elementAdapter);
- *         }
+ * 	    Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+ * 	    TypeAdapter<?> elementAdapter = gson.getAdapter(TypeToken.get(elementType));
+ * 	    return (TypeAdapter<T>) newMultisetAdapter(elementAdapter);
+ * 	}
  *
- *         private <E> TypeAdapter<Multiset<E>> newMultisetAdapter(final TypeAdapter<E> elementAdapter) {
- *             return new TypeAdapter<Multiset<E>>() {
- *                 public void write(JsonWriter out, Multiset<E> value) throws IOException {
- *                     if (value == null) {
- *                         out.nullValue();
- *                         return;
- *                     }
+ * 	private <E> TypeAdapter<Multiset<E>> newMultisetAdapter(final TypeAdapter<E> elementAdapter) {
+ * 	    return new TypeAdapter<Multiset<E>>() {
+ * 		public void write(JsonWriter out, Multiset<E> value) throws IOException {
+ * 		    if (value == null) {
+ * 			out.nullValue();
+ * 			return;
+ * 		    }
  *
- *                     out.beginArray();
- *                     for (Multiset.Entry<E> entry : value.entrySet()) {
- *                         out.value(entry.getCount());
- *                         elementAdapter.write(out, entry.getElement());
- *                     }
- *                     out.endArray();
- *                 }
+ * 		    out.beginArray();
+ * 		    for (Multiset.Entry<E> entry : value.entrySet()) {
+ * 			out.value(entry.getCount());
+ * 			elementAdapter.write(out, entry.getElement());
+ * 		    }
+ * 		    out.endArray();
+ * 		}
  *
- *                 public Multiset<E> read(JsonReader in) throws IOException {
- *                     if (in.peek() == JsonToken.NULL) {
- *                         in.nextNull();
- *                         return null;
- *                     }
+ * 		public Multiset<E> read(JsonReader in) throws IOException {
+ * 		    if (in.peek() == JsonToken.NULL) {
+ * 			in.nextNull();
+ * 			return null;
+ * 		    }
  *
- *                     Multiset<E> result = LinkedHashMultiset.create();
- *                     in.beginArray();
- *                     while (in.hasNext()) {
- *                         int count = in.nextInt();
- *                         E element = elementAdapter.read(in);
- *                         result.add(element, count);
- *                     }
- *                     in.endArray();
- *                     return result;
- *                 }
- *             };
- *         }
+ * 		    Multiset<E> result = LinkedHashMultiset.create();
+ * 		    in.beginArray();
+ * 		    while (in.hasNext()) {
+ * 			int count = in.nextInt();
+ * 			E element = elementAdapter.read(in);
+ * 			result.add(element, count);
+ * 		    }
+ * 		    in.endArray();
+ * 		    return result;
+ * 		}
+ * 	    };
+ * 	}
  *     }
  * }
  * </pre>

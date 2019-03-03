@@ -30,21 +30,17 @@ import java.lang.reflect.Type;
 public interface JsonDeserializationContext {
 
     /**
-     * Invokes default deserialization on the specified object. It should never
-     * be invoked on the element received as a parameter of the
+     * Invokes default deserialization on the specified object. It should never be
+     * invoked on the element received as a parameter of the
      * {@link JsonDeserializer#deserialize(JsonElement, Type, JsonDeserializationContext)}
-     * method. Doing so will result in an infinite loop since Gson will in-turn
-     * call the custom deserializer again.
+     * method. Doing so will result in an infinite loop since Gson will in-turn call
+     * the custom deserializer again.
      *
-     * @param json
-     *            the parse tree.
-     * @param typeOfT
-     *            type of the expected return value.
-     * @param <T>
-     *            The type of the deserialized object.
+     * @param json    the parse tree.
+     * @param typeOfT type of the expected return value.
+     * @param         <T> The type of the deserialized object.
      * @return An object of type typeOfT.
-     * @throws JsonParseException
-     *             if the parse tree does not contain expected data.
+     * @throws JsonParseException if the parse tree does not contain expected data.
      */
     public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException;
 }

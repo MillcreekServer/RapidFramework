@@ -7,18 +7,19 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleProjectileHit extends DefaultHandle implements AbstractManagerRegion.EventHandle<ProjectileHitEvent> {
+public class HandleProjectileHit extends DefaultHandle
+	implements AbstractManagerRegion.EventHandle<ProjectileHitEvent> {
     public HandleProjectileHit(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(ProjectileHitEvent e) {
-        return (Entity) e.getEntity().getShooter();
+	return (Entity) e.getEntity().getShooter();
     }
 
     @Override
     public Location getLocation(ProjectileHitEvent e) {
-        return e.getEntity().getLocation();
+	return e.getEntity().getLocation();
     }
 }

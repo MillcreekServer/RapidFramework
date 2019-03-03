@@ -31,38 +31,38 @@ public class Utf8YamlConfiguration extends YamlConfiguration {
 
     @Override
     public void load(File file) throws IOException, InvalidConfigurationException {
-        Validate.notNull(file, "File cannot be null");
+	Validate.notNull(file, "File cannot be null");
 
-        StringBuilder builder = new StringBuilder();
-        try (FileInputStream fis = new FileInputStream(file);
-                InputStreamReader reader = new InputStreamReader(fis, UTF8_CHARSET);
-                BufferedReader input = new BufferedReader(reader);) {
+	StringBuilder builder = new StringBuilder();
+	try (FileInputStream fis = new FileInputStream(file);
+		InputStreamReader reader = new InputStreamReader(fis, UTF8_CHARSET);
+		BufferedReader input = new BufferedReader(reader);) {
 
-            String line;
-            while ((line = input.readLine()) != null) {
-                builder.append(line);
-                builder.append('\n');
-            }
-        }
+	    String line;
+	    while ((line = input.readLine()) != null) {
+		builder.append(line);
+		builder.append('\n');
+	    }
+	}
 
-        loadFromString(builder.toString());
+	loadFromString(builder.toString());
     }
 
     @Override
     public void save(File file) throws IOException {
-        Validate.notNull(file, "File cannot be null");
+	Validate.notNull(file, "File cannot be null");
 
-        Files.createParentDirs(file);
+	Files.createParentDirs(file);
 
-        String data = saveToString();
+	String data = saveToString();
 
-        FileOutputStream stream = new FileOutputStream(file);
-        OutputStreamWriter writer = new OutputStreamWriter(stream, UTF8_CHARSET);
+	FileOutputStream stream = new FileOutputStream(file);
+	OutputStreamWriter writer = new OutputStreamWriter(stream, UTF8_CHARSET);
 
-        try {
-            writer.write(data);
-        } finally {
-            writer.close();
-        }
+	try {
+	    writer.write(data);
+	} finally {
+	    writer.close();
+	}
     }
 }

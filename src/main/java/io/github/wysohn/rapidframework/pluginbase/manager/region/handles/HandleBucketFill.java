@@ -7,18 +7,19 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
 import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleBucketFill extends DefaultHandle implements AbstractManagerRegion.EventHandle<PlayerBucketFillEvent> {
+public class HandleBucketFill extends DefaultHandle
+	implements AbstractManagerRegion.EventHandle<PlayerBucketFillEvent> {
     public HandleBucketFill(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(PlayerBucketFillEvent e) {
-        return e.getPlayer();
+	return e.getPlayer();
     }
 
     @Override
     public Location getLocation(PlayerBucketFillEvent e) {
-        return e.getBlockClicked().getLocation();
+	return e.getBlockClicked().getLocation();
     }
 }

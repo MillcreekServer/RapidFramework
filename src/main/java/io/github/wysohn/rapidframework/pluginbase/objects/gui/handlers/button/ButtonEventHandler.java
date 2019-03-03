@@ -4,5 +4,5 @@ import org.bukkit.entity.Player;
 
 @FunctionalInterface
 public interface ButtonEventHandler {
-	void onClick(Player player);
+    void onClick(Player player);
 }

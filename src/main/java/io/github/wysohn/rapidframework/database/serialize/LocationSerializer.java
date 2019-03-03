@@ -26,44 +26,44 @@ import java.lang.reflect.Type;
 public class LocationSerializer implements Serializer<Location> {
     @Override
     public JsonElement serialize(Location arg0, Type arg1, JsonSerializationContext arg2) {
-        JsonObject json = new JsonObject();
+	JsonObject json = new JsonObject();
 
-        // return empty if world does not exists
-        if (arg0.getWorld() == null) {
-            return json;
-        }
+	// return empty if world does not exists
+	if (arg0.getWorld() == null) {
+	    return json;
+	}
 
-        json.add("world", arg2.serialize(arg0.getWorld().getName(), String.class));
-        json.add("x", arg2.serialize(arg0.getX(), Double.class));
-        json.add("y", arg2.serialize(arg0.getY(), Double.class));
-        json.add("z", arg2.serialize(arg0.getZ(), Double.class));
-        json.add("pitch", arg2.serialize(arg0.getPitch(), Float.class));
-        json.add("yaw", arg2.serialize(arg0.getYaw(), Float.class));
+	json.add("world", arg2.serialize(arg0.getWorld().getName(), String.class));
+	json.add("x", arg2.serialize(arg0.getX(), Double.class));
+	json.add("y", arg2.serialize(arg0.getY(), Double.class));
+	json.add("z", arg2.serialize(arg0.getZ(), Double.class));
+	json.add("pitch", arg2.serialize(arg0.getPitch(), Float.class));
+	json.add("yaw", arg2.serialize(arg0.getYaw(), Float.class));
 
-        return json;
+	return json;
     }
 
     @Override
     public Location deserialize(JsonElement arg0, Type arg1, JsonDeserializationContext arg2)
-            throws JsonParseException {
-        JsonObject json = (JsonObject) arg0;
+	    throws JsonParseException {
+	JsonObject json = (JsonObject) arg0;
 
-        JsonElement worldElem = json.get("world");
-        if (worldElem == null)
-            return null;
+	JsonElement worldElem = json.get("world");
+	if (worldElem == null)
+	    return null;
 
-		String worldName = worldElem.getAsString();
-		World world = Bukkit.getWorld(worldName);
-		if (world == null)
-			return null;
+	String worldName = worldElem.getAsString();
+	World world = Bukkit.getWorld(worldName);
+	if (world == null)
+	    return null;
 
-		double x = json.get("x").getAsDouble();
-		double y = json.get("y").getAsDouble();
-		double z = json.get("z").getAsDouble();
-		float pitch = arg2.deserialize(json.has("pitch") ? json.get("pitch") : new JsonPrimitive(0.0f), Float.class);
-		float yaw = arg2.deserialize(json.has("yaw") ? json.get("yaw") : new JsonPrimitive(0.0f), Float.class);
+	double x = json.get("x").getAsDouble();
+	double y = json.get("y").getAsDouble();
+	double z = json.get("z").getAsDouble();
+	float pitch = arg2.deserialize(json.has("pitch") ? json.get("pitch") : new JsonPrimitive(0.0f), Float.class);
+	float yaw = arg2.deserialize(json.has("yaw") ? json.get("yaw") : new JsonPrimitive(0.0f), Float.class);
 
-		return new Location(world, x, y, z, pitch, yaw);
+	return new Location(world, x, y, z, pitch, yaw);
     }
 
 }

@@ -30,91 +30,89 @@ public abstract class FileSerialize {
     protected Utf8YamlConfiguration db;
 
     /**
-     * @param folder
-     *            folder
-     * @param fileName
-     *            fileName
+     * @param folder   folder
+     * @param fileName fileName
      * @throws FileSerializeException
      */
     public FileSerialize(File folder, String fileName) throws FileSerializeException {
-        if (!folder.exists())
-            folder.mkdirs();
+	if (!folder.exists())
+	    folder.mkdirs();
 
-        dbPath = new File(folder, fileName);
-        if (!dbPath.exists())
-            try {
-                Bukkit.getLogger().info("Creating file " + fileName);
-                dbPath.createNewFile();
-            } catch (IOException e) {
-                Bukkit.getLogger().warning("Failed to create file " + fileName);
-                throw new FileSerializeException("Failed to create file " + fileName);
-            }
+	dbPath = new File(folder, fileName);
+	if (!dbPath.exists())
+	    try {
+		Bukkit.getLogger().info("Creating file " + fileName);
+		dbPath.createNewFile();
+	    } catch (IOException e) {
+		Bukkit.getLogger().warning("Failed to create file " + fileName);
+		throw new FileSerializeException("Failed to create file " + fileName);
+	    }
 
-        db = new Utf8YamlConfiguration();
-        try {
-            db.load(dbPath);
-        } catch (IOException | InvalidConfigurationException e) {
-            Bukkit.getLogger().warning("Failed to load " + fileName);
-            e.printStackTrace();
-            throw new FileSerializeException("Failed to load " + fileName);
-        }
+	db = new Utf8YamlConfiguration();
+	try {
+	    db.load(dbPath);
+	} catch (IOException | InvalidConfigurationException e) {
+	    Bukkit.getLogger().warning("Failed to load " + fileName);
+	    e.printStackTrace();
+	    throw new FileSerializeException("Failed to load " + fileName);
+	}
 
-        if (db == null) {
-            Bukkit.getLogger().warning("Failed to load " + fileName);
-            throw new FileSerializeException("Failed to load " + fileName);
-        }
+	if (db == null) {
+	    Bukkit.getLogger().warning("Failed to load " + fileName);
+	    throw new FileSerializeException("Failed to load " + fileName);
+	}
 
     }
 
     protected boolean deleteFile() {
-        db = null;
-        return dbPath.delete();
+	db = null;
+	return dbPath.delete();
     }
 
     protected void clearAll() throws FileSerializeException {
-        // Bukkit.getLogger().info(db.getValues(false).size()+" is size.");
-        for (Map.Entry<String, Object> entry : db.getValues(false).entrySet()) {
-            db.set(entry.getKey(), null);
-            // Bukkit.getLogger().info(entry.getKey()+" cleared.");
-        }
+	// Bukkit.getLogger().info(db.getValues(false).size()+" is size.");
+	for (Map.Entry<String, Object> entry : db.getValues(false).entrySet()) {
+	    db.set(entry.getKey(), null);
+	    // Bukkit.getLogger().info(entry.getKey()+" cleared.");
+	}
     }
 
     protected void saveAll() throws FileSerializeException {
-        try {
-            db.save(dbPath);
-        } catch (IOException e) {
-            Bukkit.getLogger().warning("saveAll() failed");
-            throw new FileSerializeException("saveAll() failed");
-        }
+	try {
+	    db.save(dbPath);
+	} catch (IOException e) {
+	    Bukkit.getLogger().warning("saveAll() failed");
+	    throw new FileSerializeException("saveAll() failed");
+	}
     }
 
     protected void save(String key, Object val) throws FileSerializeException {
-        Validate.notNull(key);
+	Validate.notNull(key);
 
-        db.set(key, val);
+	db.set(key, val);
 
-        try {
-            db.save(dbPath);
-        } catch (IOException e) {
-            Bukkit.getLogger().warning("saveAll() failed");
-            throw new FileSerializeException("saveAll() failed");
-        }
+	try {
+	    db.save(dbPath);
+	} catch (IOException e) {
+	    Bukkit.getLogger().warning("saveAll() failed");
+	    throw new FileSerializeException("saveAll() failed");
+	}
     }
 
     protected Object load(String key) {
-        return db.get(key);
+	return db.get(key);
     }
 
     protected Object load(String key, Object def) {
-        return db.get(key, def);
+	return db.get(key, def);
     }
 
     public void reload() {
-        try {
-            db.load(dbPath);
-        } catch (IOException | InvalidConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+	try {
+	    db.load(dbPath);
+	} catch (IOException | InvalidConfigurationException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
     }
 }

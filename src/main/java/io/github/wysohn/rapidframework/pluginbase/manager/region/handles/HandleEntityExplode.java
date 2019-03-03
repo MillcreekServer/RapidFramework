@@ -11,25 +11,26 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.util.Iterator;
 
-public class HandleEntityExplode extends DefaultHandle implements AbstractManagerRegion.EventHandle<EntityExplodeEvent> {
+public class HandleEntityExplode extends DefaultHandle
+	implements AbstractManagerRegion.EventHandle<EntityExplodeEvent> {
     public HandleEntityExplode(AbstractManagerRegion rmanager) {
-        super(rmanager);
+	super(rmanager);
     }
 
     @Override
     public Entity getCause(EntityExplodeEvent e) {
-        return null;
+	return null;
     }
 
     @Override
     public Location getLocation(EntityExplodeEvent e) {
-        for(Iterator<Block> iter = e.blockList().iterator(); iter.hasNext();){
-            Location location = iter.next().getLocation();
-            ClaimInfo claimInfo = getInfo(location);
-            if(claimInfo != null)
-                return location;
-        }
+	for (Iterator<Block> iter = e.blockList().iterator(); iter.hasNext();) {
+	    Location location = iter.next().getLocation();
+	    ClaimInfo claimInfo = getInfo(location);
+	    if (claimInfo != null)
+		return location;
+	}
 
-        return null;
+	return null;
     }
 }

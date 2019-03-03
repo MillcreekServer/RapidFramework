@@ -26,13 +26,13 @@ public class FileSerializeException extends Exception {
     private String message;
 
     public FileSerializeException(String message) {
-        this.message = message;
+	this.message = message;
     }
 
     @Override
     public void printStackTrace() {
-        System.out.println(message);
-        super.printStackTrace();
+	System.out.println(message);
+	super.printStackTrace();
     }
 
 }

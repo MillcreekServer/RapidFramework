@@ -36,15 +36,15 @@ package copy.com.google.gson;
  *     private final Class&lt;?&gt; excludedThisClass;
  *
  *     public SpecificClassExclusionStrategy(Class&lt;?&gt; excludedThisClass) {
- *         this.excludedThisClass = excludedThisClass;
+ * 	this.excludedThisClass = excludedThisClass;
  *     }
  *
  *     public boolean shouldSkipClass(Class&lt;?&gt; clazz) {
- *         return excludedThisClass.equals(clazz);
+ * 	return excludedThisClass.equals(clazz);
  *     }
  *
  *     public boolean shouldSkipField(FieldAttributes f) {
- *         return excludedThisClass.equals(f.getDeclaredClass());
+ * 	return excludedThisClass.equals(f.getDeclaredClass());
  *     }
  * }
  * </pre>
@@ -106,15 +106,13 @@ package copy.com.google.gson;
 public interface ExclusionStrategy {
 
     /**
-     * @param f
-     *            the field object that is under test
+     * @param f the field object that is under test
      * @return true if the field should be ignored; otherwise false
      */
     public boolean shouldSkipField(FieldAttributes f);
 
     /**
-     * @param clazz
-     *            the class object that is under test
+     * @param clazz the class object that is under test
      * @return true if the class should be ignored; otherwise false
      */
     public boolean shouldSkipClass(Class<?> clazz);

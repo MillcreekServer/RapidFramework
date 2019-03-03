@@ -10,5 +10,6 @@ public interface RegionTrigger extends Trigger {
     Area getArea();
 
     void onEnter(PluginBase base, Entity entity, EntityFilter filter);
+
     void onExit(PluginBase base, Entity entity, EntityFilter filter);
 }

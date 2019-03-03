@@ -4,5 +4,5 @@ import org.bukkit.entity.Player;
 
 @FunctionalInterface
 public interface FrameCloseEventHandler extends FrameEvent {
-	void onClose(Player player);
+    void onClose(Player player);
 }

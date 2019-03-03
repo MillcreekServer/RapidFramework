@@ -37,8 +37,8 @@ import org.bukkit.entity.Player;
 public class LocationUtil {
     /*
      * public static void main(String[] ar){ while(true){ Scanner sc = new
-     * Scanner(System.in); double x = Double.parseDouble(sc.nextLine()); double
-     * y = Double.parseDouble(sc.nextLine());
+     * Scanner(System.in); double x = Double.parseDouble(sc.nextLine()); double y =
+     * Double.parseDouble(sc.nextLine());
      * 
      * double val = Math.atan2(y, x); val = val < 0 ? 2*Math.PI + val : val;
      * 
@@ -48,80 +48,76 @@ public class LocationUtil {
     // - : theta - yaw
     // + : theta - yaw - 2PI
     public static boolean isAttackFromBack(Entity target, Entity behind) {
-        Location center = target.getLocation().clone();
-        Location source = behind.getLocation().clone();
+	Location center = target.getLocation().clone();
+	Location source = behind.getLocation().clone();
 
-        float yaw = FakePlugin.nmsEntityManager.getYaw(target);
-        yaw = (float) Math.toRadians(yaw);
-        while (yaw > 2 * Math.PI)
-            yaw -= 2 * Math.PI;
-        while (yaw < 0)
-            yaw += 2 * Math.PI;
+	float yaw = FakePlugin.nmsEntityManager.getYaw(target);
+	yaw = (float) Math.toRadians(yaw);
+	while (yaw > 2 * Math.PI)
+	    yaw -= 2 * Math.PI;
+	while (yaw < 0)
+	    yaw += 2 * Math.PI;
 
-        Location relativeCoord = source.subtract(center);
-        double x = relativeCoord.getX();
-        double z = relativeCoord.getZ();
+	Location relativeCoord = source.subtract(center);
+	double x = relativeCoord.getX();
+	double z = relativeCoord.getZ();
 
-        if (x == 0.0 && z == 0.0)
-            return false;
+	if (x == 0.0 && z == 0.0)
+	    return false;
 
-        double theta = Math.atan2(x, z);
-        theta = theta < 0 ? 2 * Math.PI + theta : theta;
+	double theta = Math.atan2(x, z);
+	theta = theta < 0 ? 2 * Math.PI + theta : theta;
 
-        double finalVal = 2 * Math.PI - theta - yaw;
-        finalVal = finalVal < 0 ? -finalVal : finalVal;
+	double finalVal = 2 * Math.PI - theta - yaw;
+	finalVal = finalVal < 0 ? -finalVal : finalVal;
 
-        double eyeAngle = Math.PI / 2 + Math.PI / 6;
+	double eyeAngle = Math.PI / 2 + Math.PI / 6;
 
-        return finalVal > eyeAngle && finalVal < 2 * Math.PI - eyeAngle;
+	return finalVal > eyeAngle && finalVal < 2 * Math.PI - eyeAngle;
     }
 
     public static SimpleChunkLocation convertToSimpleChunkLocation(Chunk chunk) {
-        return new SimpleChunkLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+	return new SimpleChunkLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     public static SimpleLocation convertToSimpleLocation(Location loc) {
-        return new SimpleLocation(loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
-                loc.getYaw(), loc.getPitch());
+	return new SimpleLocation(loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
+		loc.getYaw(), loc.getPitch());
     }
 
     public static Location convertToBukkitLocation(SimpleLocation from) {
-        World world = Bukkit.getWorld(from.getWorld());
-        if (world == null)
-            return null;
+	World world = Bukkit.getWorld(from.getWorld());
+	if (world == null)
+	    return null;
 
-        return new Location(world, from.getX(), from.getY(), from.getZ());
+	return new Location(world, from.getX(), from.getY(), from.getZ());
     }
-    
+
     public static boolean withinDistance(Location center, Location target, double dist) {
-    	return center.distanceSquared(target) <= dist * dist;
+	return center.distanceSquared(target) <= dist * dist;
     }
-    
+
     public static boolean withinDistanceV2(Location center, Location target, double dist) {
-    	Area area = Area.formAreaBetweenTwoPoints(center.getWorld().getName(),
-    			(int)center.getX() - (int)dist,
-    			(int)center.getY() - (int)dist,
-    			(int)center.getZ() - (int)dist,
-    			(int)center.getX() + (int)dist,
-    			(int)center.getY() + (int)dist,
-    			(int)center.getZ() + (int)dist);
-    	
-    	return area.isContainingLocation(convertToSimpleLocation(target));
+	Area area = Area.formAreaBetweenTwoPoints(center.getWorld().getName(), (int) center.getX() - (int) dist,
+		(int) center.getY() - (int) dist, (int) center.getZ() - (int) dist, (int) center.getX() + (int) dist,
+		(int) center.getY() + (int) dist, (int) center.getZ() + (int) dist);
+
+	return area.isContainingLocation(convertToSimpleLocation(target));
     }
-    
+
     /**
      * Get players within the given distance. Does not include player itself.
+     * 
      * @param player
      * @param dist
      * @param filter
      * @return
      */
     public static Collection<? extends Player> getNearByPlayers(Player player, double dist, Predicate<Player> filter) {
-    	return Bukkit.getOnlinePlayers().stream()
-    		.filter(filter)
-    		.filter((p) -> !player.getUniqueId().equals(p.getUniqueId()))
-    		.filter((p) -> player.getWorld() == p.getWorld())
-    		.filter((p) -> withinDistance(player.getLocation(), p.getLocation(), dist))
-    		.collect(Collectors.toList());
+	return Bukkit.getOnlinePlayers().stream().filter(filter)
+		.filter((p) -> !player.getUniqueId().equals(p.getUniqueId()))
+		.filter((p) -> player.getWorld() == p.getWorld())
+		.filter((p) -> withinDistance(player.getLocation(), p.getLocation(), dist))
+		.collect(Collectors.toList());
     }
 }

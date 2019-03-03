@@ -10,14 +10,14 @@ public abstract class DefaultHandle {
     private final AbstractManagerRegion rmanager;
 
     protected DefaultHandle(AbstractManagerRegion rmanager) {
-        this.rmanager = rmanager;
+	this.rmanager = rmanager;
     }
 
-    protected ClaimInfo getInfo(SimpleLocation simpleLocation){
-        return rmanager.getAreaInfo(simpleLocation);
+    protected ClaimInfo getInfo(SimpleLocation simpleLocation) {
+	return rmanager.getAreaInfo(simpleLocation);
     }
 
-    protected ClaimInfo getInfo(Location location){
-        return getInfo(LocationUtil.convertToSimpleLocation(location));
+    protected ClaimInfo getInfo(Location location) {
+	return getInfo(LocationUtil.convertToSimpleLocation(location));
     }
 }

@@ -36,24 +36,24 @@ public final class PluginAPISupport implements PluginProcedure {
     final Map<String, APISupport> apis = new HashMap<String, APISupport>();
 
     public PluginAPISupport() {
-        hookAPI("PlaceholderAPI", PlaceholderAPI.class);
-        hookAPI("UserInterfaceLib");
-        hookAPI("Vault", VaultAPI.class);
-        hookAPI("JsonApi", JsonApiAPI.class);
-        hookAPI("TitleAPI", TitleAPISupport.class);
+	hookAPI("PlaceholderAPI", PlaceholderAPI.class);
+	hookAPI("UserInterfaceLib");
+	hookAPI("Vault", VaultAPI.class);
+	hookAPI("JsonApi", JsonApiAPI.class);
+	hookAPI("TitleAPI", TitleAPISupport.class);
     }
 
     private PluginBase base;
 
     @Override
     public void onEnable(PluginBase base) throws Exception {
-        this.base = base;
+	this.base = base;
 
-        while (!hookQueue.isEmpty()) {
-            Runnable run = hookQueue.poll();
+	while (!hookQueue.isEmpty()) {
+	    Runnable run = hookQueue.poll();
 
-            run.run();
-        }
+	    run.run();
+	}
     }
 
     @Override
@@ -71,54 +71,54 @@ public final class PluginAPISupport implements PluginProcedure {
      * @param pluginName
      */
     public void hookAPI(final String pluginName, final Class<? extends APISupport> api) {
-        hookQueue.add(new Runnable() {
-            @Override
-            public void run() {
-                PluginManager pm = base.getServer().getPluginManager();
+	hookQueue.add(new Runnable() {
+	    @Override
+	    public void run() {
+		PluginManager pm = base.getServer().getPluginManager();
 
-                Plugin plugin = pm.getPlugin(pluginName);
-                if (plugin != null && plugin.isEnabled()) {
-                    base.getLogger().info("Hooked Plugin [" + pluginName + "]");
-                    base.getLogger().info("Info: " + plugin.getDescription().getFullName());
+		Plugin plugin = pm.getPlugin(pluginName);
+		if (plugin != null && plugin.isEnabled()) {
+		    base.getLogger().info("Hooked Plugin [" + pluginName + "]");
+		    base.getLogger().info("Info: " + plugin.getDescription().getFullName());
 
-                    if (api != null) {
-                        try {
-                            Constructor con = api.getConstructor(PluginBase.class);
-                            APISupport supp = (APISupport) con.newInstance(base);
-                            supp.pluginName = pluginName;
+		    if (api != null) {
+			try {
+			    Constructor con = api.getConstructor(PluginBase.class);
+			    APISupport supp = (APISupport) con.newInstance(base);
+			    supp.pluginName = pluginName;
 
-                            if(supp.init()){
-                                pm.registerEvents(supp, base);
-                                apis.put(pluginName, supp);
-                            }
-                        } catch (Exception e) {
-                            base.getLogger().severe("Failed to initialize [" + pluginName + "]");
-                            base.getLogger().severe(e.getMessage());
-                        }
-                    } else {
-                        apis.put(pluginName, new APISupport(base) {
-                            @Override
-                            public boolean init() throws Exception {
-                                return true;
-                            }
-                        });
-                    }
-                }
-            }
-        });
+			    if (supp.init()) {
+				pm.registerEvents(supp, base);
+				apis.put(pluginName, supp);
+			    }
+			} catch (Exception e) {
+			    base.getLogger().severe("Failed to initialize [" + pluginName + "]");
+			    base.getLogger().severe(e.getMessage());
+			}
+		    } else {
+			apis.put(pluginName, new APISupport(base) {
+			    @Override
+			    public boolean init() throws Exception {
+				return true;
+			    }
+			});
+		    }
+		}
+	    }
+	});
     }
 
     public void hookAPI(final String pluginName) {
-        hookAPI(pluginName, null);
+	hookAPI(pluginName, null);
     }
 
     public boolean isExist(String pluginName) {
-        return base.getServer().getPluginManager().getPlugin(pluginName) != null;
+	return base.getServer().getPluginManager().getPlugin(pluginName) != null;
     }
-    
+
     public void assertAPI(String pluginName) {
-    	if(base.getServer().getPluginManager().getPlugin(pluginName) == null)
-    		throw new RuntimeException(pluginName+ " is not enabled!");
+	if (base.getServer().getPluginManager().getPlugin(pluginName) == null)
+	    throw new RuntimeException(pluginName + " is not enabled!");
     }
 
     /**
@@ -127,7 +127,7 @@ public final class PluginAPISupport implements PluginProcedure {
      * @return check whether the api is registered or not
      */
     public boolean isHooked(String pluginName) {
-        return apis.containsKey(pluginName);
+	return apis.containsKey(pluginName);
     }
 
     /**
@@ -136,26 +136,26 @@ public final class PluginAPISupport implements PluginProcedure {
      * @return
      */
     public <T extends APISupport> T getAPI(String pluginName) {
-        return (T) apis.get(pluginName);
+	return (T) apis.get(pluginName);
     }
 
     public Map<String, APISupport> getApis() {
-		return apis;
+	return apis;
+    }
+
+    public static abstract class APISupport implements Listener {
+	protected final PluginBase base;
+	private String pluginName;
+
+	public APISupport(PluginBase base) {
+	    this.base = base;
 	}
 
-	public static abstract class APISupport implements Listener {
-        protected final PluginBase base;
-        private String pluginName;
+	public String getPluginName() {
+	    return pluginName;
+	}
 
-        public APISupport(PluginBase base) {
-            this.base = base;
-        }
-
-        public String getPluginName() {
-			return pluginName;
-		}
-
-		public abstract boolean init() throws Exception;
+	public abstract boolean init() throws Exception;
 
     }
 }

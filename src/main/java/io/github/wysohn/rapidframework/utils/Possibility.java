@@ -20,20 +20,20 @@ import java.util.Random;
 
 public class Possibility {
     public static void main(String[] ar) {
-        double possibility = 0.3;
+	double possibility = 0.3;
 
-        for (int x = 0; x < 5; x++) {
-            int win = 0, lose = 0;
-            for (int i = 0; i < 1000; i++) {
-                if (isWin(possibility, 2))
-                    win++;
-                else
-                    lose++;
-            }
+	for (int x = 0; x < 5; x++) {
+	    int win = 0, lose = 0;
+	    for (int i = 0; i < 1000; i++) {
+		if (isWin(possibility, 2))
+		    win++;
+		else
+		    lose++;
+	    }
 
-            System.out.println("win: " + win);
-            System.out.println("lose: " + lose);
-        }
+	    System.out.println("win: " + win);
+	    System.out.println("lose: " + lose);
+	}
 
     }
 
@@ -44,34 +44,32 @@ public class Possibility {
      * @return 1.0 if x - vert <= 0; 1/(2^(level - vert)) otherwise
      */
     public static double getReciprocalPossibility(int vertAsymtote, int level) {
-        int base = level - vertAsymtote;
+	int base = level - vertAsymtote;
 
-        if (base > 0) {
-            return 1.0D / (pow(2, base));
-        } else {
-            return 1.0D;
-        }
+	if (base > 0) {
+	    return 1.0D / (pow(2, base));
+	} else {
+	    return 1.0D;
+	}
     }
 
     private static final Random rand = new Random();
 
     /**
      * 
-     * @param possiblity
-     *            possibility to test 0 ~ 1
-     * @param decimals
-     *            limit of decimals (for example, decimals 2 means
-     *            (int)(possibility * 10^2))
+     * @param possiblity possibility to test 0 ~ 1
+     * @param decimals   limit of decimals (for example, decimals 2 means
+     *                   (int)(possibility * 10^2))
      * @return true if win; false if not
      */
     public static boolean isWin(double possiblity, int decimals) {
-        int multiplier = pow(10, decimals);
-        double range = (int) Math.round(possiblity * multiplier);
+	int multiplier = pow(10, decimals);
+	double range = (int) Math.round(possiblity * multiplier);
 
-        int numTest = rand.nextInt(multiplier);
+	int numTest = rand.nextInt(multiplier);
 
-        // check if the random num is 0 out of possible numbers
-        return numTest < range;
+	// check if the random num is 0 out of possible numbers
+	return numTest < range;
     }
 
     /**
@@ -81,13 +79,13 @@ public class Possibility {
      * @return num ^ n
      */
     private static int pow(int num, int n) {
-        if (n == 0)
-            return 1;
+	if (n == 0)
+	    return 1;
 
-        int sum = num;
-        for (int i = 1; i < n; i++) {
-            sum *= num;
-        }
-        return sum;
+	int sum = num;
+	for (int i = 1; i < n; i++) {
+	    sum *= num;
+	}
+	return sum;
     }
 }

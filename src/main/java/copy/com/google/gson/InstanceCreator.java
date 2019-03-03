@@ -39,8 +39,8 @@ import java.lang.reflect.Type;
  *     private final long value;
  * 
  *     public Id(Class&lt;T&gt; clazz, long value) {
- *         this.clazz = clazz;
- *         this.value = value;
+ * 	this.clazz = clazz;
+ * 	this.value = value;
  *     }
  * }
  * </pre>
@@ -67,7 +67,7 @@ import java.lang.reflect.Type;
  * <pre>
  * class IdInstanceCreator implements InstanceCreator&lt;Id&gt; {
  *     public Id createInstance(Type type) {
- *         return new Id(Object.class, 0L);
+ * 	return new Id(Object.class, 0L);
  *     }
  * }
  * </pre>
@@ -84,8 +84,7 @@ import java.lang.reflect.Type;
  * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdInstanceCreator()).create();
  * </pre>
  *
- * @param <T>
- *            the type of object that will be created by this implementation.
+ * @param <T> the type of object that will be created by this implementation.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -95,13 +94,12 @@ public interface InstanceCreator<T> {
     /**
      * Gson invokes this call-back method during deserialization to create an
      * instance of the specified type. The fields of the returned instance are
-     * overwritten with the data present in the Json. Since the prior contents
-     * of the object are destroyed and overwritten, do not return an instance
-     * that is useful elsewhere. In particular, do not return a common instance,
-     * always use {@code new} to create a new instance.
+     * overwritten with the data present in the Json. Since the prior contents of
+     * the object are destroyed and overwritten, do not return an instance that is
+     * useful elsewhere. In particular, do not return a common instance, always use
+     * {@code new} to create a new instance.
      *
-     * @param type
-     *            the parameterized T represented as a {@link Type}.
+     * @param type the parameterized T represented as a {@link Type}.
      * @return a default object instance of type T.
      */
     public T createInstance(Type type);
