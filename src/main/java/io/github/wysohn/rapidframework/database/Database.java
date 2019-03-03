@@ -146,7 +146,6 @@ public abstract class Database<T> {
             .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC)
             .enableComplexMapKeySerialization()
             .serializeNulls()
-            .setPrettyPrinting()
             .registerTypeAdapterFactory(TypeAdapters.newFactory(String.class, NULL_ADOPTER_STRING))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(boolean.class, Boolean.class, NULL_ADOPTER_BOOLEAN))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(int.class, Integer.class, NULL_ADOPTER_NUMBER))
@@ -169,11 +168,17 @@ public abstract class Database<T> {
     }
 
     protected final Class<T> type;
+    protected final String tableName;
 
-    public Database(Class<T> type) {
+    public Database(Class<T> type, String tableName) {
 		super();
 		this.type = type;
+		this.tableName = tableName;
 	}
+    
+    public String getTableName() {
+    	return tableName;
+    }
 
 	/**
      * Deserialize the data from the database and return
@@ -258,5 +263,10 @@ public abstract class Database<T> {
             gson = builder.create();
 
         return gson.fromJson(ser, clazz);
+    }
+    
+    @FunctionalInterface
+    public interface DatabaseFactory<V>{
+    	Database<V> getDatabase();
     }
 }

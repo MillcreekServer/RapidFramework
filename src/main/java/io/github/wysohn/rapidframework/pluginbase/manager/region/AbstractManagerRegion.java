@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region;
 
+import io.github.wysohn.rapidframework.database.Database.DatabaseFactory;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching;
@@ -20,7 +21,7 @@ import org.bukkit.plugin.EventExecutor;
 
 import java.util.*;
 
-public abstract class ManagerRegion<PB extends PluginBase, V extends ClaimInfo> extends ManagerElementCaching<PB, Area, V>
+public abstract class AbstractManagerRegion<PB extends PluginBase, V extends ClaimInfo> extends ManagerElementCaching<PB, Area, V>
         implements Listener {
     private final Map<SimpleChunkLocation, Set<Area>> regionsCache = new HashMap<>();
     private final Set<Class<? extends Event>> registeredEventTypes = new HashSet<>();
@@ -29,8 +30,8 @@ public abstract class ManagerRegion<PB extends PluginBase, V extends ClaimInfo> 
         return false;
     };
 
-    public ManagerRegion(PB base, int loadPriority) {
-        super(base, loadPriority);
+    public AbstractManagerRegion(PB base, int loadPriority, DatabaseFactory<V> dbFactory) {
+        super(base, loadPriority, dbFactory);
     }
 
     @Override
@@ -83,7 +84,7 @@ public abstract class ManagerRegion<PB extends PluginBase, V extends ClaimInfo> 
 
                     SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
 
-                    V claim = ManagerRegion.this.getAreaInfo(sloc);
+                    V claim = AbstractManagerRegion.this.getAreaInfo(sloc);
                     if (claim == null)
                         return;
 
@@ -320,39 +321,35 @@ public abstract class ManagerRegion<PB extends PluginBase, V extends ClaimInfo> 
     }
 
     /**
-     * This gamehandle can be used to do something before events are passed to each
-     * EventHandles. For example, it is tedious to check if a player has bypass
-     * permission in every single EventHandles; if you were to use
-     * GeneralEventHandle, you can simply check it before the events are passed
-     * to the EventHandles.
-     *
-     * @author wysohn
-     *
-     */
-    protected interface GeneralEventHandle {
-        /**
-         * This method will be invoked before any events will be hand over to
-         * the EventHandles.
-         *
-         * @param e
-         *            event to gamehandle
-         * @param cause
-         *            the entity caused the event
-         * @param loc
-         *            location where event occur
-         * @return true if event should not be received by all EventHandles;
-         *         false otherwise.
-         */
-        public boolean preEvent(Event e, Location loc, Entity cause);
+	 * This gamehandle can be used to do something before events are passed to each
+	 * EventHandles. For example, it is tedious to check if a player has bypass
+	 * permission in every single EventHandles; if you were to use
+	 * GeneralEventHandle, you can simply check it before the events are passed to
+	 * the EventHandles.
+	 *
+	 * @author wysohn
+	 *
+	 */
+	protected interface GeneralEventHandle {
+		/**
+		 * This method will be invoked before any events will be hand over to the
+		 * EventHandles.
+		 *
+		 * @param e     event to gamehandle
+		 * @param loc   location where event occur
+		 * @param cause the entity caused the event
+		 * @return true if event should not be received by all EventHandles; false
+		 *         otherwise.
+		 */
+		public boolean preEvent(Event e, Location loc, Entity cause);
 
-        /**
-         * This method will be invoked after all events are handed over to the
-         * EventHandles. Default behavior is canceling event if it's instance of
-         * Cancellable
-         *
-         * @param e
-         *            event to gamehandle
-         */
+		/**
+		 * This method will be invoked after all events are handed over to the
+		 * EventHandles. Default behavior is canceling event if it's instance of
+		 * Cancellable
+		 *
+		 * @param e event to gamehandle
+		 */
         default public void postEvent(Event e) {
             if (e instanceof Cancellable)
                 ((Cancellable) e).setCancelled(true);

@@ -22,6 +22,7 @@ import io.github.wysohn.rapidframework.utils.serializations.Utf8YamlConfiguratio
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -86,6 +87,16 @@ public abstract class PluginManager<T extends PluginBase> implements TransferPai
      */
     protected ManagerConfig initConfig(File folder) {
     	return new ManagerConfig();
+    }
+    
+    /**
+     * Get general information about this manager. You may override
+     * this method to provided information to be shown when
+     * a player enter /somecommand status. 
+     * @return The map containing information; null if nothing to show.
+     */
+    protected Map<String, Object> getInfo(){
+    	return null;
     }
 
     protected abstract void onEnable() throws Exception;

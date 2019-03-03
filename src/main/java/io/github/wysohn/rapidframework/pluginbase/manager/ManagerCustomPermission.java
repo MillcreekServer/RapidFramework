@@ -39,17 +39,7 @@ public class ManagerCustomPermission extends ManagerElementCaching<PluginBase, U
 	private final Collection<PermissionHolderProvider> providers = new LinkedList<>();
 	
 	public ManagerCustomPermission(PluginBase base, int loadPriority) {
-		super(base, loadPriority);
-	}
-
-	@Override
-	protected String getTableName() {
-		return "CustomPermissions";
-	}
-
-	@Override
-	protected Class<Permissions> getType() {
-		return Permissions.class;
+		super(base, loadPriority, createDatabaseFactory(base, "CustomPermissions", Permissions.class));
 	}
 
 	@Override

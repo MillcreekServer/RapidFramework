@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleHangingPlace extends DefaultHandle implements ManagerRegion.EventHandle<HangingPlaceEvent> {
-    public HandleHangingPlace(ManagerRegion rmanager) {
+public class HandleHangingPlace extends DefaultHandle implements AbstractManagerRegion.EventHandle<HangingPlaceEvent> {
+    public HandleHangingPlace(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

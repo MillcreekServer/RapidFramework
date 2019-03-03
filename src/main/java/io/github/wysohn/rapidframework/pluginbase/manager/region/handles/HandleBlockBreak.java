@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleBlockBreak extends DefaultHandle implements ManagerRegion.EventHandle<BlockBreakEvent> {
-    public HandleBlockBreak(ManagerRegion rmanager) {
+public class HandleBlockBreak extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockBreakEvent> {
+    public HandleBlockBreak(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

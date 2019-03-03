@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleInteractEntity extends DefaultHandle implements ManagerRegion.EventHandle<PlayerInteractEntityEvent> {
-    public HandleInteractEntity(ManagerRegion rmanager) {
+public class HandleInteractEntity extends DefaultHandle implements AbstractManagerRegion.EventHandle<PlayerInteractEntityEvent> {
+    public HandleInteractEntity(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

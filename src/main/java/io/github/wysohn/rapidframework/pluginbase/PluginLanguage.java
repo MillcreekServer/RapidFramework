@@ -337,8 +337,12 @@ public final class PluginLanguage implements PluginProcedure {
                         DecimalFormat format = new DecimalFormat(form);
                         Double val = this.doub.poll();
                         String msg = null;
-                        if (val != null)
-                            msg = format.format(val);
+                        if (val != null) {
+                        	if(Double.isFinite(val))
+                        		msg = format.format(val);
+                        	else
+                        		msg = "NaN";
+                        }
                         str = leftStr + String.valueOf(msg) + rightStr;
                         break;
                     case "integer":

@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleProjectileHit extends DefaultHandle implements ManagerRegion.EventHandle<ProjectileHitEvent> {
-    public HandleProjectileHit(ManagerRegion rmanager) {
+public class HandleProjectileHit extends DefaultHandle implements AbstractManagerRegion.EventHandle<ProjectileHitEvent> {
+    public HandleProjectileHit(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

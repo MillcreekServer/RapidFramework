@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
 
 import org.bukkit.Location;
@@ -11,8 +11,8 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 
 import java.util.Iterator;
 
-public class HandlePistonExtend extends DefaultHandle implements ManagerRegion.EventHandle<BlockPistonExtendEvent> {
-    public HandlePistonExtend(ManagerRegion rmanager) {
+public class HandlePistonExtend extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockPistonExtendEvent> {
+    public HandlePistonExtend(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

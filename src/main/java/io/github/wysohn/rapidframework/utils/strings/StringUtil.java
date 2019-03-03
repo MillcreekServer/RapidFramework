@@ -11,4 +11,21 @@ public class StringUtil {
         Matcher matcher = numberPattern.matcher(str);
         return matcher.matches();
     }
+    
+    /**
+     * Repeat the given String for given number of times.
+     * If "abc" is repeated 3 times, it will be "abcabcabc"
+     * @param str the string to repeat
+     * @param count numbers to repeat. value less than 2 will return itself.
+     * @return the repeated String.
+     */
+    public static String repeat(String str, int count) {
+    	if(count < 2)
+    		return str;
+    	
+    	StringBuilder builder = new StringBuilder();
+    	for(int i = 0; i < count; i++)
+    		builder.append(str);
+    	return builder.toString();
+    }
 }

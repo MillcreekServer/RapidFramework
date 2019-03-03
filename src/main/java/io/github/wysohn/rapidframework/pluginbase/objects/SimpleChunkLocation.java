@@ -59,6 +59,10 @@ public class SimpleChunkLocation {
     public SimpleChunkLocation add(int i, int j) {
         return new SimpleChunkLocation(world, this.i + i, this.j + j);
     }
+    
+    public double distance(SimpleChunkLocation other) {
+    	return Math.sqrt(i * other.i + j * other.j);
+    }
 
     @Override
     public int hashCode() {

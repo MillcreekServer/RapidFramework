@@ -1,15 +1,15 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 
-public class HandleHopperPickupItem extends DefaultHandle implements ManagerRegion.EventHandle<InventoryPickupItemEvent> {
-    public HandleHopperPickupItem(ManagerRegion rmanager) {
+public class HandleHopperPickupItem extends DefaultHandle implements AbstractManagerRegion.EventHandle<InventoryPickupItemEvent> {
+    public HandleHopperPickupItem(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

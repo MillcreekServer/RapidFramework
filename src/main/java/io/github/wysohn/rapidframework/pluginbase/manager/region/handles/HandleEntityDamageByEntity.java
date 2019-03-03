@@ -7,11 +7,11 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleEntityDamageByEntity extends DefaultHandle implements ManagerRegion.EventHandle<EntityDamageByEntityEvent> {
-    public HandleEntityDamageByEntity(ManagerRegion rmanager) {
+public class HandleEntityDamageByEntity extends DefaultHandle implements AbstractManagerRegion.EventHandle<EntityDamageByEntityEvent> {
+    public HandleEntityDamageByEntity(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

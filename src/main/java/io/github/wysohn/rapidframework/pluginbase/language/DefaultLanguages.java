@@ -74,7 +74,12 @@ public enum DefaultLanguages implements Language {
 
     Command_Reload_Description("reload config"),
     Command_Reload_Usage("&6${command} &8- &7reload config"),
-
+    
+    Command_Status_Description("Show status of the plugin."),
+    Command_Status_Usage("&6${command} &8- &7show status of all modules",
+    		"&6${command} <module> &8- &7show status of 'module'",
+    		"&bModules &8: &d${string}"),
+    
     Command_Import_Description("DB types: ${dbtype}"),
     Command_Import_Usage("<dbtype> to import data from <dbtype>."),
 

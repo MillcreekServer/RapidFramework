@@ -38,7 +38,7 @@ public class DatabaseFile<T> extends Database<T> {
     private File folder;
 
     public DatabaseFile(Class<T> type, File folder) {
-    	super(type);
+    	super(type, folder.getName());
         this.folder = folder;
 
         folder.mkdirs();

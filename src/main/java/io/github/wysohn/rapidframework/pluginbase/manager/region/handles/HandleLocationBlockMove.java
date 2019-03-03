@@ -1,15 +1,15 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
 import io.github.wysohn.rapidframework.pluginbase.manager.event.PlayerBlockLocationEvent;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
 import io.github.wysohn.rapidframework.utils.locations.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
-public class HandleLocationBlockMove extends DefaultHandle implements ManagerRegion.EventHandle<PlayerBlockLocationEvent> {
-    public HandleLocationBlockMove(ManagerRegion rmanager) {
+public class HandleLocationBlockMove extends DefaultHandle implements AbstractManagerRegion.EventHandle<PlayerBlockLocationEvent> {
+    public HandleLocationBlockMove(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

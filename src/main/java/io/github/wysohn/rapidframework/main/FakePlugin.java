@@ -21,9 +21,11 @@ import io.github.wysohn.rapidframework.main.nms.particle.INmsParticleSender;
 import io.github.wysohn.rapidframework.main.nms.world.BlockFilter;
 import io.github.wysohn.rapidframework.main.nms.world.INmsWorldManager;
 import io.github.wysohn.rapidframework.pluginbase.PluginAPISupport;
+import io.github.wysohn.rapidframework.pluginbase.PluginAPISupport.APISupport;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginConfig;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage;
+import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
 import io.github.wysohn.rapidframework.pluginbase.PluginManager;
 import io.github.wysohn.rapidframework.pluginbase.commands.SubCommand;
 import org.bukkit.Bukkit;
@@ -37,6 +39,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -80,6 +83,26 @@ public class FakePlugin extends PluginBase {
     @Override
 	protected void postEnable() {
 
+	}
+
+	@Override
+	protected void initLangauges(List<Language> languages) {
+		
+	}
+
+	@Override
+	protected void initCommands(List<SubCommand> subcommands) {
+		
+	}
+
+	@Override
+	protected void initAPIs(Map<String, Class<? extends APISupport>> apisupports) {
+		
+	}
+
+	@Override
+	protected void initManagers(List<PluginManager<? extends PluginBase>> pluginmanagers) {
+		
 	}
 
 	private static final String packageName = "io.github.wysohn.rapidframework.main.nms";

@@ -17,14 +17,22 @@
 package io.github.wysohn.rapidframework.utils.locations;
 
 import io.github.wysohn.rapidframework.main.FakePlugin;
+import io.github.wysohn.rapidframework.pluginbase.objects.Area;
 import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
 import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 public class LocationUtil {
     /*
@@ -83,5 +91,37 @@ public class LocationUtil {
             return null;
 
         return new Location(world, from.getX(), from.getY(), from.getZ());
+    }
+    
+    public static boolean withinDistance(Location center, Location target, double dist) {
+    	return center.distanceSquared(target) <= dist * dist;
+    }
+    
+    public static boolean withinDistanceV2(Location center, Location target, double dist) {
+    	Area area = Area.formAreaBetweenTwoPoints(center.getWorld().getName(),
+    			(int)center.getX() - (int)dist,
+    			(int)center.getY() - (int)dist,
+    			(int)center.getZ() - (int)dist,
+    			(int)center.getX() + (int)dist,
+    			(int)center.getY() + (int)dist,
+    			(int)center.getZ() + (int)dist);
+    	
+    	return area.isContainingLocation(convertToSimpleLocation(target));
+    }
+    
+    /**
+     * Get players within the given distance. Does not include player itself.
+     * @param player
+     * @param dist
+     * @param filter
+     * @return
+     */
+    public static Collection<? extends Player> getNearByPlayers(Player player, double dist, Predicate<Player> filter) {
+    	return Bukkit.getOnlinePlayers().stream()
+    		.filter(filter)
+    		.filter((p) -> !player.getUniqueId().equals(p.getUniqueId()))
+    		.filter((p) -> player.getWorld() == p.getWorld())
+    		.filter((p) -> withinDistance(player.getLocation(), p.getLocation(), dist))
+    		.collect(Collectors.toList());
     }
 }

@@ -75,22 +75,12 @@ public class ManagerStructure<PB extends PluginBase> extends ManagerElementCachi
 
     private long tick = 0;
     public ManagerStructure(PB base, int loadPriority, String structureClassParentPath) {
-        super(base, loadPriority);
+        super(base, loadPriority, createDatabaseFactory(base, "Structures", Structure.class));
         if(structureClassParentPath == null)
             throw new RuntimeException("structureClassParentPath must be set in order for ManagerStructure " +
                     "to work properly!");
 
         STRUCTUREPACKAGEPATH = structureClassParentPath;
-    }
-
-    @Override
-    protected String getTableName() {
-        return "Structures";
-    }
-
-    @Override
-    protected Class<Structure> getType() {
-        return Structure.class;
     }
 
     @Override

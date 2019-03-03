@@ -287,17 +287,19 @@ public abstract class SubCommand {
 			this.args = args;
 		}
 
-    	/**
-    	 * Try to get argument at the index. If index is out of range, the provided
-    	 * default value will be used. You may add ArgumentMapper when building
-    	 * the command to automatically convert the input to appropriate value
-    	 * (e.g. argument to integer). If the ArgumentMapper cannot convert the
-    	 * argument for some reason (like trying to convert non-number string
-    	 * to an integer), it will automatically show error message to the user.
-    	 * @param index index of argument
-    	 * @param def the value to be used if index is out of range
-    	 * @return the argument
-    	 */
+		/**
+		 * Try to get argument at the index. If index is out of range, the provided
+		 * default value will be used. You may add ArgumentMapper when building the
+		 * command to automatically convert the input to appropriate value (e.g.
+		 * argument to integer). If the ArgumentMapper cannot convert the argument for
+		 * some reason (like trying to convert non-number string to an integer), it will
+		 * automatically show error message to the user.
+		 * 
+		 * @param index index of argument
+		 * @param def   the value to be used if index is out of range
+		 * @return the argument; null if argument conversion fails. If null was
+		 *         returned, the error message is already sent to the sender.
+		 */
 		@SuppressWarnings("unchecked")
 		public <T> T get(int index, T def) {
     		try {
@@ -311,8 +313,9 @@ public abstract class SubCommand {
 			} catch (InvalidArgumentException e) {
 				base.lang.addString(args[index]);
 				base.sendMessage(sender, e.lang);
-				return null;
 			}
+    		
+    		return null;
     	}
 		
 		/**

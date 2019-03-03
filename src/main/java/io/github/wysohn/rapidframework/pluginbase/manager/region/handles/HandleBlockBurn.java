@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockBurnEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleBlockBurn extends DefaultHandle implements ManagerRegion.EventHandle<BlockBurnEvent> {
-    public HandleBlockBurn(ManagerRegion rmanager) {
+public class HandleBlockBurn extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockBurnEvent> {
+    public HandleBlockBurn(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

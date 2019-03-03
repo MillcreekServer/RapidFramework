@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework.pluginbase.manager;
 
 import io.github.wysohn.rapidframework.database.Database;
+import io.github.wysohn.rapidframework.database.Database.DatabaseFactory;
 import io.github.wysohn.rapidframework.database.file.DatabaseFile;
 import io.github.wysohn.rapidframework.database.mysql.DatabaseMysql;
 import io.github.wysohn.rapidframework.database.tasks.DatabaseTransferTask.TransferPair;
@@ -40,19 +41,45 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
     
     private final Map<K, V> cachedElements = new HashMap<>();
     private final Map<String, K> nameMap = new HashMap<>();
+    private final DatabaseFactory<V> dbFactory;
+    
     private Database<V> db;
 
     private boolean useNameMap = false;
     private boolean dbWriting = false;
 
-    public ManagerElementCaching(PB base, int loadPriority) {
+    public ManagerElementCaching(PB base, int loadPriority, DatabaseFactory<V> dbFactory) {
         super(base, loadPriority);
+        this.dbFactory = dbFactory;
     }
 
     public void setUseNameMap(boolean useNameMap) {
 		this.useNameMap = useNameMap;
 	}
 
+	protected static <V> DatabaseFactory<V> createDatabaseFactory(PluginBase base, String tableName, Class<V> type) {
+		return () -> {
+			Database<V> db = null;
+
+			try {
+				if (base.getPluginConfig().MySql_Enabled) {
+					db = new DatabaseMysql<V>(type, base.getPluginConfig().MySql_DBAddress,
+							base.getPluginConfig().MySql_DBName, tableName, base.getPluginConfig().MySql_DBUser,
+							base.getPluginConfig().MySql_DBPassword);
+				}
+			} catch (Exception e) {
+				base.getLogger().warning(e.getMessage());
+				base.getLogger().warning("Failed to initialize Mysql. falling back to file database.");
+			} finally {
+				if (db == null) {
+					db = new DatabaseFile<V>(type, new File(base.getDataFolder(), tableName));
+				}
+			}
+
+			return db;
+		};
+	}
+    
 	@Override
     protected void onDisable() throws Exception {
         saveTaskPool.shutdown();
@@ -70,47 +97,31 @@ public abstract class ManagerElementCaching<PB extends PluginBase, K, V extends 
     @Override
     protected void onReload() throws Exception {
     	synchronized(dbLock) {
-            try {
-                if (base.getPluginConfig().MySql_Enabled) {
-                    db = createMysqlDB();
-                }
-            } catch (Exception e) {
-                base.getLogger().warning(e.getMessage());
-                base.getLogger().warning("Failed to initialize Mysql. file database. -- " + getClass().getSimpleName());
-            } finally {
-                if (db == null) {
-                    db = createFileDB();
-                }
-            }
+    		db = dbFactory.getDatabase();
     	}
-        
+
         synchronized (cacheLock) {
             cachedElements.clear();
         }
         updateCache();
     }
 
-    public DatabaseFile<V> createFileDB() {
-        return new DatabaseFile<V>(getType(), new File(base.getDataFolder(), getTableName()));
-    }
-
-    public DatabaseMysql<V> createMysqlDB()
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-        return new DatabaseMysql<V>(getType(), base.getPluginConfig().MySql_DBAddress, base.getPluginConfig().MySql_DBName,
-                getTableName(), base.getPluginConfig().MySql_DBUser, base.getPluginConfig().MySql_DBPassword);
-    }
-
-    /**
-     *
-     * @return Name of the table to save the data.
-     */
-    protected abstract String getTableName();
-
-    /**
-     *
-     * @return The data type to be used when serializing/deserializing the data.
-     */
-    protected abstract Class<V> getType();
+    @Override
+	protected Map<String, Object> getInfo() {
+    	Map<String, Object> map = new HashMap<>();
+    	
+    	Map<String, String> databaseMap = new HashMap<>();
+    	if(db instanceof DatabaseMysql) {
+    		databaseMap.put("Type", "MySQL");
+    		databaseMap.put("Host", base.getPluginConfig().MySql_DBAddress);
+    	}else {
+    		databaseMap.put("Type", "FlatFile");
+    	}
+    	databaseMap.put("Name", db.getTableName());
+    	map.put("Database", databaseMap);
+    	
+    	return map;
+	}
 
     /**
      * Generate key from the given String.

@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleBucketEmpty extends DefaultHandle implements ManagerRegion.EventHandle<PlayerBucketEmptyEvent> {
-    public HandleBucketEmpty(ManagerRegion rmanager) {
+public class HandleBucketEmpty extends DefaultHandle implements AbstractManagerRegion.EventHandle<PlayerBucketEmptyEvent> {
+    public HandleBucketEmpty(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

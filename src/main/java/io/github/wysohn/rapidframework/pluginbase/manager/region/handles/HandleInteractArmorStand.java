@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleInteractArmorStand extends DefaultHandle implements ManagerRegion.EventHandle<PlayerArmorStandManipulateEvent> {
-    public HandleInteractArmorStand(ManagerRegion rmanager) {
+public class HandleInteractArmorStand extends DefaultHandle implements AbstractManagerRegion.EventHandle<PlayerArmorStandManipulateEvent> {
+    public HandleInteractArmorStand(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

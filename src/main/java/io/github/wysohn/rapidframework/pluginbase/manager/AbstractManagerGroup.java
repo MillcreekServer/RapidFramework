@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import io.github.wysohn.rapidframework.database.Database.DatabaseFactory;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.PreParseHandle;
@@ -15,8 +16,8 @@ import io.github.wysohn.rapidframework.utils.Validation;
 public abstract class AbstractManagerGroup<PB extends PluginBase, V extends Group>
 		extends ManagerElementCaching<PB, UUID, V> {
 
-	public AbstractManagerGroup(PB base, int loadPriority) {
-		super(base, loadPriority);
+	public AbstractManagerGroup(PB base, int loadPriority, DatabaseFactory<V> dbFactory) {
+		super(base, loadPriority, dbFactory);
 	}
 	
 	@Override

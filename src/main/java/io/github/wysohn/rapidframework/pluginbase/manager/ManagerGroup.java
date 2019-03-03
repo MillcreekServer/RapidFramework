@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework.pluginbase.manager;
 
 import java.util.UUID;
 
+import io.github.wysohn.rapidframework.database.Database.DatabaseFactory;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.objects.Group;
 import io.github.wysohn.rapidframework.pluginbase.objects.permissions.PermissionHolder;
@@ -10,7 +11,7 @@ import io.github.wysohn.rapidframework.pluginbase.objects.permissions.Permission
 public class ManagerGroup extends AbstractManagerGroup<PluginBase, Group> implements PermissionHolderProvider {
 
 	public ManagerGroup(PluginBase base, int loadPriority) {
-		super(base, loadPriority);
+		super(base, loadPriority, createDatabaseFactory(base, "Groups", Group.class));
 	}
 
 	@Override
@@ -24,16 +25,6 @@ public class ManagerGroup extends AbstractManagerGroup<PluginBase, Group> implem
 	@Override
 	protected Group createNewGroup(UUID ownerUuid) {
 		return new Group(ownerUuid);
-	}
-
-	@Override
-	protected String getTableName() {
-		return "Groups";
-	}
-
-	@Override
-	protected Class<Group> getType() {
-		return Group.class;
 	}
 
 	@Override

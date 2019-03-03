@@ -30,7 +30,7 @@ public class TestDatabase {
 	
 	@Before
 	public void init() {
-		db = new Database<DummyObject>(DummyObject.class) {
+		db = new Database<DummyObject>(DummyObject.class, "Dummy") {
 
 			@Override
 			public DummyObject load(String key, DummyObject def) {
@@ -67,25 +67,25 @@ public class TestDatabase {
 	public void testSerialize() {
 		DummyObject obj = new DummyObject();
 		String serialized = db.serialize(obj);
-		assertEquals("{\n" + 
-				"  \"nullStr\": null,\n" + 
-				"  \"str\": \"test\",\n" + 
-				"  \"testInt\": -1,\n" + 
-				"  \"testLong\": -2,\n" + 
-				"  \"testDouble\": -3.0,\n" + 
-				"  \"testBool\": true\n" + 
+		assertEquals("{" + 
+				"\"nullStr\":null," + 
+				"\"str\":\"test\"," + 
+				"\"testInt\":-1," + 
+				"\"testLong\":-2," + 
+				"\"testDouble\":-3.0," + 
+				"\"testBool\":true" + 
 				"}", serialized);
 	}
 	
 	@Test
 	public void testDeserialize() {
-		String value = "{\n" + 
-				"  \"nullStr\": \"\",\n" + 
-				"  \"str\": \"test2\",\n" + 
-				"  \"testInt\": -4,\n" + 
-				"  \"testLong\": -5,\n" + 
-				"  \"testDouble\": -6.0,\n" + 
-				"  \"testBool\": true\n" + 
+		String value = "{" + 
+				"\"nullStr\":\"\"," + 
+				"\"str\":\"test2\"," + 
+				"\"testInt\":-4," + 
+				"\"testLong\":-5," + 
+				"\"testDouble\":-6.0," + 
+				"\"testBool\":true" + 
 				"}";
 		
 		DummyObject deserialized = db.deserialize(value, DummyObject.class);
@@ -99,13 +99,13 @@ public class TestDatabase {
 	
 	@Test
 	public void testDeserializeNull() {
-		String value = "{\n" + 
-				"  \"nullStr\": null,\n" + 
-				"  \"str\": \"test2\",\n" + 
-				"  \"testInt\": null,\n" + 
-				"  \"testLong\": null,\n" + 
-				"  \"testDouble\": null,\n" + 
-				"  \"testBool\": null\n" + 
+		String value = "{" + 
+				"\"nullStr\":null," + 
+				"\"str\":\"test2\"," + 
+				"\"testInt\":null," + 
+				"\"testLong\":null," + 
+				"\"testDouble\":null," + 
+				"\"testBool\":null" + 
 				"}";
 		
 		DummyObject deserialized = db.deserialize(value, DummyObject.class);
@@ -129,13 +129,13 @@ public class TestDatabase {
 
 		String serialized = db.serialize(loc);
 		
-		assertEquals("{\n" + 
-				"  \"world\": \"testWorld\",\n" + 
-				"  \"x\": 0.0,\n" + 
-				"  \"y\": 1.0,\n" + 
-				"  \"z\": 2.0,\n" + 
-				"  \"pitch\": 0.2,\n" + 
-				"  \"yaw\": 0.1\n" + 
+		assertEquals("{" + 
+				"\"world\":\"testWorld\"," + 
+				"\"x\":0.0," + 
+				"\"y\":1.0," + 
+				"\"z\":2.0," + 
+				"\"pitch\":0.2," + 
+				"\"yaw\":0.1" + 
 				"}", serialized);
 	}
 	
@@ -147,12 +147,12 @@ public class TestDatabase {
 		PowerMockito.mockStatic(Bukkit.class);
 		when(Bukkit.getWorld(anyString())).thenReturn(mockWorld);
 		
-		String value = "{\n" + 
-				"  \"world\": \"testWorld2\",\n" + 
-				"  \"x\": 3,\n" + 
-				"  \"y\": 4,\n" + 
-				"  \"z\": 5,\n" + 
-				"  \"yaw\": null\n" + 
+		String value = "{" + 
+				"\"world\":\"testWorld2\"," + 
+				"\"x\":3," + 
+				"\"y\":4," + 
+				"\"z\":5," + 
+				"\"yaw\":null" + 
 				"}";
 		Location loc = db.deserialize(value, Location.class);
 		assertEquals("testWorld2", loc.getWorld().getName());
@@ -194,25 +194,25 @@ public class TestDatabase {
 	public void testSerializeSimpleLocation() {
 		SimpleLocation sloc = new SimpleLocation("testWorld", 1, 2, 3);
 		String serialized = db.serialize(sloc);
-		assertEquals("{\n" + 
-				"  \"world\": \"testWorld\",\n" + 
-				"  \"x\": 1,\n" + 
-				"  \"y\": 2,\n" + 
-				"  \"z\": 3,\n" + 
-				"  \"pitch\": 0.0,\n" + 
-				"  \"yaw\": 0.0\n" + 
+		assertEquals("{" + 
+				"\"world\":\"testWorld\"," + 
+				"\"x\":1," + 
+				"\"y\":2," + 
+				"\"z\":3," + 
+				"\"pitch\":0.0," + 
+				"\"yaw\":0.0" + 
 				"}", serialized);
 	}
 	
 	@Test
 	public void testDeserializeSimpleLocation() {
-		String value = "{\n" + 
-				"  \"world\": \"testWorld\",\n" + 
-				"  \"x\": 1,\n" + 
-				"  \"y\": 2,\n" + 
-				"  \"z\": 3,\n" + 
-				"  \"pitch\": 0.0,\n" + 
-				"  \"yaw\": 0.0\n" + 
+		String value = "{" + 
+				"\"world\":\"testWorld\"," + 
+				"\"x\":1," + 
+				"\"y\":2," + 
+				"\"z\":3," + 
+				"\"pitch\":0.0," + 
+				"\"yaw\":0.0" + 
 				"}";
 		SimpleLocation sloc = db.deserialize(value, SimpleLocation.class);
 		assertEquals("testWorld", sloc.getWorld());
@@ -227,19 +227,19 @@ public class TestDatabase {
 	public void testSerializeSimpleChunkLocation() {
 		SimpleChunkLocation scloc = new SimpleChunkLocation("testWorld", 0, 1);
 		String serialized = db.serialize(scloc);
-		assertEquals("{\n" + 
-				"  \"world\": \"testWorld\",\n" + 
-				"  \"i\": 0,\n" + 
-				"  \"j\": 1\n" + 
+		assertEquals("{" + 
+				"\"world\":\"testWorld\"," + 
+				"\"i\":0," + 
+				"\"j\":1" + 
 				"}", serialized);
 	}
 	
 	@Test
 	public void testDeserializeSimpleChunkLocation() {
-		String value = "{\n" + 
-				"  \"world\": \"testWorld\",\n" + 
-				"  \"i\": 0,\n" + 
-				"  \"j\": 1\n" + 
+		String value = "{" + 
+				"\"world\":\"testWorld\"," + 
+				"\"i\":0," + 
+				"\"j\":1" + 
 				"}";
 		SimpleChunkLocation scloc = db.deserialize(value, SimpleChunkLocation.class);
 		assertEquals("testWorld", scloc.getWorld());

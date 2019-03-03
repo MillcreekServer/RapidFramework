@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -236,5 +237,18 @@ abstract class ConfigBase implements PluginProcedure {
 
     public ConfigurationSection getSection(String key){
         return config.getConfigurationSection(convertToConfigName(key));
+    }
+    
+    public Map<String, Object> getValues(){
+    	return getValues(null);
+    }
+    
+    public Map<String, Object> getValues(String parent){
+    	ConfigurationSection section = config;
+    	if(parent != null) {
+    		section = getSection(parent);
+    	}
+    	
+    	return section.getValues(false);
     }
 }

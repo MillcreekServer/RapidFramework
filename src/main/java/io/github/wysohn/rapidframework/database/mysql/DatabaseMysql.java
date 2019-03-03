@@ -49,7 +49,7 @@ public class DatabaseMysql<T> extends Database<T> {
 
     public DatabaseMysql(Class<T> type, String address, String dbName, String tablename, String userName, String password)
             throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        super(type);
+        super(type, tablename);
 
         this.dbName = dbName;
         this.tablename = tablename;

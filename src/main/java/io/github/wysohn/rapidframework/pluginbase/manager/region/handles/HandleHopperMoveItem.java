@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleHopperMoveItem extends DefaultHandle implements ManagerRegion.EventHandle<InventoryMoveItemEvent> {
-    public HandleHopperMoveItem(ManagerRegion rmanager) {
+public class HandleHopperMoveItem extends DefaultHandle implements AbstractManagerRegion.EventHandle<InventoryMoveItemEvent> {
+    public HandleHopperMoveItem(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

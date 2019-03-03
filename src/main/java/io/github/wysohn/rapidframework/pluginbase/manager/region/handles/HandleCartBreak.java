@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 
-public class HandleCartBreak extends DefaultHandle implements ManagerRegion.EventHandle<VehicleDestroyEvent> {
-    public HandleCartBreak(ManagerRegion rmanager) {
+public class HandleCartBreak extends DefaultHandle implements AbstractManagerRegion.EventHandle<VehicleDestroyEvent> {
+    public HandleCartBreak(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

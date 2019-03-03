@@ -16,15 +16,10 @@ import io.github.wysohn.rapidframework.pluginbase.objects.permissions.Permission
 public abstract class ManagerUsers<PB extends PluginBase, U extends ManagerUsers.User>
 		extends ManagerElementCaching<PB, UUID, U> implements Listener {
 
-	public ManagerUsers(PB base, int loadPriority) {
-		super(base, loadPriority);
+	public ManagerUsers(PB base, int loadPriority, Class<U> type) {
+		super(base, loadPriority, createDatabaseFactory(base, "Users", type));
 	}
-
-	@Override
-	protected String getTableName() {
-		return "Users";
-	}
-
+	
 	@Override
 	protected UUID createKeyFromString(String str) {
 		return UUID.fromString(str);

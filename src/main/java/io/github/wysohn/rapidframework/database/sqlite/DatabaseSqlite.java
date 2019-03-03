@@ -6,8 +6,8 @@ import java.util.Set;
 
 public class DatabaseSqlite<T> extends Database<T> {
 
-    public DatabaseSqlite(Class<T> type) {
-		super(type);
+    public DatabaseSqlite(Class<T> type, String tableName) {
+		super(type, tableName);
 	}
 
 	@Override

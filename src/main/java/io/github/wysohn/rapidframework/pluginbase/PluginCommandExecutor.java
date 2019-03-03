@@ -16,13 +16,15 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework.pluginbase;
 
-import io.github.wysohn.rapidframework.database.tasks.DatabaseTransferTask;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
 import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.PreParseHandle;
 import io.github.wysohn.rapidframework.pluginbase.api.JsonApiAPI;
 import io.github.wysohn.rapidframework.pluginbase.api.JsonApiAPI.Message;
 import io.github.wysohn.rapidframework.pluginbase.commands.SubCommand;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
+import io.github.wysohn.rapidframework.utils.Validation;
+import io.github.wysohn.rapidframework.utils.strings.StringUtil;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
@@ -40,6 +42,7 @@ public final class PluginCommandExecutor implements PluginProcedure {
     public final String mainCommand;
     public final String adminPermission;
 
+    private String defaultCommand = "help";
     private SubCommandMap commandMap;
 
     private final Queue<Runnable> commandAddQueue = new LinkedList<Runnable>();
@@ -91,6 +94,32 @@ public final class PluginCommandExecutor implements PluginProcedure {
                 .withColor(ChatColor.LIGHT_PURPLE)
                 .create());
         
+        addCommand(SubCommand.Builder.forCommand("status", base, -1)
+                .withPermission(adminPermission)
+                .withDescription(DefaultLanguages.Command_Status_Description)
+                .addUsage(DefaultLanguages.Command_Status_Usage, (lang, p)->{
+                	StringBuilder builder = new StringBuilder();
+                	base.getPluginManagers().entrySet()
+                		.stream()
+                		.filter(entry->entry.getValue().getInfo() != null)
+                		.map(entry -> entry.getKey())
+                		.map(clazz -> clazz.getSimpleName())
+                		.forEach(name -> builder.append(name+' '));
+                	lang.addString(builder.toString());
+                })
+                .actOnPlayer(((sender, args) -> {
+					String moduleName = args.get(0, null);
+					showStatus(sender, moduleName);
+					return true;
+                }))
+                .actOnConsole(((sender, args) -> {
+					String moduleName = args.get(0, null);
+					showStatus(sender, moduleName);
+					return true;
+                }))
+                .withColor(ChatColor.LIGHT_PURPLE)
+        		.create());
+        
 //        addCommand(SubCommand.Builder.forCommand("import", base, 1)
 //                .withPermission(adminPermission)
 //                .withDescription(DefaultLanguages.Command_Import_Description)
@@ -120,6 +149,68 @@ public final class PluginCommandExecutor implements PluginProcedure {
 //                .create());
     }
 
+	private void showStatus(CommandSender sender, String moduleName) {
+		base.sendMessage(sender, DefaultLanguages.General_Line);
+		
+		StringBuilder builder = new StringBuilder();
+		base.APISupport.apis.keySet().forEach(name -> builder.append(name + " "));
+		sender.sendMessage(
+				ChatColor.AQUA + "Hooks" + ChatColor.DARK_GRAY + " : " + ChatColor.GRAY + builder.toString());
+		sender.sendMessage("");
+
+		if (moduleName == null) {
+			base.getPluginManagers().forEach((clazz, manager) -> {
+				if(manager.getInfo() != null) {
+					base.lang.addString(clazz.getSimpleName());
+					base.sendMessage(sender, DefaultLanguages.General_Header);
+					printStatusRecursive(sender, manager.getInfo(), 0);
+				}
+			});
+		} else {
+			PluginManager<?> manager = base.getManager(moduleName);
+			if(manager == null) {
+				sender.sendMessage(moduleName+" does not exist.");
+				return;
+			}
+			
+			base.lang.addString(moduleName);
+			base.sendMessage(sender, DefaultLanguages.General_Header);
+			printStatusRecursive(sender, manager.getInfo(), 0);
+		}
+		
+		base.sendMessage(sender, DefaultLanguages.General_Line);
+	}
+    
+    private void printStatusRecursive(CommandSender sender, Map<String, Object> map, int level) {
+    	if(map == null)
+    		return;
+    	
+    	String padding = StringUtil.repeat(" ", 2*(level + 1));
+    	map.forEach((key, value)->{
+    		if(value instanceof Map) {
+    			sender.sendMessage(padding+ChatColor.AQUA+key);
+    			printStatusRecursive(sender, (Map<String, Object>) value, level + 1);
+    		} else {
+    			sender.sendMessage(padding+ChatColor.AQUA+key+ChatColor.DARK_GRAY+" : "+ChatColor.GRAY+value);
+    		}
+    	});
+    }
+
+	/**
+	 * Set default command to be used when a player run command without any
+	 * arguments. The default value is 'help,' but you may change it to other
+	 * command. This checks if the command actually exists, so <b> it should be
+	 * called after all the commands are registered. </b>
+	 * 
+	 * @param command the command to be used as default
+	 */
+	protected void setDefaultCommand(String command) {
+		Validation.validate(command);
+		Validation.validate(commandMap.getCommand(command), command+" is not found in command list!");
+		
+		this.defaultCommand = command;
+	}
+    
     public void addCommand(final SubCommand cmd) {
         commandAddQueue.add(new Runnable() {
             @Override
@@ -131,7 +222,11 @@ public final class PluginCommandExecutor implements PluginProcedure {
     }
 
     public boolean onCommand(CommandSender sender, Command arg0, String label, String[] args) {
-        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+		if (args.length == 0) {
+			args = new String[] { defaultCommand };
+		}
+    	
+        if (args[0].equalsIgnoreCase("help")) {
             int page = 0;
             if (args.length > 1) {
                 try {

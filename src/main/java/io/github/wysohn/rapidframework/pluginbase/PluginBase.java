@@ -89,7 +89,9 @@ public abstract class PluginBase extends JavaPlugin {
         registerManager(new ManagerTargetBlock(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerPropertyEdit(this, PluginManager.NORM_PRIORITY));
         registerManager(new ManagerGUI(this, PluginManager.NORM_PRIORITY));
-        registerManager(new ManagerGroup(this, PluginManager.NORM_PRIORITY));     
+        registerManager(new ManagerGroup(this, PluginManager.NORM_PRIORITY)); 
+        registerManager(new ManagerEquipment(this, PluginManager.NORM_PRIORITY)); 
+        registerManager(new ManagerLazyTask(this, PluginManager.NORM_PRIORITY)); 
     }
 
     private void initiatePluginProcedures() {
@@ -343,15 +345,26 @@ public abstract class PluginBase extends JavaPlugin {
 
         preEnable();
         
-        initLangauges().forEach((language) -> lang.registerLanguage(language));
-        initCommands().forEach((cmd) -> {
+        List<Language> languages = new ArrayList<>();
+        initLangauges(languages);
+        languages.stream().forEach((language) -> lang.registerLanguage(language));
+        
+        List<SubCommand> subcommands = new ArrayList<>();
+        initCommands(subcommands);
+        subcommands.stream().forEach((cmd) -> {
             if(cmd.getParent() != null)
                 commandExecutors.get(cmd.getParent()).addCommand(cmd);
             else
                 commandExecutor.addCommand(cmd);
         });
-        initAPIs().forEach((entry)->APISupport.hookAPI(entry.getKey(), entry.getValue()));
-        initManagers().forEach(this::registerManager);
+        
+        Map<String, Class<? extends PluginAPISupport.APISupport>> apisupports = new HashMap<>();
+        initAPIs(apisupports);
+        apisupports.forEach((name, clazz)->APISupport.hookAPI(name, clazz));
+        
+        List<PluginManager<? extends PluginBase>> pluginmanagers = new ArrayList<>();
+        initManagers(pluginmanagers);
+        pluginmanagers.forEach(this::registerManager);
 
         initiatePluginProcedures();
         
@@ -376,18 +389,10 @@ public abstract class PluginBase extends JavaPlugin {
     protected PluginConfig initConfig() {
 		return new PluginConfig();
     }
-    protected Stream<Language> initLangauges(){
-        return Stream.of();
-    }
-    protected Stream<SubCommand> initCommands(){
-        return Stream.of();
-    }
-    protected Stream<Entry<String, Class<? extends PluginAPISupport.APISupport>>> initAPIs(){
-        return Stream.of();
-    }
-    protected Stream<PluginManager<? extends  PluginBase>> initManagers(){
-        return Stream.of();
-    }
+    protected abstract void initLangauges(List<Language> languages);
+    protected abstract void initCommands(List<SubCommand> subcommands);
+    protected abstract void initAPIs(Map<String, Class<? extends PluginAPISupport.APISupport>> apisupports);
+    protected abstract void initManagers(List<PluginManager<? extends PluginBase>> pluginmanagers);
 
     @Override
     public void onDisable() {

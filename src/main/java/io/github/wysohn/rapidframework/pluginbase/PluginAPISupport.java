@@ -17,7 +17,10 @@
 package io.github.wysohn.rapidframework.pluginbase;
 
 import io.github.wysohn.rapidframework.pluginbase.api.JsonApiAPI;
+import io.github.wysohn.rapidframework.pluginbase.api.PlaceholderAPI;
+import io.github.wysohn.rapidframework.pluginbase.api.TitleAPISupport;
 import io.github.wysohn.rapidframework.pluginbase.api.VaultAPI;
+
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -33,10 +36,11 @@ public final class PluginAPISupport implements PluginProcedure {
     final Map<String, APISupport> apis = new HashMap<String, APISupport>();
 
     public PluginAPISupport() {
-        hookAPI("PlaceholderAPI");
+        hookAPI("PlaceholderAPI", PlaceholderAPI.class);
         hookAPI("UserInterfaceLib");
         hookAPI("Vault", VaultAPI.class);
         hookAPI("JsonApi", JsonApiAPI.class);
+        hookAPI("TitleAPI", TitleAPISupport.class);
     }
 
     private PluginBase base;
@@ -135,7 +139,11 @@ public final class PluginAPISupport implements PluginProcedure {
         return (T) apis.get(pluginName);
     }
 
-    public static abstract class APISupport implements Listener {
+    public Map<String, APISupport> getApis() {
+		return apis;
+	}
+
+	public static abstract class APISupport implements Listener {
         protected final PluginBase base;
         private String pluginName;
 

@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
 
 import org.bukkit.Location;
@@ -11,8 +11,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.util.Iterator;
 
-public class HandleEntityExplode extends DefaultHandle implements ManagerRegion.EventHandle<EntityExplodeEvent> {
-    public HandleEntityExplode(ManagerRegion rmanager) {
+public class HandleEntityExplode extends DefaultHandle implements AbstractManagerRegion.EventHandle<EntityExplodeEvent> {
+    public HandleEntityExplode(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

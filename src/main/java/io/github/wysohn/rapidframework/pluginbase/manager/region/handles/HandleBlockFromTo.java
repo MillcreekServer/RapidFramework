@@ -1,15 +1,15 @@
 package io.github.wysohn.rapidframework.pluginbase.manager.region.handles;
 
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion;
-import io.github.wysohn.rapidframework.pluginbase.manager.region.ManagerRegion.EventHandle;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion;
+import io.github.wysohn.rapidframework.pluginbase.manager.region.AbstractManagerRegion.EventHandle;
 import io.github.wysohn.rapidframework.pluginbase.objects.ClaimInfo;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockFromToEvent;
 
-public class HandleBlockFromTo extends DefaultHandle implements ManagerRegion.EventHandle<BlockFromToEvent> {
-    public HandleBlockFromTo(ManagerRegion rmanager) {
+public class HandleBlockFromTo extends DefaultHandle implements AbstractManagerRegion.EventHandle<BlockFromToEvent> {
+    public HandleBlockFromTo(AbstractManagerRegion rmanager) {
         super(rmanager);
     }
 

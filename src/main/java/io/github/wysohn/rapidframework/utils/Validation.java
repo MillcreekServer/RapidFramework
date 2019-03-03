@@ -23,7 +23,7 @@ public class Validation {
 	/**
 	 * Custom test with custom message
 	 * @param obj
-	 * @param pred
+	 * @param pred the fail condition
 	 * @param message
 	 */
 	public static <T> void validate(T obj, Predicate<T> pred, String message) {
