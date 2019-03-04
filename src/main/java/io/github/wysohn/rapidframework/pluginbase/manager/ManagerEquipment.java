@@ -25,7 +25,7 @@ import io.github.wysohn.rapidframework.utils.items.InventoryUtil;
 
 public class ManagerEquipment extends PluginManager<PluginBase> implements Listener {
 
-    public ManagerEquipment(PluginBase base, int loadPriority) {
+    private ManagerEquipment(PluginBase base, int loadPriority) {
 	super(base, loadPriority);
     }
 
@@ -148,10 +148,32 @@ public class ManagerEquipment extends PluginManager<PluginBase> implements Liste
 	    ev.setCancelled(onUnequip((Player) ev.getWhoClicked(), ev.getCurrentItem()).isCancelled());
 	}
     }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onUnequip(PlayerDeathEvent ev) {
+	if(ev.getKeepInventory())
+	    return;
+	
+	onUnequip(ev.getEntity(), ev.getEntity().getInventory().getHelmet());
+	onUnequip(ev.getEntity(), ev.getEntity().getInventory().getChestplate());
+	onUnequip(ev.getEntity(), ev.getEntity().getInventory().getLeggings());
+	onUnequip(ev.getEntity(), ev.getEntity().getInventory().getBoots());
+    }
 
     private PlayerUnequipItemEvent onUnequip(Player player, ItemStack item) {
+	if(item == null || item.getType() == Material.AIR)
+	    return new PlayerUnequipItemEvent(player, item);
+	
 	PlayerUnequipItemEvent puie = new PlayerUnequipItemEvent(player, item);
 	Bukkit.getPluginManager().callEvent(puie);
 	return puie;
+    }
+    
+    private static ManagerEquipment shared = null;
+    public static ManagerEquipment getSharedInstance(PluginBase base, int loadPriority) {
+	if(shared == null) {
+	    shared = new ManagerEquipment(base, loadPriority);
+	}
+	return shared;
     }
 }

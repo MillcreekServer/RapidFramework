@@ -90,7 +90,7 @@ public abstract class PluginBase extends JavaPlugin {
 	registerManager(new ManagerPropertyEdit(this, PluginManager.NORM_PRIORITY));
 	registerManager(new ManagerGUI(this, PluginManager.NORM_PRIORITY));
 	registerManager(new ManagerGroup(this, PluginManager.NORM_PRIORITY));
-	registerManager(new ManagerEquipment(this, PluginManager.NORM_PRIORITY));
+	registerManager(ManagerEquipment.getSharedInstance(this, PluginManager.NORM_PRIORITY));
 	registerManager(new ManagerLazyTask(this, PluginManager.NORM_PRIORITY));
     }
 
