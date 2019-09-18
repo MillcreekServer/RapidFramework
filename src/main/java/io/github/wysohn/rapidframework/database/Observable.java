@@ -18,7 +18,6 @@ package io.github.wysohn.rapidframework.database;
 
 public interface Observable {
     /**
-     * 
      * @return true if this object is modified; false if not
      */
     public boolean isChanged();

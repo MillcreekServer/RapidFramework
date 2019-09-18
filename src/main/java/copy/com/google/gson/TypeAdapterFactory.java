@@ -26,7 +26,7 @@ import copy.com.google.gson.reflect.TypeToken;
  * a factory that creates type adapters for all enums. The type adapters will
  * write enums in lowercase, despite the fact that they're defined in
  * {@code CONSTANT_CASE} in the corresponding Java model:
- * 
+ *
  * <pre>
  * {
  *     &#64;code
@@ -36,36 +36,36 @@ import copy.com.google.gson.reflect.TypeToken;
  * 	    Class<T> rawType = (Class<T>) type.getRawType();
  * 	    if (!rawType.isEnum()) {
  * 		return null;
- * 	    }
+ *        }
  *
  * 	    final Map<String, T> lowercaseToConstant = new HashMap<String, T>();
  * 	    for (T constant : rawType.getEnumConstants()) {
  * 		lowercaseToConstant.put(toLowercase(constant), constant);
- * 	    }
+ *        }
  *
  * 	    return new TypeAdapter<T>() {
  * 		public void write(JsonWriter out, T value) throws IOException {
  * 		    if (value == null) {
  * 			out.nullValue();
- * 		    } else {
+ *            } else {
  * 			out.value(toLowercase(value));
- * 		    }
- * 		}
+ *            }
+ *        }
  *
  * 		public T read(JsonReader reader) throws IOException {
  * 		    if (reader.peek() == JsonToken.NULL) {
  * 			reader.nextNull();
  * 			return null;
- * 		    } else {
+ *            } else {
  * 			return lowercaseToConstant.get(reader.nextString());
- * 		    }
- * 		}
- * 	    };
- * 	}
+ *            }
+ *        }
+ *        };
+ *    }
  *
  * 	private String toLowercase(Object o) {
  * 	    return o.toString().toLowerCase(Locale.US);
- * 	}
+ *    }
  *     }
  * }
  * </pre>
@@ -88,7 +88,7 @@ import copy.com.google.gson.reflect.TypeToken;
  * <p>
  * As with type adapters, factories must be <i>registered</i> with a
  * {@link copy.com.google.gson.GsonBuilder} for them to take effect:
- * 
+ *
  * <pre>
  *    {@code
  *
@@ -98,7 +98,7 @@ import copy.com.google.gson.reflect.TypeToken;
  *  Gson gson = builder.create();
  * }
  * </pre>
- * 
+ * <p>
  * If multiple factories support the same type, the factory registered earlier
  * takes precedence.
  *
@@ -114,7 +114,7 @@ import copy.com.google.gson.reflect.TypeToken;
  * elements. It figures out the element type by reflecting on the multiset's
  * type token. A {@code Gson} is passed in to {@code create} for just this
  * purpose:
- * 
+ *
  * <pre>
  * {
  *     &#64;code
@@ -124,12 +124,12 @@ import copy.com.google.gson.reflect.TypeToken;
  * 	    Type type = typeToken.getType();
  * 	    if (typeToken.getRawType() != Multiset.class || !(type instanceof ParameterizedType)) {
  * 		return null;
- * 	    }
+ *        }
  *
  * 	    Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
  * 	    TypeAdapter<?> elementAdapter = gson.getAdapter(TypeToken.get(elementType));
  * 	    return (TypeAdapter<T>) newMultisetAdapter(elementAdapter);
- * 	}
+ *    }
  *
  * 	private <E> TypeAdapter<Multiset<E>> newMultisetAdapter(final TypeAdapter<E> elementAdapter) {
  * 	    return new TypeAdapter<Multiset<E>>() {
@@ -137,21 +137,21 @@ import copy.com.google.gson.reflect.TypeToken;
  * 		    if (value == null) {
  * 			out.nullValue();
  * 			return;
- * 		    }
+ *            }
  *
  * 		    out.beginArray();
  * 		    for (Multiset.Entry<E> entry : value.entrySet()) {
  * 			out.value(entry.getCount());
  * 			elementAdapter.write(out, entry.getElement());
- * 		    }
+ *            }
  * 		    out.endArray();
- * 		}
+ *        }
  *
  * 		public Multiset<E> read(JsonReader in) throws IOException {
  * 		    if (in.peek() == JsonToken.NULL) {
  * 			in.nextNull();
  * 			return null;
- * 		    }
+ *            }
  *
  * 		    Multiset<E> result = LinkedHashMultiset.create();
  * 		    in.beginArray();
@@ -159,16 +159,16 @@ import copy.com.google.gson.reflect.TypeToken;
  * 			int count = in.nextInt();
  * 			E element = elementAdapter.read(in);
  * 			result.add(element, count);
- * 		    }
+ *            }
  * 		    in.endArray();
  * 		    return result;
- * 		}
- * 	    };
- * 	}
+ *        }
+ *        };
+ *    }
  *     }
  * }
  * </pre>
- * 
+ * <p>
  * Delegating from one type adapter to another is extremely powerful; it's the
  * foundation of how Gson converts Java objects and collections. Whenever
  * possible your factory should retrieve its delegate type adapter in the

@@ -14,9 +14,10 @@ import org.bukkit.scheduler.BukkitRunnable
  * true will continue the delayed task.
  * @param runnable task to perform when delay is finished. Can be null if nothing will happen after the delay.
  */
-class TickingTask(val base: PluginBase, val ticksAfter: Long, val onTick: (Long)->Boolean,
-                  val runnable: ()->Unit? = {})
-    : BukkitRunnable(){
+class TickingTask(
+    val base: PluginBase, val ticksAfter: Long, val onTick: (Long) -> Boolean,
+    val runnable: () -> Unit? = {}
+) : BukkitRunnable() {
     companion object {
 
     }
@@ -25,11 +26,11 @@ class TickingTask(val base: PluginBase, val ticksAfter: Long, val onTick: (Long)
     override fun run() {
         currentTick--;
 
-        if(onTick(currentTick)){
+        if (onTick(currentTick)) {
             Bukkit.getScheduler().runTaskLater(base, {
-                if(currentTick <= 0){
+                if (currentTick <= 0) {
                     runnable();
-                }else{
+                } else {
                     run();
                 }
             }, 1L);

@@ -31,44 +31,44 @@ public final class LazilyParsedNumber extends Number {
      * @param value must not be null
      */
     public LazilyParsedNumber(String value) {
-	this.value = value;
+        this.value = value;
     }
 
     @Override
     public int intValue() {
-	try {
-	    return Integer.parseInt(value);
-	} catch (NumberFormatException e) {
-	    try {
-		return (int) Long.parseLong(value);
-	    } catch (NumberFormatException nfe) {
-		return new BigDecimal(value).intValue();
-	    }
-	}
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            try {
+                return (int) Long.parseLong(value);
+            } catch (NumberFormatException nfe) {
+                return new BigDecimal(value).intValue();
+            }
+        }
     }
 
     @Override
     public long longValue() {
-	try {
-	    return Long.parseLong(value);
-	} catch (NumberFormatException e) {
-	    return new BigDecimal(value).longValue();
-	}
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return new BigDecimal(value).longValue();
+        }
     }
 
     @Override
     public float floatValue() {
-	return Float.parseFloat(value);
+        return Float.parseFloat(value);
     }
 
     @Override
     public double doubleValue() {
-	return Double.parseDouble(value);
+        return Double.parseDouble(value);
     }
 
     @Override
     public String toString() {
-	return value;
+        return value;
     }
 
     /**
@@ -77,23 +77,23 @@ public final class LazilyParsedNumber extends Number {
      * it.
      */
     private Object writeReplace() throws ObjectStreamException {
-	return new BigDecimal(value);
+        return new BigDecimal(value);
     }
 
     @Override
     public int hashCode() {
-	return value.hashCode();
+        return value.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj) {
-	    return true;
-	}
-	if (obj instanceof LazilyParsedNumber) {
-	    LazilyParsedNumber other = (LazilyParsedNumber) obj;
-	    return value == other.value || value.equals(other.value);
-	}
-	return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof LazilyParsedNumber) {
+            LazilyParsedNumber other = (LazilyParsedNumber) obj;
+            return value == other.value || value.equals(other.value);
+        }
+        return false;
     }
 }

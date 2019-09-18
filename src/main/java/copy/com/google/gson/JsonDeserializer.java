@@ -36,12 +36,12 @@ import java.lang.reflect.Type;
  * public class Id&lt;T&gt; {
  *     private final Class&lt;T&gt; clazz;
  *     private final long value;
- * 
+ *
  *     public Id(Class&lt;T&gt; clazz, long value) {
  * 	this.clazz = clazz;
  * 	this.value = value;
  *     }
- * 
+ *
  *     public long getValue() {
  * 	return value;
  *     }
@@ -77,12 +77,11 @@ import java.lang.reflect.Type;
  * New applications should prefer {@link TypeAdapter}, whose streaming API is
  * more efficient than this interface's tree API.
  *
+ * @param <T> type for which the deserializer is being registered. It is
+ *            possible that a deserializer may be asked to deserialize a specific
+ *            generic type of the T.
  * @author Inderjeet Singh
  * @author Joel Leitch
- *
- * @param <T> type for which the deserializer is being registered. It is
- *        possible that a deserializer may be asked to deserialize a specific
- *        generic type of the T.
  */
 public interface JsonDeserializer<T> {
 
@@ -99,7 +98,7 @@ public interface JsonDeserializer<T> {
      * @param json    The Json data being deserialized
      * @param typeOfT The type of the Object to deserialize to
      * @return a deserialized object of the specified type typeOfT which is a
-     *         subclass of {@code T}
+     * subclass of {@code T}
      * @throws JsonParseException if json is not in the expected format of
      *                            {@code typeofT}
      */

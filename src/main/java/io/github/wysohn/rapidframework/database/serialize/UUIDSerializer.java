@@ -16,7 +16,10 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework.database.serialize;
 
-import copy.com.google.gson.*;
+import copy.com.google.gson.JsonDeserializationContext;
+import copy.com.google.gson.JsonElement;
+import copy.com.google.gson.JsonParseException;
+import copy.com.google.gson.JsonSerializationContext;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -25,12 +28,12 @@ public class UUIDSerializer implements Serializer<UUID> {
 
     @Override
     public JsonElement serialize(UUID arg0, Type arg1, JsonSerializationContext arg2) {
-	return arg2.serialize(arg0.toString());
+        return arg2.serialize(arg0.toString());
     }
 
     @Override
     public UUID deserialize(JsonElement arg0, Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
-	return UUID.fromString(arg2.deserialize(arg0, String.class));
+        return UUID.fromString(arg2.deserialize(arg0, String.class));
     }
 
 }

@@ -32,7 +32,7 @@ import java.io.*;
  * conversion isn't appropriate for a type, extend this class to customize the
  * conversion. Here's an example of a type adapter for an (X,Y) coordinate
  * point:
- * 
+ *
  * <pre>
  * {
  *     &#64;code
@@ -42,33 +42,33 @@ import java.io.*;
  * 	    if (reader.peek() == JsonToken.NULL) {
  * 		reader.nextNull();
  * 		return null;
- * 	    }
+ *        }
  * 	    String xy = reader.nextString();
  * 	    String[] parts = xy.split(",");
  * 	    int x = Integer.parseInt(parts[0]);
  * 	    int y = Integer.parseInt(parts[1]);
  * 	    return new Point(x, y);
- * 	}
- * 
+ *    }
+ *
  * 	public void write(JsonWriter writer, Point value) throws IOException {
  * 	    if (value == null) {
  * 		writer.nullValue();
  * 		return;
- * 	    }
+ *        }
  * 	    String xy = value.getX() + "," + value.getY();
  * 	    writer.value(xy);
- * 	}
+ *    }
  *     }
  * }
  * </pre>
- * 
+ * <p>
  * With this type adapter installed, Gson will convert {@code Points} to JSON as
  * strings like {@code "5,8"} rather than objects like {@code {"x":5,"y":8}}. In
  * this case the type adapter binds a rich Java class to a compact JSON value.
  *
  * <p>
  * The {@link #read(JsonReader) read()} method must read exactly one value and
- * {@link #write(JsonWriter,Object) write()} must write exactly one value. For
+ * {@link #write(JsonWriter, Object) write()} must write exactly one value. For
  * primitive types this is means readers should make exactly one call to
  * {@code nextBoolean()}, {@code nextDouble()}, {@code nextInt()}, {@code
  * nextLong()}, {@code nextString()} or {@code nextNull()}. Writers should make
@@ -91,7 +91,7 @@ import java.io.*;
  * <p>
  * To use a custom type adapter with Gson, you must <i>register</i> it with a
  * {@link GsonBuilder}:
- * 
+ *
  * <pre>
  *    {@code
  *
@@ -152,15 +152,15 @@ public abstract class TypeAdapter<T> {
      * @since 2.2
      */
     public final void toJson(Writer out, T value) throws IOException {
-	JsonWriter writer = new JsonWriter(out);
-	write(writer, value);
+        JsonWriter writer = new JsonWriter(out);
+        write(writer, value);
     }
 
     /**
      * This wrapper method is used to make a type adapter null tolerant. In general,
      * a type adapter is required to gamehandle nulls in write and read methods.
      * Here is how this is typically done:<br>
-     * 
+     *
      * <pre>
      * {
      *     &#64;code
@@ -170,24 +170,24 @@ public abstract class TypeAdapter<T> {
      * 	    if (in.peek() == JsonToken.NULL) {
      * 		in.nextNull();
      * 		return null;
-     * 	    }
+     *        }
      * 	    // read a Foo from in and return it
-     * 	}
-     * 
+     *    }
+     *
      * 	public void write(JsonWriter out, Foo src) throws IOException {
      * 	    if (src == null) {
      * 		out.nullValue();
      * 		return;
-     * 	    }
+     *        }
      * 	    // write src as JSON to out
-     * 	}
+     *    }
      *     }).create();
      * }
      * </pre>
-     * 
+     * <p>
      * You can avoid this boilerplate handling of nulls by wrapping your type
      * adapter with this method. Here is how we will rewrite the above example:
-     * 
+     *
      * <pre>
      * {
      *     &#64;code
@@ -195,38 +195,38 @@ public abstract class TypeAdapter<T> {
      *     Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class, new TypeAdapter<Foo>() {
      * 	public Foo read(JsonReader in) throws IOException {
      * 	    // read a Foo from in and return it
-     * 	}
-     * 
+     *    }
+     *
      * 	public void write(JsonWriter out, Foo src) throws IOException {
      * 	    // write src as JSON to out
-     * 	}
+     *    }
      *     }.nullSafe()).create();
      * }
      * </pre>
-     * 
+     * <p>
      * Note that we didn't need to check for nulls in our type adapter after we used
      * nullSafe.
      */
     public final TypeAdapter<T> nullSafe() {
-	return new TypeAdapter<T>() {
-	    @Override
-	    public void write(JsonWriter out, T value) throws IOException {
-		if (value == null) {
-		    out.nullValue();
-		} else {
-		    TypeAdapter.this.write(out, value);
-		}
-	    }
+        return new TypeAdapter<T>() {
+            @Override
+            public void write(JsonWriter out, T value) throws IOException {
+                if (value == null) {
+                    out.nullValue();
+                } else {
+                    TypeAdapter.this.write(out, value);
+                }
+            }
 
-	    @Override
-	    public T read(JsonReader reader) throws IOException {
-		if (reader.peek() == JsonToken.NULL) {
-		    reader.nextNull();
-		    return null;
-		}
-		return TypeAdapter.this.read(reader);
-	    }
-	};
+            @Override
+            public T read(JsonReader reader) throws IOException {
+                if (reader.peek() == JsonToken.NULL) {
+                    reader.nextNull();
+                    return null;
+                }
+                return TypeAdapter.this.read(reader);
+            }
+        };
     }
 
     /**
@@ -240,13 +240,13 @@ public abstract class TypeAdapter<T> {
      * @since 2.2
      */
     public final String toJson(T value) {
-	StringWriter stringWriter = new StringWriter();
-	try {
-	    toJson(stringWriter, value);
-	} catch (IOException e) {
-	    throw new AssertionError(e); // No I/O writing to a StringWriter.
-	}
-	return stringWriter.toString();
+        StringWriter stringWriter = new StringWriter();
+        try {
+            toJson(stringWriter, value);
+        } catch (IOException e) {
+            throw new AssertionError(e); // No I/O writing to a StringWriter.
+        }
+        return stringWriter.toString();
     }
 
     /**
@@ -257,13 +257,13 @@ public abstract class TypeAdapter<T> {
      * @since 2.2
      */
     public final JsonElement toJsonTree(T value) {
-	try {
-	    JsonTreeWriter jsonWriter = new JsonTreeWriter();
-	    write(jsonWriter, value);
-	    return jsonWriter.get();
-	} catch (IOException e) {
-	    throw new JsonIOException(e);
-	}
+        try {
+            JsonTreeWriter jsonWriter = new JsonTreeWriter();
+            write(jsonWriter, value);
+            return jsonWriter.get();
+        } catch (IOException e) {
+            throw new JsonIOException(e);
+        }
     }
 
     /**
@@ -284,8 +284,8 @@ public abstract class TypeAdapter<T> {
      * @since 2.2
      */
     public final T fromJson(Reader in) throws IOException {
-	JsonReader reader = new JsonReader(in);
-	return read(reader);
+        JsonReader reader = new JsonReader(in);
+        return read(reader);
     }
 
     /**
@@ -298,7 +298,7 @@ public abstract class TypeAdapter<T> {
      * @since 2.2
      */
     public final T fromJson(String json) throws IOException {
-	return fromJson(new StringReader(json));
+        return fromJson(new StringReader(json));
     }
 
     /**
@@ -308,11 +308,11 @@ public abstract class TypeAdapter<T> {
      * @since 2.2
      */
     public final T fromJsonTree(JsonElement jsonTree) {
-	try {
-	    JsonReader jsonReader = new JsonTreeReader(jsonTree);
-	    return read(jsonReader);
-	} catch (IOException e) {
-	    throw new JsonIOException(e);
-	}
+        try {
+            JsonReader jsonReader = new JsonTreeReader(jsonTree);
+            return read(jsonReader);
+        } catch (IOException e) {
+            throw new JsonIOException(e);
+        }
     }
 }

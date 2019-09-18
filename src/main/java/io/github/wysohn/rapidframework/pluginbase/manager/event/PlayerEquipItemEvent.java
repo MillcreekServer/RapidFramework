@@ -19,41 +19,37 @@ package io.github.wysohn.rapidframework.pluginbase.manager.event;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
-
-import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 
 /**
  * Called when player equip an armor.
- * 
- * @author wysohn
  *
+ * @author wysohn
  */
 public class PlayerEquipItemEvent extends PlayerEquipmentEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
 
     public PlayerEquipItemEvent(Player who, ItemStack item) {
-	super(who, item);
+        super(who, item);
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
     public boolean isCancelled() {
-	return cancelled;
+        return cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-	cancelled = cancel;
+        cancelled = cancel;
     }
 
     @Override
     public HandlerList getHandlers() {
-	return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
-	return handlers;
+        return handlers;
     }
 }

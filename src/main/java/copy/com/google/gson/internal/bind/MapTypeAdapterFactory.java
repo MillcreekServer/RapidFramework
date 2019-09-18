@@ -37,7 +37,7 @@ import java.util.Map;
  * Objects. This requires that map keys can be serialized as strings; this is
  * insufficient for some key types. For example, consider a map whose keys are
  * points on a grid. The default JSON form encodes reasonably:
- * 
+ *
  * <pre>
  * {
  *     &#64;code
@@ -47,9 +47,9 @@ import java.util.Map;
  *     System.out.println(gson.toJson(original, type));
  * }
  * </pre>
- * 
+ * <p>
  * The above code prints this JSON object:
- * 
+ *
  * <pre>
  *    {@code
  *   {
@@ -58,11 +58,11 @@ import java.util.Map;
  *   }
  * }
  * </pre>
- * 
+ * <p>
  * But GSON is unable to deserialize this value because the JSON string name is
  * just the {@link Object#toString() toString()} of the map key. Attempting to
  * convert the above JSON to an object fails with a parse exception:
- * 
+ *
  * <pre>
  * com.google.JsonParseException: Expecting object found: "(5,6)"
  *   at com.google.gson.JsonObjectDeserializationVisitor.visitFieldUsingCustomHandler
@@ -80,17 +80,17 @@ import java.util.Map;
  *
  * <p>
  * Register this adapter when you are creating your GSON instance.
- * 
+ *
  * <pre>
  * {
  *     &#64;code
  *     Gson gson = new GsonBuilder().registerTypeAdapter(Map.class, new MapAsArrayTypeAdapter()).create();
  * }
  * </pre>
- * 
+ * <p>
  * This will change the structure of the JSON emitted by the code above. Now we
  * get an array. In this case the arrays elements are map entries:
- * 
+ *
  * <pre>
  *    {@code
  *   [
@@ -111,7 +111,7 @@ import java.util.Map;
  *   ]
  * }
  * </pre>
- * 
+ * <p>
  * This format will serialize and deserialize just fine as long as this adapter
  * is registered.
  */
@@ -120,156 +120,156 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     final boolean complexMapKeySerialization;
 
     public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor, boolean complexMapKeySerialization) {
-	this.constructorConstructor = constructorConstructor;
-	this.complexMapKeySerialization = complexMapKeySerialization;
+        this.constructorConstructor = constructorConstructor;
+        this.complexMapKeySerialization = complexMapKeySerialization;
     }
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-	Type type = typeToken.getType();
+        Type type = typeToken.getType();
 
-	Class<? super T> rawType = typeToken.getRawType();
-	if (!Map.class.isAssignableFrom(rawType)) {
-	    return null;
-	}
+        Class<? super T> rawType = typeToken.getRawType();
+        if (!Map.class.isAssignableFrom(rawType)) {
+            return null;
+        }
 
-	Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
-	Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
-	TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
-	TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
-	ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
+        Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
+        Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
+        TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
+        TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
+        ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	// we don't define a type parameter for the key or value types
-	TypeAdapter<T> result = new Adapter(gson, keyAndValueTypes[0], keyAdapter, keyAndValueTypes[1], valueAdapter,
-		constructor);
-	return result;
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        // we don't define a type parameter for the key or value types
+                TypeAdapter<T> result = new Adapter(gson, keyAndValueTypes[0], keyAdapter, keyAndValueTypes[1], valueAdapter,
+                constructor);
+        return result;
     }
 
     /**
      * Returns a type adapter that writes the value as a string.
      */
     private TypeAdapter<?> getKeyAdapter(Gson context, Type keyType) {
-	return (keyType == boolean.class || keyType == Boolean.class) ? TypeAdapters.BOOLEAN_AS_STRING
-		: context.getAdapter(TypeToken.get(keyType));
+        return (keyType == boolean.class || keyType == Boolean.class) ? TypeAdapters.BOOLEAN_AS_STRING
+                : context.getAdapter(TypeToken.get(keyType));
     }
 
     private final class Adapter<K, V> extends TypeAdapter<Map<K, V>> {
-	private final TypeAdapter<K> keyTypeAdapter;
-	private final TypeAdapter<V> valueTypeAdapter;
-	private final ObjectConstructor<? extends Map<K, V>> constructor;
+        private final TypeAdapter<K> keyTypeAdapter;
+        private final TypeAdapter<V> valueTypeAdapter;
+        private final ObjectConstructor<? extends Map<K, V>> constructor;
 
-	public Adapter(Gson context, Type keyType, TypeAdapter<K> keyTypeAdapter, Type valueType,
-		TypeAdapter<V> valueTypeAdapter, ObjectConstructor<? extends Map<K, V>> constructor) {
-	    this.keyTypeAdapter = new TypeAdapterRuntimeTypeWrapper<K>(context, keyTypeAdapter, keyType);
-	    this.valueTypeAdapter = new TypeAdapterRuntimeTypeWrapper<V>(context, valueTypeAdapter, valueType);
-	    this.constructor = constructor;
-	}
+        public Adapter(Gson context, Type keyType, TypeAdapter<K> keyTypeAdapter, Type valueType,
+                       TypeAdapter<V> valueTypeAdapter, ObjectConstructor<? extends Map<K, V>> constructor) {
+            this.keyTypeAdapter = new TypeAdapterRuntimeTypeWrapper<K>(context, keyTypeAdapter, keyType);
+            this.valueTypeAdapter = new TypeAdapterRuntimeTypeWrapper<V>(context, valueTypeAdapter, valueType);
+            this.constructor = constructor;
+        }
 
-	@Override
-	public Map<K, V> read(JsonReader in) throws IOException {
-	    JsonToken peek = in.peek();
-	    if (peek == JsonToken.NULL) {
-		in.nextNull();
-		return null;
-	    }
+        @Override
+        public Map<K, V> read(JsonReader in) throws IOException {
+            JsonToken peek = in.peek();
+            if (peek == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
 
-	    Map<K, V> map = constructor.construct();
+            Map<K, V> map = constructor.construct();
 
-	    if (peek == JsonToken.BEGIN_ARRAY) {
-		in.beginArray();
-		while (in.hasNext()) {
-		    in.beginArray(); // entry array
-		    K key = keyTypeAdapter.read(in);
-		    V value = valueTypeAdapter.read(in);
-		    V replaced = map.put(key, value);
-		    if (replaced != null) {
-			throw new JsonSyntaxException("duplicate key: " + key);
-		    }
-		    in.endArray();
-		}
-		in.endArray();
-	    } else {
-		in.beginObject();
-		while (in.hasNext()) {
-		    JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
-		    K key = keyTypeAdapter.read(in);
-		    V value = valueTypeAdapter.read(in);
-		    V replaced = map.put(key, value);
-		    if (replaced != null) {
-			throw new JsonSyntaxException("duplicate key: " + key);
-		    }
-		}
-		in.endObject();
-	    }
-	    return map;
-	}
+            if (peek == JsonToken.BEGIN_ARRAY) {
+                in.beginArray();
+                while (in.hasNext()) {
+                    in.beginArray(); // entry array
+                    K key = keyTypeAdapter.read(in);
+                    V value = valueTypeAdapter.read(in);
+                    V replaced = map.put(key, value);
+                    if (replaced != null) {
+                        throw new JsonSyntaxException("duplicate key: " + key);
+                    }
+                    in.endArray();
+                }
+                in.endArray();
+            } else {
+                in.beginObject();
+                while (in.hasNext()) {
+                    JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
+                    K key = keyTypeAdapter.read(in);
+                    V value = valueTypeAdapter.read(in);
+                    V replaced = map.put(key, value);
+                    if (replaced != null) {
+                        throw new JsonSyntaxException("duplicate key: " + key);
+                    }
+                }
+                in.endObject();
+            }
+            return map;
+        }
 
-	@Override
-	public void write(JsonWriter out, Map<K, V> map) throws IOException {
-	    if (map == null) {
-		out.nullValue();
-		return;
-	    }
+        @Override
+        public void write(JsonWriter out, Map<K, V> map) throws IOException {
+            if (map == null) {
+                out.nullValue();
+                return;
+            }
 
-	    if (!complexMapKeySerialization) {
-		out.beginObject();
-		for (Map.Entry<K, V> entry : map.entrySet()) {
-		    out.name(String.valueOf(entry.getKey()));
-		    valueTypeAdapter.write(out, entry.getValue());
-		}
-		out.endObject();
-		return;
-	    }
+            if (!complexMapKeySerialization) {
+                out.beginObject();
+                for (Map.Entry<K, V> entry : map.entrySet()) {
+                    out.name(String.valueOf(entry.getKey()));
+                    valueTypeAdapter.write(out, entry.getValue());
+                }
+                out.endObject();
+                return;
+            }
 
-	    boolean hasComplexKeys = false;
-	    List<JsonElement> keys = new ArrayList<JsonElement>(map.size());
+            boolean hasComplexKeys = false;
+            List<JsonElement> keys = new ArrayList<JsonElement>(map.size());
 
-	    List<V> values = new ArrayList<V>(map.size());
-	    for (Map.Entry<K, V> entry : map.entrySet()) {
-		JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
-		keys.add(keyElement);
-		values.add(entry.getValue());
-		hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
-	    }
+            List<V> values = new ArrayList<V>(map.size());
+            for (Map.Entry<K, V> entry : map.entrySet()) {
+                JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
+                keys.add(keyElement);
+                values.add(entry.getValue());
+                hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
+            }
 
-	    if (hasComplexKeys) {
-		out.beginArray();
-		for (int i = 0, size = keys.size(); i < size; i++) {
-		    out.beginArray(); // entry array
-		    Streams.write(keys.get(i), out);
-		    valueTypeAdapter.write(out, values.get(i));
-		    out.endArray();
-		}
-		out.endArray();
-	    } else {
-		out.beginObject();
-		for (int i = 0, size = keys.size(); i < size; i++) {
-		    JsonElement keyElement = keys.get(i);
-		    out.name(keyToString(keyElement));
-		    valueTypeAdapter.write(out, values.get(i));
-		}
-		out.endObject();
-	    }
-	}
+            if (hasComplexKeys) {
+                out.beginArray();
+                for (int i = 0, size = keys.size(); i < size; i++) {
+                    out.beginArray(); // entry array
+                    Streams.write(keys.get(i), out);
+                    valueTypeAdapter.write(out, values.get(i));
+                    out.endArray();
+                }
+                out.endArray();
+            } else {
+                out.beginObject();
+                for (int i = 0, size = keys.size(); i < size; i++) {
+                    JsonElement keyElement = keys.get(i);
+                    out.name(keyToString(keyElement));
+                    valueTypeAdapter.write(out, values.get(i));
+                }
+                out.endObject();
+            }
+        }
 
-	private String keyToString(JsonElement keyElement) {
-	    if (keyElement.isJsonPrimitive()) {
-		JsonPrimitive primitive = keyElement.getAsJsonPrimitive();
-		if (primitive.isNumber()) {
-		    return String.valueOf(primitive.getAsNumber());
-		} else if (primitive.isBoolean()) {
-		    return Boolean.toString(primitive.getAsBoolean());
-		} else if (primitive.isString()) {
-		    return primitive.getAsString();
-		} else {
-		    throw new AssertionError();
-		}
-	    } else if (keyElement.isJsonNull()) {
-		return "null";
-	    } else {
-		throw new AssertionError();
-	    }
-	}
+        private String keyToString(JsonElement keyElement) {
+            if (keyElement.isJsonPrimitive()) {
+                JsonPrimitive primitive = keyElement.getAsJsonPrimitive();
+                if (primitive.isNumber()) {
+                    return String.valueOf(primitive.getAsNumber());
+                } else if (primitive.isBoolean()) {
+                    return Boolean.toString(primitive.getAsBoolean());
+                } else if (primitive.isString()) {
+                    return primitive.getAsString();
+                } else {
+                    throw new AssertionError();
+                }
+            } else if (keyElement.isJsonNull()) {
+                return "null";
+            } else {
+                throw new AssertionError();
+            }
+        }
     }
 }

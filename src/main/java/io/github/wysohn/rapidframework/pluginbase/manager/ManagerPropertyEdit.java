@@ -15,7 +15,7 @@ import java.util.Map;
 public class ManagerPropertyEdit extends PluginManager<PluginBase> {
 
     public ManagerPropertyEdit(PluginBase base, int loadPriority) {
-	super(base, loadPriority);
+        super(base, loadPriority);
     }
 
     @Override
@@ -34,7 +34,6 @@ public class ManagerPropertyEdit extends PluginManager<PluginBase> {
     }
 
     /**
-     *
      * @param whom
      * @param title
      * @param property        This also can be retrieved via getSessionData of
@@ -44,15 +43,15 @@ public class ManagerPropertyEdit extends PluginManager<PluginBase> {
      * @param abandonListener
      */
     public void startEdit(Player whom, String title, Map<Language, Object> property,
-	    ConversationAbandonedListener abandonListener) {
-	ConversationFactory factory = new ConversationFactory(base);
+                          ConversationAbandonedListener abandonListener) {
+        ConversationFactory factory = new ConversationFactory(base);
 
-	EditPrompt prompt = new EditPrompt(base, Prompt.END_OF_CONVERSATION, title, property);
-	Conversation conv = factory.thatExcludesNonPlayersWithMessage("Sorry, this is in-game only feature!")
-		.withFirstPrompt(prompt).addConversationAbandonedListener(abandonListener).buildConversation(whom);
-	conv.getContext().setSessionData(PROPERTY_SESSIONDATANAME, property);
+        EditPrompt prompt = new EditPrompt(base, Prompt.END_OF_CONVERSATION, title, property);
+        Conversation conv = factory.thatExcludesNonPlayersWithMessage("Sorry, this is in-game only feature!")
+                .withFirstPrompt(prompt).addConversationAbandonedListener(abandonListener).buildConversation(whom);
+        conv.getContext().setSessionData(PROPERTY_SESSIONDATANAME, property);
 
-	conv.begin();
+        conv.begin();
     }
 
     public static final String PROPERTY_SESSIONDATANAME = "property";

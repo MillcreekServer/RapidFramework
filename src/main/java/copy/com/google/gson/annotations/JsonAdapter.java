@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * <p>
  * Here is an example of how this annotation is used:
  * </p>
- * 
+ *
  * <pre>
  * &#64JsonAdapter(UserJsonAdapter.class)
  * public class User {
@@ -62,14 +62,14 @@ import java.lang.annotation.Target;
  *   }
  * }
  * </pre>
- *
+ * <p>
  * Since User class specified UserJsonAdapter.class in &#64JsonAdapter
  * annotation, it will automatically be invoked to serialize/deserialize User
  * instances. <br>
  *
  * <p>
  * Here is an example of how to apply this annotation to a field.
- * 
+ *
  * <pre>
  * private static final class Gadget {
  *   &#64JsonAdapter(UserJsonAdapter2.class)
@@ -79,7 +79,7 @@ import java.lang.annotation.Target;
  *   }
  * }
  * </pre>
- *
+ * <p>
  * It's possible to specify different type adapters on a field, that field's
  * type, and in the {@link copy.com.google.gson.GsonBuilder}. Field annotations
  * take precedence over {@code GsonBuilder}-registered type adapters, which in
@@ -92,15 +92,14 @@ import java.lang.annotation.Target;
  * {@link TypeAdapterFactory} makes it possible to delegate to the enclosing
  * {@code Gson} instance.
  *
- * @since 2.3
- *
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @author Jesse Wilson
+ * @since 2.3
  */
 // Note that the above example is taken from AdaptAnnotationTest.
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD })
+@Target({ElementType.TYPE, ElementType.FIELD})
 public @interface JsonAdapter {
 
     /**

@@ -31,7 +31,7 @@ import java.lang.reflect.Type;
  * </p>
  *
  * <p>
- * 
+ *
  * <pre>
  * public class Id&lt;T&gt; {
  *     private final Class&lt;T&gt; clazz;
@@ -57,7 +57,7 @@ import java.lang.reflect.Type;
  * </p>
  *
  * <p>
- * 
+ *
  * <pre>
  * class IdSerializer implements JsonSerializer&lt;Id&gt;() {
  *   public JsonElement serialize(Id id, Type typeOfId, JsonSerializationContext context) {
@@ -70,7 +70,7 @@ import java.lang.reflect.Type;
  * <p>
  * You will also need to register {@code IdSerializer} with Gson as follows:
  * </p>
- * 
+ *
  * <pre>
  * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdSerializer()).create();
  * </pre>
@@ -79,12 +79,11 @@ import java.lang.reflect.Type;
  * New applications should prefer {@link TypeAdapter}, whose streaming API is
  * more efficient than this interface's tree API.
  *
+ * @param <T> type for which the serializer is being registered. It is possible
+ *            that a serializer may be asked to serialize a specific generic type of
+ *            the T.
  * @author Inderjeet Singh
  * @author Joel Leitch
- *
- * @param <T> type for which the serializer is being registered. It is possible
- *        that a serializer may be asked to serialize a specific generic type of
- *        the T.
  */
 public interface JsonSerializer<T> {
 

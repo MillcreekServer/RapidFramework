@@ -35,7 +35,7 @@ import java.lang.annotation.*;
  * <p>
  * Here is an example of how this annotation is meant to be used:
  * </p>
- * 
+ *
  * <pre>
  * public class MyClass {
  *   &#64SerializedName("name") String a;
@@ -54,7 +54,7 @@ import java.lang.annotation.*;
  * The following shows the output that is generated when serializing an instance
  * of the above example class:
  * </p>
- * 
+ *
  * <pre>
  * MyClass target = new MyClass("v1", "v2", "v3");
  * Gson gson = new Gson();
@@ -71,7 +71,7 @@ import java.lang.annotation.*;
  * </p>
  * While deserializing, all values specified in the annotation will be
  * deserialized into the field. For example:
- * 
+ *
  * <pre>
  * MyClass target = gson.fromJson("{'name1':'v1'}", MyClass.class);
  * assertEquals("v1", target.b);
@@ -80,17 +80,16 @@ import java.lang.annotation.*;
  * target = gson.fromJson("{'name3':'v3'}", MyClass.class);
  * assertEquals("v3", target.b);
  * </pre>
- * 
+ * <p>
  * Note that MyClass.b is now deserialized from either name1, name2 or name3.
- *
- * @see copy.com.google.gson.FieldNamingPolicy
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
+ * @see copy.com.google.gson.FieldNamingPolicy
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.METHOD })
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface SerializedName {
 
     /**

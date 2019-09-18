@@ -2,7 +2,6 @@ package io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.
 
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.objects.structure.interfaces.filter.EntityFilter;
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 

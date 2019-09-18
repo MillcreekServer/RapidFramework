@@ -37,7 +37,7 @@ import java.lang.reflect.Type;
  * public class Id&lt;T&gt; {
  *     private final Class&lt;T&gt; clazz;
  *     private final long value;
- * 
+ *
  *     public Id(Class&lt;T&gt; clazz, long value) {
  * 	this.clazz = clazz;
  * 	this.value = value;
@@ -85,7 +85,6 @@ import java.lang.reflect.Type;
  * </pre>
  *
  * @param <T> the type of object that will be created by this implementation.
- *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */

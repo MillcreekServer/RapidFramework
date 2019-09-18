@@ -38,7 +38,7 @@ public interface JsonDeserializationContext {
      *
      * @param json    the parse tree.
      * @param typeOfT type of the expected return value.
-     * @param         <T> The type of the deserialized object.
+     * @param <T>     The type of the deserialized object.
      * @return An object of type typeOfT.
      * @throws JsonParseException if the parse tree does not contain expected data.
      */

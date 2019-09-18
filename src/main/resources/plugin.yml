@@ -2,11 +2,16 @@ author: wysohn
 name: RapidFramework
 main: io.github.wysohn.rapidframework.main.FakePlugin
 softdepend:
-- Vault
+  - Vault
+  - PlaceholderAPI
+  - UserInterfaceLib
+  - JsonApi
+  - TitleAPI
+  - TTA
 version: 0.0.1
 commands:
   rapidframework:
     aliases:
-    - rf
-    - rframe
+      - rf
+      - rframe
     description: some description

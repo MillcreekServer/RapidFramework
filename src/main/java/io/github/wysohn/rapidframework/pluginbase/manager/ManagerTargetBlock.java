@@ -18,7 +18,7 @@ public class ManagerTargetBlock extends PluginManager<PluginBase> implements Lis
     private final Map<UUID, TargetCallback> callbackMap = new HashMap<>();
 
     public ManagerTargetBlock(PluginBase base, int loadPriority) {
-	super(base, loadPriority);
+        super(base, loadPriority);
     }
 
     @Override
@@ -44,40 +44,40 @@ public class ManagerTargetBlock extends PluginManager<PluginBase> implements Lis
      * @param callback
      */
     public void requestTargetBlock(Player player, TargetCallback callback) {
-	callbackMap.put(player.getUniqueId(), callback);
-	base.sendMessage(player, DefaultLanguages.TargetBlockManager_ReadyToClick);
+        callbackMap.put(player.getUniqueId(), callback);
+        base.sendMessage(player, DefaultLanguages.Manager_TargetBlock_ReadyToClick);
     }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-	if (e.getAction() != Action.LEFT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_BLOCK)
-	    return;
+        if (e.getAction() != Action.LEFT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return;
 
-	UUID uuid = e.getPlayer().getUniqueId();
-	if (!callbackMap.containsKey(uuid))
-	    return;
+        UUID uuid = e.getPlayer().getUniqueId();
+        if (!callbackMap.containsKey(uuid))
+            return;
 
-	e.setCancelled(true);
+        e.setCancelled(true);
 
-	if (e.getPlayer().isSneaking()) {
-	    callbackMap.remove(uuid);
-	    base.sendMessage(e.getPlayer(), DefaultLanguages.TargetBlockManager_Canceled);
-	} else {
-	    callbackMap.remove(uuid).onClick(e);
-	}
+        if (e.getPlayer().isSneaking()) {
+            callbackMap.remove(uuid);
+            base.sendMessage(e.getPlayer(), DefaultLanguages.Manager_TargetBlock_Canceled);
+        } else {
+            callbackMap.remove(uuid).onClick(e);
+        }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-	callbackMap.remove(e.getPlayer().getUniqueId());
+        callbackMap.remove(e.getPlayer().getUniqueId());
     }
 
     public interface TargetCallback {
-	/**
-	 * This blocks the server thread.
-	 * 
-	 * @param e the direct reference where the Listener interface received the event
-	 */
-	void onClick(PlayerInteractEvent e);
+        /**
+         * This blocks the server thread.
+         *
+         * @param e the direct reference where the Listener interface received the event
+         */
+        void onClick(PlayerInteractEvent e);
     }
 }

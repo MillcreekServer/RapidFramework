@@ -40,13 +40,13 @@ public class NmsChunkManager implements INmsWorldManager {
     private static Map<String, ChunkProviderServer> _serv = new ConcurrentHashMap<String, ChunkProviderServer>();
 
     private void initNatural(World w) {
-	if (!_serv.containsKey(w.getName())) {
-	    CraftWorld cw = (CraftWorld) w;
-	    WorldServer ws = cw.getHandle();
-	    IChunkLoader loader = ws.getDataManager().createChunkLoader(ws.worldProvider);
-	    NormalChunkGenerator _gen = new NormalChunkGenerator(ws, w.getSeed());
-	    _serv.put(w.getName(), new ChunkProviderServer(ws, loader, _gen));
-	}
+        if (!_serv.containsKey(w.getName())) {
+            CraftWorld cw = (CraftWorld) w;
+            WorldServer ws = cw.getHandle();
+            IChunkLoader loader = ws.getDataManager().createChunkLoader(ws.worldProvider);
+            NormalChunkGenerator _gen = new NormalChunkGenerator(ws, w.getSeed());
+            _serv.put(w.getName(), new ChunkProviderServer(ws, loader, _gen));
+        }
     }
 
     /*
@@ -57,41 +57,41 @@ public class NmsChunkManager implements INmsWorldManager {
      */
     @Override
     public void regenerateChunk(World w, int i, int j, BlockFilter filter) {
-	initNatural(w);
+        initNatural(w);
 
-	Chunk c = _serv.get(w.getName()).getChunkAt(i, j).bukkitChunk;
-	Chunk chunk = w.getChunkAt(i, j);
+        Chunk c = _serv.get(w.getName()).getChunkAt(i, j).bukkitChunk;
+        Chunk chunk = w.getChunkAt(i, j);
 
-	for (int x = 0; x < 16; x++) {
-	    for (int z = 0; z < 16; z++) {
-		for (int y = 0; y < 128; y++) {
-		    final Block block = c.getBlock(x, y, z);
-		    if (!filter.allow(block.getTypeId(), block.getData()))
-			continue;
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = 0; y < 128; y++) {
+                    final Block block = c.getBlock(x, y, z);
+                    if (!filter.allow(block.getTypeId(), block.getData()))
+                        continue;
 
-		    final Block target = chunk.getBlock(x, y, z);
+                    final Block target = chunk.getBlock(x, y, z);
 
-		    Bukkit.getScheduler().runTask(FakePlugin.instance, new Runnable() {
-			@Override
-			public void run() {
-			    target.setTypeId(block.getTypeId());
-			    target.setData(block.getData());
-			}
-		    });
+                    Bukkit.getScheduler().runTask(FakePlugin.instance, new Runnable() {
+                        @Override
+                        public void run() {
+                            target.setTypeId(block.getTypeId());
+                            target.setData(block.getData());
+                        }
+                    });
 
-		}
-	    }
-	}
+                }
+            }
+        }
     }
 
     @Override
     public void sendChunkMapPacket(Player player, Chunk chunk) {
-	CraftPlayer cp = (CraftPlayer) player;
-	CraftChunk cc = (CraftChunk) chunk;
+        CraftPlayer cp = (CraftPlayer) player;
+        CraftChunk cc = (CraftChunk) chunk;
 
-	PacketPlayOutMapChunk packet = new PacketPlayOutMapChunk(cc.getHandle(), true, '\uffff');
+        PacketPlayOutMapChunk packet = new PacketPlayOutMapChunk(cc.getHandle(), true, '\uffff');
 
-	cp.getHandle().playerConnection.sendPacket(packet);
+        cp.getHandle().playerConnection.sendPacket(packet);
     }
 
     @Override

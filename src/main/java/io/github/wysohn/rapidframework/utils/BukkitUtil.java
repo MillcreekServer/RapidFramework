@@ -1,16 +1,16 @@
 package io.github.wysohn.rapidframework.utils;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class BukkitUtil {
     private static boolean getOnlinePlayersMethodFound = true;
@@ -21,36 +21,36 @@ public class BukkitUtil {
      * method automatically create a new Collection of players. If it's newer
      * version, Bukkit.getOnlinePlayers() simply return Collection of players
      * already.
-     * 
+     *
      * @return Collection of players.
      */
     public static Collection<? extends Player> getOnlinePlayers() {
-	if (!getOnlinePlayersMethodFound) {
-	    return Bukkit.getOnlinePlayers();
-	} else {
-	    try {
-		Method method = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
+        if (!getOnlinePlayersMethodFound) {
+            return Bukkit.getOnlinePlayers();
+        } else {
+            try {
+                Method method = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
 
-		method.setAccessible(true);
-		Object out = method.invoke(null);
+                method.setAccessible(true);
+                Object out = method.invoke(null);
 
-		if (out.getClass().isArray()) {
-		    Collection<Player> players = new ArrayList<>();
-		    for (int i = 0; i < Array.getLength(out); i++) {
-			players.add((Player) Array.get(out, i));
-		    }
-		    return players;
-		} else {
-		    return (Collection<? extends Player>) out;
-		}
-	    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-		    | InvocationTargetException e) {
-		getOnlinePlayersMethodFound = false;
-		e.printStackTrace();
-	    }
+                if (out.getClass().isArray()) {
+                    Collection<Player> players = new ArrayList<>();
+                    for (int i = 0; i < Array.getLength(out); i++) {
+                        players.add((Player) Array.get(out, i));
+                    }
+                    return players;
+                } else {
+                    return (Collection<? extends Player>) out;
+                }
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException e) {
+                getOnlinePlayersMethodFound = false;
+                e.printStackTrace();
+            }
 
-	    return Bukkit.getOnlinePlayers();
-	}
+            return Bukkit.getOnlinePlayers();
+        }
     }
 
     private static boolean getHandMethodFound = true;
@@ -60,49 +60,49 @@ public class BukkitUtil {
      * versions, there was no concept of 'using both hand,' so it will return true
      * always. If it is new version, It will check to see if the left hand is
      * involved in this interaction event.
-     * 
+     *
      * @param e PlayerInteractEvent to check
      * @return true if left hand; false otherwise.
      */
     public static boolean isLeftHandClick(PlayerInteractEvent e) {
-	if (!getHandMethodFound) { // if method does not exists, it is old version.
-	    return true; // always left hand in old versions
-	} else {
-	    try {
-		Method method = e.getClass().getMethod("getHand");
+        if (!getHandMethodFound) { // if method does not exists, it is old version.
+            return true; // always left hand in old versions
+        } else {
+            try {
+                Method method = e.getClass().getMethod("getHand");
 
-		method.setAccessible(true);
-		Object out = method.invoke(e);
+                method.setAccessible(true);
+                Object out = method.invoke(e);
 
-		// how is it possible ?_?
-		if (out == null)
-		    return false; // just process it as noo left hand click
+                // how is it possible ?_?
+                if (out == null)
+                    return false; // just process it as noo left hand click
 
-		Class<?> clazz = Class.forName("org.bukkit.inventory.EquipmentSlot");
-		if (!clazz.isEnum()) {// This is not likely the case but just for safety
-		    getHandMethodFound = false;
-		    return true;
-		}
+                Class<?> clazz = Class.forName("org.bukkit.inventory.EquipmentSlot");
+                if (!clazz.isEnum()) {// This is not likely the case but just for safety
+                    getHandMethodFound = false;
+                    return true;
+                }
 
-		Object enumHand = Enum.valueOf((Class<? extends Enum>) clazz, "HAND");
+                Object enumHand = Enum.valueOf((Class<? extends Enum>) clazz, "HAND");
 
-		return out.equals(enumHand);
-	    } catch (NoSuchMethodException ex) {
-		getHandMethodFound = false;
-		return true;
-	    } catch (Exception ex) {
-		getHandMethodFound = false;
-		ex.printStackTrace();
-		return true;
-	    }
-	}
+                return out.equals(enumHand);
+            } catch (NoSuchMethodException ex) {
+                getHandMethodFound = false;
+                return true;
+            } catch (Exception ex) {
+                getHandMethodFound = false;
+                ex.printStackTrace();
+                return true;
+            }
+        }
     }
 
     public static ItemStack getPlayerHeadItem() {
-	try {
-	    return new ItemStack(Material.valueOf("PLAYER_HEAD"), 1, (short) 3);
-	} catch (IllegalArgumentException ex) {
-	    return new ItemStack(Material.valueOf("SKULL_ITEM"), 1, (short) 3);
-	}
+        try {
+            return new ItemStack(Material.valueOf("PLAYER_HEAD"), 1, (short) 3);
+        } catch (IllegalArgumentException ex) {
+            return new ItemStack(Material.valueOf("SKULL_ITEM"), 1, (short) 3);
+        }
     }
 }

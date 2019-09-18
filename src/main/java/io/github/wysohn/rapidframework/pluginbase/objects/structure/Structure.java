@@ -4,7 +4,6 @@ import io.github.wysohn.rapidframework.pluginbase.PluginLanguage.Language;
 import io.github.wysohn.rapidframework.pluginbase.language.DefaultLanguages;
 import io.github.wysohn.rapidframework.pluginbase.manager.ManagerElementCaching.NamedElement;
 import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
-
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -28,111 +27,111 @@ public abstract class Structure implements NamedElement {
      * @param ownerUuid
      */
     public Structure(SimpleLocation sloc, UUID ownerUuid) {
-	super();
-	this.name = sloc.toString();
-	this.sloc = sloc;
-	this.ownerUuid = ownerUuid;
+        super();
+        this.name = sloc.toString();
+        this.sloc = sloc;
+        this.ownerUuid = ownerUuid;
     }
 
     @Override
-    public String getName() {
-	return name;
+    public String getDisplayName() {
+        return name;
     }
 
     public Set<UUID> getTrusts() {
-	return trusts;
+        return trusts;
     }
 
     public boolean isPublic() {
-	return isPublic;
+        return isPublic;
     }
 
     public void setPublic(boolean isPublic) {
-	this.isPublic = isPublic;
+        this.isPublic = isPublic;
     }
 
     public UUID getOwnerUuid() {
-	return ownerUuid;
+        return ownerUuid;
     }
 
     public void setOwnerUuid(UUID ownerUuid) {
-	this.ownerUuid = ownerUuid;
+        this.ownerUuid = ownerUuid;
     }
 
     public String getTitle() {
-	return title;
+        return title;
     }
 
     public void setTitle(String title) {
-	this.title = title;
+        this.title = title;
     }
 
     public List<String> getDesc() {
-	return desc;
+        return desc;
     }
 
     public void setDesc(List<String> desc) {
-	this.desc = desc;
+        this.desc = desc;
     }
 
     public Map<Language, Object> infoToMap(Player player, UUIDToNameParser parser) throws StructureException {
-	Map<Language, Object> map = new HashMap<>();
+        Map<Language, Object> map = new HashMap<>();
 
-	List<String> trustCopy = new ArrayList();
-	trusts.forEach((uuid) -> {
-	    String name = parser.parse(uuid);
-	    trustCopy.add(name == null ? "[?]" : name);
-	});
+        List<String> trustCopy = new ArrayList();
+        trusts.forEach((uuid) -> {
+            String name = parser.parse(uuid);
+            trustCopy.add(name == null ? "[?]" : name);
+        });
 
-	map.put(DefaultLanguages.Structure_Trusts, trustCopy);
-	map.put(DefaultLanguages.Structure_PublicMode, isPublic);
-	map.put(DefaultLanguages.Structure_Title, title == null ? "?" : title);
+        map.put(DefaultLanguages.Structure_Trusts, trustCopy);
+        map.put(DefaultLanguages.Structure_PublicMode, isPublic);
+        map.put(DefaultLanguages.Structure_Title, title == null ? "?" : title);
 
-	return map;
+        return map;
     }
 
     public void applyInfoMap(Player player, Map<Language, Object> map, NameToUUIDParser parser)
-	    throws StructureException {
-	List<String> trustCopy = (List<String>) map.get(DefaultLanguages.Structure_Trusts);
-	Boolean publicMode = (Boolean) map.get(DefaultLanguages.Structure_PublicMode);
-	String title = (String) map.get(DefaultLanguages.Structure_Title);
+            throws StructureException {
+        List<String> trustCopy = (List<String>) map.get(DefaultLanguages.Structure_Trusts);
+        Boolean publicMode = (Boolean) map.get(DefaultLanguages.Structure_PublicMode);
+        String title = (String) map.get(DefaultLanguages.Structure_Title);
 
-	if (trustCopy != null) {
-	    trusts.clear();
+        if (trustCopy != null) {
+            trusts.clear();
 
-	    for (String name : trustCopy) {
-		UUID parsed = parser.parse(ownerUuid, name);
-		if (parsed != null)
-		    trusts.add(parsed);
-	    }
-	}
+            for (String name : trustCopy) {
+                UUID parsed = parser.parse(ownerUuid, name);
+                if (parsed != null)
+                    trusts.add(parsed);
+            }
+        }
 
-	if (publicMode != null)
-	    this.isPublic = publicMode;
+        if (publicMode != null)
+            this.isPublic = publicMode;
 
-	if (title != null)
-	    this.title = title;
-    }
-
-    public static class StructureException extends RuntimeException {
-	private final Language lang;
-
-	public StructureException(Language lang) {
-	    super(lang == null ? "null" : lang.toString());
-	    this.lang = lang;
-	}
-
-	public Language getLang() {
-	    return lang;
-	}
-
+        if (title != null)
+            this.title = title;
     }
 
     public interface NameToUUIDParser {
-	UUID parse(UUID ownerGuild, String name);
+        UUID parse(UUID ownerGuild, String name);
     }
 
     public interface UUIDToNameParser {
-	String parse(UUID uuid);
+        String parse(UUID uuid);
+    }
+
+    public static class StructureException extends RuntimeException {
+        private final Language lang;
+
+        public StructureException(Language lang) {
+            super(lang == null ? "null" : lang.toString());
+            this.lang = lang;
+        }
+
+        public Language getLang() {
+            return lang;
+        }
+
     }
 }

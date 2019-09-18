@@ -36,10 +36,10 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
      * unchanged.
      */
     IDENTITY() {
-	@Override
-	public String translateName(Field f) {
-	    return f.getName();
-	}
+        @Override
+        public String translateName(Field f) {
+            return f.getName();
+        }
     },
 
     /**
@@ -55,10 +55,10 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
      * </ul>
      */
     UPPER_CAMEL_CASE() {
-	@Override
-	public String translateName(Field f) {
-	    return upperCaseFirstLetter(f.getName());
-	}
+        @Override
+        public String translateName(Field f) {
+            return upperCaseFirstLetter(f.getName());
+        }
     },
 
     /**
@@ -77,10 +77,10 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
      * @since 1.4
      */
     UPPER_CAMEL_CASE_WITH_SPACES() {
-	@Override
-	public String translateName(Field f) {
-	    return upperCaseFirstLetter(separateCamelCase(f.getName(), " "));
-	}
+        @Override
+        public String translateName(Field f) {
+            return upperCaseFirstLetter(separateCamelCase(f.getName(), " "));
+        }
     },
 
     /**
@@ -99,10 +99,10 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
      * </ul>
      */
     LOWER_CASE_WITH_UNDERSCORES() {
-	@Override
-	public String translateName(Field f) {
-	    return separateCamelCase(f.getName(), "_").toLowerCase(Locale.ENGLISH);
-	}
+        @Override
+        public String translateName(Field f) {
+            return separateCamelCase(f.getName(), "_").toLowerCase(Locale.ENGLISH);
+        }
     },
 
     /**
@@ -124,14 +124,14 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
      * always accessed as a quoted property like {@code myobject['my-field']}.
      * Accessing it as an object field {@code myobject.my-field} will result in an
      * unintended javascript expression.
-     * 
+     *
      * @since 1.4
      */
     LOWER_CASE_WITH_DASHES() {
-	@Override
-	public String translateName(Field f) {
-	    return separateCamelCase(f.getName(), "-").toLowerCase(Locale.ENGLISH);
-	}
+        @Override
+        public String translateName(Field f) {
+            return separateCamelCase(f.getName(), "-").toLowerCase(Locale.ENGLISH);
+        }
     };
 
     /**
@@ -139,45 +139,45 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
      * separate words that are separated by the provided {@code separatorString}.
      */
     static String separateCamelCase(String name, String separator) {
-	StringBuilder translation = new StringBuilder();
-	for (int i = 0, length = name.length(); i < length; i++) {
-	    char character = name.charAt(i);
-	    if (Character.isUpperCase(character) && translation.length() != 0) {
-		translation.append(separator);
-	    }
-	    translation.append(character);
-	}
-	return translation.toString();
+        StringBuilder translation = new StringBuilder();
+        for (int i = 0, length = name.length(); i < length; i++) {
+            char character = name.charAt(i);
+            if (Character.isUpperCase(character) && translation.length() != 0) {
+                translation.append(separator);
+            }
+            translation.append(character);
+        }
+        return translation.toString();
     }
 
     /**
      * Ensures the JSON field names begins with an upper case letter.
      */
     static String upperCaseFirstLetter(String name) {
-	StringBuilder fieldNameBuilder = new StringBuilder();
-	int index = 0;
-	char firstCharacter = name.charAt(index);
-	int length = name.length();
+        StringBuilder fieldNameBuilder = new StringBuilder();
+        int index = 0;
+        char firstCharacter = name.charAt(index);
+        int length = name.length();
 
-	while (index < length - 1) {
-	    if (Character.isLetter(firstCharacter)) {
-		break;
-	    }
+        while (index < length - 1) {
+            if (Character.isLetter(firstCharacter)) {
+                break;
+            }
 
-	    fieldNameBuilder.append(firstCharacter);
-	    firstCharacter = name.charAt(++index);
-	}
+            fieldNameBuilder.append(firstCharacter);
+            firstCharacter = name.charAt(++index);
+        }
 
-	if (!Character.isUpperCase(firstCharacter)) {
-	    String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), name, ++index);
-	    return fieldNameBuilder.append(modifiedTarget).toString();
-	} else {
-	    return name;
-	}
+        if (!Character.isUpperCase(firstCharacter)) {
+            String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), name, ++index);
+            return fieldNameBuilder.append(modifiedTarget).toString();
+        } else {
+            return name;
+        }
     }
 
     private static String modifyString(char firstCharacter, String srcString, int indexOfSubstring) {
-	return (indexOfSubstring < srcString.length()) ? firstCharacter + srcString.substring(indexOfSubstring)
-		: String.valueOf(firstCharacter);
+        return (indexOfSubstring < srcString.length()) ? firstCharacter + srcString.substring(indexOfSubstring)
+                : String.valueOf(firstCharacter);
     }
 }

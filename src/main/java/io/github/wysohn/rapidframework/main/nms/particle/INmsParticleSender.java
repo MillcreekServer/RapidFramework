@@ -23,10 +23,10 @@ import java.util.UUID;
 
 public interface INmsParticleSender {
     public void sendPlayerOutParticle(Player[] player, int id, boolean distance, double x, double y, double z, int red,
-	    int green, int blue, int speed, int count);
+                                      int green, int blue, int speed, int count);
 
     public void sendPlayerOutParticle(Player[] player, int id, boolean distance, Location loc, int red, int green,
-	    int blue, int speed, int count);
+                                      int blue, int speed, int count);
 
     public void showGlowingBlock(Player[] player, int entityID, UUID uuid, int x, int y, int z);
 }

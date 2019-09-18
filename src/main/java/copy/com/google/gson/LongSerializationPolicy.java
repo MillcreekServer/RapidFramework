@@ -20,10 +20,9 @@ package copy.com.google.gson;
  * Defines the expected format for a {@code long} or {@code Long} type when its
  * serialized.
  *
- * @since 1.3
- *
  * @author Inderjeet Singh
  * @author Joel Leitch
+ * @since 1.3
  */
 public enum LongSerializationPolicy {
     /**
@@ -32,10 +31,10 @@ public enum LongSerializationPolicy {
      * "f" then the serialized output would be: {@code {"f":123}}.
      */
     DEFAULT() {
-	@Override
-	public JsonElement serialize(Long value) {
-	    return new JsonPrimitive(value);
-	}
+        @Override
+        public JsonElement serialize(Long value) {
+            return new JsonPrimitive(value);
+        }
     },
 
     /**
@@ -44,10 +43,10 @@ public enum LongSerializationPolicy {
      * {@code {"f":"123"}}.
      */
     STRING() {
-	@Override
-	public JsonElement serialize(Long value) {
-	    return new JsonPrimitive(String.valueOf(value));
-	}
+        @Override
+        public JsonElement serialize(Long value) {
+            return new JsonPrimitive(String.valueOf(value));
+        }
     };
 
     /**

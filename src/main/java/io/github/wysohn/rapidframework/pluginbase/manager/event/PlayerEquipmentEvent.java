@@ -22,8 +22,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 
-import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
-
 public abstract class PlayerEquipmentEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
@@ -31,31 +29,31 @@ public abstract class PlayerEquipmentEvent extends PlayerEvent implements Cancel
     private final ItemStack item;
 
     public PlayerEquipmentEvent(Player who, ItemStack item) {
-	super(who);
+        super(who);
 
-	this.item = item;
+        this.item = item;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
     public boolean isCancelled() {
-	return cancelled;
+        return cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-	cancelled = cancel;
+        cancelled = cancel;
     }
 
     @Override
     public HandlerList getHandlers() {
-	return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
-	return handlers;
+        return handlers;
     }
 
     public ItemStack getItem() {
-	return item;
+        return item;
     }
 }

@@ -37,17 +37,17 @@ public final class JsonNull extends JsonElement {
      */
     @Deprecated
     public JsonNull() {
-	// Do nothing
+        // Do nothing
     }
 
     /**
      * Returns the same instance since it is an immutable value
-     * 
+     *
      * @since 2.8.2
      */
     @Override
     public JsonNull deepCopy() {
-	return INSTANCE;
+        return INSTANCE;
     }
 
     /**
@@ -56,7 +56,7 @@ public final class JsonNull extends JsonElement {
      */
     @Override
     public int hashCode() {
-	return JsonNull.class.hashCode();
+        return JsonNull.class.hashCode();
     }
 
     /**
@@ -64,6 +64,6 @@ public final class JsonNull extends JsonElement {
      */
     @Override
     public boolean equals(Object other) {
-	return this == other || other instanceof JsonNull;
+        return this == other || other instanceof JsonNull;
     }
 }

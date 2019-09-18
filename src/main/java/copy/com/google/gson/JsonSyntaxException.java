@@ -27,11 +27,11 @@ public final class JsonSyntaxException extends JsonParseException {
     private static final long serialVersionUID = 1L;
 
     public JsonSyntaxException(String msg) {
-	super(msg);
+        super(msg);
     }
 
     public JsonSyntaxException(String msg, Throwable cause) {
-	super(msg, cause);
+        super(msg, cause);
     }
 
     /**
@@ -42,6 +42,6 @@ public final class JsonSyntaxException extends JsonParseException {
      * @param cause root exception that caused this exception to be thrown.
      */
     public JsonSyntaxException(Throwable cause) {
-	super(cause);
+        super(cause);
     }
 }

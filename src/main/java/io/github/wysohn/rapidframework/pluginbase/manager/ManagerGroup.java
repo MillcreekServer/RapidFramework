@@ -1,45 +1,44 @@
 package io.github.wysohn.rapidframework.pluginbase.manager;
 
-import java.util.UUID;
-
-import io.github.wysohn.rapidframework.database.Database.DatabaseFactory;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
 import io.github.wysohn.rapidframework.pluginbase.objects.Group;
 import io.github.wysohn.rapidframework.pluginbase.objects.permissions.PermissionHolder;
 import io.github.wysohn.rapidframework.pluginbase.objects.permissions.PermissionHolderProvider;
 
-public class ManagerGroup extends AbstractManagerGroup<PluginBase, Group> implements PermissionHolderProvider {
+import java.util.UUID;
 
-    public ManagerGroup(PluginBase base, int loadPriority) {
-	super(base, loadPriority, createDatabaseFactory(base, "Groups", Group.class));
+public class ManagerGroup<PB extends PluginBase> extends AbstractManagerGroup<PB, Group> implements PermissionHolderProvider {
+
+    public ManagerGroup(PB base, int loadPriority) {
+        super(base, loadPriority, createDatabaseFactory(base, "Groups", Group.class));
     }
 
     @Override
     protected void onEnable() throws Exception {
-	super.onEnable();
+        super.onEnable();
 
-	ManagerCustomPermission mcp = base.getManager(ManagerCustomPermission.class);
-	mcp.registerProvider(this);
+        ManagerCustomPermission mcp = base.getManager(ManagerCustomPermission.class);
+        mcp.registerProvider(this);
     }
 
     @Override
-    protected Group createNewGroup(UUID ownerUuid) {
-	return new Group(ownerUuid);
+    protected Group instantiateGroup(UUID ownerUuid) {
+        return new Group(ownerUuid);
     }
 
     @Override
     protected CacheUpdateHandle<UUID, Group> getUpdateHandle() {
-	return null;
+        return null;
     }
 
     @Override
     protected CacheDeleteHandle<UUID, Group> getDeleteHandle() {
-	return null;
+        return null;
     }
 
     @Override
     public PermissionHolder getPermissionHolder(UUID uuid) {
-	return this.get(uuid);
+        return this.get(uuid);
     }
 
 }

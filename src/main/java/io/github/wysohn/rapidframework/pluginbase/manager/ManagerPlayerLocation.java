@@ -39,7 +39,7 @@ public class ManagerPlayerLocation<T extends PluginBase> extends PluginManager<T
     private transient Map<UUID, SimpleLocation> locations = new ConcurrentHashMap<>();
 
     private ManagerPlayerLocation(T base, int loadPriority) {
-	super(base, loadPriority);
+        super(base, loadPriority);
     }
 
     @Override
@@ -57,6 +57,13 @@ public class ManagerPlayerLocation<T extends PluginBase> extends PluginManager<T
 
     }
 
+    public static ManagerPlayerLocation<PluginBase> getSharedInstance(PluginBase base) {
+        if (sharedInstance == null) {
+            sharedInstance = new ManagerPlayerLocation<PluginBase>(base, PluginManager.SLOWEST_PRIORITY);
+        }
+        return sharedInstance;
+    }
+
     /**
      * get location of player
      *
@@ -64,7 +71,7 @@ public class ManagerPlayerLocation<T extends PluginBase> extends PluginManager<T
      * @return the location. If the player just logged in, it might be null.
      */
     public SimpleLocation getCurrentBlockLocation(UUID uuid) {
-	return locations.get(uuid);
+        return locations.get(uuid);
     }
 
     /**
@@ -74,7 +81,7 @@ public class ManagerPlayerLocation<T extends PluginBase> extends PluginManager<T
      * @param sloc the location where player is at
      */
     protected void setCurrentBlockLocation(UUID uuid, SimpleLocation sloc) {
-	locations.put(uuid, sloc);
+        locations.put(uuid, sloc);
     }
 
     /**
@@ -83,87 +90,80 @@ public class ManagerPlayerLocation<T extends PluginBase> extends PluginManager<T
      * @param uuid the player's uuid
      */
     protected void removeCurrentBlockLocation(UUID uuid) {
-	locations.remove(uuid);
+        locations.remove(uuid);
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onJoin(PlayerJoinEvent e) {
-	Player player = e.getPlayer();
-	Location loc = player.getLocation();
-	SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
-	setCurrentBlockLocation(player.getUniqueId(), sloc);
+        Player player = e.getPlayer();
+        Location loc = player.getLocation();
+        SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
+        setCurrentBlockLocation(player.getUniqueId(), sloc);
     }
 
     @EventHandler
     public void onSpawn(PlayerRespawnEvent e) {
-	Player player = e.getPlayer();
-	Location loc = player.getLocation();
-	SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
-	setCurrentBlockLocation(player.getUniqueId(), sloc);
+        Player player = e.getPlayer();
+        Location loc = player.getLocation();
+        SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
+        setCurrentBlockLocation(player.getUniqueId(), sloc);
     }
 
     @EventHandler
     public void onTeleport(PlayerChangedWorldEvent e) {
-	Player player = e.getPlayer();
-	Location loc = player.getLocation();
-	SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
-	setCurrentBlockLocation(player.getUniqueId(), sloc);
+        Player player = e.getPlayer();
+        Location loc = player.getLocation();
+        SimpleLocation sloc = LocationUtil.convertToSimpleLocation(loc);
+        setCurrentBlockLocation(player.getUniqueId(), sloc);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onQuit(PlayerQuitEvent e) {
-	Player player = e.getPlayer();
-	removeCurrentBlockLocation(player.getUniqueId());
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onMove(PlayerMoveEvent e) {
-	if (e.getTo() == e.getFrom())
-	    return;
-
-	Player player = e.getPlayer();
-
-	SimpleLocation from = getCurrentBlockLocation(player.getUniqueId());
-	SimpleLocation to = LocationUtil.convertToSimpleLocation(e.getTo());
-
-	if (from.equals(to))
-	    return;
-
-	SimpleChunkLocation fromChunk = new SimpleChunkLocation(from);
-	SimpleChunkLocation toChunk = new SimpleChunkLocation(to);
-
-	boolean cancelled = false;
-	if (!fromChunk.equals(toChunk)) {
-	    PlayerChunkLocationEvent pcle = new PlayerChunkLocationEvent(player, fromChunk, toChunk);
-	    Bukkit.getPluginManager().callEvent(pcle);
-	    if (pcle.isCancelled())
-		cancelled = true;
-	}
-
-	PlayerBlockLocationEvent pble = new PlayerBlockLocationEvent(player, from, to);
-	Bukkit.getPluginManager().callEvent(pble);
-	if (pble.isCancelled())
-	    cancelled = true;
-
-	if (cancelled) {
-	    e.setCancelled(true);
-
-	    Location loc = LocationUtil.convertToBukkitLocation(from);
-	    loc.setPitch(e.getPlayer().getLocation().getPitch());
-	    loc.setYaw(e.getPlayer().getLocation().getPitch());
-	    e.setFrom(loc);
-	    e.setTo(loc);
-	} else {
-	    setCurrentBlockLocation(player.getUniqueId(), to);
-	}
+        Player player = e.getPlayer();
+        removeCurrentBlockLocation(player.getUniqueId());
     }
 
     private static ManagerPlayerLocation<PluginBase> sharedInstance = null;
 
-    public static ManagerPlayerLocation<PluginBase> getSharedInstance(PluginBase base) {
-	if (sharedInstance == null) {
-	    sharedInstance = new ManagerPlayerLocation<PluginBase>(base, PluginManager.SLOWEST_PRIORITY);
-	}
-	return sharedInstance;
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMove(PlayerMoveEvent e) {
+        if (e.getTo() == e.getFrom())
+            return;
+
+        Player player = e.getPlayer();
+
+        SimpleLocation from = getCurrentBlockLocation(player.getUniqueId());
+        SimpleLocation to = LocationUtil.convertToSimpleLocation(e.getTo());
+
+        if (from.equals(to))
+            return;
+
+        SimpleChunkLocation fromChunk = new SimpleChunkLocation(from);
+        SimpleChunkLocation toChunk = new SimpleChunkLocation(to);
+
+        boolean cancelled = false;
+        if (!fromChunk.equals(toChunk)) {
+            PlayerChunkLocationEvent pcle = new PlayerChunkLocationEvent(player, fromChunk, toChunk);
+            Bukkit.getPluginManager().callEvent(pcle);
+            if (pcle.isCancelled())
+                cancelled = true;
+        }
+
+        PlayerBlockLocationEvent pble = new PlayerBlockLocationEvent(player, from, to);
+        Bukkit.getPluginManager().callEvent(pble);
+        if (pble.isCancelled())
+            cancelled = true;
+
+        if (cancelled) {
+            e.setCancelled(true);
+
+            Location loc = LocationUtil.convertToBukkitLocation(from);
+            loc.setPitch(e.getPlayer().getLocation().getPitch());
+            loc.setYaw(e.getPlayer().getLocation().getPitch());
+            e.setFrom(loc);
+            e.setTo(loc);
+        } else {
+            setCurrentBlockLocation(player.getUniqueId(), to);
+        }
     }
 }

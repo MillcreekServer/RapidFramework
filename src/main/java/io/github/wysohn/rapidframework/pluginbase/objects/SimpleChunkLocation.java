@@ -21,103 +21,103 @@ public class SimpleChunkLocation {
     int i, j;
 
     public SimpleChunkLocation(String world, int i, int j) {
-	super();
-	this.world = world;
-	this.i = i;
-	this.j = j;
+        super();
+        this.world = world;
+        this.i = i;
+        this.j = j;
     }
 
     public SimpleChunkLocation(SimpleLocation sloc) {
-	super();
-	this.world = sloc.world;
-	this.i = sloc.x >> 4;
-	this.j = sloc.z >> 4;
+        super();
+        this.world = sloc.world;
+        this.i = sloc.x >> 4;
+        this.j = sloc.z >> 4;
+    }
+
+    public static SimpleChunkLocation valueOf(String value) {
+        String[] splitw = value.split("@", 2);
+        if (splitw.length != 2)
+            throw new SimpleChunkLocationFormatException(value);
+
+        String world = splitw[0];
+
+        String[] splitc = splitw[1].split(",", 2);
+        if (splitc.length != 2)
+            throw new SimpleChunkLocationFormatException(value);
+
+        return new SimpleChunkLocation(world, Integer.parseInt(splitc[0]), Integer.parseInt(splitc[1]));
     }
 
     public String getWorld() {
-	return world;
+        return world;
     }
 
     public int getI() {
-	return i;
+        return i;
     }
 
     public int getJ() {
-	return j;
+        return j;
     }
 
     /**
      * SimpleChunkLocation is a consistent class, so this method will return new
      * instance that added provided value to this instance.
-     * 
+     *
      * @param i x axis chunk coordinate to add
      * @param j z axis chunk coordinate to add
      * @return
      */
     public SimpleChunkLocation add(int i, int j) {
-	return new SimpleChunkLocation(world, this.i + i, this.j + j);
+        return new SimpleChunkLocation(world, this.i + i, this.j + j);
     }
 
     public double distance(SimpleChunkLocation other) {
-	return Math.sqrt(i * other.i + j * other.j);
+        return Math.sqrt(i * other.i + j * other.j);
     }
 
     @Override
     public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + i;
-	result = prime * result + j;
-	result = prime * result + ((world == null) ? 0 : world.hashCode());
-	return result;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + i;
+        result = prime * result + j;
+        result = prime * result + ((world == null) ? 0 : world.hashCode());
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
-	SimpleChunkLocation other = (SimpleChunkLocation) obj;
-	if (i != other.i)
-	    return false;
-	if (j != other.j)
-	    return false;
-	if (world == null) {
-	    if (other.world != null)
-		return false;
-	} else if (!world.equals(other.world))
-	    return false;
-	return true;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SimpleChunkLocation other = (SimpleChunkLocation) obj;
+        if (i != other.i)
+            return false;
+        if (j != other.j)
+            return false;
+        if (world == null) {
+            if (other.world != null)
+                return false;
+        } else if (!world.equals(other.world))
+            return false;
+        return true;
     }
 
     @Override
     public String toString() {
-	return world + "@" + i + "," + j;
-    }
-
-    public static SimpleChunkLocation valueOf(String value) {
-	String[] splitw = value.split("@", 2);
-	if (splitw.length != 2)
-	    throw new SimpleChunkLocationFormatException(value);
-
-	String world = splitw[0];
-
-	String[] splitc = splitw[1].split(",", 2);
-	if (splitc.length != 2)
-	    throw new SimpleChunkLocationFormatException(value);
-
-	return new SimpleChunkLocation(world, Integer.parseInt(splitc[0]), Integer.parseInt(splitc[1]));
+        return world + "@" + i + "," + j;
     }
 
     @SuppressWarnings("serial")
     public static class SimpleChunkLocationFormatException extends RuntimeException {
 
-	public SimpleChunkLocationFormatException(String message) {
-	    super(message);
-	}
+        public SimpleChunkLocationFormatException(String message) {
+            super(message);
+        }
 
     }
 }

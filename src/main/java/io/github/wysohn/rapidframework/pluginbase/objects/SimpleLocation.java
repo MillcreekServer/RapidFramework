@@ -22,130 +22,130 @@ public class SimpleLocation implements Cloneable {
     float pitch, yaw;
 
     public SimpleLocation(String world, int x, int y, int z) {
-	super();
-	this.world = world;
-	this.x = x;
-	this.y = y;
-	this.z = z;
+        super();
+        this.world = world;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public SimpleLocation(String world, int x, int y, int z, float pitch, float yaw) {
-	super();
-	this.world = world;
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.pitch = pitch;
-	this.yaw = yaw;
+        super();
+        this.world = world;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.pitch = pitch;
+        this.yaw = yaw;
+    }
+
+    public static SimpleLocation valueOf(String str) {
+        String[] splitw = str.split("@", 2);
+        if (splitw.length != 2)
+            throw new SimpleLocationFormatException(str);
+
+        String world = splitw[0];
+
+        String[] splitl = splitw[1].split(",", 3);
+        if (splitl.length != 3)
+            throw new SimpleLocationFormatException(str);
+
+        return new SimpleLocation(world, Integer.parseInt(splitl[0]), Integer.parseInt(splitl[1]),
+                Integer.parseInt(splitl[2]));
     }
 
     public String getWorld() {
-	return world;
+        return world;
     }
 
     public int getX() {
-	return x;
+        return x;
     }
 
     public int getY() {
-	return y;
+        return y;
     }
 
     public int getZ() {
-	return z;
+        return z;
     }
 
     public float getPitch() {
-	return pitch;
+        return pitch;
     }
 
     public float getYaw() {
-	return yaw;
+        return yaw;
     }
 
     public SimpleLocation add(int x, int y, int z) {
-	return new SimpleLocation(this.world, this.x + x, this.y + y, this.z + z);
+        return new SimpleLocation(this.world, this.x + x, this.y + y, this.z + z);
     }
 
     public SimpleLocation add(SimpleLocation r) {
-	return add(r.x, r.y, r.z);
+        return add(r.x, r.y, r.z);
     }
 
     public SimpleLocation sub(int x, int y, int z) {
-	return new SimpleLocation(this.world, this.x - x, this.y - y, this.z - z);
+        return new SimpleLocation(this.world, this.x - x, this.y - y, this.z - z);
     }
 
     public SimpleLocation sub(SimpleLocation r) {
-	return sub(r.x, r.y, r.z);
+        return sub(r.x, r.y, r.z);
     }
 
     public int coordinatesSum() {
-	return x + y + z;
+        return x + y + z;
     }
 
     @Override
     public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((world == null) ? 0 : world.hashCode());
-	result = prime * result + x;
-	result = prime * result + y;
-	result = prime * result + z;
-	return result;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((world == null) ? 0 : world.hashCode());
+        result = prime * result + x;
+        result = prime * result + y;
+        result = prime * result + z;
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
-	SimpleLocation other = (SimpleLocation) obj;
-	if (world == null) {
-	    if (other.world != null)
-		return false;
-	} else if (!world.equals(other.world))
-	    return false;
-	if (x != other.x)
-	    return false;
-	if (y != other.y)
-	    return false;
-	if (z != other.z)
-	    return false;
-	return true;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SimpleLocation other = (SimpleLocation) obj;
+        if (world == null) {
+            if (other.world != null)
+                return false;
+        } else if (!world.equals(other.world))
+            return false;
+        if (x != other.x)
+            return false;
+        if (y != other.y)
+            return false;
+        if (z != other.z)
+            return false;
+        return true;
     }
 
     @Override
     public String toString() {
-	return world + "@" + x + "," + y + "," + z;
+        return world + "@" + x + "," + y + "," + z;
     }
 
     @Override
     public SimpleLocation clone() {
-	return new SimpleLocation(world, x, y, z);
-    }
-
-    public static SimpleLocation valueOf(String str) {
-	String[] splitw = str.split("@", 2);
-	if (splitw.length != 2)
-	    throw new SimpleLocationFormatException(str);
-
-	String world = splitw[0];
-
-	String[] splitl = splitw[1].split(",", 3);
-	if (splitl.length != 3)
-	    throw new SimpleLocationFormatException(str);
-
-	return new SimpleLocation(world, Integer.parseInt(splitl[0]), Integer.parseInt(splitl[1]),
-		Integer.parseInt(splitl[2]));
+        return new SimpleLocation(world, x, y, z);
     }
 
     @SuppressWarnings("serial")
     public static class SimpleLocationFormatException extends RuntimeException {
-	public SimpleLocationFormatException(String message) {
-	    super(message);
-	}
+        public SimpleLocationFormatException(String message) {
+            super(message);
+        }
     }
 }

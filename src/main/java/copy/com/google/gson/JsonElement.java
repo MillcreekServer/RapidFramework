@@ -36,7 +36,7 @@ public abstract class JsonElement {
     /**
      * Returns a deep copy of this element. Immutable elements like primitives and
      * nulls are not copied.
-     * 
+     *
      * @since 2.8.2
      */
     public abstract JsonElement deepCopy();
@@ -47,7 +47,7 @@ public abstract class JsonElement {
      * @return true if this element is of type {@link JsonArray}, false otherwise.
      */
     public boolean isJsonArray() {
-	return this instanceof JsonArray;
+        return this instanceof JsonArray;
     }
 
     /**
@@ -56,17 +56,17 @@ public abstract class JsonElement {
      * @return true if this element is of type {@link JsonObject}, false otherwise.
      */
     public boolean isJsonObject() {
-	return this instanceof JsonObject;
+        return this instanceof JsonObject;
     }
 
     /**
      * provides check for verifying if this element is a primitive or not.
      *
      * @return true if this element is of type {@link JsonPrimitive}, false
-     *         otherwise.
+     * otherwise.
      */
     public boolean isJsonPrimitive() {
-	return this instanceof JsonPrimitive;
+        return this instanceof JsonPrimitive;
     }
 
     /**
@@ -76,7 +76,7 @@ public abstract class JsonElement {
      * @since 1.2
      */
     public boolean isJsonNull() {
-	return this instanceof JsonNull;
+        return this instanceof JsonNull;
     }
 
     /**
@@ -89,10 +89,10 @@ public abstract class JsonElement {
      * @throws IllegalStateException if the element is of another type.
      */
     public JsonObject getAsJsonObject() {
-	if (isJsonObject()) {
-	    return (JsonObject) this;
-	}
-	throw new IllegalStateException("Not a JSON Object: " + this);
+        if (isJsonObject()) {
+            return (JsonObject) this;
+        }
+        throw new IllegalStateException("Not a JSON Object: " + this);
     }
 
     /**
@@ -105,10 +105,10 @@ public abstract class JsonElement {
      * @throws IllegalStateException if the element is of another type.
      */
     public JsonArray getAsJsonArray() {
-	if (isJsonArray()) {
-	    return (JsonArray) this;
-	}
-	throw new IllegalStateException("Not a JSON Array: " + this);
+        if (isJsonArray()) {
+            return (JsonArray) this;
+        }
+        throw new IllegalStateException("Not a JSON Array: " + this);
     }
 
     /**
@@ -121,10 +121,10 @@ public abstract class JsonElement {
      * @throws IllegalStateException if the element is of another type.
      */
     public JsonPrimitive getAsJsonPrimitive() {
-	if (isJsonPrimitive()) {
-	    return (JsonPrimitive) this;
-	}
-	throw new IllegalStateException("Not a JSON Primitive: " + this);
+        if (isJsonPrimitive()) {
+            return (JsonPrimitive) this;
+        }
+        throw new IllegalStateException("Not a JSON Primitive: " + this);
     }
 
     /**
@@ -138,10 +138,10 @@ public abstract class JsonElement {
      * @since 1.2
      */
     public JsonNull getAsJsonNull() {
-	if (isJsonNull()) {
-	    return (JsonNull) this;
-	}
-	throw new IllegalStateException("Not a JSON Null: " + this);
+        if (isJsonNull()) {
+            return (JsonNull) this;
+        }
+        throw new IllegalStateException("Not a JSON Null: " + this);
     }
 
     /**
@@ -155,7 +155,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public boolean getAsBoolean() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -169,7 +169,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     Boolean getAsBooleanWrapper() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -183,7 +183,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public Number getAsNumber() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -197,7 +197,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public String getAsString() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -211,7 +211,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public double getAsDouble() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -225,7 +225,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public float getAsFloat() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -239,7 +239,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public long getAsLong() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -253,7 +253,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public int getAsInt() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -268,7 +268,7 @@ public abstract class JsonElement {
      * @since 1.3
      */
     public byte getAsByte() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -283,7 +283,7 @@ public abstract class JsonElement {
      * @since 1.3
      */
     public char getAsCharacter() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -299,7 +299,7 @@ public abstract class JsonElement {
      * @since 1.2
      */
     public BigDecimal getAsBigDecimal() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -315,7 +315,7 @@ public abstract class JsonElement {
      * @since 1.2
      */
     public BigInteger getAsBigInteger() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -329,7 +329,7 @@ public abstract class JsonElement {
      *                               but contains more than a single element.
      */
     public short getAsShort() {
-	throw new UnsupportedOperationException(getClass().getSimpleName());
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
@@ -337,14 +337,14 @@ public abstract class JsonElement {
      */
     @Override
     public String toString() {
-	try {
-	    StringWriter stringWriter = new StringWriter();
-	    JsonWriter jsonWriter = new JsonWriter(stringWriter);
-	    jsonWriter.setLenient(true);
-	    Streams.write(this, jsonWriter);
-	    return stringWriter.toString();
-	} catch (IOException e) {
-	    throw new AssertionError(e);
-	}
+        try {
+            StringWriter stringWriter = new StringWriter();
+            JsonWriter jsonWriter = new JsonWriter(stringWriter);
+            jsonWriter.setLenient(true);
+            Streams.write(this, jsonWriter);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
     }
 }

@@ -9,11 +9,11 @@ public class DefaultSerializer<T> implements Serializer<T> {
 
     @Override
     public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-	return gson.fromJson(json, typeOfT);
+        return gson.fromJson(json, typeOfT);
     }
 
     @Override
     public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
-	return gson.toJsonTree(src, typeOfSrc);
+        return gson.toJsonTree(src, typeOfSrc);
     }
 }

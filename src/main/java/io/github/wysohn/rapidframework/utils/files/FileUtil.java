@@ -21,81 +21,80 @@ import java.nio.channels.FileChannel;
 
 public class FileUtil {
     /**
-     *
      * @param file target file
      * @param str  string to save
      * @throws IOException
      */
     public static void writeToFile(File file, String str) throws IOException {
-	if (!file.getParentFile().exists()) {
-	    file.getParentFile().mkdirs();
-	}
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
 
-	if (!file.exists()) {
-	    try {
-		file.createNewFile();
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
-	}
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-	File temp = File.createTempFile("CopyOf_" + file.getName(), ".tmp", file.getParentFile());
+        File temp = File.createTempFile("CopyOf_" + file.getName(), ".tmp", file.getParentFile());
 
-	try (FileOutputStream fos = new FileOutputStream(temp);
-		OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");) {
-	    osw.write(str);
-	}
+        try (FileOutputStream fos = new FileOutputStream(temp);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");) {
+            osw.write(str);
+        }
 
-	try (FileInputStream istream = new FileInputStream(temp);
-		FileOutputStream ostream = new FileOutputStream(file)) {
-	    FileChannel src = istream.getChannel();
-	    FileChannel dest = ostream.getChannel();
-	    dest.transferFrom(src, 0, src.size());
-	}
+        try (FileInputStream istream = new FileInputStream(temp);
+             FileOutputStream ostream = new FileOutputStream(file)) {
+            FileChannel src = istream.getChannel();
+            FileChannel dest = ostream.getChannel();
+            dest.transferFrom(src, 0, src.size());
+        }
 
-	temp.delete();
+        temp.delete();
     }
 
     public static String readFromFile(File file) throws UnsupportedEncodingException, IOException {
-	if (!file.exists())
-	    return null;
+        if (!file.exists())
+            return null;
 
-	StringBuilder builder = new StringBuilder();
-	try (FileInputStream fis = new FileInputStream(file);
-		InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
-	    int read = -1;
-	    while ((read = isr.read()) != -1) {
-		builder.append((char) read);
-	    }
-	    return builder.toString();
-	}
+        StringBuilder builder = new StringBuilder();
+        try (FileInputStream fis = new FileInputStream(file);
+             InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
+            int read = -1;
+            while ((read = isr.read()) != -1) {
+                builder.append((char) read);
+            }
+            return builder.toString();
+        }
     }
 
     public static String readFromStream(InputStream stream) throws UnsupportedEncodingException, IOException {
-	StringBuilder builder = new StringBuilder();
-	try (InputStreamReader isr = new InputStreamReader(stream, "UTF-8")) {
-	    int read = -1;
-	    while ((read = isr.read()) != -1) {
-		builder.append((char) read);
-	    }
-	    return builder.toString();
-	}
+        StringBuilder builder = new StringBuilder();
+        try (InputStreamReader isr = new InputStreamReader(stream, "UTF-8")) {
+            int read = -1;
+            while ((read = isr.read()) != -1) {
+                builder.append((char) read);
+            }
+            return builder.toString();
+        }
     }
 
     /**
      * same as file.delete() if 'file' is file; recursively deletes all elements
      * inside if 'file' is directory.
-     * 
+     *
      * @param file folder or file
      */
     public static void delete(File file) {
-	if (file.isFile()) {
-	    file.delete();
-	} else {
-	    for (File f : file.listFiles()) {
-		delete(f);
-	    }
-	    file.delete();
-	}
+        if (file.isFile()) {
+            file.delete();
+        } else {
+            for (File f : file.listFiles()) {
+                delete(f);
+            }
+            file.delete();
+        }
     }
 }

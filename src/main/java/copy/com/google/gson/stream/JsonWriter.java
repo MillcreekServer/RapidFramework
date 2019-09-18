@@ -47,7 +47,7 @@ import static copy.com.google.gson.stream.JsonScope.*;
  *
  * <h3>Example</h3> Suppose we'd like to encode a stream of messages such as the
  * following:
- * 
+ *
  * <pre>
  *  {@code
  * [
@@ -71,9 +71,9 @@ import static copy.com.google.gson.stream.JsonScope.*;
  *   }
  * ]}
  * </pre>
- * 
+ * <p>
  * This code encodes the above structure:
- * 
+ *
  * <pre>
  *    {@code
  *   public void writeJsonStream(OutputStream out, List<Message> messages) throws IOException {
@@ -143,33 +143,37 @@ public class JsonWriter implements Closeable, Flushable {
      */
     private static final String[] REPLACEMENT_CHARS;
     private static final String[] HTML_SAFE_REPLACEMENT_CHARS;
+
     static {
-	REPLACEMENT_CHARS = new String[128];
-	for (int i = 0; i <= 0x1f; i++) {
-	    REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
-	}
-	REPLACEMENT_CHARS['"'] = "\\\"";
-	REPLACEMENT_CHARS['\\'] = "\\\\";
-	REPLACEMENT_CHARS['\t'] = "\\t";
-	REPLACEMENT_CHARS['\b'] = "\\b";
-	REPLACEMENT_CHARS['\n'] = "\\n";
-	REPLACEMENT_CHARS['\r'] = "\\r";
-	REPLACEMENT_CHARS['\f'] = "\\f";
-	HTML_SAFE_REPLACEMENT_CHARS = REPLACEMENT_CHARS.clone();
-	HTML_SAFE_REPLACEMENT_CHARS['<'] = "\\u003c";
-	HTML_SAFE_REPLACEMENT_CHARS['>'] = "\\u003e";
-	HTML_SAFE_REPLACEMENT_CHARS['&'] = "\\u0026";
-	HTML_SAFE_REPLACEMENT_CHARS['='] = "\\u003d";
-	HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
+        REPLACEMENT_CHARS = new String[128];
+        for (int i = 0; i <= 0x1f; i++) {
+            REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
+        }
+        REPLACEMENT_CHARS['"'] = "\\\"";
+        REPLACEMENT_CHARS['\\'] = "\\\\";
+        REPLACEMENT_CHARS['\t'] = "\\t";
+        REPLACEMENT_CHARS['\b'] = "\\b";
+        REPLACEMENT_CHARS['\n'] = "\\n";
+        REPLACEMENT_CHARS['\r'] = "\\r";
+        REPLACEMENT_CHARS['\f'] = "\\f";
+        HTML_SAFE_REPLACEMENT_CHARS = REPLACEMENT_CHARS.clone();
+        HTML_SAFE_REPLACEMENT_CHARS['<'] = "\\u003c";
+        HTML_SAFE_REPLACEMENT_CHARS['>'] = "\\u003e";
+        HTML_SAFE_REPLACEMENT_CHARS['&'] = "\\u0026";
+        HTML_SAFE_REPLACEMENT_CHARS['='] = "\\u003d";
+        HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
     }
 
-    /** The output data, containing at most one top-level array or object. */
+    /**
+     * The output data, containing at most one top-level array or object.
+     */
     private final Writer out;
 
     private int[] stack = new int[32];
     private int stackSize = 0;
+
     {
-	push(EMPTY_DOCUMENT);
+        push(EMPTY_DOCUMENT);
     }
 
     /**
@@ -197,10 +201,10 @@ public class JsonWriter implements Closeable, Flushable {
      * {@link java.io.BufferedWriter BufferedWriter} if necessary.
      */
     public JsonWriter(Writer out) {
-	if (out == null) {
-	    throw new NullPointerException("out == null");
-	}
-	this.out = out;
+        if (out == null) {
+            throw new NullPointerException("out == null");
+        }
+        this.out = out;
     }
 
     /**
@@ -211,13 +215,20 @@ public class JsonWriter implements Closeable, Flushable {
      * @param indent a string containing only whitespace.
      */
     public final void setIndent(String indent) {
-	if (indent.length() == 0) {
-	    this.indent = null;
-	    this.separator = ":";
-	} else {
-	    this.indent = indent;
-	    this.separator = ": ";
-	}
+        if (indent.length() == 0) {
+            this.indent = null;
+            this.separator = ":";
+        } else {
+            this.indent = indent;
+            this.separator = ": ";
+        }
+    }
+
+    /**
+     * Returns true if this writer has relaxed syntax rules.
+     */
+    public boolean isLenient() {
+        return lenient;
     }
 
     /**
@@ -233,14 +244,15 @@ public class JsonWriter implements Closeable, Flushable {
      * </ul>
      */
     public final void setLenient(boolean lenient) {
-	this.lenient = lenient;
+        this.lenient = lenient;
     }
 
     /**
-     * Returns true if this writer has relaxed syntax rules.
+     * Returns true if this writer writes JSON that's safe for inclusion in HTML and
+     * XML documents.
      */
-    public boolean isLenient() {
-	return lenient;
+    public final boolean isHtmlSafe() {
+        return htmlSafe;
     }
 
     /**
@@ -251,23 +263,7 @@ public class JsonWriter implements Closeable, Flushable {
      * corresponding escape sequences.
      */
     public final void setHtmlSafe(boolean htmlSafe) {
-	this.htmlSafe = htmlSafe;
-    }
-
-    /**
-     * Returns true if this writer writes JSON that's safe for inclusion in HTML and
-     * XML documents.
-     */
-    public final boolean isHtmlSafe() {
-	return htmlSafe;
-    }
-
-    /**
-     * Sets whether object members are serialized when their value is null. This has
-     * no impact on array elements. The default is true.
-     */
-    public final void setSerializeNulls(boolean serializeNulls) {
-	this.serializeNulls = serializeNulls;
+        this.htmlSafe = htmlSafe;
     }
 
     /**
@@ -275,7 +271,15 @@ public class JsonWriter implements Closeable, Flushable {
      * has no impact on array elements. The default is true.
      */
     public final boolean getSerializeNulls() {
-	return serializeNulls;
+        return serializeNulls;
+    }
+
+    /**
+     * Sets whether object members are serialized when their value is null. This has
+     * no impact on array elements. The default is true.
+     */
+    public final void setSerializeNulls(boolean serializeNulls) {
+        this.serializeNulls = serializeNulls;
     }
 
     /**
@@ -285,8 +289,8 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter beginArray() throws IOException {
-	writeDeferredName();
-	return open(EMPTY_ARRAY, "[");
+        writeDeferredName();
+        return open(EMPTY_ARRAY, "[");
     }
 
     /**
@@ -295,7 +299,7 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter endArray() throws IOException {
-	return close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
+        return close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
     }
 
     /**
@@ -305,8 +309,8 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter beginObject() throws IOException {
-	writeDeferredName();
-	return open(EMPTY_OBJECT, "{");
+        writeDeferredName();
+        return open(EMPTY_OBJECT, "{");
     }
 
     /**
@@ -315,7 +319,7 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter endObject() throws IOException {
-	return close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
+        return close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
     }
 
     /**
@@ -323,10 +327,10 @@ public class JsonWriter implements Closeable, Flushable {
      * bracket.
      */
     private JsonWriter open(int empty, String openBracket) throws IOException {
-	beforeValue();
-	push(empty);
-	out.write(openBracket);
-	return this;
+        beforeValue();
+        push(empty);
+        out.write(openBracket);
+        return this;
     }
 
     /**
@@ -334,46 +338,46 @@ public class JsonWriter implements Closeable, Flushable {
      * bracket.
      */
     private JsonWriter close(int empty, int nonempty, String closeBracket) throws IOException {
-	int context = peek();
-	if (context != nonempty && context != empty) {
-	    throw new IllegalStateException("Nesting problem.");
-	}
-	if (deferredName != null) {
-	    throw new IllegalStateException("Dangling name: " + deferredName);
-	}
+        int context = peek();
+        if (context != nonempty && context != empty) {
+            throw new IllegalStateException("Nesting problem.");
+        }
+        if (deferredName != null) {
+            throw new IllegalStateException("Dangling name: " + deferredName);
+        }
 
-	stackSize--;
-	if (context == nonempty) {
-	    newline();
-	}
-	out.write(closeBracket);
-	return this;
+        stackSize--;
+        if (context == nonempty) {
+            newline();
+        }
+        out.write(closeBracket);
+        return this;
     }
 
     private void push(int newTop) {
-	if (stackSize == stack.length) {
-	    int[] newStack = new int[stackSize * 2];
-	    System.arraycopy(stack, 0, newStack, 0, stackSize);
-	    stack = newStack;
-	}
-	stack[stackSize++] = newTop;
+        if (stackSize == stack.length) {
+            int[] newStack = new int[stackSize * 2];
+            System.arraycopy(stack, 0, newStack, 0, stackSize);
+            stack = newStack;
+        }
+        stack[stackSize++] = newTop;
     }
 
     /**
      * Returns the value on the top of the stack.
      */
     private int peek() {
-	if (stackSize == 0) {
-	    throw new IllegalStateException("JsonWriter is closed.");
-	}
-	return stack[stackSize - 1];
+        if (stackSize == 0) {
+            throw new IllegalStateException("JsonWriter is closed.");
+        }
+        return stack[stackSize - 1];
     }
 
     /**
      * Replace the value on the top of the stack with the given value.
      */
     private void replaceTop(int topOfStack) {
-	stack[stackSize - 1] = topOfStack;
+        stack[stackSize - 1] = topOfStack;
     }
 
     /**
@@ -383,25 +387,25 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter name(String name) throws IOException {
-	if (name == null) {
-	    throw new NullPointerException("name == null");
-	}
-	if (deferredName != null) {
-	    throw new IllegalStateException();
-	}
-	if (stackSize == 0) {
-	    throw new IllegalStateException("JsonWriter is closed.");
-	}
-	deferredName = name;
-	return this;
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+        if (deferredName != null) {
+            throw new IllegalStateException();
+        }
+        if (stackSize == 0) {
+            throw new IllegalStateException("JsonWriter is closed.");
+        }
+        deferredName = name;
+        return this;
     }
 
     private void writeDeferredName() throws IOException {
-	if (deferredName != null) {
-	    beforeName();
-	    string(deferredName);
-	    deferredName = null;
-	}
+        if (deferredName != null) {
+            beforeName();
+            string(deferredName);
+            deferredName = null;
+        }
     }
 
     /**
@@ -411,13 +415,13 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter value(String value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
-	writeDeferredName();
-	beforeValue();
-	string(value);
-	return this;
+        if (value == null) {
+            return nullValue();
+        }
+        writeDeferredName();
+        beforeValue();
+        string(value);
+        return this;
     }
 
     /**
@@ -427,13 +431,13 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter jsonValue(String value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
-	writeDeferredName();
-	beforeValue();
-	out.append(value);
-	return this;
+        if (value == null) {
+            return nullValue();
+        }
+        writeDeferredName();
+        beforeValue();
+        out.append(value);
+        return this;
     }
 
     /**
@@ -442,17 +446,17 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter nullValue() throws IOException {
-	if (deferredName != null) {
-	    if (serializeNulls) {
-		writeDeferredName();
-	    } else {
-		deferredName = null;
-		return this; // skip the name and the value
-	    }
-	}
-	beforeValue();
-	out.write("null");
-	return this;
+        if (deferredName != null) {
+            if (serializeNulls) {
+                writeDeferredName();
+            } else {
+                deferredName = null;
+                return this; // skip the name and the value
+            }
+        }
+        beforeValue();
+        out.write("null");
+        return this;
     }
 
     /**
@@ -461,10 +465,10 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter value(boolean value) throws IOException {
-	writeDeferredName();
-	beforeValue();
-	out.write(value ? "true" : "false");
-	return this;
+        writeDeferredName();
+        beforeValue();
+        out.write(value ? "true" : "false");
+        return this;
     }
 
     /**
@@ -473,13 +477,13 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter value(Boolean value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
-	writeDeferredName();
-	beforeValue();
-	out.write(value ? "true" : "false");
-	return this;
+        if (value == null) {
+            return nullValue();
+        }
+        writeDeferredName();
+        beforeValue();
+        out.write(value ? "true" : "false");
+        return this;
     }
 
     /**
@@ -490,13 +494,13 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter value(double value) throws IOException {
-	writeDeferredName();
-	if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
-	    throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
-	}
-	beforeValue();
-	out.append(Double.toString(value));
-	return this;
+        writeDeferredName();
+        if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
+            throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
+        }
+        beforeValue();
+        out.append(Double.toString(value));
+        return this;
     }
 
     /**
@@ -505,10 +509,10 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter value(long value) throws IOException {
-	writeDeferredName();
-	beforeValue();
-	out.write(Long.toString(value));
-	return this;
+        writeDeferredName();
+        beforeValue();
+        out.write(Long.toString(value));
+        return this;
     }
 
     /**
@@ -519,18 +523,18 @@ public class JsonWriter implements Closeable, Flushable {
      * @return this writer.
      */
     public JsonWriter value(Number value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
+        if (value == null) {
+            return nullValue();
+        }
 
-	writeDeferredName();
-	String string = value.toString();
-	if (!lenient && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
-	    throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
-	}
-	beforeValue();
-	out.append(string);
-	return this;
+        writeDeferredName();
+        String string = value.toString();
+        if (!lenient && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
+            throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
+        }
+        beforeValue();
+        out.append(string);
+        return this;
     }
 
     /**
@@ -538,10 +542,10 @@ public class JsonWriter implements Closeable, Flushable {
      * flushes that writer.
      */
     public void flush() throws IOException {
-	if (stackSize == 0) {
-	    throw new IllegalStateException("JsonWriter is closed.");
-	}
-	out.flush();
+        if (stackSize == 0) {
+            throw new IllegalStateException("JsonWriter is closed.");
+        }
+        out.flush();
     }
 
     /**
@@ -550,56 +554,56 @@ public class JsonWriter implements Closeable, Flushable {
      * @throws IOException if the JSON document is incomplete.
      */
     public void close() throws IOException {
-	out.close();
+        out.close();
 
-	int size = stackSize;
-	if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
-	    throw new IOException("Incomplete document");
-	}
-	stackSize = 0;
+        int size = stackSize;
+        if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
+            throw new IOException("Incomplete document");
+        }
+        stackSize = 0;
     }
 
     private void string(String value) throws IOException {
-	String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
-	out.write("\"");
-	int last = 0;
-	int length = value.length();
-	for (int i = 0; i < length; i++) {
-	    char c = value.charAt(i);
-	    String replacement;
-	    if (c < 128) {
-		replacement = replacements[c];
-		if (replacement == null) {
-		    continue;
-		}
-	    } else if (c == '\u2028') {
-		replacement = "\\u2028";
-	    } else if (c == '\u2029') {
-		replacement = "\\u2029";
-	    } else {
-		continue;
-	    }
-	    if (last < i) {
-		out.write(value, last, i - last);
-	    }
-	    out.write(replacement);
-	    last = i + 1;
-	}
-	if (last < length) {
-	    out.write(value, last, length - last);
-	}
-	out.write("\"");
+        String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
+        out.write("\"");
+        int last = 0;
+        int length = value.length();
+        for (int i = 0; i < length; i++) {
+            char c = value.charAt(i);
+            String replacement;
+            if (c < 128) {
+                replacement = replacements[c];
+                if (replacement == null) {
+                    continue;
+                }
+            } else if (c == '\u2028') {
+                replacement = "\\u2028";
+            } else if (c == '\u2029') {
+                replacement = "\\u2029";
+            } else {
+                continue;
+            }
+            if (last < i) {
+                out.write(value, last, i - last);
+            }
+            out.write(replacement);
+            last = i + 1;
+        }
+        if (last < length) {
+            out.write(value, last, length - last);
+        }
+        out.write("\"");
     }
 
     private void newline() throws IOException {
-	if (indent == null) {
-	    return;
-	}
+        if (indent == null) {
+            return;
+        }
 
-	out.write("\n");
-	for (int i = 1, size = stackSize; i < size; i++) {
-	    out.write(indent);
-	}
+        out.write("\n");
+        for (int i = 1, size = stackSize; i < size; i++) {
+            out.write(indent);
+        }
     }
 
     /**
@@ -607,14 +611,14 @@ public class JsonWriter implements Closeable, Flushable {
      * the stack to expect the name's value.
      */
     private void beforeName() throws IOException {
-	int context = peek();
-	if (context == NONEMPTY_OBJECT) { // first in object
-	    out.write(',');
-	} else if (context != EMPTY_OBJECT) { // not in an object!
-	    throw new IllegalStateException("Nesting problem.");
-	}
-	newline();
-	replaceTop(DANGLING_NAME);
+        int context = peek();
+        if (context == NONEMPTY_OBJECT) { // first in object
+            out.write(',');
+        } else if (context != EMPTY_OBJECT) { // not in an object!
+            throw new IllegalStateException("Nesting problem.");
+        }
+        newline();
+        replaceTop(DANGLING_NAME);
     }
 
     /**
@@ -624,33 +628,33 @@ public class JsonWriter implements Closeable, Flushable {
      */
     @SuppressWarnings("fallthrough")
     private void beforeValue() throws IOException {
-	switch (peek()) {
-	case NONEMPTY_DOCUMENT:
-	    if (!lenient) {
-		throw new IllegalStateException("JSON must have only one top-level value.");
-	    }
-	    // fall-through
-	case EMPTY_DOCUMENT: // first in document
-	    replaceTop(NONEMPTY_DOCUMENT);
-	    break;
+        switch (peek()) {
+            case NONEMPTY_DOCUMENT:
+                if (!lenient) {
+                    throw new IllegalStateException("JSON must have only one top-level value.");
+                }
+                // fall-through
+            case EMPTY_DOCUMENT: // first in document
+                replaceTop(NONEMPTY_DOCUMENT);
+                break;
 
-	case EMPTY_ARRAY: // first in array
-	    replaceTop(NONEMPTY_ARRAY);
-	    newline();
-	    break;
+            case EMPTY_ARRAY: // first in array
+                replaceTop(NONEMPTY_ARRAY);
+                newline();
+                break;
 
-	case NONEMPTY_ARRAY: // another in array
-	    out.append(',');
-	    newline();
-	    break;
+            case NONEMPTY_ARRAY: // another in array
+                out.append(',');
+                newline();
+                break;
 
-	case DANGLING_NAME: // value for name
-	    out.append(separator);
-	    replaceTop(NONEMPTY_OBJECT);
-	    break;
+            case DANGLING_NAME: // value for name
+                out.append(separator);
+                replaceTop(NONEMPTY_OBJECT);
+                break;
 
-	default:
-	    throw new IllegalStateException("Nesting problem.");
-	}
+            default:
+                throw new IllegalStateException("Nesting problem.");
+        }
     }
 }

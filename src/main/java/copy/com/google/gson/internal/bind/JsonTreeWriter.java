@@ -29,20 +29,20 @@ import java.util.List;
  */
 public final class JsonTreeWriter extends JsonWriter {
     private static final Writer UNWRITABLE_WRITER = new Writer() {
-	@Override
-	public void write(char[] buffer, int offset, int counter) {
-	    throw new AssertionError();
-	}
+        @Override
+        public void write(char[] buffer, int offset, int counter) {
+            throw new AssertionError();
+        }
 
-	@Override
-	public void flush() throws IOException {
-	    throw new AssertionError();
-	}
+        @Override
+        public void flush() throws IOException {
+            throw new AssertionError();
+        }
 
-	@Override
-	public void close() throws IOException {
-	    throw new AssertionError();
-	}
+        @Override
+        public void close() throws IOException {
+            throw new AssertionError();
+        }
     };
     /**
      * Added to the top of the stack when this writer is closed to cause following
@@ -61,162 +61,164 @@ public final class JsonTreeWriter extends JsonWriter {
      */
     private String pendingName;
 
-    /** the JSON element constructed by this writer. */
+    /**
+     * the JSON element constructed by this writer.
+     */
     private JsonElement product = JsonNull.INSTANCE; // TODO: is this really
-						     // what we want?;
+    // what we want?;
 
     public JsonTreeWriter() {
-	super(UNWRITABLE_WRITER);
+        super(UNWRITABLE_WRITER);
     }
 
     /**
      * Returns the top level object produced by this writer.
      */
     public JsonElement get() {
-	if (!stack.isEmpty()) {
-	    throw new IllegalStateException("Expected one JSON element but was " + stack);
-	}
-	return product;
+        if (!stack.isEmpty()) {
+            throw new IllegalStateException("Expected one JSON element but was " + stack);
+        }
+        return product;
     }
 
     private JsonElement peek() {
-	return stack.get(stack.size() - 1);
+        return stack.get(stack.size() - 1);
     }
 
     private void put(JsonElement value) {
-	if (pendingName != null) {
-	    if (!value.isJsonNull() || getSerializeNulls()) {
-		JsonObject object = (JsonObject) peek();
-		object.add(pendingName, value);
-	    }
-	    pendingName = null;
-	} else if (stack.isEmpty()) {
-	    product = value;
-	} else {
-	    JsonElement element = peek();
-	    if (element instanceof JsonArray) {
-		((JsonArray) element).add(value);
-	    } else {
-		throw new IllegalStateException();
-	    }
-	}
+        if (pendingName != null) {
+            if (!value.isJsonNull() || getSerializeNulls()) {
+                JsonObject object = (JsonObject) peek();
+                object.add(pendingName, value);
+            }
+            pendingName = null;
+        } else if (stack.isEmpty()) {
+            product = value;
+        } else {
+            JsonElement element = peek();
+            if (element instanceof JsonArray) {
+                ((JsonArray) element).add(value);
+            } else {
+                throw new IllegalStateException();
+            }
+        }
     }
 
     @Override
     public JsonWriter beginArray() throws IOException {
-	JsonArray array = new JsonArray();
-	put(array);
-	stack.add(array);
-	return this;
+        JsonArray array = new JsonArray();
+        put(array);
+        stack.add(array);
+        return this;
     }
 
     @Override
     public JsonWriter endArray() throws IOException {
-	if (stack.isEmpty() || pendingName != null) {
-	    throw new IllegalStateException();
-	}
-	JsonElement element = peek();
-	if (element instanceof JsonArray) {
-	    stack.remove(stack.size() - 1);
-	    return this;
-	}
-	throw new IllegalStateException();
+        if (stack.isEmpty() || pendingName != null) {
+            throw new IllegalStateException();
+        }
+        JsonElement element = peek();
+        if (element instanceof JsonArray) {
+            stack.remove(stack.size() - 1);
+            return this;
+        }
+        throw new IllegalStateException();
     }
 
     @Override
     public JsonWriter beginObject() throws IOException {
-	JsonObject object = new JsonObject();
-	put(object);
-	stack.add(object);
-	return this;
+        JsonObject object = new JsonObject();
+        put(object);
+        stack.add(object);
+        return this;
     }
 
     @Override
     public JsonWriter endObject() throws IOException {
-	if (stack.isEmpty() || pendingName != null) {
-	    throw new IllegalStateException();
-	}
-	JsonElement element = peek();
-	if (element instanceof JsonObject) {
-	    stack.remove(stack.size() - 1);
-	    return this;
-	}
-	throw new IllegalStateException();
+        if (stack.isEmpty() || pendingName != null) {
+            throw new IllegalStateException();
+        }
+        JsonElement element = peek();
+        if (element instanceof JsonObject) {
+            stack.remove(stack.size() - 1);
+            return this;
+        }
+        throw new IllegalStateException();
     }
 
     @Override
     public JsonWriter name(String name) throws IOException {
-	if (stack.isEmpty() || pendingName != null) {
-	    throw new IllegalStateException();
-	}
-	JsonElement element = peek();
-	if (element instanceof JsonObject) {
-	    pendingName = name;
-	    return this;
-	}
-	throw new IllegalStateException();
+        if (stack.isEmpty() || pendingName != null) {
+            throw new IllegalStateException();
+        }
+        JsonElement element = peek();
+        if (element instanceof JsonObject) {
+            pendingName = name;
+            return this;
+        }
+        throw new IllegalStateException();
     }
 
     @Override
     public JsonWriter value(String value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
-	put(new JsonPrimitive(value));
-	return this;
+        if (value == null) {
+            return nullValue();
+        }
+        put(new JsonPrimitive(value));
+        return this;
     }
 
     @Override
     public JsonWriter nullValue() throws IOException {
-	put(JsonNull.INSTANCE);
-	return this;
+        put(JsonNull.INSTANCE);
+        return this;
     }
 
     @Override
     public JsonWriter value(boolean value) throws IOException {
-	put(new JsonPrimitive(value));
-	return this;
+        put(new JsonPrimitive(value));
+        return this;
     }
 
     @Override
     public JsonWriter value(Boolean value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
-	put(new JsonPrimitive(value));
-	return this;
+        if (value == null) {
+            return nullValue();
+        }
+        put(new JsonPrimitive(value));
+        return this;
     }
 
     @Override
     public JsonWriter value(double value) throws IOException {
-	if (!isLenient() && (Double.isNaN(value) || Double.isInfinite(value))) {
-	    throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
-	}
-	put(new JsonPrimitive(value));
-	return this;
+        if (!isLenient() && (Double.isNaN(value) || Double.isInfinite(value))) {
+            throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
+        }
+        put(new JsonPrimitive(value));
+        return this;
     }
 
     @Override
     public JsonWriter value(long value) throws IOException {
-	put(new JsonPrimitive(value));
-	return this;
+        put(new JsonPrimitive(value));
+        return this;
     }
 
     @Override
     public JsonWriter value(Number value) throws IOException {
-	if (value == null) {
-	    return nullValue();
-	}
+        if (value == null) {
+            return nullValue();
+        }
 
-	if (!isLenient()) {
-	    double d = value.doubleValue();
-	    if (Double.isNaN(d) || Double.isInfinite(d)) {
-		throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
-	    }
-	}
+        if (!isLenient()) {
+            double d = value.doubleValue();
+            if (Double.isNaN(d) || Double.isInfinite(d)) {
+                throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
+            }
+        }
 
-	put(new JsonPrimitive(value));
-	return this;
+        put(new JsonPrimitive(value));
+        return this;
     }
 
     @Override
@@ -225,9 +227,9 @@ public final class JsonTreeWriter extends JsonWriter {
 
     @Override
     public void close() throws IOException {
-	if (!stack.isEmpty()) {
-	    throw new IOException("Incomplete document");
-	}
-	stack.add(SENTINEL_CLOSED);
+        if (!stack.isEmpty()) {
+            throw new IOException("Incomplete document");
+        }
+        stack.add(SENTINEL_CLOSED);
     }
 }

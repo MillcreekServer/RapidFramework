@@ -103,22 +103,22 @@ public final class GsonBuilder {
      *             GsonBuilder.
      */
     GsonBuilder(Gson gson) {
-	this.excluder = gson.excluder;
-	this.fieldNamingPolicy = gson.fieldNamingStrategy;
-	this.instanceCreators.putAll(gson.instanceCreators);
-	this.serializeNulls = gson.serializeNulls;
-	this.complexMapKeySerialization = gson.complexMapKeySerialization;
-	this.generateNonExecutableJson = gson.generateNonExecutableJson;
-	this.escapeHtmlChars = gson.htmlSafe;
-	this.prettyPrinting = gson.prettyPrinting;
-	this.lenient = gson.lenient;
-	this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
-	this.longSerializationPolicy = gson.longSerializationPolicy;
-	this.datePattern = gson.datePattern;
-	this.dateStyle = gson.dateStyle;
-	this.timeStyle = gson.timeStyle;
-	this.factories.addAll(gson.builderFactories);
-	this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+        this.excluder = gson.excluder;
+        this.fieldNamingPolicy = gson.fieldNamingStrategy;
+        this.instanceCreators.putAll(gson.instanceCreators);
+        this.serializeNulls = gson.serializeNulls;
+        this.complexMapKeySerialization = gson.complexMapKeySerialization;
+        this.generateNonExecutableJson = gson.generateNonExecutableJson;
+        this.escapeHtmlChars = gson.htmlSafe;
+        this.prettyPrinting = gson.prettyPrinting;
+        this.lenient = gson.lenient;
+        this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
+        this.longSerializationPolicy = gson.longSerializationPolicy;
+        this.datePattern = gson.datePattern;
+        this.dateStyle = gson.dateStyle;
+        this.timeStyle = gson.timeStyle;
+        this.factories.addAll(gson.builderFactories);
+        this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
     }
 
     /**
@@ -128,11 +128,11 @@ public final class GsonBuilder {
      *                            than this value are ignored during serialization
      *                            or deserialization.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      */
     public GsonBuilder setVersion(double ignoreVersionsAfter) {
-	excluder = excluder.withVersion(ignoreVersionsAfter);
-	return this;
+        excluder = excluder.withVersion(ignoreVersionsAfter);
+        return this;
     }
 
     /**
@@ -145,11 +145,11 @@ public final class GsonBuilder {
      *                  {@link java.lang.reflect.Modifier#TRANSIENT},
      *                  {@link java.lang.reflect.Modifier#STATIC}.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      */
     public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
-	excluder = excluder.withModifiers(modifiers);
-	return this;
+        excluder = excluder.withModifiers(modifiers);
+        return this;
     }
 
     /**
@@ -160,12 +160,12 @@ public final class GsonBuilder {
      * 42</a> for details.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.3
      */
     public GsonBuilder generateNonExecutableJson() {
-	this.generateNonExecutableJson = true;
-	return this;
+        this.generateNonExecutableJson = true;
+        return this;
     }
 
     /**
@@ -174,11 +174,11 @@ public final class GsonBuilder {
      * {@link copy.com.google.gson.annotations.Expose} annotation.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      */
     public GsonBuilder excludeFieldsWithoutExposeAnnotation() {
-	excluder = excluder.excludeFieldsWithoutExposeAnnotation();
-	return this;
+        excluder = excluder.excludeFieldsWithoutExposeAnnotation();
+        return this;
     }
 
     /**
@@ -186,12 +186,12 @@ public final class GsonBuilder {
      * that are null during serialization.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.2
      */
     public GsonBuilder serializeNulls() {
-	this.serializeNulls = true;
-	return this;
+        this.serializeNulls = true;
+        return this;
     }
 
     /**
@@ -209,7 +209,7 @@ public final class GsonBuilder {
      *
      * <p>
      * Below is an example:
-     * 
+     *
      * <pre>
      * {
      *     &#64;code
@@ -222,9 +222,9 @@ public final class GsonBuilder {
      *     System.out.println(gson.toJson(original, type));
      * }
      * </pre>
-     * 
+     * <p>
      * The above code prints this JSON object:
-     * 
+     *
      * <pre>
      *   {@code
      *   {
@@ -245,7 +245,7 @@ public final class GsonBuilder {
      *
      * <p>
      * Below is an example of serializing complex types as JSON arrays:
-     * 
+     *
      * <pre>
      *  {@code
      *   Gson gson = new GsonBuilder()
@@ -280,24 +280,24 @@ public final class GsonBuilder {
      * </pre>
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.7
      */
     public GsonBuilder enableComplexMapKeySerialization() {
-	complexMapKeySerialization = true;
-	return this;
+        complexMapKeySerialization = true;
+        return this;
     }
 
     /**
      * Configures Gson to exclude inner classes during serialization.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.3
      */
     public GsonBuilder disableInnerClassSerialization() {
-	excluder = excluder.disableInnerClassSerialization();
-	return this;
+        excluder = excluder.disableInnerClassSerialization();
+        return this;
     }
 
     /**
@@ -307,12 +307,12 @@ public final class GsonBuilder {
      * @param serializationPolicy the particular policy to use for serializing
      *                            longs.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.3
      */
     public GsonBuilder setLongSerializationPolicy(LongSerializationPolicy serializationPolicy) {
-	this.longSerializationPolicy = serializationPolicy;
-	return this;
+        this.longSerializationPolicy = serializationPolicy;
+        return this;
     }
 
     /**
@@ -322,11 +322,11 @@ public final class GsonBuilder {
      * @param namingConvention the JSON field naming convention to use for
      *                         serialization and deserialization.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      */
     public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
-	this.fieldNamingPolicy = namingConvention;
-	return this;
+        this.fieldNamingPolicy = namingConvention;
+        return this;
     }
 
     /**
@@ -335,12 +335,12 @@ public final class GsonBuilder {
      *
      * @param fieldNamingStrategy the actual naming strategy to apply to the fields
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.3
      */
     public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
-	this.fieldNamingPolicy = fieldNamingStrategy;
-	return this;
+        this.fieldNamingPolicy = fieldNamingStrategy;
+        return this;
     }
 
     /**
@@ -353,14 +353,14 @@ public final class GsonBuilder {
      * @param strategies the set of strategy object to apply during object
      *                   (de)serialization.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.4
      */
     public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
-	for (ExclusionStrategy strategy : strategies) {
-	    excluder = excluder.withExclusionStrategy(strategy, true, true);
-	}
-	return this;
+        for (ExclusionStrategy strategy : strategies) {
+            excluder = excluder.withExclusionStrategy(strategy, true, true);
+        }
+        return this;
     }
 
     /**
@@ -373,12 +373,12 @@ public final class GsonBuilder {
      *
      * @param strategy an exclusion strategy to apply during serialization.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.7
      */
     public GsonBuilder addSerializationExclusionStrategy(ExclusionStrategy strategy) {
-	excluder = excluder.withExclusionStrategy(strategy, true, false);
-	return this;
+        excluder = excluder.withExclusionStrategy(strategy, true, false);
+        return this;
     }
 
     /**
@@ -391,12 +391,12 @@ public final class GsonBuilder {
      *
      * @param strategy an exclusion strategy to apply during deserialization.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.7
      */
     public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
-	excluder = excluder.withExclusionStrategy(strategy, false, true);
-	return this;
+        excluder = excluder.withExclusionStrategy(strategy, false, true);
+        return this;
     }
 
     /**
@@ -404,11 +404,11 @@ public final class GsonBuilder {
      * option only affects Json serialization.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      */
     public GsonBuilder setPrettyPrinting() {
-	prettyPrinting = true;
-	return this;
+        prettyPrinting = true;
+        return this;
     }
 
     /**
@@ -417,12 +417,12 @@ public final class GsonBuilder {
      * the parser liberal in what it accepts.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @see JsonReader#setLenient(boolean)
      */
     public GsonBuilder setLenient() {
-	lenient = true;
-	return this;
+        lenient = true;
+        return this;
     }
 
     /**
@@ -430,12 +430,12 @@ public final class GsonBuilder {
      * option to configure Gson to pass-through HTML characters as is.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.3
      */
     public GsonBuilder disableHtmlEscaping() {
-	this.escapeHtmlChars = false;
-	return this;
+        this.escapeHtmlChars = false;
+        return this;
     }
 
     /**
@@ -457,13 +457,13 @@ public final class GsonBuilder {
      *
      * @param pattern the pattern that dates will be serialized/deserialized to/from
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.2
      */
     public GsonBuilder setDateFormat(String pattern) {
-	// TODO(Joel): Make this fail fast if it is an invalid date format
-	this.datePattern = pattern;
-	return this;
+        // TODO(Joel): Make this fail fast if it is an invalid date format
+        this.datePattern = pattern;
+        return this;
     }
 
     /**
@@ -481,13 +481,13 @@ public final class GsonBuilder {
      * @param style the predefined date style that date objects will be
      *              serialized/deserialized to/from
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.2
      */
     public GsonBuilder setDateFormat(int style) {
-	this.dateStyle = style;
-	this.datePattern = null;
-	return this;
+        this.dateStyle = style;
+        this.datePattern = null;
+        return this;
     }
 
     /**
@@ -507,14 +507,14 @@ public final class GsonBuilder {
      * @param timeStyle the predefined style for the time portion of the date
      *                  objects
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.2
      */
     public GsonBuilder setDateFormat(int dateStyle, int timeStyle) {
-	this.dateStyle = dateStyle;
-	this.timeStyle = timeStyle;
-	this.datePattern = null;
-	return this;
+        this.dateStyle = dateStyle;
+        this.timeStyle = timeStyle;
+        this.datePattern = null;
+        return this;
     }
 
     /**
@@ -537,24 +537,24 @@ public final class GsonBuilder {
      *                    {@link JsonSerializer}, and a {@link JsonDeserializer}
      *                    interfaces.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
-	$Gson$Preconditions
-		.checkArgument(typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>
-			|| typeAdapter instanceof InstanceCreator<?> || typeAdapter instanceof TypeAdapter<?>);
-	if (typeAdapter instanceof InstanceCreator<?>) {
-	    instanceCreators.put(type, (InstanceCreator) typeAdapter);
-	}
-	if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
-	    TypeToken<?> typeToken = TypeToken.get(type);
-	    factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
-	}
-	if (typeAdapter instanceof TypeAdapter<?>) {
-	    factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter) typeAdapter));
-	}
-	return this;
+        $Gson$Preconditions
+                .checkArgument(typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>
+                        || typeAdapter instanceof InstanceCreator<?> || typeAdapter instanceof TypeAdapter<?>);
+        if (typeAdapter instanceof InstanceCreator<?>) {
+            instanceCreators.put(type, (InstanceCreator) typeAdapter);
+        }
+        if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
+            TypeToken<?> typeToken = TypeToken.get(type);
+            factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
+        }
+        if (typeAdapter instanceof TypeAdapter<?>) {
+            factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter) typeAdapter));
+        }
+        return this;
     }
 
     /**
@@ -567,8 +567,8 @@ public final class GsonBuilder {
      * @since 2.1
      */
     public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
-	factories.add(factory);
-	return this;
+        factories.add(factory);
+        return this;
     }
 
     /**
@@ -586,20 +586,20 @@ public final class GsonBuilder {
      *                    {@link TypeAdapter}, {@link JsonSerializer} or
      *                    {@link JsonDeserializer} interfaces.
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.7
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
-	$Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-		|| typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof TypeAdapter<?>);
-	if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
-	    hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
-	}
-	if (typeAdapter instanceof TypeAdapter<?>) {
-	    factories.add(TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter) typeAdapter));
-	}
-	return this;
+        $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+                || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof TypeAdapter<?>);
+        if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
+            hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
+        }
+        if (typeAdapter instanceof TypeAdapter<?>) {
+            factories.add(TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter) typeAdapter));
+        }
+        return this;
     }
 
     /**
@@ -624,12 +624,12 @@ public final class GsonBuilder {
      * able to gamehandle these special values.
      *
      * @return a reference to this {@code GsonBuilder} object to fulfill the
-     *         "Builder" pattern
+     * "Builder" pattern
      * @since 1.3
      */
     public GsonBuilder serializeSpecialFloatingPointValues() {
-	this.serializeSpecialFloatingPointValues = true;
-	return this;
+        this.serializeSpecialFloatingPointValues = true;
+        return this;
     }
 
     /**
@@ -638,47 +638,47 @@ public final class GsonBuilder {
      * can be called multiple times.
      *
      * @return an instance of Gson configured with the options currently set in this
-     *         builder
+     * builder
      */
     public Gson create() {
-	List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(
-		this.factories.size() + this.hierarchyFactories.size() + 3);
-	factories.addAll(this.factories);
-	Collections.reverse(factories);
+        List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(
+                this.factories.size() + this.hierarchyFactories.size() + 3);
+        factories.addAll(this.factories);
+        Collections.reverse(factories);
 
-	List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
-	Collections.reverse(hierarchyFactories);
-	factories.addAll(hierarchyFactories);
+        List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
+        Collections.reverse(hierarchyFactories);
+        factories.addAll(hierarchyFactories);
 
-	addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
+        addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-	return new Gson(excluder, fieldNamingPolicy, instanceCreators, serializeNulls, complexMapKeySerialization,
-		generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-		serializeSpecialFloatingPointValues, longSerializationPolicy, datePattern, dateStyle, timeStyle,
-		this.factories, this.hierarchyFactories, factories);
+        return new Gson(excluder, fieldNamingPolicy, instanceCreators, serializeNulls, complexMapKeySerialization,
+                generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
+                serializeSpecialFloatingPointValues, longSerializationPolicy, datePattern, dateStyle, timeStyle,
+                this.factories, this.hierarchyFactories, factories);
     }
 
     @SuppressWarnings("unchecked")
     private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
-	    List<TypeAdapterFactory> factories) {
-	DefaultDateTypeAdapter dateTypeAdapter;
-	TypeAdapter<Timestamp> timestampTypeAdapter;
-	TypeAdapter<java.sql.Date> javaSqlDateTypeAdapter;
-	if (datePattern != null && !"".equals(datePattern.trim())) {
-	    dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, datePattern);
-	    timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, datePattern);
-	    javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, datePattern);
-	} else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-	    dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle, timeStyle);
-	    timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, dateStyle, timeStyle);
-	    javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, dateStyle,
-		    timeStyle);
-	} else {
-	    return;
-	}
+                                        List<TypeAdapterFactory> factories) {
+        DefaultDateTypeAdapter dateTypeAdapter;
+        TypeAdapter<Timestamp> timestampTypeAdapter;
+        TypeAdapter<java.sql.Date> javaSqlDateTypeAdapter;
+        if (datePattern != null && !"".equals(datePattern.trim())) {
+            dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, datePattern);
+            timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, datePattern);
+            javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, datePattern);
+        } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
+            dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle, timeStyle);
+            timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, dateStyle, timeStyle);
+            javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, dateStyle,
+                    timeStyle);
+        } else {
+            return;
+        }
 
-	factories.add(TypeAdapters.newFactory(Date.class, dateTypeAdapter));
-	factories.add(TypeAdapters.newFactory(Timestamp.class, timestampTypeAdapter));
-	factories.add(TypeAdapters.newFactory(java.sql.Date.class, javaSqlDateTypeAdapter));
+        factories.add(TypeAdapters.newFactory(Date.class, dateTypeAdapter));
+        factories.add(TypeAdapters.newFactory(Timestamp.class, timestampTypeAdapter));
+        factories.add(TypeAdapters.newFactory(java.sql.Date.class, javaSqlDateTypeAdapter));
     }
 }

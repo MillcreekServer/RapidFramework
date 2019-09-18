@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface ClaimInfo extends NamedElement {
 
     @Override
-    String getName();
+    String getDisplayName();
 
     void setArea(Area area);
 

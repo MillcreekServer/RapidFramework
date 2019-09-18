@@ -32,7 +32,6 @@ import java.util.Collection;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
- *
  * @since 1.4
  */
 public final class FieldAttributes {
@@ -44,28 +43,28 @@ public final class FieldAttributes {
      * @param f the field to pull attributes from
      */
     public FieldAttributes(Field f) {
-	$Gson$Preconditions.checkNotNull(f);
-	this.field = f;
+        $Gson$Preconditions.checkNotNull(f);
+        this.field = f;
     }
 
     /**
      * @return the declaring class that contains this field
      */
     public Class<?> getDeclaringClass() {
-	return field.getDeclaringClass();
+        return field.getDeclaringClass();
     }
 
     /**
      * @return the name of the field
      */
     public String getName() {
-	return field.getName();
+        return field.getName();
     }
 
     /**
      * <p>
      * For example, assume the following class definition:
-     * 
+     *
      * <pre class="code">
      * public class Foo {
      *     private String bar;
@@ -83,7 +82,7 @@ public final class FieldAttributes {
      * @return the specific type declared for this field
      */
     public Type getDeclaredType() {
-	return field.getGenericType();
+        return field.getGenericType();
     }
 
     /**
@@ -91,7 +90,7 @@ public final class FieldAttributes {
      *
      * <p>
      * For example, assume the following class definition:
-     * 
+     *
      * <pre class="code">
      * public class Foo {
      *     private String bar;
@@ -106,7 +105,7 @@ public final class FieldAttributes {
      * @return the specific class object that was declared for the field
      */
     public Class<?> getDeclaredClass() {
-	return field.getType();
+        return field.getType();
     }
 
     /**
@@ -115,10 +114,10 @@ public final class FieldAttributes {
      *
      * @param annotation the class of the annotation that will be retrieved
      * @return the annotation instance if it is bound to the field; otherwise
-     *         {@code null}
+     * {@code null}
      */
     public <T extends Annotation> T getAnnotation(Class<T> annotation) {
-	return field.getAnnotation(annotation);
+        return field.getAnnotation(annotation);
     }
 
     /**
@@ -128,7 +127,7 @@ public final class FieldAttributes {
      * @since 1.4
      */
     public Collection<Annotation> getAnnotations() {
-	return Arrays.asList(field.getAnnotations());
+        return Arrays.asList(field.getAnnotations());
     }
 
     /**
@@ -136,7 +135,7 @@ public final class FieldAttributes {
      *
      * <p>
      * This method is meant to be called as:
-     * 
+     *
      * <pre class="code">
      * boolean hasPublicModifier = fieldAttribute.hasModifier(java.lang.reflect.Modifier.PUBLIC);
      * </pre>
@@ -144,7 +143,7 @@ public final class FieldAttributes {
      * @see java.lang.reflect.Modifier
      */
     public boolean hasModifier(int modifier) {
-	return (field.getModifiers() & modifier) != 0;
+        return (field.getModifiers() & modifier) != 0;
     }
 
     /**
@@ -153,12 +152,12 @@ public final class FieldAttributes {
      * primitive type.
      *
      * @return the value of the represented field in object {@code obj}; primitive
-     *         values are wrapped in an appropriate object before being returned
+     * values are wrapped in an appropriate object before being returned
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      */
     Object get(Object instance) throws IllegalAccessException {
-	return field.get(instance);
+        return field.get(instance);
     }
 
     /**
@@ -168,6 +167,6 @@ public final class FieldAttributes {
      * @return true if the field is synthetic; otherwise false
      */
     boolean isSynthetic() {
-	return field.isSynthetic();
+        return field.isSynthetic();
     }
 }

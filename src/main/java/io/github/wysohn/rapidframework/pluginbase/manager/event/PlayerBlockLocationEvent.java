@@ -16,21 +16,19 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework.pluginbase.manager.event;
 
+import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
-
-import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 
 /**
  * This event fires depends on the player's block location. Unlike the
  * PlayerMoveEvent, it only checks whether a player moved from a block to block.
  * This significantly reduces the server load when you want to check player
  * entering area, etc.
- * 
- * @author wysohn
  *
+ * @author wysohn
  */
 public class PlayerBlockLocationEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -40,36 +38,36 @@ public class PlayerBlockLocationEvent extends PlayerEvent implements Cancellable
     private final SimpleLocation to;
 
     public PlayerBlockLocationEvent(Player who, SimpleLocation from, SimpleLocation to) {
-	super(who);
-	this.from = from;
-	this.to = to;
+        super(who);
+        this.from = from;
+        this.to = to;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
     public boolean isCancelled() {
-	return cancelled;
+        return cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-	cancelled = cancel;
+        cancelled = cancel;
     }
 
     @Override
     public HandlerList getHandlers() {
-	return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
-	return handlers;
+        return handlers;
     }
 
     public SimpleLocation getFrom() {
-	return from;
+        return from;
     }
 
     public SimpleLocation getTo() {
-	return to;
+        return to;
     }
 
 }

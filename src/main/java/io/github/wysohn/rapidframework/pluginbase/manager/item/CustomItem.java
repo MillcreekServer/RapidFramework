@@ -6,18 +6,18 @@ public class CustomItem {
     private Material type;
 
     public static class Builder {
-	private CustomItem item;
+        private CustomItem item;
 
-	private Builder(Material material) {
-	    item = new CustomItem();
-	}
+        private Builder(Material material) {
+            item = new CustomItem();
+        }
 
-	public static Builder typeOf(Material material) {
-	    return new Builder(material);
-	}
+        public static Builder typeOf(Material material) {
+            return new Builder(material);
+        }
 
-	public CustomItem build() {
-	    return item;
-	}
+        public CustomItem build() {
+            return item;
+        }
     }
 }

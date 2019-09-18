@@ -36,85 +36,85 @@ import java.util.UUID;
 public class NmsEntityProvider implements INmsEntityManager {
     @Override
     public String getLocale(Player player) {
-	CraftPlayer cp = (CraftPlayer) player;
-	return cp.getHandle().locale.split("_")[0];
+        CraftPlayer cp = (CraftPlayer) player;
+        return cp.getHandle().locale.split("_")[0];
     }
 
     @Override
     public Player createFakePlayer(UUID uuid) {
-	OfflinePlayer offp = Bukkit.getOfflinePlayer(uuid);
-	if (offp == null || !offp.hasPlayedBefore())
-	    return null;
+        OfflinePlayer offp = Bukkit.getOfflinePlayer(uuid);
+        if (offp == null || !offp.hasPlayedBefore())
+            return null;
 
-	MinecraftServer ms = ((CraftServer) Bukkit.getServer()).getServer();
-	WorldServer ws = ms.getWorldServer(0);
-	GameProfile profile = new GameProfile(uuid, offp.getName());
-	PlayerInteractManager pim = new PlayerInteractManager(ws);
-	EntityPlayer ep = new EntityPlayer(ms, ws, profile, pim);
+        MinecraftServer ms = ((CraftServer) Bukkit.getServer()).getServer();
+        WorldServer ws = ms.getWorldServer(0);
+        GameProfile profile = new GameProfile(uuid, offp.getName());
+        PlayerInteractManager pim = new PlayerInteractManager(ws);
+        EntityPlayer ep = new EntityPlayer(ms, ws, profile, pim);
 
-	Player player = ep.getBukkitEntity();
-	player.loadData();
-	return player;
+        Player player = ep.getBukkitEntity();
+        player.loadData();
+        return player;
     }
 
     @Override
     public void changeOfflinePlayerName(UUID uuid, String name) {
-	MinecraftServer ms = ((CraftServer) Bukkit.getServer()).getServer();
-	WorldServer ws = ms.getWorldServer(0);
-	GameProfile profile = new GameProfile(uuid, name);
-	PlayerInteractManager pim = new PlayerInteractManager(ws);
-	EntityPlayer ep = new EntityPlayer(ms, ws, profile, pim);
+        MinecraftServer ms = ((CraftServer) Bukkit.getServer()).getServer();
+        WorldServer ws = ms.getWorldServer(0);
+        GameProfile profile = new GameProfile(uuid, name);
+        PlayerInteractManager pim = new PlayerInteractManager(ws);
+        EntityPlayer ep = new EntityPlayer(ms, ws, profile, pim);
 
-	ep.getBukkitEntity().saveData();
+        ep.getBukkitEntity().saveData();
     }
 
     @Override
     public void destroyEntity(Player[] player, int[] entityID) {
-	PacketPlayOutEntityDestroy ppoed = new PacketPlayOutEntityDestroy(entityID);
+        PacketPlayOutEntityDestroy ppoed = new PacketPlayOutEntityDestroy(entityID);
 
-	for (Player p : player) {
-	    CraftPlayer cp = (CraftPlayer) p;
-	    EntityPlayer ep = cp.getHandle();
-	    ep.playerConnection.sendPacket(ppoed);
-	}
+        for (Player p : player) {
+            CraftPlayer cp = (CraftPlayer) p;
+            EntityPlayer ep = cp.getHandle();
+            ep.playerConnection.sendPacket(ppoed);
+        }
     }
 
     @Override
     public void sendTeamColor(Player[] player, String teamName, String prefix, Set<String> playersUUID, int mode) {
-	PacketPlayOutScoreboardTeam ppost = new PacketPlayOutScoreboardTeam();
-	ReflectionHelper.setPrivateField(ppost, "a", teamName);
-	ReflectionHelper.setPrivateField(ppost, "c", prefix);
-	ReflectionHelper.setPrivateField(ppost, "h", playersUUID);
-	ReflectionHelper.setPrivateField(ppost, "i", mode);
+        PacketPlayOutScoreboardTeam ppost = new PacketPlayOutScoreboardTeam();
+        ReflectionHelper.setPrivateField(ppost, "a", teamName);
+        ReflectionHelper.setPrivateField(ppost, "c", prefix);
+        ReflectionHelper.setPrivateField(ppost, "h", playersUUID);
+        ReflectionHelper.setPrivateField(ppost, "i", mode);
 
-	for (Player p : player) {
-	    CraftPlayer cp = (CraftPlayer) p;
-	    EntityPlayer ep = cp.getHandle();
-	    ep.playerConnection.sendPacket(ppost);
-	}
+        for (Player p : player) {
+            CraftPlayer cp = (CraftPlayer) p;
+            EntityPlayer ep = cp.getHandle();
+            ep.playerConnection.sendPacket(ppost);
+        }
     }
 
     @Override
     public void swingRightArm(Player[] player) {
-	List<PacketPlayOutAnimation> packets = new ArrayList<PacketPlayOutAnimation>();
-	for (Player p : player) {
-	    CraftPlayer cp = (CraftPlayer) p;
-	    EntityPlayer ep = cp.getHandle();
+        List<PacketPlayOutAnimation> packets = new ArrayList<PacketPlayOutAnimation>();
+        for (Player p : player) {
+            CraftPlayer cp = (CraftPlayer) p;
+            EntityPlayer ep = cp.getHandle();
 
-	    packets.add(new PacketPlayOutAnimation(ep, 3));
-	}
+            packets.add(new PacketPlayOutAnimation(ep, 3));
+        }
 
-	for (Player p : Bukkit.getOnlinePlayers()) {
-	    CraftPlayer cp = (CraftPlayer) p;
-	    EntityPlayer ep = cp.getHandle();
-	    for (Packet<?> packet : packets)
-		ep.playerConnection.sendPacket(packet);
-	}
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            CraftPlayer cp = (CraftPlayer) p;
+            EntityPlayer ep = cp.getHandle();
+            for (Packet<?> packet : packets)
+                ep.playerConnection.sendPacket(packet);
+        }
     }
 
     @Override
     public float getYaw(Entity entity) {
-	CraftEntity cf = (CraftEntity) entity;
-	return cf.getHandle().getHeadRotation();
+        CraftEntity cf = (CraftEntity) entity;
+        return cf.getHandle().getHeadRotation();
     }
 }

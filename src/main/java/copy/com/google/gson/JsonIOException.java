@@ -18,7 +18,7 @@ package copy.com.google.gson;
 /**
  * This exception is raised when Gson was unable to read an input stream or
  * write to one.
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -26,11 +26,11 @@ public final class JsonIOException extends JsonParseException {
     private static final long serialVersionUID = 1L;
 
     public JsonIOException(String msg) {
-	super(msg);
+        super(msg);
     }
 
     public JsonIOException(String msg, Throwable cause) {
-	super(msg, cause);
+        super(msg, cause);
     }
 
     /**
@@ -41,6 +41,6 @@ public final class JsonIOException extends JsonParseException {
      * @param cause root exception that caused this exception to be thrown.
      */
     public JsonIOException(Throwable cause) {
-	super(cause);
+        super(cause);
     }
 }

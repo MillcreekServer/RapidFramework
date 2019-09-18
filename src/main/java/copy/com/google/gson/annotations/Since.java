@@ -32,7 +32,7 @@ import java.lang.annotation.*;
  * <p>
  * Here is an example of how this annotation is meant to be used:
  * </p>
- * 
+ *
  * <pre>
  * public class User {
  *   private String firstName;
@@ -57,7 +57,7 @@ import java.lang.annotation.*;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.TYPE })
+@Target({ElementType.FIELD, ElementType.TYPE})
 public @interface Since {
     /**
      * the value indicating a version number since this member or type has been

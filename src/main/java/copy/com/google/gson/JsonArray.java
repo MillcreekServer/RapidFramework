@@ -38,28 +38,28 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * Creates an empty JsonArray.
      */
     public JsonArray() {
-	elements = new ArrayList<JsonElement>();
+        elements = new ArrayList<JsonElement>();
     }
 
     public JsonArray(int capacity) {
-	elements = new ArrayList<JsonElement>(capacity);
+        elements = new ArrayList<JsonElement>(capacity);
     }
 
     /**
      * Creates a deep copy of this element and all its children
-     * 
+     *
      * @since 2.8.2
      */
     @Override
     public JsonArray deepCopy() {
-	if (!elements.isEmpty()) {
-	    JsonArray result = new JsonArray(elements.size());
-	    for (JsonElement element : elements) {
-		result.add(element.deepCopy());
-	    }
-	    return result;
-	}
-	return new JsonArray();
+        if (!elements.isEmpty()) {
+            JsonArray result = new JsonArray(elements.size());
+            for (JsonElement element : elements) {
+                result.add(element.deepCopy());
+            }
+            return result;
+        }
+        return new JsonArray();
     }
 
     /**
@@ -68,7 +68,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @param bool the boolean that needs to be added to the array.
      */
     public void add(Boolean bool) {
-	elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
+        elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
     }
 
     /**
@@ -77,7 +77,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @param character the character that needs to be added to the array.
      */
     public void add(Character character) {
-	elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
+        elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
     }
 
     /**
@@ -86,7 +86,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @param number the number that needs to be added to the array.
      */
     public void add(Number number) {
-	elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
+        elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
     }
 
     /**
@@ -95,7 +95,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @param string the string that needs to be added to the array.
      */
     public void add(String string) {
-	elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
+        elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
     }
 
     /**
@@ -104,10 +104,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @param element the element that needs to be added to the array.
      */
     public void add(JsonElement element) {
-	if (element == null) {
-	    element = JsonNull.INSTANCE;
-	}
-	elements.add(element);
+        if (element == null) {
+            element = JsonNull.INSTANCE;
+        }
+        elements.add(element);
     }
 
     /**
@@ -116,13 +116,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @param array the array whose elements need to be added to the array.
      */
     public void addAll(JsonArray array) {
-	elements.addAll(array.elements);
+        elements.addAll(array.elements);
     }
 
     /**
      * Replaces the element at the specified position in this array with the
      * specified element. Element can be null.
-     * 
+     *
      * @param index   index of the element to replace
      * @param element element to be stored at the specified position
      * @return the element previously at the specified position
@@ -130,26 +130,26 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      *                                   bounds
      */
     public JsonElement set(int index, JsonElement element) {
-	return elements.set(index, element);
+        return elements.set(index, element);
     }
 
     /**
      * Removes the first occurrence of the specified element from this array, if it
      * is present. If the array does not contain the element, it is unchanged.
-     * 
+     *
      * @param element element to be removed from this array, if present
      * @return true if this array contained the specified element, false otherwise
      * @since 2.3
      */
     public boolean remove(JsonElement element) {
-	return elements.remove(element);
+        return elements.remove(element);
     }
 
     /**
      * Removes the element at the specified position in this array. Shifts any
      * subsequent elements to the left (subtracts one from their indices). Returns
      * the element that was removed from the array.
-     * 
+     *
      * @param index index the index of the element to be removed
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException if the specified index is outside the array
@@ -157,18 +157,18 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @since 2.3
      */
     public JsonElement remove(int index) {
-	return elements.remove(index);
+        return elements.remove(index);
     }
 
     /**
      * Returns true if this array contains the specified element.
-     * 
-     * @return true if this array contains the specified element.
+     *
      * @param element whose presence in this array is to be tested
+     * @return true if this array contains the specified element.
      * @since 2.3
      */
     public boolean contains(JsonElement element) {
-	return elements.contains(element);
+        return elements.contains(element);
     }
 
     /**
@@ -177,7 +177,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @return the number of elements in the array.
      */
     public int size() {
-	return elements.size();
+        return elements.size();
     }
 
     /**
@@ -188,7 +188,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * @return an iterator to navigate the elements of the array.
      */
     public Iterator<JsonElement> iterator() {
-	return elements.iterator();
+        return elements.iterator();
     }
 
     /**
@@ -200,7 +200,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      *                                   to the {@link #size()} of the array.
      */
     public JsonElement get(int i) {
-	return elements.get(i);
+        return elements.get(i);
     }
 
     /**
@@ -215,10 +215,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public Number getAsNumber() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsNumber();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsNumber();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -233,10 +233,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public String getAsString() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsString();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsString();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -251,10 +251,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public double getAsDouble() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsDouble();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsDouble();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -262,7 +262,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * single element.
      *
      * @return get this element as a {@link BigDecimal} if it is single element
-     *         array.
+     * array.
      * @throws ClassCastException    if the element in the array is of not a
      *                               {@link JsonPrimitive}.
      * @throws NumberFormatException if the element at index 0 is not a valid
@@ -272,10 +272,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public BigDecimal getAsBigDecimal() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsBigDecimal();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsBigDecimal();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -283,7 +283,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      * single element.
      *
      * @return get this element as a {@link BigInteger} if it is single element
-     *         array.
+     * array.
      * @throws ClassCastException    if the element in the array is of not a
      *                               {@link JsonPrimitive}.
      * @throws NumberFormatException if the element at index 0 is not a valid
@@ -293,10 +293,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public BigInteger getAsBigInteger() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsBigInteger();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsBigInteger();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -310,10 +310,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public float getAsFloat() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsFloat();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsFloat();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -327,10 +327,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public long getAsLong() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsLong();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsLong();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -345,26 +345,26 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public int getAsInt() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsInt();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsInt();
+        }
+        throw new IllegalStateException();
     }
 
     @Override
     public byte getAsByte() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsByte();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsByte();
+        }
+        throw new IllegalStateException();
     }
 
     @Override
     public char getAsCharacter() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsCharacter();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsCharacter();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -378,10 +378,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public short getAsShort() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsShort();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsShort();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -396,19 +396,19 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      */
     @Override
     public boolean getAsBoolean() {
-	if (elements.size() == 1) {
-	    return elements.get(0).getAsBoolean();
-	}
-	throw new IllegalStateException();
+        if (elements.size() == 1) {
+            return elements.get(0).getAsBoolean();
+        }
+        throw new IllegalStateException();
     }
 
     @Override
     public boolean equals(Object o) {
-	return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
+        return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
     }
 
     @Override
     public int hashCode() {
-	return elements.hashCode();
+        return elements.hashCode();
     }
 }

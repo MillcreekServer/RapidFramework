@@ -35,16 +35,16 @@ public final class JsonObject extends JsonElement {
 
     /**
      * Creates a deep copy of this element and all its children
-     * 
+     *
      * @since 2.8.2
      */
     @Override
     public JsonObject deepCopy() {
-	JsonObject result = new JsonObject();
-	for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
-	    result.add(entry.getKey(), entry.getValue().deepCopy());
-	}
-	return result;
+        JsonObject result = new JsonObject();
+        for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
+            result.add(entry.getKey(), entry.getValue().deepCopy());
+        }
+        return result;
     }
 
     /**
@@ -56,10 +56,10 @@ public final class JsonObject extends JsonElement {
      * @param value    the member object.
      */
     public void add(String property, JsonElement value) {
-	if (value == null) {
-	    value = JsonNull.INSTANCE;
-	}
-	members.put(property, value);
+        if (value == null) {
+            value = JsonNull.INSTANCE;
+        }
+        members.put(property, value);
     }
 
     /**
@@ -70,7 +70,7 @@ public final class JsonObject extends JsonElement {
      * @since 1.3
      */
     public JsonElement remove(String property) {
-	return members.remove(property);
+        return members.remove(property);
     }
 
     /**
@@ -81,7 +81,7 @@ public final class JsonObject extends JsonElement {
      * @param value    the string value associated with the member.
      */
     public void addProperty(String property, String value) {
-	add(property, createJsonElement(value));
+        add(property, createJsonElement(value));
     }
 
     /**
@@ -92,7 +92,7 @@ public final class JsonObject extends JsonElement {
      * @param value    the number value associated with the member.
      */
     public void addProperty(String property, Number value) {
-	add(property, createJsonElement(value));
+        add(property, createJsonElement(value));
     }
 
     /**
@@ -103,7 +103,7 @@ public final class JsonObject extends JsonElement {
      * @param value    the number value associated with the member.
      */
     public void addProperty(String property, Boolean value) {
-	add(property, createJsonElement(value));
+        add(property, createJsonElement(value));
     }
 
     /**
@@ -114,7 +114,7 @@ public final class JsonObject extends JsonElement {
      * @param value    the number value associated with the member.
      */
     public void addProperty(String property, Character value) {
-	add(property, createJsonElement(value));
+        add(property, createJsonElement(value));
     }
 
     /**
@@ -123,10 +123,10 @@ public final class JsonObject extends JsonElement {
      *
      * @param value the object to generate the {@link JsonElement} for
      * @return a {@link JsonPrimitive} if the {@code value} is not null, otherwise a
-     *         {@link JsonNull}
+     * {@link JsonNull}
      */
     private JsonElement createJsonElement(Object value) {
-	return value == null ? JsonNull.INSTANCE : new JsonPrimitive(value);
+        return value == null ? JsonNull.INSTANCE : new JsonPrimitive(value);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class JsonObject extends JsonElement {
      * @return a set of members of this object.
      */
     public Set<Map.Entry<String, JsonElement>> entrySet() {
-	return members.entrySet();
+        return members.entrySet();
     }
 
     /**
@@ -146,7 +146,7 @@ public final class JsonObject extends JsonElement {
      * @since 2.8.1
      */
     public Set<String> keySet() {
-	return members.keySet();
+        return members.keySet();
     }
 
     /**
@@ -155,7 +155,7 @@ public final class JsonObject extends JsonElement {
      * @return the number of key/value pairs in the object.
      */
     public int size() {
-	return members.size();
+        return members.size();
     }
 
     /**
@@ -166,7 +166,7 @@ public final class JsonObject extends JsonElement {
      * @return true if there is a member with the specified name, false otherwise.
      */
     public boolean has(String memberName) {
-	return members.containsKey(memberName);
+        return members.containsKey(memberName);
     }
 
     /**
@@ -176,7 +176,7 @@ public final class JsonObject extends JsonElement {
      * @return the member matching the name. Null if no such member exists.
      */
     public JsonElement get(String memberName) {
-	return members.get(memberName);
+        return members.get(memberName);
     }
 
     /**
@@ -186,7 +186,7 @@ public final class JsonObject extends JsonElement {
      * @return the JsonPrimitive corresponding to the specified member.
      */
     public JsonPrimitive getAsJsonPrimitive(String memberName) {
-	return (JsonPrimitive) members.get(memberName);
+        return (JsonPrimitive) members.get(memberName);
     }
 
     /**
@@ -196,7 +196,7 @@ public final class JsonObject extends JsonElement {
      * @return the JsonArray corresponding to the specified member.
      */
     public JsonArray getAsJsonArray(String memberName) {
-	return (JsonArray) members.get(memberName);
+        return (JsonArray) members.get(memberName);
     }
 
     /**
@@ -206,16 +206,16 @@ public final class JsonObject extends JsonElement {
      * @return the JsonObject corresponding to the specified member.
      */
     public JsonObject getAsJsonObject(String memberName) {
-	return (JsonObject) members.get(memberName);
+        return (JsonObject) members.get(memberName);
     }
 
     @Override
     public boolean equals(Object o) {
-	return (o == this) || (o instanceof JsonObject && ((JsonObject) o).members.equals(members));
+        return (o == this) || (o instanceof JsonObject && ((JsonObject) o).members.equals(members));
     }
 
     @Override
     public int hashCode() {
-	return members.hashCode();
+        return members.hashCode();
     }
 }
