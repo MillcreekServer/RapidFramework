@@ -647,7 +647,7 @@ public class ManagerStructure<PB extends PluginBase> extends ManagerElementCachi
                             if (lang != null)
                                 base.sendMessage(player, lang);
                             else
-                                player.sendMessage("Undefined Language for Exception");
+                                player.sendMessage("Undefined ManagerLanguage for Exception");
                         }
                     }
 

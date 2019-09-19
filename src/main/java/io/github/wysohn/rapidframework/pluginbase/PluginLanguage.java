@@ -129,7 +129,7 @@ public final class PluginLanguage implements PluginProcedure {
 
     /**
      * @param lang
-     * @return true if there was no same Language already registered
+     * @return true if there was no same ManagerLanguage already registered
      */
     public boolean registerLanguage(Language lang) {
         return languages.add(lang);
@@ -417,7 +417,7 @@ public final class PluginLanguage implements PluginProcedure {
         FileConfiguration config;
         private File file;
 
-        public LanguageFileSession(File file) throws FileNotFoundException, IOException, InvalidConfigurationException {
+        public LanguageFileSession(File file) throws IOException, InvalidConfigurationException {
             this.file = file;
 
             if (!file.exists()) {
@@ -429,7 +429,7 @@ public final class PluginLanguage implements PluginProcedure {
             this.config.load(file);
         }
 
-        public void reload() throws FileNotFoundException, IOException, InvalidConfigurationException {
+        public void reload() throws IOException, InvalidConfigurationException {
             this.config.load(file);
         }
 

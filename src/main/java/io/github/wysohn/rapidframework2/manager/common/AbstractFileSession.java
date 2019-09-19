@@ -1,12 +1,12 @@
-package io.github.wysohn.rapidframework2.manager.lang;
+package io.github.wysohn.rapidframework2.manager.common;
 
 import java.io.File;
 import java.io.IOException;
 
-public abstract class LanguageFileSession {
+public abstract class AbstractFileSession implements KeyValueStorage {
     protected final File file;
 
-    public LanguageFileSession(File file) throws IOException{
+    public AbstractFileSession(File file) throws IOException{
         this.file = file;
 
         if (!file.exists()) {

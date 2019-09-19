@@ -271,12 +271,12 @@ public abstract class SubCommand {
 
         /**
          * Try to convert the arg(String) to appropriate instance. Should throw
-         * InvalidArgumentException with Language enum passed if cannot be converted.
+         * InvalidArgumentException with ManagerLanguage enum passed if cannot be converted.
          *
          * @param arg the current argument to convert
          * @return the converted value
          * @throws InvalidArgumentException the exception to be thrown if the given
-         *                                  value cannot be converted. This Language can
+         *                                  value cannot be converted. This ManagerLanguage can
          *                                  have one ${string} placeholder which will be
          *                                  automatically converted into the input
          *                                  argument. (e.g. if your error message is

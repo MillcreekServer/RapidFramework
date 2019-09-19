@@ -4,7 +4,9 @@ import io.github.wysohn.rapidframework2.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework2.main.PluginMain;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class SubCommand<Sender extends ICommandSender> {
     final PluginMain main;
@@ -58,25 +60,25 @@ public abstract class SubCommand<Sender extends ICommandSender> {
          *
          * @param index index of argument
          * @param def   the value to be used if index is out of range
-         * @return the argument; null if argument conversion fails. If null was
+         * @return the argument; Empty Optional if conversion fails. If Empty Optional was
          * returned, the error message is already sent to the sender.
          */
         @SuppressWarnings("unchecked")
-        public <T> T get(int index, T def) {
+        public <T> Optional<T> get(int index, T def) {
             try {
                 if (index >= args.length)
-                    return def;
+                    return Optional.of(def);
 
                 if (index < argumentMappers.size())
-                    return (T) argumentMappers.get(index).apply(args[index]);
+                    return Optional.of((T) argumentMappers.get(index).apply(args[index]));
                 else
-                    return (T) ArgumentMapper.IDENTITY.apply(args[index]);
+                    return Optional.of((T) ArgumentMapper.IDENTITY.apply(args[index]));
             } catch (InvalidArgumentException e) {
                 base.lang.addString(args[index]);
                 base.sendMessage(sender, e.lang);
             }
 
-            return null;
+            return Optional.empty();
         }
 
         /**
