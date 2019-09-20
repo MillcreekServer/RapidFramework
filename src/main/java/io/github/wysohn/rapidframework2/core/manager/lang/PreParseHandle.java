@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework2.manager.lang;
+package io.github.wysohn.rapidframework2.core.manager.lang;
 
 @FunctionalInterface
 public interface PreParseHandle {

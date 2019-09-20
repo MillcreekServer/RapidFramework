@@ -1,7 +1,7 @@
-package io.github.wysohn.rapidframework2.manager.command;
+package io.github.wysohn.rapidframework2.core.manager.command;
 
-import io.github.wysohn.rapidframework2.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework2.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
+import io.github.wysohn.rapidframework2.core.main.PluginMain;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -74,7 +74,7 @@ public abstract class SubCommand<Sender extends ICommandSender> {
                 else
                     return Optional.of((T) ArgumentMapper.IDENTITY.apply(args[index]));
             } catch (InvalidArgumentException e) {
-                base.lang.addString(args[index]);
+                main.lang.addString(args[index]);
                 base.sendMessage(sender, e.lang);
             }
 

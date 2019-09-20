@@ -1,4 +1,6 @@
-package io.github.wysohn.rapidframework2.manager.common;
+package io.github.wysohn.rapidframework2.core.manager.common;
+
+import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 
 import java.io.File;
 import java.io.IOException;

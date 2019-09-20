@@ -1,7 +1,7 @@
-package io.github.wysohn.rapidframework2.manager.command;
+package io.github.wysohn.rapidframework2.core.manager.command;
 
-import io.github.wysohn.rapidframework2.main.PluginMain;
-import io.github.wysohn.rapidframework2.manager.Manager;
+import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.common.Manager;
 
 public final class ManagerCommand extends Manager {
     private final String mainCommand;

@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework2.manager.command;
+package io.github.wysohn.rapidframework2.core.manager.command;
 
 @FunctionalInterface
 public interface ArgumentMapper {

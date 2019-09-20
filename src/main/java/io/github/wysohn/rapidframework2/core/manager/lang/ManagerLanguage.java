@@ -1,18 +1,15 @@
-package io.github.wysohn.rapidframework2.manager.lang;
+package io.github.wysohn.rapidframework2.core.manager.lang;
 
-import io.github.wysohn.rapidframework.pluginbase.PluginManager;
-import io.github.wysohn.rapidframework2.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework2.main.PluginMain;
-import io.github.wysohn.rapidframework2.manager.Manager;
-import io.github.wysohn.rapidframework2.manager.common.KeyValueStorage;
+import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
+import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.common.Manager;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
 import java.util.*;
 
 public class ManagerLanguage extends Manager {
-    private final Locale defaultLang;
     private final Map<Locale, KeyValueStorage> languageSessions = new HashMap<>();
     private final Set<Enum<? extends Lang>> languages = new HashSet<>();
 
@@ -22,18 +19,24 @@ public class ManagerLanguage extends Manager {
     private final Queue<String> string = new LinkedList<>();
     private final Queue<Boolean> bool = new LinkedList<>();
 
+    private Locale defaultLang = Locale.ENGLISH;
+
     private DecimalFormat decimalFormat = new DecimalFormat("###,###,###.##");
 
-    public ManagerLanguage(PluginMain main, int loadPriority, Locale defaultLang, Map<Locale, KeyValueStorage> languageSessions) {
+    public ManagerLanguage(PluginMain main, int loadPriority) {
         super(main, loadPriority);
-        this.defaultLang = defaultLang;
-        this.languageSessions.putAll(languageSessions);
     }
 
-    public ManagerLanguage(PluginMain main, int loadPriority, Map<Locale, KeyValueStorage> languageSessions) {
-        super(main, loadPriority);
-        this.defaultLang = Locale.ENGLISH;
-        this.languageSessions.putAll(languageSessions);
+    public Locale getDefaultLang() {
+        return defaultLang;
+    }
+
+    public void setDefaultLang(Locale defaultLang) {
+        this.defaultLang = defaultLang;
+    }
+
+    public void addLanguageStorage(Locale locale, KeyValueStorage storage) {
+        languageSessions.put(locale, storage);
     }
 
     public void setDecimalFormat(DecimalFormat decimalFormat) {
