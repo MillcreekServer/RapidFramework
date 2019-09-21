@@ -3,7 +3,6 @@ package io.github.wysohn.rapidframework2.core.manager.api;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
-import io.github.wysohn.rapidframework2.core.manager.common.Manager;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -15,14 +14,14 @@ import java.util.Map;
  * (since the server can load without the plugin which has the class). Therefore, the best way to deal with it is
  * dynamically instantiate the dependent class only if the target third party plugin actually exist and enabled.
  */
-public class ManagerExternalAPI extends Manager {
+public class ManagerExternalAPI extends PluginMain.Manager {
     private final Map<String, Class<? extends ExternalAPI>> apiClasses = new HashMap<>();
     private final Map<String, ExternalAPI> externalAPIs = new HashMap<>();
 
     private final IPluginManager pluginManager;
 
-    public ManagerExternalAPI(PluginMain main, int loadPriority, IPluginManager pluginManager) {
-        super(main, loadPriority);
+    public ManagerExternalAPI(int loadPriority, IPluginManager pluginManager) {
+        super(loadPriority);
 
         this.pluginManager = pluginManager;
     }
@@ -38,14 +37,14 @@ public class ManagerExternalAPI extends Manager {
 
             try {
                 Constructor con = clazz.getConstructor(PluginMain.class, String.class);
-                ExternalAPI api = (ExternalAPI) con.newInstance(main, pluginName);
+                ExternalAPI api = (ExternalAPI) con.newInstance(main(), pluginName);
                 api.enable();
 
                 externalAPIs.put(pluginName, api);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main.getLogger().severe("Failed to enable API support for [" + pluginName + "]");
+                main().getLogger().severe("Failed to enable API support for [" + pluginName + "]");
             }
         }
     }
@@ -60,7 +59,7 @@ public class ManagerExternalAPI extends Manager {
                 api.load();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main.getLogger().severe("Failed to load API support for [" + pluginName + "]");
+                main().getLogger().severe("Failed to load API support for [" + pluginName + "]");
             }
         }
     }
@@ -75,7 +74,7 @@ public class ManagerExternalAPI extends Manager {
                 api.disable();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main.getLogger().severe("Failed to load API support for [" + pluginName + "]");
+                main().getLogger().severe("Failed to load API support for [" + pluginName + "]");
             }
         }
     }

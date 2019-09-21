@@ -3,13 +3,14 @@ package io.github.wysohn.rapidframework2.core.manager.config;
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
-import io.github.wysohn.rapidframework2.core.manager.common.Manager;
 
-public class ManagerConfig extends Manager implements KeyValueStorage {
+import java.util.Set;
+
+public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage {
     private final AbstractFileSession fileSession;
 
-    public ManagerConfig(PluginMain main, int loadPriority, AbstractFileSession fileSession) {
-        super(main, loadPriority);
+    public ManagerConfig(int loadPriority, AbstractFileSession fileSession) {
+        super(loadPriority);
 
         this.fileSession = fileSession;
     }
@@ -37,5 +38,15 @@ public class ManagerConfig extends Manager implements KeyValueStorage {
     @Override
     public void put(String key, Object value) {
         fileSession.put(key, value);
+    }
+
+    @Override
+    public Set<String> getKeys(Boolean deep) {
+        return null;
+    }
+
+    @Override
+    public boolean isSection(Object obj) {
+        return false;
     }
 }

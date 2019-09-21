@@ -3,13 +3,12 @@ package io.github.wysohn.rapidframework2.core.manager.lang;
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
-import io.github.wysohn.rapidframework2.core.manager.common.Manager;
 import org.bukkit.ChatColor;
 
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class ManagerLanguage extends Manager {
+public class ManagerLanguage extends PluginMain.Manager {
     private final Map<Locale, KeyValueStorage> languageSessions = new HashMap<>();
     private final Set<Enum<? extends Lang>> languages = new HashSet<>();
 
@@ -23,8 +22,8 @@ public class ManagerLanguage extends Manager {
 
     private DecimalFormat decimalFormat = new DecimalFormat("###,###,###.##");
 
-    public ManagerLanguage(PluginMain main, int loadPriority) {
-        super(main, loadPriority);
+    public ManagerLanguage(int loadPriority) {
+        super(loadPriority);
     }
 
     public Locale getDefaultLang() {

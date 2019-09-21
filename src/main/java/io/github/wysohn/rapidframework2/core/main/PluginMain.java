@@ -5,7 +5,6 @@ import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
-import io.github.wysohn.rapidframework2.core.manager.common.Manager;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
@@ -28,8 +27,8 @@ public class PluginMain implements PluginRuntime {
     private ManagerConfig conf;
 
     private PluginMain(String mainCommand, String adminPermission, Logger logger) {
-        this.comm = new ManagerCommand(this, Manager.FASTEST_PRIORITY, mainCommand);
-        this.lang = new ManagerLanguage(this, Manager.FASTEST_PRIORITY);
+        this.comm = new ManagerCommand(Manager.FASTEST_PRIORITY, mainCommand);
+        this.lang = new ManagerLanguage(Manager.FASTEST_PRIORITY);
 
         registerManager(comm);
         registerManager(lang);
@@ -74,9 +73,19 @@ public class PluginMain implements PluginRuntime {
         return logger;
     }
 
-    public void registerManager(Manager manager) {
+    private void registerManager(Manager manager) {
         managers.put(manager.getClass(), manager);
         managersStr.put(manager.getClass().getSimpleName(), manager);
+
+        manager.main = this;
+    }
+
+    public <T extends Manager> T getManager(Class<T> clazz){
+        return (T) managers.get(clazz);
+    }
+
+    public Manager getManager(String managerName){
+        return managersStr.get(managerName);
     }
 
     @Override
@@ -118,13 +127,13 @@ public class PluginMain implements PluginRuntime {
         }
 
         public Builder andConfigSession(AbstractFileSession session) {
-            main.conf = new ManagerConfig(main, Manager.FASTEST_PRIORITY, session);
+            main.conf = new ManagerConfig(Manager.FASTEST_PRIORITY, session);
             main.registerManager(main.conf);
             return this;
         }
 
         public Builder andPluginManager(IPluginManager pluginManager) {
-            main.api = new ManagerExternalAPI(main, Manager.FASTEST_PRIORITY, pluginManager);
+            main.api = new ManagerExternalAPI(Manager.FASTEST_PRIORITY, pluginManager);
             return this;
         }
 
@@ -143,8 +152,31 @@ public class PluginMain implements PluginRuntime {
 
         public PluginMain build() {
             Validation.assertNotNull(main.conf, "Register config with andFileSession() first.");
+            Validation.assertNotNull(main.api, "Register IPluginManager with andPluginManager() first.");
 
             return main;
+        }
+    }
+
+    public static abstract class Manager implements PluginRuntime {
+        public static final int FASTEST_PRIORITY = 0;
+        private final int loadPriority;
+
+        private PluginMain main;
+
+        public Manager(int loadPriority) {
+            this.loadPriority = loadPriority;
+        }
+
+        public PluginMain main() {
+            return main;
+        }
+
+        public static final int NORM_PRIORITY = 5;
+        public static final int SLOWEST_PRIORITY = 10;
+
+        public int getLoadPriority() {
+            return loadPriority;
         }
     }
 }
