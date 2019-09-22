@@ -1,13 +1,16 @@
 package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
+import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
+import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import org.bukkit.command.CommandSender;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
-class SubCommandMap {
-    private final Map<String, SubCommand> commandList = new LinkedHashMap<String, SubCommand>();
+class SubCommandMap<Sender extends ICommandSender> {
+    private final Map<String, SubCommand<Sender>> commandList = new LinkedHashMap<>();
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
     public void clearCommands() {
@@ -15,12 +18,14 @@ class SubCommandMap {
         aliasMap.clear();
     }
 
-    public boolean dispatch(ICommandSender sender, String arg1) {
+    public boolean dispatch(PluginMain main, Sender sender, String arg1) {
         String[] split = arg1.split(" ");
 
-        String cmd = split[0];
-        if (aliasMap.containsKey(cmd)) {
-            cmd = aliasMap.get(cmd);
+        final String cmd;
+        if (aliasMap.containsKey(split[0])) {
+            cmd = aliasMap.get(split[0]);
+        } else {
+            cmd = split[0];
         }
 
         String[] args = new String[split.length - 1];
@@ -28,75 +33,55 @@ class SubCommandMap {
             args[i - 1] = split[i];
         }
 
-        SubCommand command = commandList.get(cmd);
+        SubCommand<Sender> command = commandList.get(cmd);
 
         if (command != null) {
-            if (command.nArguments != -1 && command.nArguments != args.length) {
-                SimpleEntry<Language, PreParseHandle> descPair = command.getDescription();
-                descPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                String desc = base.lang.parseFirstString(sender, descPair.getKey());
-                base.lang.addString(mainCommand);
-                base.lang.addString(color + command.toString());
-                base.lang.addString(desc);
-                base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
-
-                StringBuilder builder = new StringBuilder();
-                for (String alias : command.getAliases()) {
-                    builder.append(" " + alias);
-                }
-                base.lang.addString(builder.toString());
-                base.sendMessage(sender, DefaultLanguages.Command_Format_Aliases);
-
-                for (SimpleEntry<Language, PreParseHandle> langPair : command.getUsage()) {
-                    Language lang = langPair.getKey();
-                    langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                    base.lang.setCommand("/" + mainCommand + " " + cmd);
-                    String usage = base.lang.parseFirstString(sender, lang);
-                    base.lang.addString(usage);
-                    base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
-                }
+            if (command.permission != null
+                    && !sender.hasPermission(IPermissionHolder.CheckType.OR, main.getAdminPermission(), command.permission)) {
+                main.lang().sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
                 return true;
             }
 
-            if (command.getPermission() != null && !sender.hasPermission(adminPermission)
-                    && !sender.hasPermission(command.getPermission())) {
-                base.sendMessage(sender, DefaultLanguages.General_NotEnoughPermission);
+            if (command.nArguments != -1 && command.nArguments != args.length) {
+                showCommandDetails(main, sender, command);
                 return true;
             }
 
             boolean result = command.execute(sender, cmd, args);
             if (!result) {
-                ChatColor color = command.getCommandColor();
-                SimpleEntry<Language, PreParseHandle> descPair = command.getDescription();
-                descPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                String desc = base.lang.parseFirstString(sender, descPair.getKey());
-                base.lang.addString(mainCommand);
-                base.lang.addString(color + command.toString());
-                base.lang.addString(desc);
-                base.sendMessage(sender, DefaultLanguages.Command_Format_Description);
-
-                StringBuilder builder = new StringBuilder();
-                for (String alias : command.getAliases()) {
-                    builder.append(" " + alias);
-                }
-                base.lang.addString(builder.toString());
-                base.sendMessage(sender, DefaultLanguages.Command_Format_Aliases);
-
-                for (SimpleEntry<Language, PreParseHandle> langPair : command.getUsage()) {
-                    Language lang = langPair.getKey();
-                    langPair.getValue().onParse(base.lang, sender instanceof Player ? (Player) sender : null);
-                    String usage = base.lang.parseFirstString(sender, lang);
-                    base.lang.addString(usage);
-                    base.sendMessage(sender, DefaultLanguages.Command_Format_Usage);
-                }
+                showCommandDetails(main, sender, command);
             }
+
             return true;
         } else if (cmd.equals("")) {
-            return dispatch(sender, "help");
+            return dispatch(main, sender, "help");
         } else {
-            base.lang.addString(cmd);
-            base.sendMessage(sender, DefaultLanguages.General_NoSuchCommand);
+            main.lang().sendMessage(sender, DefaultLangs.General_NoSuchCommand, (managerLanguage -> {
+                managerLanguage.addString(cmd);
+            }));
             return true;
+        }
+    }
+
+    private void showCommandDetails(PluginMain main, Sender sender, SubCommand<Sender> command) {
+        DynamicLang descPair = command.description;
+        String descParsed = main.lang().parseFirst(sender, descPair.lang);
+        main.lang().sendMessage(sender, DefaultLangs.Command_Format_Description, (managerLanguage -> {
+            managerLanguage.addString(command.name);
+            managerLanguage.addString(descParsed);
+        }));
+
+        StringBuilder builder = new StringBuilder();
+        Arrays.stream(command.aliases).forEach(builder::append);
+        main.lang().sendMessage(sender, DefaultLangs.Command_Format_Aliases, (managerLanguage -> {
+            managerLanguage.addString(builder.toString());
+        }));
+
+        for (DynamicLang usageLang : command.usage) {
+            String parsedUsage = main.lang().parseFirst(sender, usageLang.lang);
+            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Usage, (managerLanguage -> {
+                managerLanguage.addString(parsedUsage);
+            }));
         }
     }
 

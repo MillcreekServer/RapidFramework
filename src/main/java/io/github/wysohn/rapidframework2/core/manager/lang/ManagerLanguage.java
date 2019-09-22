@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import org.bukkit.ChatColor;
+import util.Validation;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -55,6 +56,33 @@ public class ManagerLanguage extends PluginMain.Manager {
     @Override
     public void disable() throws Exception {
 
+    }
+
+    public void addDouble(double doub) {
+        this.doub.add(Double.valueOf(doub));
+    }
+
+    public void addInteger(int integer) {
+        this.integer.add(Integer.valueOf(integer));
+    }
+
+    public void addString(String string) {
+        Validation.assertNotNull(string);
+
+        this.string.add(string);
+    }
+
+    public void addString(String[] strs) {
+        for (String str : strs)
+            addString(str);
+    }
+
+    public void addBoolean(boolean bool) {
+        this.bool.add(Boolean.valueOf(bool));
+    }
+
+    public void addLong(long llong) {
+        this.llong.add(llong);
     }
 
     /**
@@ -123,8 +151,76 @@ public class ManagerLanguage extends PluginMain.Manager {
         }
     }
 
-    public void sendMessage(ICommandSender commandSender, Enum<? extends Lang> lang, PreParseHandle handle){
+    public String[] parse(Locale locale, ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+        if (locale == null)
+            locale = defaultLang;
 
+        Validation.assertNotNull(sender);
+        Validation.assertNotNull(lang);
+        Validation.assertNotNull(handle);
+
+        KeyValueStorage storage = languageSessions.getOrDefault(locale, languageSessions.get(defaultLang));
+        if (storage == null) {
+            main().getLogger().severe("The language session is not loaded for " + locale);
+            return new String[0];
+        }
+
+        String configName = convertToConfigName(lang);
+        List<String> values = storage.get(configName);
+
+        if (values != null) {
+            handle.onParse(this);
+            replaceVariables(sender, values);
+        }
+
+        this.doub.clear();
+        this.integer.clear();
+        this.string.clear();
+        this.bool.clear();
+        this.llong.clear();
+
+        return values == null ? new String[0] : values.toArray(new String[0]);
+    }
+
+    public String[] parse(ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+        Validation.assertNotNull(sender);
+
+        return parse(sender.getLocale(), sender, lang, handle);
+    }
+
+    public String[] parse(ICommandSender sender, Enum<? extends Lang> lang) {
+        Validation.assertNotNull(sender);
+
+        return parse(sender.getLocale(), sender, lang, (managerLanguage -> {
+        }));
+    }
+
+    public String parseFirst(Locale locale, ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+        String[] parsed = parse(locale, sender, lang, handle);
+        return parsed.length > 0 ? parsed[0] : "NULL";
+    }
+
+    public String parseFirst(ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+        Validation.assertNotNull(sender);
+
+        return parseFirst(sender.getLocale(), sender, lang, handle);
+    }
+
+    public String parseFirst(ICommandSender sender, Enum<? extends Lang> lang) {
+        Validation.assertNotNull(sender);
+
+        return parseFirst(sender.getLocale(), sender, lang, (managerLanguage -> {
+        }));
+    }
+
+    public void sendMessage(ICommandSender commandSender, Enum<? extends Lang> lang, PreParseHandle handle){
+        String[] parsed = parse(commandSender, lang, handle);
+        commandSender.sendMessage(parsed);
+    }
+
+    public void sendMessage(ICommandSender commandSender, Enum<? extends Lang> lang) {
+        sendMessage(commandSender, lang, (managerLanguage -> {
+        }));
     }
 
     private static String convertToConfigName(Enum<? extends Lang> lang) {

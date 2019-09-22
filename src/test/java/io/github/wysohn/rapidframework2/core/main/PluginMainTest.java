@@ -12,9 +12,9 @@ import org.junit.Test;
 
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 public class PluginMainTest {
     private enum SomeLang implements Lang{
@@ -57,6 +57,7 @@ public class PluginMainTest {
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
     private IPluginManager mockPluginManager;
+    private PluginMain.Manager spyManager;
 
     private PluginMain main;
 
@@ -66,11 +67,13 @@ public class PluginMainTest {
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
 
+        spyManager = spy(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY));
+
         main = PluginMain.Builder
                 .beginWith("test", "perm.mission", mockLogger)
                 .andConfigSession(mockFileSession)
                 .andPluginManager(mockPluginManager)
-                .withManagers(spy(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY)))
+                .withManagers(spyManager)
                 .withLangs(SomeLang.values())
                 .build();
     }
@@ -110,15 +113,29 @@ public class PluginMainTest {
     }
 
     @Test
-    public void testEnable() {
+    public void testEnable() throws Exception {
+        SomeManager manager = main.getManager(SomeManager.class);
+        assertNotNull(manager);
+        assertEquals(spyManager, manager);
 
+        verify(spyManager).enable();
     }
 
     @Test
-    public void testLoad() {
+    public void testLoad() throws Exception {
+        SomeManager manager = main.getManager(SomeManager.class);
+        assertNotNull(manager);
+        assertEquals(spyManager, manager);
+
+        verify(spyManager).load();
     }
 
     @Test
-    public void testDisable() {
+    public void testDisable() throws Exception {
+        SomeManager manager = main.getManager(SomeManager.class);
+        assertNotNull(manager);
+        assertEquals(spyManager, manager);
+
+        verify(spyManager).disable();
     }
 }

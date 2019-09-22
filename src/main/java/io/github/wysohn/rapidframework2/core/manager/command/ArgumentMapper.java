@@ -1,5 +1,8 @@
 package io.github.wysohn.rapidframework2.core.manager.command;
 
+import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
+import util.StringUtil;
+
 @FunctionalInterface
 public interface ArgumentMapper {
     /**
@@ -7,14 +10,14 @@ public interface ArgumentMapper {
      */
     static ArgumentMapper IDENTITY = arg -> arg;
     /**
-     * map argument to valid name defined in {@link EnglishChecker#isValidName(String)}.
-     * Also automatically convert & to the minecraft colorcode.
+     * map argument to valid name defined in {@link StringUtil#isValidName(String)}.
+     * Does not convert color codes.
      */
     static ArgumentMapper STRING = arg -> {
-        if (arg == null || !EnglishChecker.isValidName(arg))
-            throw new InvalidArgumentException(DefaultLanguages.General_InvalidString);
+        if (arg == null || !StringUtil.isValidName(arg))
+            throw new InvalidArgumentException(DefaultLangs.General_InvalidString);
 
-        return ChatColor.translateAlternateColorCodes('&', arg);
+        return arg;
     };
     /**
      * map input to integer if possible
@@ -23,7 +26,7 @@ public interface ArgumentMapper {
         try {
             return Integer.parseInt(arg);
         } catch (NumberFormatException ex) {
-            throw new InvalidArgumentException(DefaultLanguages.General_NotInteger);
+            throw new InvalidArgumentException(DefaultLangs.General_NotInteger);
         }
     };
     /**
@@ -33,30 +36,30 @@ public interface ArgumentMapper {
         try {
             return Double.parseDouble(arg);
         } catch (NumberFormatException ex) {
-            throw new InvalidArgumentException(DefaultLanguages.General_NotDecimal);
+            throw new InvalidArgumentException(DefaultLangs.General_NotDecimal);
         }
     };
-    /**
-     * map input to online player if possible
-     */
-    static ArgumentMapper PLAYER = arg -> {
-        Player player = Bukkit.getPlayer(arg);
-        if (player == null)
-            throw new InvalidArgumentException(DefaultLanguages.General_PlayerNotOnline);
-
-        return player;
-    };
-    /**
-     * map input to offline player if possible. The player
-     * should have joined the server at least once.
-     */
-    static ArgumentMapper OFFLINE_PLAYER = arg -> {
-        OfflinePlayer oplayer = Bukkit.getOfflinePlayer(arg);
-        if (oplayer == null || oplayer.getLastPlayed() < 1)
-            throw new InvalidArgumentException(DefaultLanguages.General_NoSuchPlayer);
-
-        return oplayer;
-    };
+//    /**
+//     * map input to online player if possible
+//     */
+//    static ArgumentMapper PLAYER = arg -> {
+//        Player player = Bukkit.getPlayer(arg);
+//        if (player == null)
+//            throw new InvalidArgumentException(DefaultLanguages.General_PlayerNotOnline);
+//
+//        return player;
+//    };
+//    /**
+//     * map input to offline player if possible. The player
+//     * should have joined the server at least once.
+//     */
+//    static ArgumentMapper OFFLINE_PLAYER = arg -> {
+//        OfflinePlayer oplayer = Bukkit.getOfflinePlayer(arg);
+//        if (oplayer == null || oplayer.getLastPlayed() < 1)
+//            throw new InvalidArgumentException(DefaultLanguages.General_NoSuchPlayer);
+//
+//        return oplayer;
+//    };
 
     /**
      * Try to convert the arg(String) to appropriate instance. Should throw

@@ -4,5 +4,5 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 
 @FunctionalInterface
 public interface CommandAction<Sender extends ICommandSender> {
-    boolean execute(Sender sender, Arguments args);
+    boolean execute(Sender sender, SubCommand.Arguments args);
 }

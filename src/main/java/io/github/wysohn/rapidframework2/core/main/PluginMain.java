@@ -69,6 +69,10 @@ public class PluginMain implements PluginRuntime {
         return lang;
     }
 
+    public String getAdminPermission() {
+        return adminPermission;
+    }
+
     public Logger getLogger() {
         return logger;
     }

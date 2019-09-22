@@ -2,19 +2,25 @@ package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
+import io.github.wysohn.rapidframework2.core.manager.lang.PreParseHandle;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class SubCommand<Sender extends ICommandSender> {
+public class SubCommand<Sender extends ICommandSender> {
     final PluginMain main;
     final String name;
     final int nArguments;
 
     String[] aliases = new String[0];
     String permission;
+    DynamicLang description;
+    List<DynamicLang> usage = new ArrayList<>();
+    private CommandAction<Sender> action;
     private List<ArgumentMapper> argumentMappers = new ArrayList<>();
 
     public SubCommand(PluginMain main, String name, int nArguments) {
@@ -23,7 +29,7 @@ public abstract class SubCommand<Sender extends ICommandSender> {
         this.nArguments = nArguments;
     }
 
-    public SubCommand(PluginMain main, String name) {
+    private SubCommand(PluginMain main, String name) {
         this(main, name, -1);
     }
 
@@ -33,7 +39,87 @@ public abstract class SubCommand<Sender extends ICommandSender> {
 
         Arguments argsObj = new Arguments(sender, args);
 
+        return action.execute(sender, argsObj);
+    }
 
+    public static class Builder {
+        private SubCommand command;
+
+        private Builder(PluginMain main, String cmd, int numArgs) {
+            command = new SubCommand(main, cmd, numArgs);
+            command.permission = main.getAdminPermission() + "." + cmd;
+        }
+
+        public static Builder forCommand(String cmd, PluginMain main) {
+            return new Builder(main, cmd, 0);
+        }
+
+        public static Builder forCommand(String cmd, PluginMain base, int numArgs) {
+            return new Builder(base, cmd, numArgs);
+        }
+
+        public Builder withAlias(String... alias) {
+            command.aliases = alias;
+            return this;
+        }
+
+        public Builder withPermission(String permission) {
+            command.permission = permission;
+            return this;
+        }
+
+        public Builder withDescription(Enum<? extends Lang> description) {
+            return withDescription(description, (managerLanguage) -> {
+            });
+        }
+
+        public Builder withDescription(Enum<? extends Lang> description, PreParseHandle handle) {
+            command.description = new DynamicLang(description, handle);
+            return this;
+        }
+
+        /**
+         * ${command} is built-in placeholder for 'this command' without slash(/)
+         *
+         * @param usage
+         * @return
+         */
+        public Builder addUsage(Enum<? extends Lang> usage) {
+            return addUsage(usage, (managerLanguage -> {
+            }));
+        }
+
+        /**
+         * ${command} is built-in placeholder for 'this command' without slash(/)
+         *
+         * @param lang
+         * @return
+         */
+        public Builder addUsage(Enum<? extends Lang> lang, PreParseHandle handle) {
+            command.usage.add(new DynamicLang(lang, handle));
+            return this;
+        }
+
+        public Builder action(CommandAction<? extends ICommandSender> action) {
+            command.action = action;
+            return this;
+        }
+
+        public Builder addArgumentMapper(int index, ArgumentMapper mapper) {
+            if (mapper == null)
+                throw new RuntimeException(
+                        "Cannot use null for mapper! Use ArgumentMapper.IDENTITY if mapping is not required.");
+
+            while (command.argumentMappers.size() <= index)
+                command.argumentMappers.add(ArgumentMapper.IDENTITY);
+            command.argumentMappers.set(index, mapper);
+
+            return this;
+        }
+
+        public SubCommand create() {
+            return command;
+        }
     }
 
     public class Arguments implements Iterable<String> {
@@ -74,8 +160,8 @@ public abstract class SubCommand<Sender extends ICommandSender> {
                 else
                     return Optional.of((T) ArgumentMapper.IDENTITY.apply(args[index]));
             } catch (InvalidArgumentException e) {
-                main.lang.addString(args[index]);
-                base.sendMessage(sender, e.lang);
+                main.lang().addString(args[index]);
+                main.lang().sendMessage(sender, e.lang);
             }
 
             return Optional.empty();

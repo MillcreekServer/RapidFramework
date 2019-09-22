@@ -1,10 +1,12 @@
 package io.github.wysohn.rapidframework2.core.manager.command;
 
-@SuppressWarnings("serial")
-public static class InvalidArgumentException extends Exception {
-    private final Language lang;
+import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 
-    public InvalidArgumentException(Language lang) {
+@SuppressWarnings("serial")
+public class InvalidArgumentException extends Exception {
+    final Enum<? extends Lang> lang;
+
+    InvalidArgumentException(Enum<? extends Lang> lang) {
         super();
         this.lang = lang;
     }
