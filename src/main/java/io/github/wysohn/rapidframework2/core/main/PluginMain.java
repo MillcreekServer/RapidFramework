@@ -29,11 +29,6 @@ public class PluginMain implements PluginRuntime {
     private PluginMain(String mainCommand, String adminPermission, Logger logger) {
         this.comm = new ManagerCommand(Manager.FASTEST_PRIORITY, mainCommand);
         this.lang = new ManagerLanguage(Manager.FASTEST_PRIORITY);
-
-        registerManager(comm);
-        registerManager(lang);
-        registerManager(api);
-
         this.adminPermission = adminPermission;
         this.logger = logger;
     }
@@ -94,6 +89,10 @@ public class PluginMain implements PluginRuntime {
 
     @Override
     public void enable() throws Exception {
+        registerManager(comm);
+        registerManager(lang);
+        registerManager(api);
+
         Arrays.stream(getManagersByPriority(managers))
                 .flatMap(List::stream)
                 .forEachOrdered(orderedManagers::add);

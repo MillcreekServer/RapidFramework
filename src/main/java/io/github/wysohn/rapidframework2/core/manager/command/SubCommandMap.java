@@ -5,9 +5,11 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
-import org.bukkit.command.CommandSender;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 class SubCommandMap<Sender extends ICommandSender> {
     private final Map<String, SubCommand<Sender>> commandList = new LinkedHashMap<>();
@@ -89,39 +91,20 @@ class SubCommandMap<Sender extends ICommandSender> {
         return commandList.get(arg0);
     }
 
-    public boolean register(String arg0, SubCommand arg1) {
-        String[] aliases = arg1.getAliases();
+    public boolean register(SubCommand cmd) {
+        String[] aliases = cmd.aliases;
         if (aliases != null) {
             for (String alias : aliases) {
-                aliasMap.put(alias, arg1.getName());
+                aliasMap.put(alias, cmd.name);
             }
         }
 
-        if (commandList.containsKey(arg1.getName())) {
+        if (commandList.containsKey(cmd.name)) {
             return false;
         }
 
-        commandList.put(arg1.getName(), arg1);
+        commandList.put(cmd.name, cmd);
         return true;
-    }
-
-    public boolean register(String arg0, String arg1, SubCommand arg2) {
-        if (commandList.containsKey(arg0))
-            return false;
-
-        commandList.put(arg0, arg2);
-        return true;
-    }
-
-    public void registerAll(String arg0, List<SubCommand> arg1) {
-        for (SubCommand cmd : arg1) {
-            register(null, cmd);
-        }
-    }
-
-    public List<String> tabComplete(CommandSender arg0, String arg1) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

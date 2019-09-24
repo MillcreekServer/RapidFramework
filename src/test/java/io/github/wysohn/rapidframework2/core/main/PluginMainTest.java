@@ -12,9 +12,8 @@ import org.junit.Test;
 
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class PluginMainTest {
     private enum SomeLang implements Lang{
@@ -34,48 +33,57 @@ public class PluginMainTest {
     }
 
     private static class SomeManager extends PluginMain.Manager {
+        private boolean enable;
+        private boolean load;
+        private boolean disable;
+
         public SomeManager(int loadPriority) {
             super(loadPriority);
         }
 
         @Override
         public void enable() throws Exception {
-
+            enable = true;
         }
 
         @Override
         public void load() throws Exception {
-
+            load = true;
         }
 
         @Override
         public void disable() throws Exception {
+            disable = true;
+        }
 
+        public void reset() {
+            enable = false;
+            load = false;
+            disable = false;
         }
     }
 
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
     private IPluginManager mockPluginManager;
-    private PluginMain.Manager spyManager;
 
     private PluginMain main;
 
     @Before
-    public void init() {
+    public void init() throws Exception {
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
-
-        spyManager = spy(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY));
 
         main = PluginMain.Builder
                 .beginWith("test", "perm.mission", mockLogger)
                 .andConfigSession(mockFileSession)
                 .andPluginManager(mockPluginManager)
-                .withManagers(spyManager)
+                .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))
                 .withLangs(SomeLang.values())
                 .build();
+
+        main.enable();
     }
 
     @Test
@@ -109,33 +117,38 @@ public class PluginMainTest {
 
         PluginMain.Manager manager2 = main.getManager("SomeManager");
         assertNotNull(manager2);
-        assertEquals(SomeManager.class, manager2.getClass());
     }
 
     @Test
     public void testEnable() throws Exception {
         SomeManager manager = main.getManager(SomeManager.class);
         assertNotNull(manager);
-        assertEquals(spyManager, manager);
 
-        verify(spyManager).enable();
+        main.enable();
+        assertTrue(manager.enable);
+
+        manager.reset();
     }
 
     @Test
     public void testLoad() throws Exception {
         SomeManager manager = main.getManager(SomeManager.class);
         assertNotNull(manager);
-        assertEquals(spyManager, manager);
 
-        verify(spyManager).load();
+        main.load();
+        assertTrue(manager.load);
+
+        manager.reset();
     }
 
     @Test
     public void testDisable() throws Exception {
         SomeManager manager = main.getManager(SomeManager.class);
         assertNotNull(manager);
-        assertEquals(spyManager, manager);
 
-        verify(spyManager).disable();
+        main.disable();
+        assertTrue(manager.disable);
+
+        manager.reset();
     }
 }
