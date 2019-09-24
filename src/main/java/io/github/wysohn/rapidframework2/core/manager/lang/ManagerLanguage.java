@@ -93,7 +93,7 @@ public class ManagerLanguage extends PluginMain.Manager {
         return languages.add(lang);
     }
 
-    private void replaceVariables(Object sender, List<String> strings) {
+    private void replaceVariables(List<String> strings) {
         for (int i = 0; i < strings.size(); i++) {
             String str = strings.get(i);
             if (str == null)
@@ -151,11 +151,10 @@ public class ManagerLanguage extends PluginMain.Manager {
         }
     }
 
-    public String[] parse(Locale locale, ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String[] parse(Locale locale, Enum<? extends Lang> lang, PreParseHandle handle) {
         if (locale == null)
             locale = defaultLang;
 
-        Validation.assertNotNull(sender);
         Validation.assertNotNull(lang);
         Validation.assertNotNull(handle);
 
@@ -170,7 +169,7 @@ public class ManagerLanguage extends PluginMain.Manager {
 
         if (values != null) {
             handle.onParse(this);
-            replaceVariables(sender, values);
+            replaceVariables(values);
         }
 
         this.doub.clear();
@@ -185,31 +184,31 @@ public class ManagerLanguage extends PluginMain.Manager {
     public String[] parse(ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
         Validation.assertNotNull(sender);
 
-        return parse(sender.getLocale(), sender, lang, handle);
+        return parse(sender.getLocale(), lang, handle);
     }
 
     public String[] parse(ICommandSender sender, Enum<? extends Lang> lang) {
         Validation.assertNotNull(sender);
 
-        return parse(sender.getLocale(), sender, lang, (managerLanguage -> {
+        return parse(sender.getLocale(), lang, (managerLanguage -> {
         }));
     }
 
-    public String parseFirst(Locale locale, ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
-        String[] parsed = parse(locale, sender, lang, handle);
+    public String parseFirst(Locale locale, Enum<? extends Lang> lang, PreParseHandle handle) {
+        String[] parsed = parse(locale, lang, handle);
         return parsed.length > 0 ? parsed[0] : "NULL";
     }
 
     public String parseFirst(ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
         Validation.assertNotNull(sender);
 
-        return parseFirst(sender.getLocale(), sender, lang, handle);
+        return parseFirst(sender.getLocale(), lang, handle);
     }
 
     public String parseFirst(ICommandSender sender, Enum<? extends Lang> lang) {
         Validation.assertNotNull(sender);
 
-        return parseFirst(sender.getLocale(), sender, lang, (managerLanguage -> {
+        return parseFirst(sender.getLocale(), lang, (managerLanguage -> {
         }));
     }
 
