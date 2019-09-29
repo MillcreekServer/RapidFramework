@@ -11,7 +11,7 @@ import java.util.*;
 
 public class ManagerLanguage extends PluginMain.Manager {
     private final Map<Locale, KeyValueStorage> languageSessions = new HashMap<>();
-    private final Set<Enum<? extends Lang>> languages = new HashSet<>();
+    private final Map<Enum<? extends Lang>, Lang> languages = new HashMap<>();
 
     private final Queue<Double> doub = new LinkedList<>();
     private final Queue<Integer> integer = new LinkedList<>();
@@ -87,10 +87,16 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     /**
      * @param lang
+     * @param value
      * @return true if there was no same ManagerLanguage already registered
      */
-    public boolean registerLanguage(Enum<? extends Lang> lang) {
-        return languages.add(lang);
+    public boolean registerLanguage(Enum<? extends Lang> lang, Lang value) {
+        if (languages.containsKey(lang)) {
+            return false;
+        } else {
+            languages.put(lang, value);
+            return true;
+        }
     }
 
     private void replaceVariables(List<String> strings) {
@@ -158,6 +164,11 @@ public class ManagerLanguage extends PluginMain.Manager {
         Validation.assertNotNull(lang);
         Validation.assertNotNull(handle);
 
+        if (!languages.containsKey(lang)) {
+            main().getLogger().severe("Lang " + lang + " is not registered.");
+            return new String[0];
+        }
+
         KeyValueStorage storage = languageSessions.getOrDefault(locale, languageSessions.get(defaultLang));
         if (storage == null) {
             main().getLogger().severe("The language session is not loaded for " + locale);
@@ -166,11 +177,15 @@ public class ManagerLanguage extends PluginMain.Manager {
 
         String configName = convertToConfigName(lang);
         List<String> values = storage.get(configName);
+        if (values == null) {
+            Lang l = languages.get(lang);
+            values = Arrays.asList(l.getEngDefault());
 
-        if (values != null) {
-            handle.onParse(this);
-            replaceVariables(values);
+            main().getLogger().fine("Using default value for " + lang);
         }
+
+        handle.onParse(this);
+        replaceVariables(values);
 
         this.doub.clear();
         this.integer.clear();
@@ -194,6 +209,15 @@ public class ManagerLanguage extends PluginMain.Manager {
         }));
     }
 
+    public String[] parse(Enum<? extends Lang> lang, PreParseHandle handle) {
+        return parse((Locale) null, lang, handle);
+    }
+
+    public String[] parse(Enum<? extends Lang> lang) {
+        return parse((Locale) null, lang, (managerLanguage -> {
+        }));
+    }
+
     public String parseFirst(Locale locale, Enum<? extends Lang> lang, PreParseHandle handle) {
         String[] parsed = parse(locale, lang, handle);
         return parsed.length > 0 ? parsed[0] : "NULL";
@@ -209,6 +233,15 @@ public class ManagerLanguage extends PluginMain.Manager {
         Validation.assertNotNull(sender);
 
         return parseFirst(sender.getLocale(), lang, (managerLanguage -> {
+        }));
+    }
+
+    public String parseFirst(Enum<? extends Lang> lang, PreParseHandle handle) {
+        return parseFirst((Locale) null, lang, handle);
+    }
+
+    public String parseFirst(Enum<? extends Lang> lang) {
+        return parseFirst((Locale) null, lang, (managerLanguage -> {
         }));
     }
 

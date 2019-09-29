@@ -40,7 +40,7 @@ public class ManagerLanguageTest {
         mockStorage = Mockito.mock(KeyValueStorage.class);
 
         Arrays.stream(TempLang.values())
-                .forEach(managerLanguage::registerLanguage);
+                .forEach((l) -> managerLanguage.registerLanguage(l, l));
 
         managerLanguage.addLanguageStorage(Locale.KOREAN, mockStorage);
     }
@@ -71,80 +71,76 @@ public class ManagerLanguageTest {
         double value = 12131451.67754;
 
         managerLanguage.setDecimalFormat(new DecimalFormat("##.0"));
-        String parse = managerLanguage.parseFirst()
-        assertEquals("The number is 12131451.68", );
+        String parse = managerLanguage.parseFirst(Locale.KOREAN,
+                TempLang.DecimalLang, (l -> {
+                    l.addDouble(value);
+                }));
+        assertEquals("The number is 12131451.68", parse);
 
     }
 
     @Test
     public void enable() {
+
     }
 
     @Test
     public void load() {
+
     }
 
     @Test
     public void disable() {
+
     }
 
     @Test
     public void addDouble() {
+
     }
 
     @Test
     public void addInteger() {
+
     }
 
     @Test
     public void addString() {
+
     }
 
     @Test
     public void testAddString() {
+
     }
 
     @Test
     public void addBoolean() {
+
     }
 
     @Test
     public void addLong() {
+
     }
 
     @Test
     public void registerLanguage() {
+
     }
 
     @Test
     public void parse() {
-    }
 
-    @Test
-    public void testParse() {
-    }
-
-    @Test
-    public void testParse1() {
     }
 
     @Test
     public void parseFirst() {
-    }
 
-    @Test
-    public void testParseFirst() {
-    }
-
-    @Test
-    public void testParseFirst1() {
     }
 
     @Test
     public void sendMessage() {
-    }
 
-    @Test
-    public void testSendMessage() {
     }
 }
