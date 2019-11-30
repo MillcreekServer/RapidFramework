@@ -140,7 +140,7 @@ public class PluginMain implements PluginRuntime {
             return this;
         }
 
-        public <T extends Enum<? extends Lang>> Builder withLangs(T... langs) {
+        public <T extends Lang> Builder withLangs(T... langs) {
             Stream.of(langs)
                     .filter(Objects::nonNull)
                     .forEach(main.lang::registerLanguage);
@@ -154,8 +154,8 @@ public class PluginMain implements PluginRuntime {
         }
 
         public PluginMain build() {
-            Validation.assertNotNull(main.conf, "Register config with andFileSession() first.");
-            Validation.assertNotNull(main.api, "Register IPluginManager with andPluginManager() first.");
+            Validation.assertNotNull(main.conf, "Register config with .andFileSession() first.");
+            Validation.assertNotNull(main.api, "Register IPluginManager with .andPluginManager() first.");
 
             return main;
         }

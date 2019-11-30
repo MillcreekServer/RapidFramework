@@ -11,7 +11,7 @@ import java.util.*;
 
 public class ManagerLanguage extends PluginMain.Manager {
     private final Map<Locale, KeyValueStorage> languageSessions = new HashMap<>();
-    private final Map<Enum<? extends Lang>, Lang> languages = new HashMap<>();
+    private final Map<Class<? extends Lang>, Lang> languages = new HashMap<>();
 
     private final Queue<Double> doub = new LinkedList<>();
     private final Queue<Integer> integer = new LinkedList<>();
@@ -87,14 +87,13 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     /**
      * @param lang
-     * @param value
      * @return true if there was no same ManagerLanguage already registered
      */
-    public boolean registerLanguage(Enum<? extends Lang> lang, Lang value) {
-        if (languages.containsKey(lang)) {
+    public boolean registerLanguage(Lang lang) {
+        if (languages.containsKey(lang.getClass())) {
             return false;
         } else {
-            languages.put(lang, value);
+            languages.put(lang.getClass(), lang);
             return true;
         }
     }
@@ -157,14 +156,14 @@ public class ManagerLanguage extends PluginMain.Manager {
         }
     }
 
-    public String[] parse(Locale locale, Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String[] parse(Locale locale, Lang lang, PreParseHandle handle) {
         if (locale == null)
             locale = defaultLang;
 
         Validation.assertNotNull(lang);
         Validation.assertNotNull(handle);
 
-        if (!languages.containsKey(lang)) {
+        if (!languages.containsKey(lang.getClass())) {
             main().getLogger().severe("Lang " + lang + " is not registered.");
             return new String[0];
         }
@@ -196,66 +195,66 @@ public class ManagerLanguage extends PluginMain.Manager {
         return values == null ? new String[0] : values.toArray(new String[0]);
     }
 
-    public String[] parse(ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String[] parse(ICommandSender sender, Lang lang, PreParseHandle handle) {
         Validation.assertNotNull(sender);
 
         return parse(sender.getLocale(), lang, handle);
     }
 
-    public String[] parse(ICommandSender sender, Enum<? extends Lang> lang) {
+    public String[] parse(ICommandSender sender, Lang lang) {
         Validation.assertNotNull(sender);
 
         return parse(sender.getLocale(), lang, (managerLanguage -> {
         }));
     }
 
-    public String[] parse(Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String[] parse(Lang lang, PreParseHandle handle) {
         return parse((Locale) null, lang, handle);
     }
 
-    public String[] parse(Enum<? extends Lang> lang) {
+    public String[] parse(Lang lang) {
         return parse((Locale) null, lang, (managerLanguage -> {
         }));
     }
 
-    public String parseFirst(Locale locale, Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String parseFirst(Locale locale, Lang lang, PreParseHandle handle) {
         String[] parsed = parse(locale, lang, handle);
         return parsed.length > 0 ? parsed[0] : "NULL";
     }
 
-    public String parseFirst(ICommandSender sender, Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String parseFirst(ICommandSender sender, Lang lang, PreParseHandle handle) {
         Validation.assertNotNull(sender);
 
         return parseFirst(sender.getLocale(), lang, handle);
     }
 
-    public String parseFirst(ICommandSender sender, Enum<? extends Lang> lang) {
+    public String parseFirst(ICommandSender sender, Lang lang) {
         Validation.assertNotNull(sender);
 
         return parseFirst(sender.getLocale(), lang, (managerLanguage -> {
         }));
     }
 
-    public String parseFirst(Enum<? extends Lang> lang, PreParseHandle handle) {
+    public String parseFirst(Lang lang, PreParseHandle handle) {
         return parseFirst((Locale) null, lang, handle);
     }
 
-    public String parseFirst(Enum<? extends Lang> lang) {
+    public String parseFirst(Lang lang) {
         return parseFirst((Locale) null, lang, (managerLanguage -> {
         }));
     }
 
-    public void sendMessage(ICommandSender commandSender, Enum<? extends Lang> lang, PreParseHandle handle){
+    public void sendMessage(ICommandSender commandSender, Lang lang, PreParseHandle handle){
         String[] parsed = parse(commandSender, lang, handle);
         commandSender.sendMessage(parsed);
     }
 
-    public void sendMessage(ICommandSender commandSender, Enum<? extends Lang> lang) {
+    public void sendMessage(ICommandSender commandSender, Lang lang) {
         sendMessage(commandSender, lang, (managerLanguage -> {
         }));
     }
 
-    private static String convertToConfigName(Enum<? extends Lang> lang) {
+    private static String convertToConfigName(Lang lang) {
         return lang.name().replaceAll("_", ".");
     }
 }

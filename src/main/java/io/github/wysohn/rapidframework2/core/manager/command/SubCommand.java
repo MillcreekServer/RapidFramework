@@ -68,12 +68,12 @@ public class SubCommand<Sender extends ICommandSender> {
             return this;
         }
 
-        public Builder withDescription(Enum<? extends Lang> description) {
+        public Builder withDescription(Lang description) {
             return withDescription(description, (managerLanguage) -> {
             });
         }
 
-        public Builder withDescription(Enum<? extends Lang> description, PreParseHandle handle) {
+        public Builder withDescription(Lang description, PreParseHandle handle) {
             command.description = new DynamicLang(description, handle);
             return this;
         }
@@ -84,7 +84,7 @@ public class SubCommand<Sender extends ICommandSender> {
          * @param usage
          * @return
          */
-        public Builder addUsage(Enum<? extends Lang> usage) {
+        public Builder addUsage(Lang usage) {
             return addUsage(usage, (managerLanguage -> {
             }));
         }
@@ -95,7 +95,7 @@ public class SubCommand<Sender extends ICommandSender> {
          * @param lang
          * @return
          */
-        public Builder addUsage(Enum<? extends Lang> lang, PreParseHandle handle) {
+        public Builder addUsage(Lang lang, PreParseHandle handle) {
             command.usage.add(new DynamicLang(lang, handle));
             return this;
         }
