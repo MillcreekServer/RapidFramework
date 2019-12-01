@@ -162,7 +162,6 @@ public class PluginMain implements PluginRuntime {
     }
 
     public static abstract class Manager implements PluginRuntime {
-        public static final int FASTEST_PRIORITY = 0;
         private final int loadPriority;
 
         private PluginMain main;
@@ -175,11 +174,12 @@ public class PluginMain implements PluginRuntime {
             return main;
         }
 
-        public static final int NORM_PRIORITY = 5;
-        public static final int SLOWEST_PRIORITY = 10;
-
         public int getLoadPriority() {
             return loadPriority;
         }
+        
+        public static final int NORM_PRIORITY = 5;
+        public static final int SLOWEST_PRIORITY = 10;
+        public static final int FASTEST_PRIORITY = 0;
     }
 }

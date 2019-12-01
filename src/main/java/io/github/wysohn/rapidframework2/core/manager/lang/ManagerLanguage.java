@@ -177,8 +177,7 @@ public class ManagerLanguage extends PluginMain.Manager {
         String configName = convertToConfigName(lang);
         List<String> values = storage.get(configName);
         if (values == null) {
-            Lang l = languages.get(lang);
-            values = Arrays.asList(l.getEngDefault());
+            values = Arrays.asList(lang.getEngDefault());
 
             main().getLogger().fine("Using default value for " + lang);
         }

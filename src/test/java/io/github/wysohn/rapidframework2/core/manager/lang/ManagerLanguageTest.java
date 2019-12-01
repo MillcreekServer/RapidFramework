@@ -1,20 +1,24 @@
 package io.github.wysohn.rapidframework2.core.manager.lang;
 
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
+import io.github.wysohn.rapidframework2.core.main.PluginMain;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.api.mockito.PowerMockito;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class ManagerLanguageTest {
+public class ManagerLanguageTest{
     private enum TempLang implements Lang {
         SomeLang("This is message."),
         DecimalLang("Number is ${double}.");
@@ -36,13 +40,19 @@ public class ManagerLanguageTest {
 
     @Before
     public void init() {
+    	PluginMain mockMain = Mockito.mock(PluginMain.class);
+    	Logger mockLogger = Mockito.mock(Logger.class);
+    	Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
+    	
         managerLanguage = new ManagerLanguage(0);
         mockStorage = Mockito.mock(KeyValueStorage.class);
 
         Arrays.stream(TempLang.values())
-                .forEach((l) -> managerLanguage.registerLanguage(l, l));
+                .forEach(managerLanguage::registerLanguage);
 
         managerLanguage.addLanguageStorage(Locale.KOREAN, mockStorage);
+        
+        Whitebox.setInternalState(managerLanguage, "main", mockMain);
     }
 
     @Test
