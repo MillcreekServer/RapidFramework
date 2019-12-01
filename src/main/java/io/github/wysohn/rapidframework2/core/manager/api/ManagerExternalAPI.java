@@ -11,8 +11,8 @@ import java.util.Map;
 /**
  * This class allow plugins to be loaded while using the APIs of third party plugins.
  * NoClassDefFoundError is thrown where the plugin expect the class to be existing, yet it might not be the case
- * (since the server can load without the plugin which has the class). Therefore, the best way to deal with it is
- * dynamically instantiate the dependent class only if the target third party plugin actually exist and enabled.
+ * (since the server can load without the plugin, which contains the required class). Therefore, the best way to deal
+ * with it is to dynamically instantiate the class only if the target third party plugin actually exist and enabled.
  */
 public class ManagerExternalAPI extends PluginMain.Manager {
     private final Map<String, Class<? extends ExternalAPI>> apiClasses = new HashMap<>();

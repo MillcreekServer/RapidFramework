@@ -3,11 +3,12 @@ package io.github.wysohn.rapidframework2.core.manager.lang;
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
-import org.bukkit.ChatColor;
 import util.Validation;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ManagerLanguage extends PluginMain.Manager {
     private final Map<Locale, KeyValueStorage> languageSessions = new HashMap<>();
@@ -136,17 +137,17 @@ public class ManagerLanguage extends PluginMain.Manager {
                         case "string":
                             str = leftStr + this.string.poll() + rightStr;
                             break;
-                        case "bool":
+                        case "boolean":
                             Boolean value = this.bool.poll();
                             if (value == null) {
                                 str = leftStr + "null" + rightStr;
                             } else {
-                                ChatColor color = value ? ChatColor.GREEN : ChatColor.RED;
-                                str = leftStr + color + value + ChatColor.getLastColors(leftStr) + rightStr;
+                                String color = value ? "&a" : "&c";
+                                str = leftStr + color + value + getLastColors(leftStr) + rightStr;
                             }
                             break;
                         default:
-                            str = leftStr + "?" + rightStr;
+                            str = leftStr + "null" + rightStr;
                             break;
                     }
                 }
@@ -177,7 +178,7 @@ public class ManagerLanguage extends PluginMain.Manager {
         String configName = convertToConfigName(lang);
         List<String> values = storage.get(configName);
         if (values == null) {
-            values = Arrays.asList(lang.getEngDefault());
+            values = Stream.of(lang.getEngDefault()).collect(Collectors.toList());
 
             main().getLogger().fine("Using default value for " + lang);
         }
@@ -256,4 +257,23 @@ public class ManagerLanguage extends PluginMain.Manager {
     private static String convertToConfigName(Lang lang) {
         return lang.name().replaceAll("_", ".");
     }
+
+    private static String getLastColors(String str){
+        for(int i = str.length() - 1; i >= 0 ; i--){
+            if(str.charAt(i) == '&' && i < str.length() - 2){
+                char c = str.charAt(i+1);
+
+                if(('a' <= c && c <= 'f') || Character.isDigit(c))
+                    return "&"+str.charAt(i+1);
+            }
+        }
+
+        return "&f";
+    }
+
+//    public static void main(String[] ar){
+//        System.out.println(getLastColors("&cTest Message &ais this &ho&&"));
+//        System.out.println(getLastColors("&cTest Message &ais this &do&&"));
+//        System.out.println(getLastColors("&cTest Me&*ssage &iis this &ho&&"));
+//    }
 }
