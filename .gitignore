@@ -5,3 +5,15 @@
 /.classpath
 /.project
 /*.xml
+/.idea/compiler.xml
+/.idea/gradle.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/RapidFramework.iml
+/.idea/uiDesigner.xml
+/.idea/vcs.xml
+/.idea/codeStyles/
+/.idea/libraries/
+/.idea/modules/
+/.idea/.gitignore
