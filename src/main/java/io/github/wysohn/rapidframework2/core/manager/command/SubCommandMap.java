@@ -6,13 +6,10 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
-class SubCommandMap<Sender extends ICommandSender> {
-    private final Map<String, SubCommand<Sender>> commandList = new LinkedHashMap<>();
+class SubCommandMap {
+    private final Map<String, SubCommand> commandList = new LinkedHashMap<>();
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
     public void clearCommands() {
@@ -20,7 +17,13 @@ class SubCommandMap<Sender extends ICommandSender> {
         aliasMap.clear();
     }
 
-    public boolean dispatch(PluginMain main, Sender sender, String arg1) {
+    /**
+     * @param main
+     * @param sender
+     * @param arg1
+     * @return false if arg1 was 0 length String; true otherwise
+     */
+    public boolean dispatch(PluginMain main, ICommandSender sender, String arg1) {
         String[] split = arg1.split(" ");
 
         final String cmd;
@@ -35,7 +38,7 @@ class SubCommandMap<Sender extends ICommandSender> {
             args[i - 1] = split[i];
         }
 
-        SubCommand<Sender> command = commandList.get(cmd);
+        SubCommand command = commandList.get(cmd);
 
         if (command != null) {
             if (command.permission != null
@@ -56,7 +59,7 @@ class SubCommandMap<Sender extends ICommandSender> {
 
             return true;
         } else if (cmd.equals("")) {
-            return dispatch(main, sender, "help");
+            return false;
         } else {
             main.lang().sendMessage(sender, DefaultLangs.General_NoSuchCommand, (managerLanguage -> {
                 managerLanguage.addString(cmd);
@@ -65,13 +68,15 @@ class SubCommandMap<Sender extends ICommandSender> {
         }
     }
 
-    private void showCommandDetails(PluginMain main, Sender sender, SubCommand<Sender> command) {
+    private void showCommandDetails(PluginMain main, ICommandSender sender, SubCommand command) {
         DynamicLang descPair = command.description;
-        String descParsed = main.lang().parseFirst(sender, descPair.lang);
-        main.lang().sendMessage(sender, DefaultLangs.Command_Format_Description, (managerLanguage -> {
-            managerLanguage.addString(command.name);
-            managerLanguage.addString(descParsed);
-        }));
+        if (descPair != null) {
+            String descParsed = main.lang().parseFirst(descPair.lang);
+            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Description, (managerLanguage -> {
+                managerLanguage.addString(command.name);
+                managerLanguage.addString(descParsed);
+            }));
+        }
 
         StringBuilder builder = new StringBuilder();
         Arrays.stream(command.aliases).forEach(builder::append);
@@ -89,6 +94,10 @@ class SubCommandMap<Sender extends ICommandSender> {
 
     public SubCommand getCommand(String arg0) {
         return commandList.get(arg0);
+    }
+
+    public Set<Map.Entry<String, SubCommand>> entrySet() {
+        return commandList.entrySet();
     }
 
     public boolean register(SubCommand cmd) {

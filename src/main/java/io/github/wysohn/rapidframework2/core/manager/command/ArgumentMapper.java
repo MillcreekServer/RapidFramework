@@ -10,8 +10,8 @@ public interface ArgumentMapper {
      */
     static ArgumentMapper IDENTITY = arg -> arg;
     /**
-     * map argument to valid name defined in {@link StringUtil#isValidName(String)}.
-     * Does not convert color codes.
+     * Same as IDENTITY except it checks whether the argument is null
+     * or not following the pattern defined in {@link StringUtil#isValidName(String)}.
      */
     static ArgumentMapper STRING = arg -> {
         if (arg == null || !StringUtil.isValidName(arg))

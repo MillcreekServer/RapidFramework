@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public class SubCommand<Sender extends ICommandSender> {
+public class SubCommand {
     final PluginMain main;
     final String name;
     final int nArguments;
@@ -20,42 +20,41 @@ public class SubCommand<Sender extends ICommandSender> {
     String permission;
     DynamicLang description;
     List<DynamicLang> usage = new ArrayList<>();
-    private CommandAction<Sender> action;
+    private CommandAction action;
     private List<ArgumentMapper> argumentMappers = new ArrayList<>();
 
-    public SubCommand(PluginMain main, String name, int nArguments) {
+    SubCommand(PluginMain main, String name, int nArguments) {
         this.main = main;
         this.name = name;
         this.nArguments = nArguments;
     }
 
-    private SubCommand(PluginMain main, String name) {
+    SubCommand(PluginMain main, String name) {
         this(main, name, -1);
     }
 
-    public boolean execute(Sender sender, String commandLabel, String[] args) {
+    public boolean execute(ICommandSender sender, String commandLabel, String[] args) {
         if (nArguments != -1 && args.length != nArguments)
             return false;
 
         Arguments argsObj = new Arguments(sender, args);
 
-        return action.execute(sender, argsObj);
+        if (action != null)
+            return action.execute(sender, argsObj);
+        else
+            return true;
     }
 
     public static class Builder {
         private SubCommand command;
 
-        private Builder(PluginMain main, String cmd, int numArgs) {
+        public Builder(PluginMain main, String cmd, int numArgs) {
             command = new SubCommand(main, cmd, numArgs);
             command.permission = main.getAdminPermission() + "." + cmd;
         }
 
-        public static Builder forCommand(String cmd, PluginMain main) {
-            return new Builder(main, cmd, 0);
-        }
-
-        public static Builder forCommand(String cmd, PluginMain base, int numArgs) {
-            return new Builder(base, cmd, numArgs);
+        public Builder(PluginMain main, String cmd) {
+            this(main, cmd, 0);
         }
 
         public Builder withAlias(String... alias) {
@@ -100,7 +99,7 @@ public class SubCommand<Sender extends ICommandSender> {
             return this;
         }
 
-        public Builder action(CommandAction<? extends ICommandSender> action) {
+        public Builder action(CommandAction action) {
             command.action = action;
             return this;
         }
@@ -123,10 +122,10 @@ public class SubCommand<Sender extends ICommandSender> {
     }
 
     public class Arguments implements Iterable<String> {
-        private Sender sender;
+        private ICommandSender sender;
         private String[] args;
 
-        public Arguments(Sender sender, String[] args) {
+        public Arguments(ICommandSender sender, String[] args) {
             super();
             this.sender = sender;
             this.args = args;
@@ -145,15 +144,14 @@ public class SubCommand<Sender extends ICommandSender> {
          * automatically show error message to the user.
          *
          * @param index index of argument
-         * @param def   the value to be used if index is out of range
-         * @return the argument; Empty Optional if conversion fails. If Empty Optional was
-         * returned, the error message is already sent to the sender.
+         * @return the argument; Empty Optional if conversion fails or argument index out of bound.
+         * If Empty Optional was returned, the error message is already sent to the sender.
          */
         @SuppressWarnings("unchecked")
-        public <T> Optional<T> get(int index, T def) {
+        public <T> Optional<T> get(int index) {
             try {
                 if (index >= args.length)
-                    return Optional.of(def);
+                    return Optional.empty();
 
                 if (index < argumentMappers.size())
                     return Optional.of((T) argumentMappers.get(index).apply(args[index]));

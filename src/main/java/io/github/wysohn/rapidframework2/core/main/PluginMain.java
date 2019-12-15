@@ -19,6 +19,8 @@ public class PluginMain implements PluginRuntime {
     private final Map<String, Manager> managersStr = new HashMap<>();
     private final List<Manager> orderedManagers = new ArrayList<>();
 
+    private final String pluginName;
+    private final String description;
     private final ManagerCommand comm;
     private final ManagerLanguage lang;
     private final String adminPermission;
@@ -26,7 +28,9 @@ public class PluginMain implements PluginRuntime {
     private ManagerExternalAPI api;
     private ManagerConfig conf;
 
-    private PluginMain(String mainCommand, String adminPermission, Logger logger) {
+    private PluginMain(String pluginName, String description, String mainCommand, String adminPermission, Logger logger) {
+        this.pluginName = pluginName;
+        this.description = description;
         this.comm = new ManagerCommand(Manager.FASTEST_PRIORITY, mainCommand);
         this.lang = new ManagerLanguage(Manager.FASTEST_PRIORITY);
         this.adminPermission = adminPermission;
@@ -46,6 +50,14 @@ public class PluginMain implements PluginRuntime {
         });
 
         return prioritized;
+    }
+
+    public String getPluginName() {
+        return pluginName;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public ManagerCommand comm() {
@@ -123,9 +135,10 @@ public class PluginMain implements PluginRuntime {
 
         }
 
-        public static Builder beginWith(String mainCommand, String adminPermission, Logger logger) {
+        public static Builder beginWith(String pluginName, String pluginDesc, String mainCommand,
+                                        String adminPermission, Logger logger) {
             Builder builder = new Builder();
-            builder.main = new PluginMain(mainCommand, adminPermission, logger);
+            builder.main = new PluginMain(pluginName, pluginDesc, mainCommand, adminPermission, logger);
             return builder;
         }
 
