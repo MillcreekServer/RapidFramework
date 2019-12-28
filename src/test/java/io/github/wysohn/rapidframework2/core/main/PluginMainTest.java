@@ -1,15 +1,18 @@
 package io.github.wysohn.rapidframework2.core.main;
 
+import io.github.wysohn.rapidframework.utils.files.FileUtil;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
+import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -76,11 +79,17 @@ public class PluginMainTest {
         mockPluginManager = mock(IPluginManager.class);
 
         main = PluginMain.Builder
-                .beginWith("test", "perm.mission", mockLogger)
+                .prepare("CivilSimulator",
+                        "All in one claim plugin",
+                        "test",
+                        "perm.mission",
+                        mockLogger,
+                        FileUtil.join(new File("build"), "tmp"))
                 .andConfigSession(mockFileSession)
-                .andPluginManager(mockPluginManager)
+                .andPluginSupervisor(mockPluginManager)
+                .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
                 .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))
-                .withLangs(SomeLang.values())
+                .addLangs(SomeLang.values())
                 .build();
 
         main.enable();

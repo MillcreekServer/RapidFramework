@@ -42,7 +42,7 @@ class SubCommandMap {
 
         if (command != null) {
             if (command.permission != null
-                    && !sender.hasPermission(IPermissionHolder.CheckType.OR, main.getAdminPermission(), command.permission)) {
+                    && !sender.hasPermission(main.getAdminPermission(), command.permission)) {
                 main.lang().sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
                 return true;
             }

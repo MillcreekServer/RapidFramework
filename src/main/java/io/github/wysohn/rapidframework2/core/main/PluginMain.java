@@ -1,15 +1,19 @@
 package io.github.wysohn.rapidframework2.core.main;
 
+import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
+import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
+import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSessionFactory;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
 import util.Validation;
 
+import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -22,19 +26,22 @@ public class PluginMain implements PluginRuntime {
     private final String pluginName;
     private final String description;
     private final ManagerCommand comm;
-    private final ManagerLanguage lang;
     private final String adminPermission;
     private final Logger logger;
+    private final File pluginDirectory;
+
     private ManagerExternalAPI api;
     private ManagerConfig conf;
+    private ManagerLanguage lang;
 
-    private PluginMain(String pluginName, String description, String mainCommand, String adminPermission, Logger logger) {
+    private PluginMain(String pluginName, String description, String mainCommand, String adminPermission,
+                       Logger logger, File pluginDirectory) {
         this.pluginName = pluginName;
         this.description = description;
         this.comm = new ManagerCommand(Manager.FASTEST_PRIORITY, mainCommand);
-        this.lang = new ManagerLanguage(Manager.FASTEST_PRIORITY);
         this.adminPermission = adminPermission;
         this.logger = logger;
+        this.pluginDirectory = pluginDirectory;
     }
 
     private static List<Manager>[] getManagersByPriority(Map<Class<? extends Manager>, Manager> managers) {
@@ -128,6 +135,10 @@ public class PluginMain implements PluginRuntime {
         }
     }
 
+    public File getPluginDirectory() {
+        return pluginDirectory;
+    }
+
     public static class Builder {
         private PluginMain main;
 
@@ -135,10 +146,10 @@ public class PluginMain implements PluginRuntime {
 
         }
 
-        public static Builder beginWith(String pluginName, String pluginDesc, String mainCommand,
-                                        String adminPermission, Logger logger) {
+        public static Builder prepare(String pluginName, String pluginDesc, String mainCommand,
+                                      String adminPermission, Logger logger, File pluginDirectory) {
             Builder builder = new Builder();
-            builder.main = new PluginMain(pluginName, pluginDesc, mainCommand, adminPermission, logger);
+            builder.main = new PluginMain(pluginName, pluginDesc, mainCommand, adminPermission, logger, pluginDirectory);
             return builder;
         }
 
@@ -148,12 +159,20 @@ public class PluginMain implements PluginRuntime {
             return this;
         }
 
-        public Builder andPluginManager(IPluginManager pluginManager) {
+        public Builder andPluginSupervisor(IPluginManager pluginManager) {
             main.api = new ManagerExternalAPI(Manager.FASTEST_PRIORITY, pluginManager);
             return this;
         }
 
-        public <T extends Lang> Builder withLangs(T... langs) {
+        public Builder andLanguageSessionFactory(LanguageSessionFactory factory) {
+            main.lang = new ManagerLanguage(Manager.FASTEST_PRIORITY, factory);
+
+            return this;
+        }
+
+        public <T extends Lang> Builder addLangs(T[] langs) {
+            Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
+
             Stream.of(langs)
                     .filter(Objects::nonNull)
                     .forEach(main.lang::registerLanguage);
@@ -169,6 +188,9 @@ public class PluginMain implements PluginRuntime {
         public PluginMain build() {
             Validation.assertNotNull(main.conf, "Register config with .andFileSession() first.");
             Validation.assertNotNull(main.api, "Register IPluginManager with .andPluginManager() first.");
+            Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
+
+            addLangs(DefaultLangs.values());
 
             return main;
         }

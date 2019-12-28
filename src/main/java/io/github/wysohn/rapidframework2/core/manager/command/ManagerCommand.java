@@ -56,7 +56,10 @@ public final class ManagerCommand extends PluginMain.Manager {
         commandMap.register(cmd);
     }
 
-    public boolean onCommand(ICommandSender sender, String label, String[] args_in) {
+    public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
+        if(!mainCommand.equals(command))
+            return true;
+
         final String[] args;
         if (args_in.length == 0) {
             args = new String[]{defaultCommand};
@@ -94,7 +97,7 @@ public final class ManagerCommand extends PluginMain.Manager {
     public void showHelp(String label, final ICommandSender sender, int page) {
         List<SubCommand> list = commandMap.entrySet().stream()
                 .map(Map.Entry::getValue)
-                .filter(cmd -> sender.hasPermission(IPermissionHolder.CheckType.AND, cmd.permission))
+                .filter(cmd -> sender.hasPermission(cmd.permission))
                 .collect(Collectors.toList());
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
@@ -163,4 +166,9 @@ public final class ManagerCommand extends PluginMain.Manager {
             sender.sendMessage(builder.toString());
         }
     }
+
+    public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args){
+        return null;
+    }
+
 }

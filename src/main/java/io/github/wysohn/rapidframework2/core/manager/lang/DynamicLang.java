@@ -8,4 +8,8 @@ public class DynamicLang {
         this.lang = lang;
         this.handle = handle;
     }
+
+    public DynamicLang(Lang lang) {
+        this(lang, managerLanguage -> {});
+    }
 }

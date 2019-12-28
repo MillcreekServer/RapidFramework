@@ -8,11 +8,18 @@ import java.io.IOException;
 public abstract class AbstractFileSession implements KeyValueStorage {
     protected final File file;
 
-    public AbstractFileSession(File file) throws IOException{
+    public AbstractFileSession(File file){
         this.file = file;
 
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
+
         if (!file.exists()) {
-            file.createNewFile();
+            try{
+                file.createNewFile();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
         }
     }
 

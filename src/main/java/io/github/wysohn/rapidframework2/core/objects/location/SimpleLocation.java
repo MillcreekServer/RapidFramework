@@ -14,7 +14,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package io.github.wysohn.rapidframework2.core.objects;
+package io.github.wysohn.rapidframework2.core.objects.location;
 
 public class SimpleLocation implements Cloneable {
     String world;

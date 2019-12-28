@@ -97,4 +97,12 @@ public class FileUtil {
             file.delete();
         }
     }
+
+    public static File join(File dataFolder, String... path) {
+        File current = dataFolder;
+        for(String p : path){
+            current = new File(current, p);
+        }
+        return current;
+    }
 }

@@ -61,15 +61,19 @@ public class ManagerLanguageTest{
     	Logger mockLogger = Mockito.mock(Logger.class);
     	Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
     	
-        managerLanguage = new ManagerLanguage(0);
+        managerLanguage = new ManagerLanguage(0, locale -> {
+            if(locale == Locale.ENGLISH)
+                return new LanguageSession(mockStorageDef);
+            else if(locale == Locale.KOREAN)
+                return new LanguageSession(mockStorage);
+            else
+                return null;
+        });
         mockStorageDef = Mockito.mock(KeyValueStorage.class);
         mockStorage = Mockito.mock(KeyValueStorage.class);
 
         Arrays.stream(TempLang.values())
                 .forEach(managerLanguage::registerLanguage);
-
-        managerLanguage.addLanguageStorage(Locale.ENGLISH, mockStorageDef);
-        managerLanguage.addLanguageStorage(Locale.KOREAN, mockStorage);
         
         Whitebox.setInternalState(managerLanguage, "main", mockMain);
     }
@@ -83,16 +87,6 @@ public class ManagerLanguageTest{
     public void setDefaultLang() {
         managerLanguage.setDefaultLang(Locale.KOREAN);
         assertEquals(Locale.KOREAN, managerLanguage.getDefaultLang());
-    }
-
-    @Test
-    public void addLanguageStorage() {
-        //just test if the mockStorage is there
-        Map<Locale, KeyValueStorage> map = (Map<Locale, KeyValueStorage>) Whitebox.getInternalState(managerLanguage, "languageSessions");
-        KeyValueStorage storage = map.get(Locale.KOREAN);
-
-        assertNotNull(storage);
-        assertEquals(mockStorage, storage);
     }
 
     @Test

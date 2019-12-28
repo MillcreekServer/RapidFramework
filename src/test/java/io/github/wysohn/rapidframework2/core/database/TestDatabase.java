@@ -1,16 +1,13 @@
 package io.github.wysohn.rapidframework2.core.database;
 
-import io.github.wysohn.rapidframework2.core.objects.SimpleChunkLocation;
-import io.github.wysohn.rapidframework2.core.objects.SimpleLocation;
+import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
+import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -18,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Bukkit.class)

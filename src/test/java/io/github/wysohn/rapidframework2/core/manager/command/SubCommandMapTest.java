@@ -13,17 +13,18 @@ import org.powermock.reflect.Whitebox;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class SubCommandMapTest {
 
-    SubCommandMap<TempSender> subCommandMap;
+    SubCommandMap subCommandMap;
     PluginMain mockMain;
     ManagerLanguage mockLang;
     TempSender mockSender;
 
     @Before
     public void init() {
-        subCommandMap = new SubCommandMap<TempSender>();
+        subCommandMap = new SubCommandMap();
         mockMain = Mockito.mock(PluginMain.class);
         mockLang = Mockito.mock(ManagerLanguage.class);
         mockSender = Mockito.mock(TempSender.class);
@@ -39,7 +40,7 @@ public class SubCommandMapTest {
         Assert.assertEquals(0, commands.size());
         Assert.assertEquals(0, aliases.size());
 
-        subCommandMap.register(new SubCommand.Builder<TempSender>(mockMain, "test")
+        subCommandMap.register(new SubCommand.Builder(mockMain, "test")
                 .withAlias("someTest")
                 .create());
 
@@ -56,8 +57,8 @@ public class SubCommandMapTest {
     public void dispatch_alias() {
         // simple + alias test
         Mockito.when(mockSender.hasPermission(Mockito.any(), Matchers.anyVararg())).thenReturn(true);
-        CommandAction<TempSender> mockAction = Mockito.mock(CommandAction.class);
-        SubCommand<TempSender> mockCommand = new SubCommand.Builder<TempSender>(mockMain, "test5")
+        CommandAction mockAction = Mockito.mock(CommandAction.class);
+        SubCommand mockCommand = new SubCommand.Builder(mockMain, "test5")
                 .withAlias("bbc")
                 .action(mockAction)
                 .create();
@@ -73,8 +74,8 @@ public class SubCommandMapTest {
     public void dispatch_permission() {
         // permission denied
         Mockito.when(mockSender.hasPermission(Mockito.any(), Matchers.anyVararg())).thenReturn(false);
-        CommandAction<TempSender> mockAction = Mockito.mock(CommandAction.class);
-        SubCommand<TempSender> mockCommand = new SubCommand.Builder<TempSender>(mockMain, "test55")
+        CommandAction mockAction = Mockito.mock(CommandAction.class);
+        SubCommand mockCommand = new SubCommand.Builder(mockMain, "test55")
                 .withAlias("bbc")
                 .action(mockAction)
                 .create();
@@ -89,10 +90,10 @@ public class SubCommandMapTest {
     public void dispatch_nArgs() {
         // num args not match
         Mockito.when(mockSender.hasPermission(Mockito.any(), Matchers.anyVararg())).thenReturn(true);
-        CommandAction<TempSender> mockAction = Mockito.mock(CommandAction.class);
+        CommandAction mockAction = Mockito.mock(CommandAction.class);
         Mockito.when(mockAction.execute(Mockito.any(), Mockito.any())).thenReturn(true);
 
-        SubCommand<TempSender> mockCommand = new SubCommand.Builder<TempSender>(mockMain, "test23", 2)
+        SubCommand mockCommand = new SubCommand.Builder(mockMain, "test23", 2)
                 .action(mockAction)
                 .create();
 
@@ -116,7 +117,7 @@ public class SubCommandMapTest {
 
     @Test
     public void getCommand() {
-        subCommandMap.register(new SubCommand.Builder<TempSender>(mockMain, "test")
+        subCommandMap.register(new SubCommand.Builder(mockMain, "test")
                 .withAlias("someTest")
                 .create());
 
@@ -129,7 +130,7 @@ public class SubCommandMapTest {
         Map commands = Whitebox.getInternalState(subCommandMap, "commandList");
         Map aliases = Whitebox.getInternalState(subCommandMap, "aliasMap");
 
-        subCommandMap.register(new SubCommand.Builder<TempSender>(mockMain, "test2")
+        subCommandMap.register(new SubCommand.Builder(mockMain, "test2")
                 .withAlias("someTest2")
                 .create());
 
@@ -144,12 +145,17 @@ public class SubCommandMapTest {
         }
 
         @Override
+        public UUID getUuid() {
+            return null;
+        }
+
+        @Override
         public Locale getLocale() {
             return null;
         }
 
         @Override
-        public boolean hasPermission(CheckType type, String... permission) {
+        public boolean hasPermission(String... permission) {
             return false;
         }
     }

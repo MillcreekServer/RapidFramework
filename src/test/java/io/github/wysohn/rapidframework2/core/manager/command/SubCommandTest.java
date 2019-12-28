@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class SubCommandTest {
     PluginMain mockMain;
@@ -31,7 +32,7 @@ public class SubCommandTest {
     public void execute() {
         List<Object> values = new ArrayList<>();
 
-        SubCommand<TempSender> cmd = new SubCommand.Builder<TempSender>(mockMain, "testcmd", 3)
+        SubCommand cmd = new SubCommand.Builder(mockMain, "testcmd", 3)
                 .withAlias("testalias")
                 .withDescription(TempLang.Description, (l) -> {
 
@@ -86,12 +87,17 @@ public class SubCommandTest {
         }
 
         @Override
+        public UUID getUuid() {
+            return null;
+        }
+
+        @Override
         public Locale getLocale() {
             return null;
         }
 
         @Override
-        public boolean hasPermission(CheckType type, String... permission) {
+        public boolean hasPermission(String... permission) {
             return false;
         }
     }

@@ -1,8 +1,10 @@
 package io.github.wysohn.rapidframework2.core.manager.lang;
 
+import io.github.wysohn.rapidframework.utils.files.JarUtil;
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.common.KeyValueStorageAdapter;
 import util.Validation;
 
 import java.text.DecimalFormat;
@@ -11,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ManagerLanguage extends PluginMain.Manager {
-    private final Map<Locale, KeyValueStorage> languageSessions = new HashMap<>();
+    private final Map<Locale, LanguageSession> languageSessions = new HashMap<>();
     private final Map<Class<? extends Lang>, Lang> languages = new HashMap<>();
 
     private final Queue<Double> doub = new LinkedList<>();
@@ -20,12 +22,14 @@ public class ManagerLanguage extends PluginMain.Manager {
     private final Queue<String> string = new LinkedList<>();
     private final Queue<Boolean> bool = new LinkedList<>();
 
-    private Locale defaultLang = Locale.ENGLISH;
+    private final LanguageSessionFactory sessionFactory;
 
+    private Locale defaultLang = Locale.ENGLISH;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###,###.##");
 
-    public ManagerLanguage(int loadPriority) {
+    public ManagerLanguage(int loadPriority, LanguageSessionFactory sessionFactory) {
         super(loadPriority);
+        this.sessionFactory = sessionFactory;
     }
 
     public Locale getDefaultLang() {
@@ -36,22 +40,25 @@ public class ManagerLanguage extends PluginMain.Manager {
         this.defaultLang = defaultLang;
     }
 
-    public void addLanguageStorage(Locale locale, KeyValueStorage storage) {
-        languageSessions.put(locale, storage);
-    }
-
     public void setDecimalFormat(DecimalFormat decimalFormat) {
         this.decimalFormat = decimalFormat;
     }
 
     @Override
     public void enable() throws Exception {
-
+        JarUtil.copyFolderFromJar("lang", main().getPluginDirectory(), JarUtil.CopyOption.COPY_IF_NOT_EXIST);
     }
 
     @Override
     public void load() throws Exception {
+        languageSessions.clear();
 
+        for(Locale locale : sessionFactory.getLocales(main())){
+            LanguageSession session = sessionFactory.create(locale);
+            if(session != null){
+                languageSessions.put(locale, session);
+            }
+        }
     }
 
     @Override
@@ -169,14 +176,14 @@ public class ManagerLanguage extends PluginMain.Manager {
             return new String[0];
         }
 
-        KeyValueStorage storage = languageSessions.getOrDefault(locale, languageSessions.get(defaultLang));
-        if (storage == null) {
-            main().getLogger().severe("The language session is not loaded for " + locale);
-            return new String[0];
+        LanguageSession session = languageSessions.getOrDefault(locale, languageSessions.get(defaultLang));
+        if (session == null) {
+            main().getLogger().severe("No language session is loaded. Using temporary session.");
+            session = new LanguageSession(new KeyValueStorageAdapter());
+            languageSessions.put(defaultLang, session);
         }
 
-        String configName = convertToConfigName(lang);
-        List<String> values = storage.get(configName);
+        List<String> values = session.translate(lang);
         if (values == null) {
             values = Stream.of(lang.getEngDefault()).collect(Collectors.toList());
 
@@ -192,7 +199,7 @@ public class ManagerLanguage extends PluginMain.Manager {
         this.bool.clear();
         this.llong.clear();
 
-        return values == null ? new String[0] : values.toArray(new String[0]);
+        return values.toArray(new String[0]);
     }
 
     public String[] parse(ICommandSender sender, Lang lang, PreParseHandle handle) {

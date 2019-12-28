@@ -22,7 +22,7 @@ public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage
 
     @Override
     public void load() throws Exception {
-
+        reload();
     }
 
     @Override
@@ -41,12 +41,17 @@ public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage
     }
 
     @Override
-    public Set<String> getKeys(Boolean deep) {
+    public Set<String> getKeys(boolean deep) {
         return null;
     }
 
     @Override
     public boolean isSection(Object obj) {
         return false;
+    }
+
+    @Override
+    public void reload() {
+
     }
 }

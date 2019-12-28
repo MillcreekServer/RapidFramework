@@ -63,6 +63,10 @@ public enum DefaultLangs implements Lang {
     Command_Import_Description("DB types: ${dbtype}"),
     Command_Import_Usage("<dbtype> to import data from <dbtype>."),
 
+    Manager_Group_NoSuchGroup("&cCouldn't find the group named &6${string}&c."),
+    Manager_Group_AlreadyInGroup("&6${string} &7is already in group &6${string}&7."),
+    Manager_Group_AddedToGroup("&6${string} &7is moved to group &6${string}&7."),
+
     Manager_VolatileTask_CanceledCauseMoved("&cTask is cancelled because you moved!"),
 
     Manager_TargetBlock_ReadyToClick(
