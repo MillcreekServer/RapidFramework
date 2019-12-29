@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.lang;
 
 import io.github.wysohn.rapidframework.utils.files.JarUtil;
-import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.KeyValueStorageAdapter;
@@ -259,6 +258,14 @@ public class ManagerLanguage extends PluginMain.Manager {
     public void sendMessage(ICommandSender commandSender, Lang lang) {
         sendMessage(commandSender, lang, (managerLanguage -> {
         }));
+    }
+
+    public void broadcast(Lang lang, PreParseHandle handle){
+
+    }
+
+    public void broadcast(Lang lang){
+
     }
 
     private static String convertToConfigName(Lang lang) {

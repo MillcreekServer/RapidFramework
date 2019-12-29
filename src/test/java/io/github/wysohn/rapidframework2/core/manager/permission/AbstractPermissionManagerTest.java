@@ -87,8 +87,8 @@ public class AbstractPermissionManagerTest {
         abstractPermissionManager.addPermission(mockParent, Perms.SomePerm2);
         abstractPermissionManager.addPermission(mockParentParent, Perms.SomePerm3);
 
-        Mockito.when(mockProvider.getHolder(Mockito.eq(mockHolder.getParentUuid()))).thenReturn(mockParent);
-        Mockito.when(mockProvider.getHolder(Mockito.eq(mockParent.getParentUuid()))).thenReturn(mockParentParent);
+        Mockito.when(mockProvider.getHolder(Mockito.any(), Mockito.eq(parentUuid))).thenReturn(mockParent);
+        Mockito.when(mockProvider.getHolder(Mockito.any(), Mockito.eq(parentParentUuid))).thenReturn(mockParentParent);
 
         //holder
         Assert.assertTrue(abstractPermissionManager.hasPermission(mockHolder, Perms.SomePerm));
@@ -99,8 +99,10 @@ public class AbstractPermissionManagerTest {
         //holder->parent->parent
         Assert.assertTrue(abstractPermissionManager.hasPermission(mockHolder, Perms.SomePerm3));
 
-        Mockito.verify(mockProvider, Mockito.times(3)).getHolder(mockHolder.getParentUuid());
-        Mockito.verify(mockProvider, Mockito.times(2)).getHolder(mockParent.getParentUuid());
+        Mockito.verify(mockProvider, Mockito.times(3))
+                .getHolder(null, mockHolder.getParentUuid());
+        Mockito.verify(mockProvider, Mockito.times(2))
+                .getHolder(null, mockParent.getParentUuid());
 
         //multiple permissions
         Assert.assertTrue(abstractPermissionManager.hasPermission(mockHolder,

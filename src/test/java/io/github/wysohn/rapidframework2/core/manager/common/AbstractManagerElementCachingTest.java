@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework2.core.manager.common;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.manager.NamedElement;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -38,7 +40,7 @@ public class AbstractManagerElementCachingTest {
 
         @Override
         protected Database.DatabaseFactory<TempValue> createDatabaseFactory() {
-            return () -> mockDatabase;
+            return (type) -> mockDatabase;
         }
 
         @Override
@@ -49,6 +51,7 @@ public class AbstractManagerElementCachingTest {
 
     private Database<TempValue> mockDatabase;
     private PluginMain mockMain;
+    private ManagerConfig mockConfig;
     private Logger mockLogger;
     private TempManager manager;
 
@@ -56,12 +59,16 @@ public class AbstractManagerElementCachingTest {
     public void init(){
         mockDatabase = Mockito.mock(Database.class);
         mockMain = Mockito.mock(PluginMain.class);
+        mockConfig = Mockito.mock(ManagerConfig.class);
         mockLogger = Mockito.mock(Logger.class);
         manager = new TempManager(0);
 
         Whitebox.setInternalState(manager, "main", mockMain);
 
         Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
+        Mockito.when(mockMain.conf()).thenReturn(mockConfig);
+
+        Mockito.when(mockConfig.get(Mockito.anyString())).thenReturn(Optional.of("file"));
     }
 
     @Test
@@ -128,7 +135,7 @@ public class AbstractManagerElementCachingTest {
 
         //get
         Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(mockValue);
-        Assert.assertEquals(mockValue, manager.get(uuid));
+        Assert.assertEquals(mockValue, manager.get(uuid).orElse(null));
 
         //end the db life-cycle
         manager.disable();
@@ -154,7 +161,7 @@ public class AbstractManagerElementCachingTest {
 
         //get
         Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(mockValue);
-        Assert.assertEquals(mockValue, manager.get(uuid));
+        Assert.assertEquals(mockValue, manager.get(uuid).orElse(null));
 
         //end the db life-cycle
         manager.disable();

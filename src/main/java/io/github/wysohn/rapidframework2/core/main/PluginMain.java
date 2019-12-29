@@ -1,6 +1,5 @@
 package io.github.wysohn.rapidframework2.core.main;
 
-import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
@@ -27,6 +26,7 @@ public class PluginMain implements PluginRuntime {
     private final String description;
     private final ManagerCommand comm;
     private final String adminPermission;
+    private final PluginBridge pluginBridge;
     private final Logger logger;
     private final File pluginDirectory;
 
@@ -35,11 +35,12 @@ public class PluginMain implements PluginRuntime {
     private ManagerLanguage lang;
 
     private PluginMain(String pluginName, String description, String mainCommand, String adminPermission,
-                       Logger logger, File pluginDirectory) {
+                       PluginBridge pluginBridge, Logger logger, File pluginDirectory) {
         this.pluginName = pluginName;
         this.description = description;
         this.comm = new ManagerCommand(Manager.FASTEST_PRIORITY, mainCommand);
         this.adminPermission = adminPermission;
+        this.pluginBridge = pluginBridge;
         this.logger = logger;
         this.pluginDirectory = pluginDirectory;
     }
@@ -87,8 +88,8 @@ public class PluginMain implements PluginRuntime {
         return adminPermission;
     }
 
-    public Logger getLogger() {
-        return logger;
+    public PluginBridge getPluginBridge() {
+        return pluginBridge;
     }
 
     private void registerManager(Manager manager) {
@@ -108,6 +109,7 @@ public class PluginMain implements PluginRuntime {
 
     @Override
     public void enable() throws Exception {
+        registerManager(conf);
         registerManager(comm);
         registerManager(lang);
         registerManager(api);
@@ -117,7 +119,11 @@ public class PluginMain implements PluginRuntime {
                 .forEachOrdered(orderedManagers::add);
 
         for (Manager manager : orderedManagers) {
-            manager.enable();
+            try{
+                manager.enable();
+            } catch (Exception ex){
+
+            }
         }
     }
 
@@ -135,6 +141,10 @@ public class PluginMain implements PluginRuntime {
         }
     }
 
+    public Logger getLogger() {
+        return logger;
+    }
+
     public File getPluginDirectory() {
         return pluginDirectory;
     }
@@ -146,10 +156,16 @@ public class PluginMain implements PluginRuntime {
 
         }
 
-        public static Builder prepare(String pluginName, String pluginDesc, String mainCommand,
-                                      String adminPermission, Logger logger, File pluginDirectory) {
+        public static Builder prepare(String pluginName,
+                                      String pluginDesc,
+                                      String mainCommand,
+                                      String adminPermission,
+                                      PluginBridge pluginBridge,
+                                      Logger logger,
+                                      File pluginDirectory) {
             Builder builder = new Builder();
-            builder.main = new PluginMain(pluginName, pluginDesc, mainCommand, adminPermission, logger, pluginDirectory);
+            builder.main = new PluginMain(pluginName, pluginDesc, mainCommand, adminPermission,
+                    pluginBridge, logger, pluginDirectory);
             return builder;
         }
 
@@ -180,8 +196,7 @@ public class PluginMain implements PluginRuntime {
         }
 
         public Builder withManagers(Manager... managers) {
-            Stream.of(managers)
-                    .forEach(main::registerManager);
+            Stream.of(managers).forEach(main::registerManager);
             return this;
         }
 

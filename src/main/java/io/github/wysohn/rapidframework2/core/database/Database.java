@@ -26,13 +26,16 @@ import copy.com.google.gson.stream.JsonToken;
 import copy.com.google.gson.stream.JsonWriter;
 import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
 import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
-import io.github.wysohn.rapidframework2.core.database.serialize.*;
-import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
+import io.github.wysohn.rapidframework2.core.database.file.DatabaseFile;
+import io.github.wysohn.rapidframework2.core.database.mysql.DatabaseMysql;
+import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
+import io.github.wysohn.rapidframework2.core.database.serialize.UUIDSerializer;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.sql.SQLException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -256,6 +259,24 @@ public abstract class Database<T> {
 
     @FunctionalInterface
     public interface DatabaseFactory<V> {
-        Database<V> getDatabase();
+        Database<V> getDatabase(String dbType);
+    }
+
+    public static class Factory{
+        public static <V> Database<V> build(Class<V> type, File folder) {
+            if(!folder.exists())
+                folder.mkdirs();
+
+            return new DatabaseFile<>(type, folder);
+        }
+
+        public static <V> Database<V> build(Class<V> type,
+                                            String address,
+                                            String dbName,
+                                            String tablename,
+                                            String username,
+                                            String password) throws SQLException {
+            return new DatabaseMysql<>(type, address, dbName, tablename, username, password);
+        }
     }
 }

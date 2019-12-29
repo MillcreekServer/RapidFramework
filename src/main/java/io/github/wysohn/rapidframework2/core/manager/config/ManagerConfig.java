@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage {
@@ -31,7 +32,7 @@ public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage
     }
 
     @Override
-    public <T> T get(String key) {
+    public <T> Optional<T> get(String key) {
         return fileSession.get(key);
     }
 

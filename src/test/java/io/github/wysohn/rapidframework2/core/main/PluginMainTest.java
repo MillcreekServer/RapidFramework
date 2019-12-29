@@ -11,8 +11,10 @@ import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -66,6 +68,7 @@ public class PluginMainTest {
         }
     }
 
+    private PluginBridge mockBridge;
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
     private IPluginManager mockPluginManager;
@@ -74,15 +77,19 @@ public class PluginMainTest {
 
     @Before
     public void init() throws Exception {
+        mockBridge = mock(PluginBridge.class);
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
+
+        Mockito.when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
 
         main = PluginMain.Builder
                 .prepare("CivilSimulator",
                         "All in one claim plugin",
                         "test",
                         "perm.mission",
+                        mockBridge,
                         mockLogger,
                         FileUtil.join(new File("build"), "tmp"))
                 .andConfigSession(mockFileSession)
@@ -92,7 +99,11 @@ public class PluginMainTest {
                 .addLangs(SomeLang.values())
                 .build();
 
-        main.enable();
+        try{
+            main.enable();
+        }catch(Exception ex){
+
+        }
     }
 
     @Test

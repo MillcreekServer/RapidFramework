@@ -54,7 +54,7 @@ public class DatabaseMysql<T> extends Database<T> {
 
     public DatabaseMysql(Class<T> type, String address, String dbName, String tablename, String userName,
                          String password)
-            throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+            throws SQLException{
         super(type, tablename);
 
         this.dbName = dbName;
@@ -71,7 +71,7 @@ public class DatabaseMysql<T> extends Database<T> {
     private final String SELECTKEY = "" + "SELECT " + VALUE + " FROM %s WHERE " + KEY + " = ?";
 
     public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
-                                                                 String password) throws SQLException {
+                                                                 String password) {
         MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
         ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
         ds.setUser(userName);
@@ -111,7 +111,7 @@ public class DatabaseMysql<T> extends Database<T> {
                 BufferedReader br = new BufferedReader(isr);
 
                 String ser = br.readLine();
-                result = (T) deserialize(ser, type);
+                result = deserialize(ser, type);
             }
             pstmt.close();
 

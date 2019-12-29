@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.common;
 
+import io.github.wysohn.rapidframework.utils.files.FileUtil;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.manager.NamedElement;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
@@ -50,7 +51,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     @Override
     public void load() throws Exception {
         synchronized (dbLock){
-            db = dbFactory.getDatabase();
+            db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
             Validation.assertNotNull(db);
         }
 
@@ -94,7 +95,10 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
 
         synchronized (cacheLock){
             synchronized (dbLock){
-                return Optional.of(cachedElements.get(key));
+                if(cachedElements.containsKey(key))
+                    return Optional.of(cachedElements.get(key));
+                else
+                    return Optional.empty();
             }
         }
     }
@@ -146,5 +150,29 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
 
     public Set<K> keySet(){
         return new HashSet<>(cachedElements.keySet());
+    }
+
+    protected <T> Database.DatabaseFactory<T> getCivGroupDatabaseFactory(Class<T> clazz, String tablename) {
+        return (dbType -> {
+            try {
+                switch (dbType) {
+                    case "mysql":
+                        return Database.Factory.build(clazz,
+                                (String) main().conf().get("db.address").orElse("127.0.0.1"),
+                                (String) main().conf().get("db.name").orElse(main().getPluginName()),
+                                (String) main().conf().get("db.tablename").orElse(tablename),
+                                (String) main().conf().get("db.username").orElse("root"),
+                                (String) main().conf().get("db.password").orElse("1234"));
+                    default:
+                        return Database.Factory.build(clazz,
+                                FileUtil.join(main().getPluginDirectory(), tablename));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                return Database.Factory.build(clazz,
+                        FileUtil.join(main().getPluginDirectory(), tablename));
+            }
+        });
     }
 }

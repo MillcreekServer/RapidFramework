@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 
@@ -107,7 +106,10 @@ public final class ManagerCommand extends PluginMain.Manager {
         }));
         sender.sendMessage("");
 
-        int max = main().conf().get("command.help.sentenceperpage");
+        int max = main().conf().get("command.help.sentenceperpage")
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(6);
 
         int remainder = list.size() % max;
         int divided = list.size() / max;

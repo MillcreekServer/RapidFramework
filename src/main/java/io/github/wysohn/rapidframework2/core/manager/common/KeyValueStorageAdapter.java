@@ -2,12 +2,13 @@ package io.github.wysohn.rapidframework2.core.manager.common;
 
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class KeyValueStorageAdapter implements KeyValueStorage {
     @Override
-    public <T> T get(String key) {
-        return null;
+    public <T> Optional<T> get(String key) {
+        return Optional.empty();
     }
 
     @Override

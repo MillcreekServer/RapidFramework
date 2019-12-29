@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.api;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 
 import java.lang.reflect.Constructor;
@@ -94,17 +93,5 @@ public class ManagerExternalAPI extends PluginMain.Manager {
         return externalAPIs.get(pluginName);
     }
 
-    public static abstract class ExternalAPI implements PluginRuntime {
-        protected final PluginMain main;
-        protected final String pluginName;
 
-        public ExternalAPI(PluginMain main, String pluginName) {
-            this.main = main;
-            this.pluginName = pluginName;
-        }
-
-        public String getPluginName() {
-            return pluginName;
-        }
-    }
 }

@@ -1,11 +1,10 @@
 package io.github.wysohn.rapidframework2.core.interfaces;
 
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
-
+import java.util.Optional;
 import java.util.Set;
 
 public interface KeyValueStorage {
-    <T> T get(String key);
+    <T> Optional<T> get(String key);
 
     void put(String key, Object value);
 

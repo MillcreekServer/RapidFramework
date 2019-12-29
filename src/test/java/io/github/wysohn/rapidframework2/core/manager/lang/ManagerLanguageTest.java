@@ -3,25 +3,18 @@ package io.github.wysohn.rapidframework2.core.manager.lang;
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.AdditionalMatchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.powermock.api.mockito.PowerMockito;
 
-import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class ManagerLanguageTest{
     private enum TempLang implements Lang {
