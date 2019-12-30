@@ -107,6 +107,10 @@ public class PluginMain implements PluginRuntime {
         return managersStr.get(managerName);
     }
 
+    public Collection<Manager> getOrderedManagers() {
+        return Collections.unmodifiableCollection(orderedManagers);
+    }
+
     @Override
     public void enable() throws Exception {
         registerManager(conf);

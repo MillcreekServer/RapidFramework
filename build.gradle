@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.3.21'
-    ext.bukkit_version = "1.12-R0.1-SNAPSHOT"
+    ext.bukkit_version = "1.15"
     repositories {
         mavenCentral()
     }
@@ -69,8 +69,13 @@ configurations {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+
     compile fileTree(dir: "libs", includes: ['*.jar'])
-    compile "org.bukkit:bukkit:$bukkit_version-R0.1-SNAPSHOT"
+    compile "org.spigotmc:spigot-api:${bukkit_version}+"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     testCompile 'junit:junit:4.11'

@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework2.core.manager.common;
 
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPlayerWrapper;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
+import io.github.wysohn.rapidframework2.core.manager.player.IPlayerWrapper;
 
 import java.util.Map;
 import java.util.UUID;
