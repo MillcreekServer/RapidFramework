@@ -25,7 +25,7 @@ public class PluginMain implements PluginRuntime {
     private final String pluginName;
     private final String description;
     private final ManagerCommand comm;
-    private final String adminPermission;
+    private final String rootPermission;
     private final PluginBridge pluginBridge;
     private final Logger logger;
     private final File pluginDirectory;
@@ -34,12 +34,12 @@ public class PluginMain implements PluginRuntime {
     private ManagerConfig conf;
     private ManagerLanguage lang;
 
-    private PluginMain(String pluginName, String description, String mainCommand, String adminPermission,
+    private PluginMain(String pluginName, String description, String mainCommand, String rootPermission,
                        PluginBridge pluginBridge, Logger logger, File pluginDirectory) {
         this.pluginName = pluginName;
         this.description = description;
         this.comm = new ManagerCommand(Manager.FASTEST_PRIORITY, mainCommand);
-        this.adminPermission = adminPermission;
+        this.rootPermission = rootPermission;
         this.pluginBridge = pluginBridge;
         this.logger = logger;
         this.pluginDirectory = pluginDirectory;
@@ -84,8 +84,8 @@ public class PluginMain implements PluginRuntime {
         return lang;
     }
 
-    public String getAdminPermission() {
-        return adminPermission;
+    public String getRootPermission() {
+        return rootPermission;
     }
 
     public PluginBridge getPluginBridge() {

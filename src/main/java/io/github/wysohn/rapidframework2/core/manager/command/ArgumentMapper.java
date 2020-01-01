@@ -8,35 +8,38 @@ public interface ArgumentMapper {
     /**
      * map input to output without any conversion
      */
-    static ArgumentMapper IDENTITY = arg -> arg;
+    ArgumentMapper IDENTITY = arg -> arg;
     /**
      * Same as IDENTITY except it checks whether the argument is null
      * or not following the pattern defined in {@link StringUtil#isValidName(String)}.
      */
-    static ArgumentMapper STRING = arg -> {
+    ArgumentMapper STRING = arg -> {
         if (arg == null || !StringUtil.isValidName(arg))
-            throw new InvalidArgumentException(DefaultLangs.General_InvalidString);
+            throw new InvalidArgumentException(DefaultLangs.General_InvalidString, ((sen, langman) ->
+                    langman.addString(arg)));
 
         return arg;
     };
     /**
      * map input to integer if possible
      */
-    static ArgumentMapper INTEGER = arg -> {
+    ArgumentMapper INTEGER = arg -> {
         try {
             return Integer.parseInt(arg);
         } catch (NumberFormatException ex) {
-            throw new InvalidArgumentException(DefaultLangs.General_NotInteger);
+            throw new InvalidArgumentException(DefaultLangs.General_NotInteger, ((sen, langman) ->
+                    langman.addString(arg)));
         }
     };
     /**
      * map input to double if possible
      */
-    static ArgumentMapper DOUBLE = arg -> {
+    ArgumentMapper DOUBLE = arg -> {
         try {
             return Double.parseDouble(arg);
         } catch (NumberFormatException ex) {
-            throw new InvalidArgumentException(DefaultLangs.General_NotDecimal);
+            throw new InvalidArgumentException(DefaultLangs.General_NotDecimal, ((sen, langman) ->
+                    langman.addString(arg)));
         }
     };
 //    /**

@@ -10,6 +10,6 @@ public class DynamicLang {
     }
 
     public DynamicLang(Lang lang) {
-        this(lang, managerLanguage -> {});
+        this(lang, (sen, langman) -> {});
     }
 }

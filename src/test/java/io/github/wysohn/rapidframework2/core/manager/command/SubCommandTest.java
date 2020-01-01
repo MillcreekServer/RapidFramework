@@ -34,13 +34,13 @@ public class SubCommandTest {
 
         SubCommand cmd = new SubCommand.Builder(mockMain, "testcmd", 3)
                 .withAlias("testalias")
-                .withDescription(TempLang.Description, (l) -> {
+                .withDescription(TempLang.Description, (sen, langman) -> {
 
                 })
-                .addUsage(TempLang.Usage1, (l) -> {
+                .addUsage(TempLang.Usage1, (sen, langman) -> {
 
                 })
-                .addUsage(TempLang.Usage2, (l) -> {
+                .addUsage(TempLang.Usage2, (sen, langman) -> {
 
                 })
                 .addArgumentMapper(0, ArgumentMapper.STRING)

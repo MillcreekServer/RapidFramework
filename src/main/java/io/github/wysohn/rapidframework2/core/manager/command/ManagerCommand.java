@@ -51,8 +51,10 @@ public final class ManagerCommand extends PluginMain.Manager {
 
     }
 
-    public void addCommand(SubCommand cmd) {
+    public ManagerCommand addCommand(SubCommand cmd) {
         commandMap.register(cmd);
+
+        return this;
     }
 
     public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
@@ -75,8 +77,8 @@ public final class ManagerCommand extends PluginMain.Manager {
         if (!commandMap.dispatch(main(), sender, cmdLine.toString())) {
             int page = 0;
             if (args.length > 1) {
-                main().lang().sendMessage(sender, DefaultLangs.General_NotInteger, (managerLanguage -> {
-                    managerLanguage.addString(args[1]);
+                main().lang().sendMessage(sender, DefaultLangs.General_NotInteger, ((sen, langman) -> {
+                    langman.addString(args[1]);
                 }));
                 return true;
             }
@@ -97,12 +99,13 @@ public final class ManagerCommand extends PluginMain.Manager {
         List<SubCommand> list = commandMap.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .filter(cmd -> sender.hasPermission(cmd.permission))
+                .filter(cmd -> cmd.predicate.test(sender))
                 .collect(Collectors.toList());
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
 
-        main().lang().sendMessage(sender, DefaultLangs.General_Header, (managerLanguage -> {
-            managerLanguage.addString(main().getPluginName());
+        main().lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) -> {
+            langman.addString(main().getPluginName());
         }));
         sender.sendMessage("");
 
@@ -126,13 +129,13 @@ public final class ManagerCommand extends PluginMain.Manager {
             final SubCommand c = list.get(index);
 
             // description
-            c.description.handle.onParse(main().lang());
+            c.description.handle.onParse(sender, main().lang());
             String descValue = main().lang().parseFirst(sender, c.description.lang);
 
-            main().lang().sendMessage(sender, DefaultLangs.Command_Format_Description, (managerLanguage -> {
-                managerLanguage.addString(label);
-                managerLanguage.addString(c.name);
-                managerLanguage.addString(descValue);
+            main().lang().sendMessage(sender, DefaultLangs.Command_Format_Description, ((sen, langman) -> {
+                langman.addString(label);
+                langman.addString(c.name);
+                langman.addString(descValue);
             }));
 
             StringBuilder builder = new StringBuilder();
@@ -145,8 +148,8 @@ public final class ManagerCommand extends PluginMain.Manager {
             }
 
             if (builderAliases.length() > 0) {
-                builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, (managerLanguage -> {
-                    managerLanguage.addString(builderAliases.toString());
+                builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
+                    langman.addString(builderAliases.toString());
                 })));
                 builder.append('\n');
             }
@@ -154,12 +157,12 @@ public final class ManagerCommand extends PluginMain.Manager {
             // usages
             c.usage.stream()
                     .forEach(dynamicLang -> {
-                        dynamicLang.handle.onParse(main().lang());
+                        dynamicLang.handle.onParse(sender, main().lang());
                         String[] usageVals = main().lang().parse(sender, dynamicLang.lang);
 
                         for (String usage : usageVals) {
-                            builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, (managerLanguage -> {
-                                managerLanguage.addString(usage);
+                            builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
+                                langman.addString(usage);
                             })));
                             builder.append('\n');
                         }

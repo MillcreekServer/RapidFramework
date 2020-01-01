@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
@@ -42,7 +41,12 @@ class SubCommandMap {
 
         if (command != null) {
             if (command.permission != null
-                    && !sender.hasPermission(main.getAdminPermission(), command.permission)) {
+                    && !sender.hasPermission(main.getRootPermission(), command.permission)) {
+                main.lang().sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
+                return true;
+            }
+
+            if (!command.predicate.test(sender)){
                 main.lang().sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
                 return true;
             }
@@ -61,8 +65,8 @@ class SubCommandMap {
         } else if (cmd.equals("")) {
             return false;
         } else {
-            main.lang().sendMessage(sender, DefaultLangs.General_NoSuchCommand, (managerLanguage -> {
-                managerLanguage.addString(cmd);
+            main.lang().sendMessage(sender, DefaultLangs.General_NoSuchCommand, ((sen, langman) -> {
+                langman.addString(cmd);
             }));
             return true;
         }
@@ -72,22 +76,22 @@ class SubCommandMap {
         DynamicLang descPair = command.description;
         if (descPair != null) {
             String descParsed = main.lang().parseFirst(descPair.lang);
-            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Description, (managerLanguage -> {
-                managerLanguage.addString(command.name);
-                managerLanguage.addString(descParsed);
+            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Description, ((sen, langman) -> {
+                langman.addString(command.name);
+                langman.addString(descParsed);
             }));
         }
 
         StringBuilder builder = new StringBuilder();
         Arrays.stream(command.aliases).forEach(builder::append);
-        main.lang().sendMessage(sender, DefaultLangs.Command_Format_Aliases, (managerLanguage -> {
-            managerLanguage.addString(builder.toString());
+        main.lang().sendMessage(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
+            langman.addString(builder.toString());
         }));
 
         for (DynamicLang usageLang : command.usage) {
             String parsedUsage = main.lang().parseFirst(sender, usageLang.lang);
-            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Usage, (managerLanguage -> {
-                managerLanguage.addString(parsedUsage);
+            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
+                langman.addString(parsedUsage);
             }));
         }
     }

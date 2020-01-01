@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class SubCommand {
     final PluginMain main;
@@ -18,6 +19,7 @@ public class SubCommand {
 
     String[] aliases = new String[0];
     String permission;
+    Predicate<ICommandSender> predicate = (sender -> true);
     DynamicLang description;
     List<DynamicLang> usage = new ArrayList<>();
     private CommandAction action;
@@ -50,7 +52,7 @@ public class SubCommand {
 
         public Builder(PluginMain main, String cmd, int numArgs) {
             command = new SubCommand(main, cmd, numArgs);
-            command.permission = main.getAdminPermission() + "." + cmd;
+            command.permission = main.getRootPermission() + "." + cmd;
         }
 
         public Builder(PluginMain main, String cmd) {
@@ -67,8 +69,13 @@ public class SubCommand {
             return this;
         }
 
+        public Builder withPredicate(Predicate<ICommandSender> predicate){
+            command.predicate = predicate;
+            return this;
+        }
+
         public Builder withDescription(Lang description) {
-            return withDescription(description, (managerLanguage) -> {
+            return withDescription(description, (sender, managerLanguage) -> {
             });
         }
 
@@ -84,7 +91,7 @@ public class SubCommand {
          * @return
          */
         public Builder addUsage(Lang usage) {
-            return addUsage(usage, (managerLanguage -> {
+            return addUsage(usage, ((sender, managerLanguage) -> {
             }));
         }
 
@@ -158,8 +165,8 @@ public class SubCommand {
                 else
                     return Optional.of((T) ArgumentMapper.IDENTITY.apply(args[index]));
             } catch (InvalidArgumentException e) {
-                main.lang().addString(args[index]);
-                main.lang().sendMessage(sender, e.lang);
+                e.dynamicLang.handle.onParse(sender, main.lang());
+                main.lang().sendMessage(sender, e.dynamicLang.lang);
             }
 
             return Optional.empty();

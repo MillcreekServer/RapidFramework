@@ -2,15 +2,20 @@ package io.github.wysohn.rapidframework2.core.manager.permission;
 
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
+import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class AbstractPermissionManagerTest {
 
@@ -51,19 +56,36 @@ public class AbstractPermissionManagerTest {
         }
     }
 
+    private PluginMain mockMain;
+    private Logger mockLogger;
+    private ManagerConfig mockConfig;
+
     private IParentProvider mockProvider;
     private AbstractPermissionManager abstractPermissionManager;
+    private Database<PermissionStorage> mockDatabase;
 
     @Before
     public void init() throws Exception{
+        mockMain = Mockito.mock(PluginMain.class);
+        mockLogger = Mockito.mock(Logger.class);
+        mockConfig = Mockito.mock(ManagerConfig.class);
+        Mockito.when(mockMain.conf()).thenReturn(mockConfig);
+        Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
+        Mockito.when(mockConfig.get(Mockito.anyString())).thenReturn(Optional.of("type"));
+
         mockProvider = Mockito.mock(IParentProvider.class);
+        mockDatabase = Mockito.mock(Database.class);
+
         abstractPermissionManager = new AbstractPermissionManager(0, mockProvider){
             @Override
             protected Database.DatabaseFactory<PermissionStorage> createDatabaseFactory() {
-                return null;
+                return (type) -> mockDatabase;
             }
         };
 
+        Whitebox.setInternalState(abstractPermissionManager, "main", mockMain);
+
+        abstractPermissionManager.enable();
         abstractPermissionManager.load();
     }
 
@@ -100,9 +122,9 @@ public class AbstractPermissionManagerTest {
         Assert.assertTrue(abstractPermissionManager.hasPermission(mockHolder, Perms.SomePerm3));
 
         Mockito.verify(mockProvider, Mockito.times(3))
-                .getHolder(null, mockHolder.getParentUuid());
+                .getHolder(mockMain, mockHolder.getParentUuid());
         Mockito.verify(mockProvider, Mockito.times(2))
-                .getHolder(null, mockParent.getParentUuid());
+                .getHolder(mockMain, mockParent.getParentUuid());
 
         //multiple permissions
         Assert.assertTrue(abstractPermissionManager.hasPermission(mockHolder,

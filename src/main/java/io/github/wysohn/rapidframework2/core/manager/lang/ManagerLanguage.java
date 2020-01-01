@@ -189,7 +189,7 @@ public class ManagerLanguage extends PluginMain.Manager {
             main().getLogger().fine("Using default value for " + lang);
         }
 
-        handle.onParse(this);
+        handle.onParse(null, this);
         replaceVariables(values);
 
         this.doub.clear();
@@ -210,7 +210,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     public String[] parse(ICommandSender sender, Lang lang) {
         Validation.assertNotNull(sender);
 
-        return parse(sender.getLocale(), lang, (managerLanguage -> {
+        return parse(sender.getLocale(), lang, ((sen, langman) -> {
         }));
     }
 
@@ -219,7 +219,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public String[] parse(Lang lang) {
-        return parse((Locale) null, lang, (managerLanguage -> {
+        return parse((Locale) null, lang, ((sen, langman) -> {
         }));
     }
 
@@ -237,7 +237,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     public String parseFirst(ICommandSender sender, Lang lang) {
         Validation.assertNotNull(sender);
 
-        return parseFirst(sender.getLocale(), lang, (managerLanguage -> {
+        return parseFirst(sender.getLocale(), lang, ((sen, langman) -> {
         }));
     }
 
@@ -246,7 +246,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public String parseFirst(Lang lang) {
-        return parseFirst((Locale) null, lang, (managerLanguage -> {
+        return parseFirst((Locale) null, lang, ((sen, langman) -> {
         }));
     }
 
@@ -256,7 +256,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public void sendMessage(ICommandSender commandSender, Lang lang) {
-        sendMessage(commandSender, lang, (managerLanguage -> {
+        sendMessage(commandSender, lang, ((sen, langman) -> {
         }));
     }
 

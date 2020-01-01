@@ -34,7 +34,7 @@ public class OfferScheduler {
      *                       is already declined. Synchronous call.
      * @param masks the mask to indicate when onProgress should be called. This always should be in descending
      *              order. For example, the default masking is '180000, 60000, 30000, 5000, 4000, 3000, 2000, 1000,' and
-     *              this these instruct the onProgresesAsync to be called only at 180000 milliseconds, 60000 milliseconds,
+     *              this these instruct the onProgreses to be called only at 180000 milliseconds, 60000 milliseconds,
      *              and so on.
      * @return ture if sent; false if already waiting for response.
      */
@@ -81,8 +81,8 @@ public class OfferScheduler {
     public boolean sendOffer(IPlayerWrapper player,
                             ProgressCallback onProgressAsync,
                             Runnable onOfferAccept,
-                            Runnable onTimeoutAsync){
-        return sendOffer(player, onProgressAsync, onTimeoutAsync, onOfferAccept,
+                            Runnable onTimeout){
+        return sendOffer(player, onProgressAsync, onTimeout, onOfferAccept,
                 180000, 60000, 30000, 5000, 4000, 3000, 2000, 1000);
     }
 

@@ -87,8 +87,8 @@ public class ManagerLanguageTest{
         double value = 12131451.67754;
 
         managerLanguage.setDecimalFormat(new DecimalFormat("##.0"));
-        String parse = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DecimalLang, l -> {
-            l.addDouble(value);
+        String parse = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DecimalLang, (sen, langman) -> {
+            langman.addDouble(value);
         });
         assertEquals("Number is 12131451.7.", parse);
     }
@@ -110,91 +110,91 @@ public class ManagerLanguageTest{
 
     @Test
     public void addDouble() {
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, l -> {
-            l.addDouble(1023.2);
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
+            langman.addDouble(1023.2);
         });
         Assert.assertEquals("value=1,023.2,null", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, l -> {
-            l.addDouble(5.2);
-            l.addDouble(993223.12);
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
+            langman.addDouble(5.2);
+            langman.addDouble(993223.12);
         });
         Assert.assertEquals("value=5.2,993,223.12", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, l -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {});
         Assert.assertEquals("value=null,null", parsed);
     }
 
     @Test
     public void addInteger() {
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, l -> {
-            l.addInteger(1452);
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, (sen, langman) -> {
+            langman.addInteger(1452);
         });
         Assert.assertEquals("value=1452,null", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, l -> {
-            l.addInteger(6231);
-            l.addInteger(32905939);
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, (sen, langman) -> {
+            langman.addInteger(6231);
+            langman.addInteger(32905939);
         });
         Assert.assertEquals("value=6231,32905939", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, l -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, (sen, langman) -> {});
         Assert.assertEquals("value=null,null", parsed);
     }
 
     @Test
     public void addString() {
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, l -> {
-            l.addString("test");
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, (sen, langman) -> {
+            langman.addString("test");
         });
         Assert.assertEquals("value=test,null", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, l -> {
-            l.addString("este");
-            l.addString("tetetet");
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, (sen, langman) -> {
+            langman.addString("este");
+            langman.addString("tetetet");
         });
         Assert.assertEquals("value=este,tetetet", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, l -> {
-            l.addString(new String[]{"hehehe", "rtrtrt"});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, (sen, langman) -> {
+            langman.addString(new String[]{"hehehe", "rtrtrt"});
         });
         Assert.assertEquals("value=hehehe,rtrtrt", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, l -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, (sen, langman) -> {});
         Assert.assertEquals("value=null,null", parsed);
     }
 
     @Test
     public void addBoolean() {
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, l -> {
-            l.addBoolean(true);
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, (sen, langman) -> {
+            langman.addBoolean(true);
         });
         Assert.assertEquals("value=&atrue&f,null", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, l -> {
-            l.addBoolean(false);
-            l.addBoolean(true);
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, (sen, langman) -> {
+            langman.addBoolean(false);
+            langman.addBoolean(true);
         });
         Assert.assertEquals("value=&cfalse&f,&atrue&f", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, l -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, (sen, langman) -> {});
         Assert.assertEquals("value=null,null", parsed);
     }
 
     @Test
     public void addLong() {
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, l -> {
-            l.addLong(1452);
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, (sen, langman) -> {
+            langman.addLong(1452);
         });
         Assert.assertEquals("value=1452,null", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, l -> {
-            l.addLong(6231);
-            l.addLong(32905939);
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, (sen, langman) -> {
+            langman.addLong(6231);
+            langman.addLong(32905939);
         });
         Assert.assertEquals("value=6231,32905939", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, l -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, (sen, langman) -> {});
         Assert.assertEquals("value=null,null", parsed);
     }
 
@@ -204,9 +204,9 @@ public class ManagerLanguageTest{
         Mockito.when(mockSender.getLocale()).thenReturn(Locale.KOREAN);
 
 
-        String[] parsed = managerLanguage.parse(Locale.KOREAN, TempLang.VariationLang, l -> {
-            l.addDouble(1324.5);
-            l.addString("ho");
+        String[] parsed = managerLanguage.parse(Locale.KOREAN, TempLang.VariationLang, (sen, langman) -> {
+            langman.addDouble(1324.5);
+            langman.addString("ho");
         });
 
         Assert.assertEquals(2, parsed.length);
@@ -220,8 +220,8 @@ public class ManagerLanguageTest{
         Assert.assertEquals("value=null,null,null,null,null", parsed[0]);
         Assert.assertEquals("value2=null,null,null,null,null", parsed[1]);
 
-        parsed = managerLanguage.parse(TempLang.VariationLang, l -> {
-            l.addString(new String[]{"abc","efg"});
+        parsed = managerLanguage.parse(TempLang.VariationLang, (sen, langman) -> {
+            langman.addString(new String[]{"abc","efg"});
         });
 
         Assert.assertEquals(2, parsed.length);
@@ -235,11 +235,11 @@ public class ManagerLanguageTest{
         Assert.assertEquals("value=null,null,null,null,null", parsed[0]);
         Assert.assertEquals("value2=null,null,null,null,null", parsed[1]);
 
-        parsed = managerLanguage.parse(mockSender, TempLang.VariationLang, l -> {
-            l.addInteger(555);
-            l.addBoolean(false);
-            l.addBoolean(true);
-            l.addLong(8987);
+        parsed = managerLanguage.parse(mockSender, TempLang.VariationLang, (sen, langman) -> {
+            langman.addInteger(555);
+            langman.addBoolean(false);
+            langman.addBoolean(true);
+            langman.addLong(8987);
         });
 
         Assert.assertEquals(2, parsed.length);
@@ -253,9 +253,9 @@ public class ManagerLanguageTest{
         Mockito.when(mockSender.getLocale()).thenReturn(Locale.KOREAN);
 
 
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.VariationLang, l -> {
-            l.addDouble(1324.5);
-            l.addString("ho");
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.VariationLang, (sen, langman) -> {
+            langman.addDouble(1324.5);
+            langman.addString("ho");
         });
 
         Assert.assertEquals("value=1,324.5,null,ho,null,null", parsed);
@@ -264,8 +264,8 @@ public class ManagerLanguageTest{
         parsed = managerLanguage.parseFirst(TempLang.VariationLang);
         Assert.assertEquals("value=null,null,null,null,null", parsed);
 
-        parsed = managerLanguage.parseFirst(TempLang.VariationLang, l -> {
-            l.addBoolean(true);
+        parsed = managerLanguage.parseFirst(TempLang.VariationLang, (sen, langman) -> {
+            langman.addBoolean(true);
         });
         Assert.assertEquals("value=null,null,null,&atrue&f,null", parsed);
 
@@ -273,9 +273,9 @@ public class ManagerLanguageTest{
         parsed = managerLanguage.parseFirst(mockSender, TempLang.VariationLang);
         Assert.assertEquals("value=null,null,null,null,null", parsed);
 
-        parsed = managerLanguage.parseFirst(TempLang.VariationLang, l -> {
-            l.addLong(888);
-            l.addDouble(1445246.389);
+        parsed = managerLanguage.parseFirst(TempLang.VariationLang, (sen, langman) -> {
+            langman.addLong(888);
+            langman.addDouble(1445246.389);
         });
         Assert.assertEquals("value=1,445,246.39,null,null,null,888", parsed);
     }
@@ -287,9 +287,9 @@ public class ManagerLanguageTest{
         managerLanguage.sendMessage(mockSender, TempLang.VariationLangSingle);
         Mockito.verify(mockSender).sendMessage(Mockito.eq("value=null,null,null,null,null"));
 
-        managerLanguage.sendMessage(mockSender, TempLang.VariationLangSingle, l -> {
-            l.addLong(888);
-            l.addDouble(1445246.389);
+        managerLanguage.sendMessage(mockSender, TempLang.VariationLangSingle, (sen, langman) -> {
+            langman.addLong(888);
+            langman.addDouble(1445246.389);
         });
         Mockito.verify(mockSender).sendMessage(Mockito.eq("value=1,445,246.39,null,null,null,888"));
     }

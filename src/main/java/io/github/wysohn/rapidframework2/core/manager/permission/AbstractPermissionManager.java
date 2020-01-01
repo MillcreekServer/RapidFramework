@@ -25,21 +25,6 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
     }
 
     @Override
-    public void enable() throws Exception {
-
-    }
-
-    @Override
-    public void load() throws Exception {
-
-    }
-
-    @Override
-    public void disable() throws Exception {
-
-    }
-
-    @Override
     protected UUID fromString(String string) {
         return UUID.fromString(string);
     }
