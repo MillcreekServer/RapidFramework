@@ -30,6 +30,8 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     private final Map<K, V> cachedElements = new HashMap<>();
     private final Map<String, K> nameMap = new HashMap<>();
 
+    private IConstructionHandle<V> constructionHandle;
+
     public AbstractManagerElementCaching(int loadPriority) {
         super(loadPriority);
         dbFactory = createDatabaseFactory();
@@ -69,6 +71,8 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
                     cachedElements.put(key, value);
                     if (value.getName() != null)
                         nameMap.put(value.getName(), key);
+
+                    Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
                 }
             }
         }
@@ -83,28 +87,55 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
         main().getLogger().info("Save finished.");
     }
 
+    public void setConstructionHandle(IConstructionHandle<V> constructionHandle) {
+        this.constructionHandle = constructionHandle;
+    }
+
+    /**
+     * Get data associated with 'name' String. This may not have any effect if the
+     * Class used in the Template V does not implement getName() method correctly so the method always
+     * return null. In this case, you have to use {@link #get(K)} instead.
+     * @param name displayName to search for
+     * @return The Optional of value. Optional.empty() if couldn't find it.
+     */
     public Optional<V> get(String name){
         synchronized (cacheLock){
             return get(nameMap.get(name));
         }
     }
 
+    /**
+     * get data associated with 'key' directly.
+     * @param key the key
+     * @return The Optional of value. Optional.empty() if couldn't find it.
+     */
     public Optional<V> get(K key){
         if(key == null)
             return Optional.empty();
 
         synchronized (cacheLock){
+            if(cachedElements.containsKey(key)){
+                return Optional.of(cachedElements.get(key));
+            }
+
             synchronized (dbLock){
-                if(cachedElements.containsKey(key))
-                    return Optional.of(cachedElements.get(key));
-                else
+                V loaded = db.load(key.toString(), null);
+
+                if(loaded != null){
+                    cachedElements.put(key, loaded);
+                    Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(loaded));
+
+                    return Optional.of(loaded);
+                }else{
                     return Optional.empty();
+                }
             }
         }
     }
 
     /**
-     * Save new value or replace the existing value. 'null' value will delete the entry completely.
+     * Save new value or replace the existing value. 'null' value will delete the entry completely
+     * from both cache and database.
      * @param key associated key
      * @param value value to be saved
      * @return true if saved; false if the 'name' (NamedValue) already exist.
@@ -121,6 +152,9 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
 
                 cachedElements.put(key, value);
                 nameMap.put(value.getName(), key);
+
+                // Since saving new value also has to update the state of the object
+                Optional.ofNullable(constructionHandle).ifPresent(handle->handle.after(value));
             }
 
             saveTaskPool.submit(() -> {
@@ -133,6 +167,10 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
         }
     }
 
+    /**
+     * Delete the entry completely from both cache and database.
+     * @param key associated key
+     */
     public void delete(K key) {
         synchronized (cacheLock) {
             V original = cachedElements.remove(key);
@@ -148,11 +186,23 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
         }
     }
 
+    /**
+     * Remove the value associated 'key' but not from database.
+     * This is useful if data in database has changed from different front-ends and
+     * you want to reload the latest data from the database instead of using the cached data.
+     * {@link #get(Object)} method will try to load data from the database if cache does not exist.
+     * @param key the key to clear the cache
+     * @return true if cleared; false if it wasn't available anyway.
+     */
+    public boolean deCache(K key){
+        return cachedElements.remove(key) != null;
+    }
+
     public Set<K> keySet(){
         return new HashSet<>(cachedElements.keySet());
     }
 
-    protected <T> Database.DatabaseFactory<T> getCivGroupDatabaseFactory(Class<T> clazz, String tablename) {
+    protected <T> Database.DatabaseFactory<T> getDatabaseFactory(Class<T> clazz, String tablename) {
         return (dbType -> {
             try {
                 switch (dbType) {
@@ -174,5 +224,14 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
                         FileUtil.join(main().getPluginDirectory(), tablename));
             }
         });
+    }
+
+    public interface IConstructionHandle<V extends NamedElement>{
+        /**
+         * Called after the object is created. It can be useful if some data has to be filled
+         * manually after the object is instantiated.
+         * @param obj the object that was created.
+         */
+        void after(V obj);
     }
 }
