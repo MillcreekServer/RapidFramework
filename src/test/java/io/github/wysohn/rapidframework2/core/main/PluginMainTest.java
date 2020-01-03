@@ -132,16 +132,16 @@ public class PluginMainTest {
 
     @Test
     public void testGetManager() {
-        SomeManager manager = main.getManager(SomeManager.class);
+        SomeManager manager = main.getManager(SomeManager.class).orElse(null);
         assertNotNull(manager);
 
-        PluginMain.Manager manager2 = main.getManager("SomeManager");
+        PluginMain.Manager manager2 = main.getManager("SomeManager").orElse(null);
         assertNotNull(manager2);
     }
 
     @Test
     public void testEnable() throws Exception {
-        SomeManager manager = main.getManager(SomeManager.class);
+        SomeManager manager = main.getManager(SomeManager.class).orElse(null);
         assertNotNull(manager);
 
         main.enable();
@@ -152,7 +152,7 @@ public class PluginMainTest {
 
     @Test
     public void testLoad() throws Exception {
-        SomeManager manager = main.getManager(SomeManager.class);
+        SomeManager manager = main.getManager(SomeManager.class).orElse(null);
         assertNotNull(manager);
 
         main.load();
@@ -163,7 +163,7 @@ public class PluginMainTest {
 
     @Test
     public void testDisable() throws Exception {
-        SomeManager manager = main.getManager(SomeManager.class);
+        SomeManager manager = main.getManager(SomeManager.class).orElse(null);
         assertNotNull(manager);
 
         main.disable();

@@ -99,12 +99,14 @@ public class PluginMain implements PluginRuntime {
         manager.main = this;
     }
 
-    public <T extends Manager> T getManager(Class<T> clazz){
-        return (T) managers.get(clazz);
+    public <T extends Manager> Optional<T> getManager(Class<T> clazz) {
+        return Optional.ofNullable(managers.get(clazz))
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
     }
 
-    public Manager getManager(String managerName){
-        return managersStr.get(managerName);
+    public Optional<Manager> getManager(String managerName){
+        return Optional.ofNullable(managersStr.get(managerName));
     }
 
     public Collection<Manager> getOrderedManagers() {
