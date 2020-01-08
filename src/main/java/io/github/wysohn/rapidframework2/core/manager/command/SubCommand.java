@@ -19,9 +19,10 @@ public class SubCommand {
 
     String[] aliases = new String[0];
     String permission;
-    Predicate<ICommandSender> predicate = (sender -> true);
+    List<Predicate<ICommandSender>> predicates = new ArrayList<>();
     DynamicLang description;
     List<DynamicLang> usage = new ArrayList<>();
+    boolean doubleCheck = false;
     private CommandAction action;
     private List<ArgumentMapper> argumentMappers = new ArrayList<>();
 
@@ -69,8 +70,8 @@ public class SubCommand {
             return this;
         }
 
-        public Builder withPredicate(Predicate<ICommandSender> predicate){
-            command.predicate = predicate;
+        public Builder addPredicate(Predicate<ICommandSender> predicate){
+            command.predicates.add(predicate);
             return this;
         }
 
@@ -120,6 +121,11 @@ public class SubCommand {
                 command.argumentMappers.add(ArgumentMapper.IDENTITY);
             command.argumentMappers.set(index, mapper);
 
+            return this;
+        }
+
+        public Builder needDoubleCheck(){
+            command.doubleCheck = true;
             return this;
         }
 

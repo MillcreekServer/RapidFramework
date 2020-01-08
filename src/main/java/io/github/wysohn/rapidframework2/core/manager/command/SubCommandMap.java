@@ -2,14 +2,19 @@ package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.common.DoubleChecker;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 class SubCommandMap {
     private final Map<String, SubCommand> commandList = new LinkedHashMap<>();
     private final Map<String, String> aliasMap = new HashMap<String, String>();
+
+    private final Map<UUID, String> checking = new HashMap<>();
+    private final DoubleChecker doubleChecker = new DoubleChecker();
 
     public void clearCommands() {
         commandList.clear();
@@ -46,9 +51,10 @@ class SubCommandMap {
                 return true;
             }
 
-            if (!command.predicate.test(sender)){
-                main.lang().sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
-                return true;
+            for(Predicate<ICommandSender> predicate : command.predicates){
+                if (!predicate.test(sender)){
+                    return true;
+                }
             }
 
             if (command.nArguments != -1 && command.nArguments != args.length) {
@@ -56,9 +62,33 @@ class SubCommandMap {
                 return true;
             }
 
-            boolean result = command.execute(sender, cmd, args);
-            if (!result) {
-                showCommandDetails(main, sender, command);
+            if (command.doubleCheck) {
+                String checkingCommand = checking.remove(sender.getUuid());
+
+                if (checkingCommand != null) {
+                    doubleChecker.confirm(sender.getUuid());
+                    return true;
+                } else {
+                    doubleChecker.reset(sender.getUuid());
+
+                    checking.put(sender.getUuid(), command.name);
+                    doubleChecker.init(sender.getUuid(), () -> {
+                        if (!command.execute(sender, cmd, args)) {
+                            showCommandDetails(main, sender, command);
+                        }
+                    }, () -> {
+                        main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Timeout, ((sen, langman) -> {
+                            langman.addString(command.name);
+                        }));
+                    });
+
+                    main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Init);
+                    return true;
+                }
+            } else {
+                if (!command.execute(sender, cmd, args)) {
+                    showCommandDetails(main, sender, command);
+                }
             }
 
             return true;

@@ -44,6 +44,10 @@ public enum DefaultLangs implements Lang {
     Economy_NotEnoughMoney("&cNot enough money! Required:[&6${double}&c]"),
     Economy_TookMoney("&aTook [&6${double}&a] from your account!"),
 
+    Command_DoubleCheck_Init("&7Are you sure to execute this command? &cBe careful since" +
+            " it cannot be undone once processed! &7To proceed, &6run the same command again&7."),
+    Command_DoubleCheck_Timeout("&7Command &6${string} &7is automatically cancelled."),
+
     Command_Format_Description("&6/${string} ${string} &5- &7${string}"),
     Command_Format_Aliases("&8&m &f &5Aliases&7: &a${string}"),
     Command_Format_Usage("&8&m &f &7${string}"),
@@ -88,11 +92,12 @@ public enum DefaultLangs implements Lang {
     Structure_PublicMode("PublicMode"),
 
     GUI_Button_PagedFrame_OutOfBound("&cNo more page to show!"),
-    ;
 
+    ;
+    
     private final String[] eng;
 
-    private DefaultLangs(String... eng) {
+    DefaultLangs(String... eng) {
         this.eng = eng;
     }
 

@@ -99,7 +99,7 @@ public final class ManagerCommand extends PluginMain.Manager {
         List<SubCommand> list = commandMap.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .filter(cmd -> sender.hasPermission(cmd.permission))
-                .filter(cmd -> cmd.predicate.test(sender))
+                .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
                 .collect(Collectors.toList());
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
@@ -155,18 +155,17 @@ public final class ManagerCommand extends PluginMain.Manager {
             }
 
             // usages
-            c.usage.stream()
-                    .forEach(dynamicLang -> {
-                        dynamicLang.handle.onParse(sender, main().lang());
-                        String[] usageVals = main().lang().parse(sender, dynamicLang.lang);
+            c.usage.forEach(dynamicLang -> {
+                dynamicLang.handle.onParse(sender, main().lang());
+                String[] usageVals = main().lang().parse(sender, dynamicLang.lang);
 
-                        for (String usage : usageVals) {
-                            builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
-                                langman.addString(usage);
-                            })));
-                            builder.append('\n');
-                        }
-                    });
+                for (String usage : usageVals) {
+                    builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
+                        langman.addString(usage);
+                    })));
+                    builder.append('\n');
+                }
+            });
 
             sender.sendMessage(builder.toString());
         }
@@ -175,5 +174,4 @@ public final class ManagerCommand extends PluginMain.Manager {
     public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args){
         return null;
     }
-
 }
