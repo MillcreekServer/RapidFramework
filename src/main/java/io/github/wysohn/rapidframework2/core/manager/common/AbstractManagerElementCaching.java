@@ -92,6 +92,14 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     }
 
     /**
+     * Get number of elements exist in the cache table now.
+     * @return cache size.
+     */
+    public int getCacheSize(){
+        return cachedElements.size();
+    }
+
+    /**
      * Get data associated with 'name' String. This may not have any effect if the
      * Class used in the Template V does not implement getName() method correctly so the method always
      * return null. In this case, you have to use {@link #get(K)} instead.
