@@ -3,10 +3,15 @@ package io.github.wysohn.rapidframework2.core.manager.command;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.MessageBuilder;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ManagerCommand extends PluginMain.Manager {
     private final String mainCommand;
@@ -50,11 +55,12 @@ public final class ManagerCommand extends PluginMain.Manager {
     public void disable() throws Exception {
 
     }
+    public String getMainCommand() {
+        return mainCommand;
+    }
 
-    public ManagerCommand addCommand(SubCommand cmd) {
+    public void addCommand(SubCommand cmd) {
         commandMap.register(cmd);
-
-        return this;
     }
 
     public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
@@ -69,21 +75,24 @@ public final class ManagerCommand extends PluginMain.Manager {
         }
 
         StringBuilder cmdLine = new StringBuilder();
-        for (String str : args) {
-            cmdLine.append(str);
+        for (String arg : args_in) {
+            cmdLine.append(arg);
             cmdLine.append(' ');
         }
 
-        if (!commandMap.dispatch(main(), sender, cmdLine.toString())) {
+        if (!commandMap.dispatch(main(), sender, label, cmdLine.toString())) {
             int page = 0;
             if (args.length > 1) {
-                main().lang().sendMessage(sender, DefaultLangs.General_NotInteger, ((sen, langman) -> {
-                    langman.addString(args[1]);
-                }));
-                return true;
+                try {
+                    page = Integer.parseInt(args[1]);
+                } catch (NumberFormatException ex) {
+                    main().lang().sendMessage(sender, DefaultLangs.General_NotInteger, ((sen, langman) ->
+                            langman.addString(args[1])));
+                    return true;
+                }
             }
 
-            this.showHelp(label, sender, page);
+            this.showHelp(label, sender, page - 1);
 
             return true;
         }
@@ -100,6 +109,7 @@ public final class ManagerCommand extends PluginMain.Manager {
                 .map(Map.Entry::getValue)
                 .filter(cmd -> sender.hasPermission(cmd.permission))
                 .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
+                .sorted((Comparator.comparing(cmd -> cmd.name)))
                 .collect(Collectors.toList());
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
@@ -107,7 +117,7 @@ public final class ManagerCommand extends PluginMain.Manager {
         main().lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) -> {
             langman.addString(main().getPluginName());
         }));
-        sender.sendMessage("");
+        main().lang().sendRawMessage(sender, MessageBuilder.forMessage("").build());
 
         int max = main().conf().get("command.help.sentenceperpage")
                 .map(Object::toString)
@@ -128,50 +138,116 @@ public final class ManagerCommand extends PluginMain.Manager {
 
             final SubCommand c = list.get(index);
 
+            Message[] message = buildCommandDetail(main(), label, sender, c);
+
+            main().lang().sendRawMessage(sender, message);
+        }
+
+        main().lang().sendMessage(sender, DefaultLangs.General_Line);
+
+        if (main().lang().isJsonEnabled()) {
+            String leftArrow = "&8[&a<---&8]";
+            String home = "&8[&aHome&8]";
+            String rightArrow = "&8[&a--->&8]";
+
+            final String cmdPrev = "/" + mainCommand + " help " + page;
+            final String cmdHome = "/" + mainCommand + " help";
+            final String cmdNext = "/" + mainCommand + " help " + (page + 2);
+
+            Message[] jsonPrev = MessageBuilder.forMessage(leftArrow)
+                    .withHoverShowText(cmdPrev)
+                    .withClickRunCommand(cmdPrev)
+                    .build();
+            Message[] jsonHome = MessageBuilder.forMessage(home)
+                    .withHoverShowText(cmdHome)
+                    .withClickRunCommand(cmdHome)
+                    .build();
+            Message[] jsonNext = MessageBuilder.forMessage(rightArrow)
+                    .withHoverShowText(cmdNext)
+                    .withClickRunCommand(cmdNext)
+                    .build();
+
+            Stream<Message> stream = Stream.of();
+            stream = Stream.concat(stream, Arrays.stream(jsonPrev));
+            stream = Stream.concat(stream, Arrays.stream(jsonHome));
+            stream = Stream.concat(stream, Arrays.stream(jsonNext));
+
+            main().lang().sendRawMessage(sender, stream.toArray(Message[]::new));
+        } else {
+            main().lang().sendMessage(sender, DefaultLangs.Command_Help_TypeHelpToSeeMore, ((sen, langman) ->
+                    langman.addString(label)));
+        }
+
+        final int pageCopy = page + 1;
+        main().lang().sendMessage(sender, DefaultLangs.Command_Help_PageDescription, ((sen, langman) ->
+                langman.addInteger(pageCopy).addInteger(outof)));
+        sender.sendMessageRaw("");
+    }
+
+    static Message[] buildCommandDetail(PluginMain main, String label, ICommandSender sender, SubCommand c) {
+        if(c.description == null){
+            return MessageBuilder.empty();
+        }else {
             // description
-            c.description.handle.onParse(sender, main().lang());
-            String descValue = main().lang().parseFirst(sender, c.description.lang);
+            c.description.handle.onParse(sender, main.lang());
+            String descValue = main.lang().parseFirst(sender, c.description.lang);
 
-            main().lang().sendMessage(sender, DefaultLangs.Command_Format_Description, ((sen, langman) -> {
-                langman.addString(label);
-                langman.addString(c.name);
-                langman.addString(descValue);
-            }));
+            MessageBuilder messageBuilder = MessageBuilder.forMessage(main.lang().parseFirst(sender,
+                    DefaultLangs.Command_Format_Description, ((sen, langman) -> {
+                        langman.addString(label);
+                        langman.addString(c.name);
+                        langman.addString(descValue);
+                    })))
+                    .withClickSuggestCommand("/"+label+" "+c.name);
 
-            StringBuilder builder = new StringBuilder();
+            String aliasAndUsage = buildAliasAndUsageString(main, sender, c);
 
-            // aliases
-            StringBuilder builderAliases = new StringBuilder();
-            for (String alias : c.aliases) {
-                builderAliases.append(' ');
-                builderAliases.append(alias);
-            }
-
-            if (builderAliases.length() > 0) {
-                builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
-                    langman.addString(builderAliases.toString());
-                })));
-                builder.append('\n');
-            }
-
-            // usages
-            c.usage.forEach(dynamicLang -> {
-                dynamicLang.handle.onParse(sender, main().lang());
-                String[] usageVals = main().lang().parse(sender, dynamicLang.lang);
-
-                for (String usage : usageVals) {
-                    builder.append(main().lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
-                        langman.addString(usage);
-                    })));
-                    builder.append('\n');
-                }
-            });
-
-            sender.sendMessage(builder.toString());
+            return messageBuilder.withHoverShowText(aliasAndUsage).build();
         }
     }
 
+    static String buildAliasAndUsageString(PluginMain main, ICommandSender sender, SubCommand c) {
+        StringBuilder builder = new StringBuilder();
+
+        // aliases
+        StringBuilder builderAliases = new StringBuilder();
+        for (String alias : c.aliases) {
+            builderAliases.append(' ');
+            builderAliases.append(alias);
+        }
+
+        if (builderAliases.length() > 0) {
+            builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
+                langman.addString(builderAliases.toString());
+            })));
+            builder.append('\n');
+        }
+
+        // usages
+        c.usage.forEach(dynamicLang -> {
+            dynamicLang.handle.onParse(sender, main.lang());
+            String[] usageVals = main.lang().parse(sender, dynamicLang.lang);
+
+            for (String usage : usageVals) {
+                builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
+                    langman.addString(usage);
+                })));
+                builder.append('\n');
+            }
+        });
+
+        return builder.toString();
+    }
+
     public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args){
-        return null;
+        return commandMap.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .filter(cmd -> args.length == 1)
+                .filter(cmd -> sender.hasPermission(cmd.permission))
+                .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
+                .filter(cmd -> cmd.name.startsWith(args[args.length - 1]))
+                .sorted((Comparator.comparing(cmd -> cmd.name)))
+                .map(cmd -> cmd.name)
+                .collect(Collectors.toList());
     }
 }

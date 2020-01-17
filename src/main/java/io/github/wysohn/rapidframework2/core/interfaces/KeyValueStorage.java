@@ -13,4 +13,6 @@ public interface KeyValueStorage {
     boolean isSection(Object obj);
 
     void reload() throws Exception;
+
+    void save() throws Exception;
 }

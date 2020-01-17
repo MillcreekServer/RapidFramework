@@ -30,4 +30,9 @@ public class KeyValueStorageAdapter implements KeyValueStorage {
     public void reload() {
 
     }
+
+    @Override
+    public void save() {
+
+    }
 }

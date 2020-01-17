@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class OfferScheduler {
-    private static final long WAITING_TIME_MILLIS = 10 * 1000L;
+    private final long WAITING_TIME_MILLIS;
 
     private final TaskSupervisor taskSupervisor;
 
@@ -19,7 +19,12 @@ public class OfferScheduler {
     private Map<UUID, Future<Void>> runningTasks = new ConcurrentHashMap<>();
 
     public OfferScheduler(TaskSupervisor taskSupervisor) {
+        this(taskSupervisor, 10 * 1000L);
+    }
+
+    public OfferScheduler(TaskSupervisor taskSupervisor, long waiting_millis) {
         this.taskSupervisor = taskSupervisor;
+        this.WAITING_TIME_MILLIS = waiting_millis;
     }
 
     /**
@@ -82,7 +87,7 @@ public class OfferScheduler {
                             ProgressCallback onProgressAsync,
                             Runnable onOfferAccept,
                             Runnable onTimeout){
-        return sendOffer(player, onProgressAsync, onTimeout, onOfferAccept,
+        return sendOffer(player, onProgressAsync, onOfferAccept, onTimeout,
                 180000, 60000, 30000, 5000, 4000, 3000, 2000, 1000);
     }
 
@@ -106,7 +111,12 @@ public class OfferScheduler {
     }
 
     public boolean declineOffer(IPlayerWrapper player){
-        return runningTasks.remove(player.getUuid()) != null;
+        Future<Void> future = runningTasks.remove(player.getUuid());
+        if(future == null)
+            return false;
+
+        future.cancel(true);
+        return true;
     }
 
     public interface ProgressCallback {
@@ -137,12 +147,12 @@ public class OfferScheduler {
                 return null;
             } finally {
                 runningTasks.remove(playerUuid);
-
-                taskSupervisor.runSync(()->{
-                    onTimeout.run();
-                    return null;
-                }).get();
             }
+
+            taskSupervisor.runSync(()->{
+                onTimeout.run();
+                return null;
+            }).get();
             
             return null;
         }

@@ -8,27 +8,30 @@ import java.util.*;
 
 public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
     private final UUID uuid;
-    private final UUID ownerUuid;
 
     private final Set<UUID> children = new HashSet<>();
     private final Map<String, Object> metaData = new HashMap<>();
 
+    private UUID ownerUuid;
     private UUID parentUuid;
     private String displayName;
+    private String mark;
 
-    public Group(UUID ownerUuid) {
+    public Group() {
         this.uuid = UUID.randomUUID();
-        this.ownerUuid = ownerUuid;
     }
 
-    public Group(UUID ownerUuid, UUID parentUuid) {
+    public Group(UUID parentUuid) {
         this.uuid = UUID.randomUUID();
-        this.ownerUuid = ownerUuid;
         this.parentUuid = parentUuid;
     }
 
     public UUID getOwnerUuid() {
         return ownerUuid;
+    }
+
+    public void setOwnerUuid(UUID ownerUuid) {
+        this.ownerUuid = ownerUuid;
     }
 
     public Set<UUID> getChildren() {
@@ -51,6 +54,14 @@ public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
         this.displayName = displayName;
     }
 
+    public String getMark() {
+        return mark;
+    }
+
+    public void setMark(String mark) {
+        this.mark = mark;
+    }
+
     @Override
     public UUID getParentUuid() {
         return parentUuid;
@@ -62,7 +73,7 @@ public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
     }
 
     @Override
-    public String getName() {
-        return displayName;
+    public String getStringKey() {
+        return null;
     }
 }

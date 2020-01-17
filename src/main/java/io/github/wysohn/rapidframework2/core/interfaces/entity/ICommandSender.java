@@ -3,7 +3,7 @@ package io.github.wysohn.rapidframework2.core.interfaces.entity;
 import java.util.Locale;
 
 public interface ICommandSender extends IPluginEntity {
-    void sendMessage(String... msg);
+    void sendMessageRaw(String... msg);
 
     Locale getLocale();
 
@@ -15,4 +15,6 @@ public interface ICommandSender extends IPluginEntity {
      * @return true if has permission; false if this sender does not have any matching permission.
      */
     boolean hasPermission(String... permissions);
+
+    String getDisplayName();
 }

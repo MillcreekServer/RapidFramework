@@ -55,4 +55,9 @@ public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage
     public void reload() {
 
     }
+
+    @Override
+    public void save() {
+
+    }
 }

@@ -98,6 +98,10 @@ public class SimpleLocation implements Cloneable {
         return x + y + z;
     }
 
+    public SimpleChunkLocation toChunk() {
+        return new SimpleChunkLocation(this);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -127,9 +131,7 @@ public class SimpleLocation implements Cloneable {
             return false;
         if (y != other.y)
             return false;
-        if (z != other.z)
-            return false;
-        return true;
+        return z == other.z;
     }
 
     @Override

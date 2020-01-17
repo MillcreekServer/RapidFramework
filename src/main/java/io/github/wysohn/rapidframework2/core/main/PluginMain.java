@@ -10,6 +10,7 @@ import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSessionFactory;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.IMessageSender;
 import util.Validation;
 
 import java.io.File;
@@ -198,6 +199,14 @@ public class PluginMain implements PluginRuntime {
             Stream.of(langs)
                     .filter(Objects::nonNull)
                     .forEach(main.lang::registerLanguage);
+            return this;
+        }
+
+        public Builder setMessageSender(IMessageSender messageSender){
+            Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
+            Validation.assertNotNull(messageSender);
+
+            main.lang.setMessageSender(messageSender);
             return this;
         }
 

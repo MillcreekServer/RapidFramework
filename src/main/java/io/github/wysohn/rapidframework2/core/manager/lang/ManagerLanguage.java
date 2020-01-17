@@ -4,6 +4,9 @@ import io.github.wysohn.rapidframework.utils.files.JarUtil;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.KeyValueStorageAdapter;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.IMessageSender;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.MessageBuilder;
 import util.Validation;
 
 import java.text.DecimalFormat;
@@ -13,7 +16,7 @@ import java.util.stream.Stream;
 
 public class ManagerLanguage extends PluginMain.Manager {
     private final Map<Locale, LanguageSession> languageSessions = new HashMap<>();
-    private final Map<Class<? extends Lang>, Lang> languages = new HashMap<>();
+    private final Set<Lang> languages = new HashSet<>();
 
     private final Queue<Double> doub = new LinkedList<>();
     private final Queue<Integer> integer = new LinkedList<>();
@@ -23,12 +26,21 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     private final LanguageSessionFactory sessionFactory;
 
+    private IMessageSender messageSender = ((sender, message) -> sender.sendMessageRaw(Arrays.stream(message)
+            .map(Message::getString)
+            .toArray(String[]::new)));
     private Locale defaultLang = Locale.ENGLISH;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###,###.##");
 
     public ManagerLanguage(int loadPriority, LanguageSessionFactory sessionFactory) {
         super(loadPriority);
         this.sessionFactory = sessionFactory;
+    }
+
+    public void setMessageSender(IMessageSender messageSender) {
+        Validation.assertNotNull(messageSender);
+
+        this.messageSender = messageSender;
     }
 
     public Locale getDefaultLang() {
@@ -56,6 +68,7 @@ public class ManagerLanguage extends PluginMain.Manager {
             LanguageSession session = sessionFactory.create(locale);
             if(session != null){
                 languageSessions.put(locale, session);
+                session.fill(languages);
             }
         }
     }
@@ -65,31 +78,38 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     }
 
-    public void addDouble(double doub) {
+    public ManagerLanguage addDouble(double doub) {
         this.doub.add(Double.valueOf(doub));
+        return this;
     }
 
-    public void addInteger(int integer) {
+    public ManagerLanguage addInteger(int integer) {
         this.integer.add(Integer.valueOf(integer));
+        return this;
     }
 
-    public void addString(String string) {
+    public ManagerLanguage addString(String string) {
         Validation.assertNotNull(string);
 
         this.string.add(string);
+        return this;
     }
 
-    public void addString(String[] strs) {
+    public ManagerLanguage addString(String[] strs) {
         for (String str : strs)
             addString(str);
+
+        return this;
     }
 
-    public void addBoolean(boolean bool) {
-        this.bool.add(Boolean.valueOf(bool));
+    public ManagerLanguage addBoolean(boolean bool) {
+        this.bool.add(bool);
+        return this;
     }
 
-    public void addLong(long llong) {
+    public ManagerLanguage addLong(long llong) {
         this.llong.add(llong);
+        return this;
     }
 
     /**
@@ -97,12 +117,11 @@ public class ManagerLanguage extends PluginMain.Manager {
      * @return true if there was no same ManagerLanguage already registered
      */
     public boolean registerLanguage(Lang lang) {
-        if (languages.containsKey(lang.getClass())) {
-            return false;
-        } else {
-            languages.put(lang.getClass(), lang);
-            return true;
-        }
+        return languages.add(lang);
+    }
+
+    public boolean isJsonEnabled() {
+        return this.messageSender.isJsonEnabled();
     }
 
     private void replaceVariables(List<String> strings) {
@@ -163,14 +182,14 @@ public class ManagerLanguage extends PluginMain.Manager {
         }
     }
 
-    public String[] parse(Locale locale, Lang lang, PreParseHandle handle) {
+    public String[] parse(Locale locale, ICommandSender sender, Lang lang, PreParseHandle handle) {
         if (locale == null)
             locale = defaultLang;
 
         Validation.assertNotNull(lang);
         Validation.assertNotNull(handle);
 
-        if (!languages.containsKey(lang.getClass())) {
+        if (!languages.contains(lang)) {
             main().getLogger().severe("Lang " + lang + " is not registered.");
             return new String[0];
         }
@@ -183,20 +202,20 @@ public class ManagerLanguage extends PluginMain.Manager {
         }
 
         List<String> values = session.translate(lang);
-        if (values == null) {
+        if (values == null || values.isEmpty()) {
             values = Stream.of(lang.getEngDefault()).collect(Collectors.toList());
 
             main().getLogger().fine("Using default value for " + lang);
         }
 
-        handle.onParse(null, this);
+        handle.onParse(sender, this);
         replaceVariables(values);
 
-        this.doub.clear();
-        this.integer.clear();
-        this.string.clear();
-        this.bool.clear();
-        this.llong.clear();
+//        this.doub.clear();
+//        this.integer.clear();
+//        this.string.clear();
+//        this.bool.clear();
+//        this.llong.clear();
 
         return values.toArray(new String[0]);
     }
@@ -204,27 +223,27 @@ public class ManagerLanguage extends PluginMain.Manager {
     public String[] parse(ICommandSender sender, Lang lang, PreParseHandle handle) {
         Validation.assertNotNull(sender);
 
-        return parse(sender.getLocale(), lang, handle);
+        return parse(sender.getLocale(), sender, lang, handle);
     }
 
     public String[] parse(ICommandSender sender, Lang lang) {
         Validation.assertNotNull(sender);
 
-        return parse(sender.getLocale(), lang, ((sen, langman) -> {
+        return parse(sender.getLocale(), sender, lang, ((sen, langman) -> {
         }));
     }
 
     public String[] parse(Lang lang, PreParseHandle handle) {
-        return parse((Locale) null, lang, handle);
+        return parse(null, null, lang, handle);
     }
 
     public String[] parse(Lang lang) {
-        return parse((Locale) null, lang, ((sen, langman) -> {
+        return parse(null, null, lang, ((sen, langman) -> {
         }));
     }
 
     public String parseFirst(Locale locale, Lang lang, PreParseHandle handle) {
-        String[] parsed = parse(locale, lang, handle);
+        String[] parsed = parse(locale, null, lang, handle);
         return parsed.length > 0 ? parsed[0] : "NULL";
     }
 
@@ -250,9 +269,12 @@ public class ManagerLanguage extends PluginMain.Manager {
         }));
     }
 
-    public void sendMessage(ICommandSender commandSender, Lang lang, PreParseHandle handle){
+    public void sendMessage(ICommandSender commandSender, Lang lang, PreParseHandle handle) {
         String[] parsed = parse(commandSender, lang, handle);
-        commandSender.sendMessage(parsed);
+
+        Arrays.stream(parsed)
+                .map(msg -> MessageBuilder.forMessage(msg).build())
+                .forEach(message -> messageSender.send(commandSender, message));
     }
 
     public void sendMessage(ICommandSender commandSender, Lang lang) {
@@ -261,15 +283,15 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public void broadcast(Lang lang, PreParseHandle handle){
-
+        main().getPluginBridge().forEachPlayer(player -> sendMessage(player, lang, handle));
     }
 
     public void broadcast(Lang lang){
-
+        broadcast(lang, ((sen, langman) -> {}));
     }
 
-    private static String convertToConfigName(Lang lang) {
-        return lang.name().replaceAll("_", ".");
+    public void sendRawMessage(ICommandSender sender, Message[] message) {
+        messageSender.send(sender, message);
     }
 
     private static String getLastColors(String str){

@@ -16,14 +16,15 @@ public enum DefaultLangs implements Lang {
     General_Header("  &8&L<< &6${string} &8&L>>"),
     General_InvalidString("&c${string} is too long or contains invalid character!"),
     General_InvalidType("&c${string} is not a valid type!"),
-    General_PlayerNotOnline("&cPlayer ${string} is not found in server!"),
     General_NoSuchPlayer("&cNo such player named ${string}!"),
+    General_CantTargetSelf("&cCan't target yourself."),
     General_NoSuchCommand("&cNo such command ${string}!"),
     General_Allow("&aAllow"),
     General_Deny("&cDeny"),
     General_On("&aOn"),
     General_Off("&cOff"),
     General_NotABoolean("&c${string} is not a boolean!"),
+    General_EnumNotMatching("&c${string} is not a valid! &7Use &8: &6${string}"),
     General_NotEnoughPermission("&cYou don't have enough permission!"),
     General_NothingOnYourHand("&cNothing on your hand!"),
 
@@ -58,11 +59,11 @@ public enum DefaultLangs implements Lang {
     Command_Help_Usage("<page> for page to see."),
 
     Command_Reload_Description("reload config"),
-    Command_Reload_Usage("&6${command} &8- &7reload config"),
+    Command_Reload_Usage("&6/... reload &8- &7reload config"),
 
     Command_Status_Description("Show status of the plugin."),
-    Command_Status_Usage("&6${command} &8- &7show status of all modules",
-            "&6${command} <module> &8- &7show status of 'module'", "&bModules &8: &d${string}"),
+    Command_Status_Usage("&6/... status &8- &7show status of all modules",
+            "&6/... status <module> &8- &7show status of 'module'", "&bModules &8: &d${string}"),
 
     Command_Import_Description("DB types: ${dbtype}"),
     Command_Import_Usage("<dbtype> to import data from <dbtype>."),

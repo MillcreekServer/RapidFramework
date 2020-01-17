@@ -1,15 +1,14 @@
-package io.github.wysohn.rapidframework2.core.objects.message;
+package io.github.wysohn.rapidframework2.core.manager.lang.message;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageBuilder<IS> {
-    private List<Message<IS>> messages = new ArrayList<>();
-    private Message<IS> message;
+public class MessageBuilder {
+    private List<Message> messages = new ArrayList<>();
+    private Message message;
 
     private MessageBuilder(String str) {
-        message = new Message<IS>(str);
-        messages.add(message);
+        append(str);
     }
 
     public static MessageBuilder forMessage(String str) {
@@ -17,7 +16,7 @@ public class MessageBuilder<IS> {
     }
 
     /**
-     * This changes the current message to the specified and append it to the array.
+     * This changes the current message to the specified 'str' and append it to the array.
      * So once you call this method, you lose the ability to build the previous
      * message.
      *
@@ -28,7 +27,7 @@ public class MessageBuilder<IS> {
         if (str == null)
             return this;
 
-        message = new Message<IS>(str);
+        message = new Message(str);
         messages.add(message);
         return this;
     }
@@ -69,7 +68,7 @@ public class MessageBuilder<IS> {
         return this;
     }
 
-    public MessageBuilder withHoverShowItem(IS value) {
+    public MessageBuilder withHoverShowItem(String value) {
         message.resetHover();
         message.hover_ShowItem = value;
         return this;
@@ -77,5 +76,9 @@ public class MessageBuilder<IS> {
 
     public Message[] build() {
         return messages.toArray(new Message[0]);
+    }
+
+    public static Message[] empty() {
+        return new Message[]{new Message("")};
     }
 }

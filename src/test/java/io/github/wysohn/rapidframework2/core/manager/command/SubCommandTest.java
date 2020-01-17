@@ -82,8 +82,13 @@ public class SubCommandTest {
 
     class TempSender implements ICommandSender {
         @Override
-        public void sendMessage(String... msg) {
+        public void sendMessageRaw(String... msg) {
 
+        }
+
+        @Override
+        public String getDisplayName() {
+            return null;
         }
 
         @Override

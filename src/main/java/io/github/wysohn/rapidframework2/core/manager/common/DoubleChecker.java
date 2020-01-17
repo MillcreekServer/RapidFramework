@@ -71,7 +71,7 @@ public class DoubleChecker {
     }
 
     /**
-     * Stop all the auto cancel tasks.
+     * Stop all the auto cancel tasks. Blocks until scheduled tasks are done or wait 100ms.
      */
     public void close(){
         exec.shutdown();
@@ -99,7 +99,7 @@ public class DoubleChecker {
         }
 
         public void cancelFuture(){
-            autoCancelFuture.cancel(false);
+            autoCancelFuture.cancel(true);
         }
     }
 }

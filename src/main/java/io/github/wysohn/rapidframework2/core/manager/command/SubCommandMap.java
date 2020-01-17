@@ -3,8 +3,9 @@ package io.github.wysohn.rapidframework2.core.manager.command;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.DoubleChecker;
+import io.github.wysohn.rapidframework2.core.manager.common.ReactivePredicate;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
-import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.MessageBuilder;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -14,7 +15,15 @@ class SubCommandMap {
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
     private final Map<UUID, String> checking = new HashMap<>();
-    private final DoubleChecker doubleChecker = new DoubleChecker();
+    private final DoubleChecker doubleChecker;
+
+    public SubCommandMap() {
+        doubleChecker = new DoubleChecker();
+    }
+
+    public SubCommandMap(DoubleChecker doubleChecker) {
+        this.doubleChecker = doubleChecker;
+    }
 
     public void clearCommands() {
         commandList.clear();
@@ -24,10 +33,11 @@ class SubCommandMap {
     /**
      * @param main
      * @param sender
+     * @param label
      * @param arg1
      * @return false if arg1 was 0 length String; true otherwise
      */
-    public boolean dispatch(PluginMain main, ICommandSender sender, String arg1) {
+    public boolean dispatch(PluginMain main, ICommandSender sender, String label, String arg1) {
         String[] split = arg1.split(" ");
 
         final String cmd;
@@ -38,9 +48,7 @@ class SubCommandMap {
         }
 
         String[] args = new String[split.length - 1];
-        for (int i = 1; i < split.length; i++) {
-            args[i - 1] = split[i];
-        }
+        System.arraycopy(split, 1, args, 0, split.length - 1);
 
         SubCommand command = commandList.get(cmd);
 
@@ -52,13 +60,17 @@ class SubCommandMap {
             }
 
             for(Predicate<ICommandSender> predicate : command.predicates){
-                if (!predicate.test(sender)){
+                if (predicate instanceof ReactivePredicate
+                        && !((ReactivePredicate<ICommandSender>) predicate).testWithMessage(sender)) {
+                    return true;
+                } else if (!predicate.test(sender)) {
                     return true;
                 }
             }
 
             if (command.nArguments != -1 && command.nArguments != args.length) {
-                showCommandDetails(main, sender, command);
+                main.lang().sendRawMessage(sender, MessageBuilder.empty());
+                main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
                 return true;
             }
 
@@ -73,56 +85,33 @@ class SubCommandMap {
 
                     checking.put(sender.getUuid(), command.name);
                     doubleChecker.init(sender.getUuid(), () -> {
-                        if (!command.execute(sender, cmd, args)) {
-                            showCommandDetails(main, sender, command);
+                        checking.remove(sender.getUuid());
+                        if (!command.execute(sender, label, args)) {
+                            main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
                         }
                     }, () -> {
-                        main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Timeout, ((sen, langman) -> {
-                            langman.addString(command.name);
-                        }));
+                        checking.remove(sender.getUuid());
+                        main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Timeout, ((sen, langman) ->
+                                langman.addString(command.name)));
                     });
 
                     main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Init);
                     return true;
                 }
             } else {
-                if (!command.execute(sender, cmd, args)) {
-                    showCommandDetails(main, sender, command);
+                if (!command.execute(sender, label, args)) {
+                    main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
                 }
             }
 
             return true;
-        } else if (cmd.equals("")) {
+        } else if (cmd.equals("") || cmd.equals("help")) {
             return false;
         } else {
             main.lang().sendMessage(sender, DefaultLangs.General_NoSuchCommand, ((sen, langman) -> {
                 langman.addString(cmd);
             }));
             return true;
-        }
-    }
-
-    private void showCommandDetails(PluginMain main, ICommandSender sender, SubCommand command) {
-        DynamicLang descPair = command.description;
-        if (descPair != null) {
-            String descParsed = main.lang().parseFirst(descPair.lang);
-            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Description, ((sen, langman) -> {
-                langman.addString(command.name);
-                langman.addString(descParsed);
-            }));
-        }
-
-        StringBuilder builder = new StringBuilder();
-        Arrays.stream(command.aliases).forEach(builder::append);
-        main.lang().sendMessage(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
-            langman.addString(builder.toString());
-        }));
-
-        for (DynamicLang usageLang : command.usage) {
-            String parsedUsage = main.lang().parseFirst(sender, usageLang.lang);
-            main.lang().sendMessage(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
-                langman.addString(parsedUsage);
-            }));
         }
     }
 
@@ -149,5 +138,6 @@ class SubCommandMap {
         commandList.put(cmd.name, cmd);
         return true;
     }
+
 
 }

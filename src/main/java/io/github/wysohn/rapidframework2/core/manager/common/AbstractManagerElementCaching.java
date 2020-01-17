@@ -69,8 +69,8 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
                     K key = fromString(keyStr);
 
                     cachedElements.put(key, value);
-                    if (value.getName() != null)
-                        nameMap.put(value.getName(), key);
+                    if (value.getStringKey() != null)
+                        nameMap.put(value.getStringKey(), key);
 
                     Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
                 }
@@ -146,20 +146,18 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
      * from both cache and database.
      * @param key associated key
      * @param value value to be saved
-     * @return true if saved; false if the 'name' (NamedValue) already exist.
      */
-    public boolean save(K key, V value) {
+    public void save(K key, V value) {
         synchronized (cacheLock) {
             if (value == null) {
                 V prev = cachedElements.remove(key);
-                if (prev != null && prev.getName() != null)
-                    nameMap.remove(prev.getName());
+                if (prev != null && prev.getStringKey() != null)
+                    nameMap.remove(prev.getStringKey());
             } else {
-                if(value.getName() != null && nameMap.containsKey(value.getName()))
-                    return false;
+                if(value.getStringKey() != null)
+                    nameMap.put(value.getStringKey(), key);
 
                 cachedElements.put(key, value);
-                nameMap.put(value.getName(), key);
 
                 // Since saving new value also has to update the state of the object
                 Optional.ofNullable(constructionHandle).ifPresent(handle->handle.after(value));
@@ -170,9 +168,15 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
                     db.save(key.toString(), value);
                 }
             });
-
-            return true;
         }
+    }
+
+    /**
+     * Delete the name from nameMap
+     * @param name name to delete
+     */
+    public void deleteName(String name){
+        nameMap.remove(name);
     }
 
     /**
@@ -182,8 +186,8 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     public void delete(K key) {
         synchronized (cacheLock) {
             V original = cachedElements.remove(key);
-            if (original != null && original.getName() != null) {
-                nameMap.remove(original.getName());
+            if (original != null && original.getStringKey() != null) {
+                nameMap.remove(original.getStringKey());
             }
 
             saveTaskPool.submit(() -> {

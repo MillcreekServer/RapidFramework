@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class PermissionStorage extends HashSet<UUID> implements NamedElement {
     @Override
-    public String getName() {
+    public String getStringKey() {
         return null;
     }
 }

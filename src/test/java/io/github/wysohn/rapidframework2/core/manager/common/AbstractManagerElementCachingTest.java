@@ -28,7 +28,7 @@ public class AbstractManagerElementCachingTest {
         }
 
         @Override
-        public String getName() {
+        public String getStringKey() {
             return str;
         }
     }
@@ -123,7 +123,7 @@ public class AbstractManagerElementCachingTest {
 
         UUID uuid = UUID.randomUUID();
         TempValue mockValue = Mockito.mock(TempValue.class);
-        Mockito.when(mockValue.getName()).thenReturn("SomeName");
+        Mockito.when(mockValue.getStringKey()).thenReturn("SomeName");
 
         //start manager
         manager.load();
@@ -149,7 +149,7 @@ public class AbstractManagerElementCachingTest {
 
         UUID uuid = UUID.randomUUID();
         TempValue mockValue = Mockito.mock(TempValue.class);
-        Mockito.when(mockValue.getName()).thenReturn(null);
+        Mockito.when(mockValue.getStringKey()).thenReturn(null);
 
         //start manager
         manager.load();
@@ -175,7 +175,7 @@ public class AbstractManagerElementCachingTest {
 
         UUID uuid = UUID.randomUUID();
         TempValue mockValue = Mockito.mock(TempValue.class);
-        Mockito.when(mockValue.getName()).thenReturn("SomeName");
+        Mockito.when(mockValue.getStringKey()).thenReturn("SomeName");
 
         //start manager
         manager.load();

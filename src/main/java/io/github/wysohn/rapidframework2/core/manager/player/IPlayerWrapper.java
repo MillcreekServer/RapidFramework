@@ -13,6 +13,8 @@ public interface IPlayerWrapper extends ICommandSender, IGroupMember, NamedEleme
 
     SimpleChunkLocation getChunkLocation();
 
+    boolean isOnline();
+
     void teleport(SimpleLocation sloc);
 
     void teleport(String world, double x, double y, double z);
