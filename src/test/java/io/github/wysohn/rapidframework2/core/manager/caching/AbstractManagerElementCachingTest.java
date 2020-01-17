@@ -1,7 +1,6 @@
-package io.github.wysohn.rapidframework2.core.manager.common;
+package io.github.wysohn.rapidframework2.core.manager.caching;
 
 import io.github.wysohn.rapidframework2.core.database.Database;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.manager.NamedElement;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import org.junit.Assert;
@@ -11,29 +10,36 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class AbstractManagerElementCachingTest {
 
-    class TempValue implements NamedElement{
-        private final String str;
+    class TempValue extends CachedElement<UUID> {
+        public Object dummy;
+        private String str;
 
-        public TempValue(String str) {
-            this.str = str;
+        public TempValue(UUID uuid) {
+            super(uuid);
         }
 
         @Override
         public String getStringKey() {
             return str;
         }
+
+        public TempValue setStr(String str) {
+            this.str = str;
+
+            setChanged();
+            notifyObservers();
+
+            return this;
+        }
     }
 
-    class TempManager extends AbstractManagerElementCaching<UUID, TempValue>{
+    class TempManager extends AbstractManagerElementCaching<UUID, TempValue> {
         public TempManager(int loadPriority) {
             super(loadPriority);
         }
@@ -46,6 +52,11 @@ public class AbstractManagerElementCachingTest {
         @Override
         protected UUID fromString(String string) {
             return UUID.fromString(string);
+        }
+
+        @Override
+        protected TempValue newInstance(UUID key) {
+            return new TempValue(key);
         }
     }
 
@@ -72,6 +83,46 @@ public class AbstractManagerElementCachingTest {
     }
 
     @Test
+    public void setConstructionHandle() throws Exception{
+        Object someObj = new Object();
+
+        manager.setConstructionHandle(obj -> obj.dummy = someObj);
+        UUID uuid = UUID.randomUUID();
+
+        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(null);
+
+        //start manager
+        manager.load();
+
+        TempValue tempValue = manager.getOrNew(uuid);
+        tempValue.setStr("Constructed");
+
+        Assert.assertEquals(someObj, tempValue.dummy);
+    }
+
+    @Test
+    public void getCacheSize() throws Exception{
+        Mockito.when(mockDatabase.load(Mockito.any(), Mockito.any())).thenReturn(null);
+
+        //start manager
+        manager.load();
+
+        UUID[] uuids = new UUID[]{
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+        };
+
+        for(UUID uuid : uuids){
+            manager.getOrNew(uuid);
+        }
+
+        Assert.assertEquals(5, manager.getCacheSize());
+    }
+
+    @Test
     public void testLoad() throws Exception{
         UUID[] uuids = new UUID[]{
                 UUID.randomUUID(),
@@ -81,11 +132,11 @@ public class AbstractManagerElementCachingTest {
                 UUID.randomUUID(),
         };
         TempValue[] mockValues = new TempValue[]{
-                new TempValue("value0"),
-                new TempValue("value1"),
-                new TempValue("value2"),
-                new TempValue("value3"),
-                new TempValue("value4"),
+                new TempValue(uuids[0]).setStr("value0"),
+                new TempValue(uuids[1]).setStr("value1"),
+                new TempValue(uuids[2]).setStr("value2"),
+                new TempValue(uuids[3]).setStr("value3"),
+                new TempValue(uuids[4]).setStr("value4"),
         };
 
         Mockito.when(mockDatabase.getKeys()).thenReturn(Arrays.stream(uuids)
@@ -113,59 +164,66 @@ public class AbstractManagerElementCachingTest {
         for(int i = 0; i < uuids.length; i++){
             Assert.assertEquals(mockValues[i], cachedElements.get(uuids[i]));
             Assert.assertEquals(uuids[i], nameMap.get("value"+i));
+
+            Mockito.verify(mockDatabase).load(Mockito.eq(uuids[i].toString()), Mockito.isNull(TempValue.class));
+
+            Vector<Observer> obs = Whitebox.getInternalState(mockValues[i], "obs");
+            Assert.assertTrue(obs.contains(manager));
         }
     }
 
     @Test
-    public void saveAndGet() throws Exception{
+    public void getDecached() throws Exception{
         Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
 
         UUID uuid = UUID.randomUUID();
-        TempValue mockValue = Mockito.mock(TempValue.class);
-        Mockito.when(mockValue.getStringKey()).thenReturn("SomeName");
+        TempValue value = new TempValue(uuid).setStr("SomeName");
 
         //start manager
         manager.load();
 
-        //save
-        manager.save(uuid, mockValue);
-        Assert.assertEquals(mockValue, cachedElements.get(uuid));
-        Assert.assertEquals(uuid, nameMap.get("SomeName"));
-
         //get
-        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(mockValue);
-        Assert.assertEquals(mockValue, manager.get(uuid).orElse(null));
+        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(value);
+        Assert.assertEquals(value, manager.get(uuid).orElse(null));
+
+        //check if cache is updated
+        Assert.assertEquals(value, cachedElements.get(uuid));
+        Assert.assertEquals(uuid, nameMap.get("SomeName"));
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Mockito.eq(mockValue));
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()), Mockito.isNull(TempValue.class));
     }
 
     @Test
-    public void saveAndGetNoName() throws Exception{
+    public void getOrNew() throws Exception{
         Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
 
         UUID uuid = UUID.randomUUID();
-        TempValue mockValue = Mockito.mock(TempValue.class);
-        Mockito.when(mockValue.getStringKey()).thenReturn(null);
 
         //start manager
         manager.load();
 
-        //save
-        manager.save(uuid, mockValue);
-        Assert.assertEquals(mockValue, cachedElements.get(uuid));
-        Assert.assertNull(nameMap.get("SomeName"));
+        //get (new)
+        TempValue value = manager.getOrNew(uuid);
+        value.setStr("SomeName");
+
+        Assert.assertEquals(value, cachedElements.get(uuid));
+        Assert.assertEquals(uuid, nameMap.get("SomeName"));
+
+        //update
+        value.setStr("OtherName");
 
         //get
-        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(mockValue);
-        Assert.assertEquals(mockValue, manager.get(uuid).orElse(null));
+        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(value);
+        Assert.assertEquals(value, manager.get(uuid).orElse(null));
+        Assert.assertEquals("OtherName", manager.get(uuid).orElse(null).str);
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Mockito.eq(mockValue));
+        Mockito.verify(mockDatabase, Mockito.times(2)).save(Mockito.eq(uuid.toString()), Mockito.eq(value));
     }
 
     @Test
@@ -174,11 +232,16 @@ public class AbstractManagerElementCachingTest {
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
 
         UUID uuid = UUID.randomUUID();
-        TempValue mockValue = Mockito.mock(TempValue.class);
-        Mockito.when(mockValue.getStringKey()).thenReturn("SomeName");
 
         //start manager
         manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid);
+        mockValue.setStr("SomeName");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+        Assert.assertEquals(uuid, nameMap.get("SomeName"));
 
         //delete
         manager.delete(uuid);

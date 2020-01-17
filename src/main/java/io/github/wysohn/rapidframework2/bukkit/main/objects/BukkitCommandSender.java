@@ -5,13 +5,14 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 
-public class BukkitCommandSender<Sender extends CommandSender> implements ICommandSender {
-    protected transient Sender sender;
+public class BukkitCommandSender implements ICommandSender {
+    private CommandSender sender;
 
-    public BukkitCommandSender() {
+    public ICommandSender setSender(CommandSender sender) {
+        this.sender = sender;
+        return this;
     }
 
     @Override
@@ -31,22 +32,11 @@ public class BukkitCommandSender<Sender extends CommandSender> implements IComma
 
     @Override
     public String getDisplayName() {
-        return Optional.ofNullable(sender)
-                .map(CommandSender::getName)
-                .orElse("<Unknown>");
+        return sender.getName();
     }
 
     @Override
     public UUID getUuid() {
         return null;
-    }
-
-    public BukkitCommandSender<Sender> setSender(Sender sender) {
-        this.sender = sender;
-        return this;
-    }
-
-    public Sender getSender() {
-        return sender;
     }
 }

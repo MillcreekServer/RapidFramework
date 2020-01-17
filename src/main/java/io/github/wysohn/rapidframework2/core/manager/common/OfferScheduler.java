@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework2.core.manager.common;
 
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
-import io.github.wysohn.rapidframework2.core.manager.player.IPlayerWrapper;
+import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 
 import java.util.Map;
 import java.util.UUID;
@@ -28,8 +28,8 @@ public class OfferScheduler {
     }
 
     /**
-     * Send invitation to the player. Caller must manually invoke {@link #acceptOffer(IPlayerWrapper)}
-     * and {@link #declineOffer(IPlayerWrapper)} in order to actually make player to accept or decline offer.
+     * Send invitation to the player. Caller must manually invoke {@link #acceptOffer(AbstractPlayerWrapper)}
+     * and {@link #declineOffer(AbstractPlayerWrapper)} in order to actually make player to accept or decline offer.
      * However, after waiting for 5 minutes, the offer will be automatically declined.
      * @param player the player to send offer
      * @param onProgress callback which returns the time left until timeout, periodically. Useful to send
@@ -43,11 +43,11 @@ public class OfferScheduler {
      *              and so on.
      * @return ture if sent; false if already waiting for response.
      */
-    public boolean sendOffer(IPlayerWrapper player,
-                            ProgressCallback onProgress,
-                            Runnable onOfferAccept,
-                            Runnable onTimeout,
-                            long... masks){
+    public boolean sendOffer(AbstractPlayerWrapper player,
+                             ProgressCallback onProgress,
+                             Runnable onOfferAccept,
+                             Runnable onTimeout,
+                             long... masks){
         if(runningTasks.containsKey(player.getUuid()))
             return false;
 
@@ -83,15 +83,15 @@ public class OfferScheduler {
         return true;
     }
 
-    public boolean sendOffer(IPlayerWrapper player,
-                            ProgressCallback onProgressAsync,
-                            Runnable onOfferAccept,
-                            Runnable onTimeout){
+    public boolean sendOffer(AbstractPlayerWrapper player,
+                             ProgressCallback onProgressAsync,
+                             Runnable onOfferAccept,
+                             Runnable onTimeout){
         return sendOffer(player, onProgressAsync, onOfferAccept, onTimeout,
                 180000, 60000, 30000, 5000, 4000, 3000, 2000, 1000);
     }
 
-    public boolean acceptOffer(IPlayerWrapper player){
+    public boolean acceptOffer(AbstractPlayerWrapper player){
         Future<Void> future = runningTasks.remove(player.getUuid());
         if(future == null)
             return false;
@@ -110,7 +110,7 @@ public class OfferScheduler {
         return true;
     }
 
-    public boolean declineOffer(IPlayerWrapper player){
+    public boolean declineOffer(AbstractPlayerWrapper player){
         Future<Void> future = runningTasks.remove(player.getUuid());
         if(future == null)
             return false;

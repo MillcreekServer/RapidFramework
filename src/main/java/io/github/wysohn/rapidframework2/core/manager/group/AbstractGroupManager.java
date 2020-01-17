@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.group;
 
-import io.github.wysohn.rapidframework2.core.manager.common.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
 
 import java.util.UUID;
 

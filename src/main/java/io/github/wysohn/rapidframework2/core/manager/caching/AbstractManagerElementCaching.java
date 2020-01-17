@@ -1,8 +1,7 @@
-package io.github.wysohn.rapidframework2.core.manager.common;
+package io.github.wysohn.rapidframework2.core.manager.caching;
 
 import io.github.wysohn.rapidframework.utils.files.FileUtil;
 import io.github.wysohn.rapidframework2.core.database.Database;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.manager.NamedElement;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import util.Validation;
 
@@ -11,7 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractManagerElementCaching<K, V extends NamedElement> extends PluginMain.Manager {
+public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager
+        implements Observer {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.MIN_PRIORITY);
@@ -20,6 +20,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
 
     /*
      * Lock ordering should be cacheLock -> dbLock if it has to be nested.
+     * Use locking only in public method to avoid confusion
      */
     private final Object cacheLock = new Object();
     private final Object dbLock = new Object();
@@ -30,7 +31,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     private final Map<K, V> cachedElements = new HashMap<>();
     private final Map<String, K> nameMap = new HashMap<>();
 
-    private IConstructionHandle<V> constructionHandle;
+    private IConstructionHandle<K, V> constructionHandle;
 
     public AbstractManagerElementCaching(int loadPriority) {
         super(loadPriority);
@@ -44,6 +45,8 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     protected abstract Database.DatabaseFactory<V> createDatabaseFactory();
 
     protected abstract K fromString(String string);
+
+    protected abstract V newInstance(K key);
 
     @Override
     public void enable() throws Exception {
@@ -68,6 +71,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
                 if (value != null){
                     K key = fromString(keyStr);
 
+                    value.addObserver(this);
                     cachedElements.put(key, value);
                     if (value.getStringKey() != null)
                         nameMap.put(value.getStringKey(), key);
@@ -87,7 +91,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
         main().getLogger().info("Save finished.");
     }
 
-    public void setConstructionHandle(IConstructionHandle<V> constructionHandle) {
+    public void setConstructionHandle(IConstructionHandle<K, V> constructionHandle) {
         this.constructionHandle = constructionHandle;
     }
 
@@ -130,9 +134,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
                 V loaded = db.load(key.toString(), null);
 
                 if(loaded != null){
-                    cachedElements.put(key, loaded);
-                    Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(loaded));
-
+                    cache(key, loaded);
                     return Optional.of(loaded);
                 }else{
                     return Optional.empty();
@@ -142,33 +144,30 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
     }
 
     /**
-     * Save new value or replace the existing value. 'null' value will delete the entry completely
-     * from both cache and database.
-     * @param key associated key
-     * @param value value to be saved
+     * Get value or create new instance provided by the supplier
+     * @param key the key
+     * @return the existing value or newly created one
      */
-    public void save(K key, V value) {
-        synchronized (cacheLock) {
-            if (value == null) {
-                V prev = cachedElements.remove(key);
-                if (prev != null && prev.getStringKey() != null)
-                    nameMap.remove(prev.getStringKey());
-            } else {
-                if(value.getStringKey() != null)
-                    nameMap.put(value.getStringKey(), key);
+    public V getOrNew(K key){
+        Validation.assertNotNull(key);
 
-                cachedElements.put(key, value);
+        V value = get(key).orElseGet(() -> newInstance(key));
 
-                // Since saving new value also has to update the state of the object
-                Optional.ofNullable(constructionHandle).ifPresent(handle->handle.after(value));
-            }
-
-            saveTaskPool.submit(() -> {
-                synchronized (dbLock) {
-                    db.save(key.toString(), value);
-                }
-            });
+        synchronized (cacheLock){
+            cache(key, value);
         }
+
+        return value;
+    }
+
+    private void cache(K key, V value) {
+        value.addObserver(this);
+        cachedElements.put(key, value);
+
+        if(value.getStringKey() != null && !nameMap.containsKey(value.getStringKey()))
+            nameMap.put(value.getStringKey(), key);
+
+        Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
     }
 
     /**
@@ -207,11 +206,35 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
      * @return true if cleared; false if it wasn't available anyway.
      */
     public boolean deCache(K key){
-        return cachedElements.remove(key) != null;
+        synchronized (cacheLock){
+            return cachedElements.remove(key) != null;
+        }
     }
 
     public Set<K> keySet(){
-        return new HashSet<>(cachedElements.keySet());
+        synchronized (cacheLock){
+            return new HashSet<>(cachedElements.keySet());
+        }
+    }
+
+    /**
+     * Should be called only by Observable instances.
+     * @param observable
+     * @param o
+     */
+    @Override
+    public void update(Observable observable, Object o) {
+        V value = (V) observable;
+
+        synchronized (cacheLock){
+            cache(value.getKey(), value);
+
+            saveTaskPool.submit(() -> {
+                synchronized (dbLock) {
+                    db.save(value.getKey().toString(), value);
+                }
+            });
+        }
     }
 
     protected <T> Database.DatabaseFactory<T> getDatabaseFactory(Class<T> clazz, String tablename) {
@@ -238,7 +261,7 @@ public abstract class AbstractManagerElementCaching<K, V extends NamedElement> e
         });
     }
 
-    public interface IConstructionHandle<V extends NamedElement>{
+    public interface IConstructionHandle<K, V extends CachedElement<K>>{
         /**
          * Called after the object is created. It can be useful if some data has to be filled
          * manually after the object is instantiated.

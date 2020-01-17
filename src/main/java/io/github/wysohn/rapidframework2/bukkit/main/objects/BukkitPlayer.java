@@ -1,29 +1,28 @@
 package io.github.wysohn.rapidframework2.bukkit.main.objects;
 
-import io.github.wysohn.rapidframework2.core.manager.player.IPlayerWrapper;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
+import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
-public class BukkitPlayer extends BukkitCommandSender<Player> implements IPlayerWrapper {
-    private final UUID uuid;
+public class BukkitPlayer extends AbstractPlayerWrapper implements ICommandSender {
+    protected transient Player sender;
 
-    private UUID groupUuid;
-
-    public BukkitPlayer(UUID uuid) {
-        this.uuid = uuid;
+    public BukkitPlayer(UUID key) { super(key);
     }
 
     @Override
     public UUID getUuid() {
-        return uuid;
+        return getKey();
     }
 
     @Override
@@ -32,19 +31,29 @@ public class BukkitPlayer extends BukkitCommandSender<Player> implements IPlayer
     }
 
     @Override
-    public String getStringKey() {
-        return Optional.ofNullable(sender)
-                .map(HumanEntity::getName)
-                .orElse(null);
+    public void sendMessageRaw(String... msg) {
+        sender.sendMessage(msg);
     }
 
     @Override
-    public UUID getParentUuid() {
-        return groupUuid;
+    public boolean hasPermission(String... permissions) {
+        return Arrays.stream(permissions).anyMatch(sender::hasPermission);
     }
 
-    public void setGroupUuid(UUID groupUuid) {
-        this.groupUuid = groupUuid;
+    @Override
+    public String getDisplayName() {
+        return Optional.ofNullable(sender)
+                .map(CommandSender::getName)
+                .orElse("<Unknown>");
+    }
+
+    public BukkitPlayer setSender(Player sender) {
+        this.sender = sender;
+        return this;
+    }
+
+    public Player getSender() {
+        return sender;
     }
 
     @Override

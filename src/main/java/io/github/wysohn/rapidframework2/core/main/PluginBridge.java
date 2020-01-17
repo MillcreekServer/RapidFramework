@@ -8,5 +8,5 @@ import java.util.function.Consumer;
 public interface PluginBridge {
     TaskSupervisor getTaskSupervisor();
 
-    void forEachPlayer(Consumer<ICommandSender> consumer);
+    void forEachSender(Consumer<ICommandSender> consumer);
 }

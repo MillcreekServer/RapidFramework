@@ -283,7 +283,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public void broadcast(Lang lang, PreParseHandle handle){
-        main().getPluginBridge().forEachPlayer(player -> sendMessage(player, lang, handle));
+        main().getPluginBridge().forEachSender(player -> sendMessage(player, lang, handle));
     }
 
     public void broadcast(Lang lang){

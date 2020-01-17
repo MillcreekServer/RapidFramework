@@ -2,28 +2,21 @@ package io.github.wysohn.rapidframework2.core.manager.group;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginEntity;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.manager.NamedElement;
+import io.github.wysohn.rapidframework2.core.manager.caching.CachedElement;
 
 import java.util.*;
 
-public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
-    private final UUID uuid;
-
-    private final Set<UUID> children = new HashSet<>();
-    private final Map<String, Object> metaData = new HashMap<>();
-
+public class Group extends CachedElement<UUID> implements IPermissionHolder, IPluginEntity {
     private UUID ownerUuid;
     private UUID parentUuid;
     private String displayName;
     private String mark;
 
-    public Group() {
-        this.uuid = UUID.randomUUID();
-    }
+    private final Set<UUID> children = new HashSet<>();
+    private final Map<String, Object> metaData = new HashMap<>();
 
-    public Group(UUID parentUuid) {
-        this.uuid = UUID.randomUUID();
-        this.parentUuid = parentUuid;
+    public Group() {
+        super(UUID.randomUUID());
     }
 
     public UUID getOwnerUuid() {
@@ -32,18 +25,82 @@ public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
 
     public void setOwnerUuid(UUID ownerUuid) {
         this.ownerUuid = ownerUuid;
+
+        setChanged();
+        notifyObservers();
     }
 
-    public Set<UUID> getChildren() {
-        return children;
+    public int childrenSize() {
+        return children.size();
     }
 
-    public Map<String, Object> getMetaData() {
-        return metaData;
+    public boolean containsChild(UUID o) {
+        return children.contains(o);
+    }
+
+    public boolean addChild(UUID uuid) {
+        if (children.add(uuid)) {
+            setChanged();
+            notifyObservers();
+
+            return true;
+        } else return false;
+    }
+
+    public boolean removeChild(UUID o) {
+        if (children.remove(o)) {
+            setChanged();
+            notifyObservers();
+
+            return true;
+        } else return false;
+    }
+
+    public void clearChildren() {
+        children.clear();
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public Collection<UUID> getChildList(){
+        return Collections.unmodifiableCollection(children);
+    }
+
+    public int metaSize() {
+        return metaData.size();
+    }
+
+    public Object metaGet(String o) {
+        return metaData.get(o);
+    }
+
+    public Object metaPut(String s, Object o) {
+        Object put = metaData.put(s, o);
+        setChanged();
+        notifyObservers();
+        return put;
+    }
+
+    public Object metaRemove(String o) {
+        Object remove = metaData.remove(o);
+        setChanged();
+        notifyObservers();
+        return remove;
+    }
+
+    public void metaClear() {
+        metaData.clear();
+
+        setChanged();
+        notifyObservers();
     }
 
     public void setParentUuid(UUID parentUuid) {
         this.parentUuid = parentUuid;
+
+        setChanged();
+        notifyObservers();
     }
 
     public String getDisplayName() {
@@ -52,6 +109,9 @@ public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+
+        setChanged();
+        notifyObservers();
     }
 
     public String getMark() {
@@ -60,6 +120,9 @@ public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
 
     public void setMark(String mark) {
         this.mark = mark;
+
+        setChanged();
+        notifyObservers();
     }
 
     @Override
@@ -69,11 +132,11 @@ public class Group implements IPermissionHolder, IPluginEntity, NamedElement {
 
     @Override
     public UUID getUuid() {
-        return uuid;
+        return getKey();
     }
 
     @Override
-    public String getStringKey() {
+    protected String getStringKey() {
         return null;
     }
 }

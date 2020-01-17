@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.main;
 
-import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
+import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitCommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
 import org.bukkit.Bukkit;
@@ -35,9 +35,9 @@ public class BukkitPluginBridge implements io.github.wysohn.rapidframework2.core
     }
 
     @Override
-    public void forEachPlayer(Consumer<ICommandSender> consumer) {
+    public void forEachSender(Consumer<ICommandSender> consumer) {
         Bukkit.getOnlinePlayers().stream()
-                .map(player -> new BukkitPlayer(player.getUniqueId()).setSender(player))
+                .map(player -> new BukkitCommandSender().setSender(player))
                 .forEach(consumer);
     }
 

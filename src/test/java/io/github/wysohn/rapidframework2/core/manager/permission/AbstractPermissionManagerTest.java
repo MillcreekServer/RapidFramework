@@ -81,6 +81,11 @@ public class AbstractPermissionManagerTest {
             protected Database.DatabaseFactory<PermissionStorage> createDatabaseFactory() {
                 return (type) -> mockDatabase;
             }
+
+            @Override
+            protected PermissionStorage newInstance(UUID key) {
+                return new PermissionStorage(key);
+            }
         };
 
         Whitebox.setInternalState(abstractPermissionManager, "main", mockMain);

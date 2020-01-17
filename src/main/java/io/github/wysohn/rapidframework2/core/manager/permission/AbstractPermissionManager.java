@@ -3,11 +3,10 @@ package io.github.wysohn.rapidframework2.core.manager.permission;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
-import io.github.wysohn.rapidframework2.core.manager.common.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
 import util.Validation;
 
 import java.util.Arrays;
-import java.util.Set;
 import java.util.UUID;
 
 public abstract class AbstractPermissionManager extends AbstractManagerElementCaching<UUID, PermissionStorage> {
@@ -42,11 +41,11 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
         if (holder == null)
             return false;
 
-        Set<UUID> ownedPermissions = get(holder.getUuid()).orElseGet(PermissionStorage::new);
+        PermissionStorage storage = getOrNew(holder.getUuid());
 
         if (Arrays.stream(permissions)
                 .map(IPermission::getUuid)
-                .anyMatch(ownedPermissions::contains)) {
+                .anyMatch(storage::contains)) {
             return true;
         } else {
             return hasPermission(parentProvider.getHolder(main(), holder.getParentUuid()), permissions);
@@ -59,13 +58,13 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      * @param permission permission to add
      * @return true if added; false if already has the permission
      */
-    public boolean addPermission(IPermissionHolder holder, IPermission permission){
-        PermissionStorage storage = get(holder.getUuid()).orElseGet(PermissionStorage::new);
-        if(storage.contains(permission.getUuid()))
+    public boolean addPermission(IPermissionHolder holder, IPermission permission) {
+        PermissionStorage storage = getOrNew(holder.getUuid());
+
+        if (storage.contains(permission.getUuid()))
             return false;
 
         storage.add(permission.getUuid());
-        save(holder.getUuid(), storage);
 
         return true;
     }
@@ -77,12 +76,12 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      * @return true if removed; false if didn't have it
      */
     public boolean removePermission(IPermissionHolder holder, IPermission permission){
-        PermissionStorage storage = get(holder.getUuid()).orElseGet(PermissionStorage::new);
+        PermissionStorage storage = getOrNew(holder.getUuid());
+
         if(!storage.contains(permission.getUuid()))
             return false;
 
         storage.remove(permission.getUuid());
-        save(holder.getUuid(), storage);
 
         return true;
     }
@@ -92,6 +91,6 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      * @param holder the holder
      */
     public void resetPermission(IPermissionHolder holder){
-        save(holder.getUuid(), null);
+        delete(holder.getUuid());
     }
 }

@@ -7,7 +7,7 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.command.SubCommand;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
-import io.github.wysohn.rapidframework2.core.manager.player.IPlayerWrapper;
+import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -102,7 +102,7 @@ public abstract class BukkitPluginMain extends JavaPlugin {
                         .map(Player.class::cast)
                         .flatMap(this::getPlayerWrapper)
                         .map(ICommandSender.class::cast)
-                        .orElseGet(() -> new BukkitCommandSender<>().setSender(sender)),
+                        .orElseGet(() -> new BukkitCommandSender().setSender(sender)),
                 command.getName(),
                 label,
                 args);
@@ -115,17 +115,17 @@ public abstract class BukkitPluginMain extends JavaPlugin {
                         .map(Player.class::cast)
                         .flatMap(this::getPlayerWrapper)
                         .map(ICommandSender.class::cast)
-                        .orElseGet(() -> new BukkitCommandSender<>().setSender(sender)),
+                        .orElseGet(() -> new BukkitCommandSender().setSender(sender)),
                 command.getName(),
                 label,
                 args);
     }
 
-    protected Optional<? extends IPlayerWrapper> getPlayerWrapper(Player player) {
+    protected Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(Player player) {
         return Optional.ofNullable(player)
                 .map(Entity::getUniqueId)
                 .flatMap(this::getPlayerWrapper);
     }
 
-    protected abstract Optional<? extends IPlayerWrapper> getPlayerWrapper(UUID uuid);
+    protected abstract Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(UUID uuid);
 }
