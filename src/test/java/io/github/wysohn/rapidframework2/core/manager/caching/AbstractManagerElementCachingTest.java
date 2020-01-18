@@ -32,7 +32,6 @@ public class AbstractManagerElementCachingTest {
         public TempValue setStr(String str) {
             this.str = str;
 
-            setChanged();
             notifyObservers();
 
             return this;
@@ -160,6 +159,7 @@ public class AbstractManagerElementCachingTest {
 
         Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+        Object observer = Whitebox.getInternalState(manager, "observer");
 
         for(int i = 0; i < uuids.length; i++){
             Assert.assertEquals(mockValues[i], cachedElements.get(uuids[i]));
@@ -167,8 +167,8 @@ public class AbstractManagerElementCachingTest {
 
             Mockito.verify(mockDatabase).load(Mockito.eq(uuids[i].toString()), Mockito.isNull(TempValue.class));
 
-            Vector<Observer> obs = Whitebox.getInternalState(mockValues[i], "obs");
-            Assert.assertTrue(obs.contains(manager));
+            Vector<Observer> obs = Whitebox.getInternalState(mockValues[i], "observers");
+            Assert.assertTrue(obs.contains(observer));
         }
     }
 

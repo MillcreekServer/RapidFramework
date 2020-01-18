@@ -10,8 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager
-        implements Observer {
+public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.MIN_PRIORITY);
@@ -28,6 +27,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     private Database<V> db;
 
+    private final ElementObserver observer = new ElementObserver();
     private final Map<K, V> cachedElements = new HashMap<>();
     private final Map<String, K> nameMap = new HashMap<>();
 
@@ -71,12 +71,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 if (value != null){
                     K key = fromString(keyStr);
 
-                    value.addObserver(this);
-                    cachedElements.put(key, value);
-                    if (value.getStringKey() != null)
-                        nameMap.put(value.getStringKey(), key);
-
-                    Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
+                    cache(key, value);
                 }
             }
         }
@@ -161,7 +156,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     }
 
     private void cache(K key, V value) {
-        value.addObserver(this);
+        value.addObserver(observer);
         cachedElements.put(key, value);
 
         if(value.getStringKey() != null && !nameMap.containsKey(value.getStringKey()))
@@ -217,26 +212,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     }
 
-    /**
-     * Should be called only by Observable instances.
-     * @param observable
-     * @param o
-     */
-    @Override
-    public void update(Observable observable, Object o) {
-        V value = (V) observable;
-
-        synchronized (cacheLock){
-            cache(value.getKey(), value);
-
-            saveTaskPool.submit(() -> {
-                synchronized (dbLock) {
-                    db.save(value.getKey().toString(), value);
-                }
-            });
-        }
-    }
-
     protected <T> Database.DatabaseFactory<T> getDatabaseFactory(Class<T> clazz, String tablename) {
         return (dbType -> {
             try {
@@ -269,4 +244,27 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
          */
         void after(V obj);
     }
+
+    private class ElementObserver implements IObserver{
+        /**
+         * Should be called only by Observable instances.
+         * @param observable
+         */
+        @Override
+        public void update(ObservableElement observable) {
+            V value = (V) observable;
+
+            synchronized (cacheLock){
+                cache(value.getKey(), value);
+
+                saveTaskPool.submit(() -> {
+                    synchronized (dbLock) {
+                        db.save(value.getKey().toString(), value);
+                    }
+                });
+            }
+        }
+    }
+
+
 }

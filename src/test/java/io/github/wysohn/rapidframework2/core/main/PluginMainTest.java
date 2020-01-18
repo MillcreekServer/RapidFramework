@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework2.core.main;
 
 import io.github.wysohn.rapidframework.utils.files.FileUtil;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
@@ -9,6 +10,7 @@ import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
+import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -72,6 +74,8 @@ public class PluginMainTest {
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
     private IPluginManager mockPluginManager;
+    private ICommandSender mockSender;
+    private Message mockMessage;
 
     private PluginMain main;
 
@@ -81,8 +85,11 @@ public class PluginMainTest {
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
+        mockSender = mock(ICommandSender.class);
+        mockMessage = mock(Message.class);
 
         Mockito.when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(mockMessage.toString()).thenReturn("SomeMessage");
 
         main = PluginMain.Builder
                 .prepare("CivilSimulator",
@@ -95,6 +102,10 @@ public class PluginMainTest {
                 .andConfigSession(mockFileSession)
                 .andPluginSupervisor(mockPluginManager)
                 .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
+                .setMessageSender(((sender, message) -> {
+                    String str = message[0].toString();
+                    sender.sendMessageRaw(str);
+                }))
                 .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))
                 .addLangs(SomeLang.values())
                 .build();
@@ -137,6 +148,13 @@ public class PluginMainTest {
 
         PluginMain.Manager manager2 = main.getManager("SomeManager").orElse(null);
         assertNotNull(manager2);
+    }
+
+    @Test
+    public void testSetMessageSender(){
+        main.lang().sendRawMessage(mockSender, new Message[]{mockMessage});
+
+        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("SomeMessage"));
     }
 
     @Test

@@ -24,7 +24,8 @@ public enum DefaultLangs implements Lang {
     General_On("&aOn"),
     General_Off("&cOff"),
     General_NotABoolean("&c${string} is not a boolean!"),
-    General_EnumNotMatching("&c${string} is not a valid! &7Use &8: &6${string}"),
+    General_EnumNotMatching("&c${string} is not valid!",
+            "&7Use &8: &6${string}"),
     General_NotEnoughPermission("&cYou don't have enough permission!"),
     General_NothingOnYourHand("&cNothing on your hand!"),
 

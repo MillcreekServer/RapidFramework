@@ -26,7 +26,6 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     public void setOwnerUuid(UUID ownerUuid) {
         this.ownerUuid = ownerUuid;
 
-        setChanged();
         notifyObservers();
     }
 
@@ -40,7 +39,6 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
 
     public boolean addChild(UUID uuid) {
         if (children.add(uuid)) {
-            setChanged();
             notifyObservers();
 
             return true;
@@ -49,7 +47,6 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
 
     public boolean removeChild(UUID o) {
         if (children.remove(o)) {
-            setChanged();
             notifyObservers();
 
             return true;
@@ -59,7 +56,6 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     public void clearChildren() {
         children.clear();
 
-        setChanged();
         notifyObservers();
     }
 
@@ -77,14 +73,12 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
 
     public Object metaPut(String s, Object o) {
         Object put = metaData.put(s, o);
-        setChanged();
         notifyObservers();
         return put;
     }
 
     public Object metaRemove(String o) {
         Object remove = metaData.remove(o);
-        setChanged();
         notifyObservers();
         return remove;
     }
@@ -92,14 +86,12 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     public void metaClear() {
         metaData.clear();
 
-        setChanged();
         notifyObservers();
     }
 
     public void setParentUuid(UUID parentUuid) {
         this.parentUuid = parentUuid;
 
-        setChanged();
         notifyObservers();
     }
 
@@ -110,7 +102,6 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
 
-        setChanged();
         notifyObservers();
     }
 
@@ -121,7 +112,6 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     public void setMark(String mark) {
         this.mark = mark;
 
-        setChanged();
         notifyObservers();
     }
 

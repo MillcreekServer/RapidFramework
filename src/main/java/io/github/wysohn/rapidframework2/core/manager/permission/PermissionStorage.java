@@ -9,6 +9,10 @@ import java.util.UUID;
 public class PermissionStorage extends CachedElement<UUID>{
     private final Set<UUID> permissions;
 
+    private PermissionStorage() {
+        this(null);
+    }
+
     public PermissionStorage(UUID key) {
         super(key);
         permissions = new HashSet<>();
@@ -24,7 +28,6 @@ public class PermissionStorage extends CachedElement<UUID>{
 
     public boolean add(UUID uuid) {
         if(permissions.add(uuid)){
-            setChanged();
             notifyObservers();
 
             return true;
@@ -35,7 +38,6 @@ public class PermissionStorage extends CachedElement<UUID>{
 
     public boolean remove(UUID o) {
         if(permissions.remove(o)){
-            setChanged();
             notifyObservers();
 
             return true;
@@ -47,7 +49,6 @@ public class PermissionStorage extends CachedElement<UUID>{
     public void clear() {
         permissions.clear();
 
-        setChanged();
         notifyObservers();
     }
 }

@@ -211,11 +211,11 @@ public class ManagerLanguage extends PluginMain.Manager {
         handle.onParse(sender, this);
         replaceVariables(values);
 
-//        this.doub.clear();
-//        this.integer.clear();
-//        this.string.clear();
-//        this.bool.clear();
-//        this.llong.clear();
+        this.doub.clear();
+        this.integer.clear();
+        this.string.clear();
+        this.bool.clear();
+        this.llong.clear();
 
         return values.toArray(new String[0]);
     }

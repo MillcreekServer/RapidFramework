@@ -33,16 +33,17 @@ public class ManagerCommandTest {
 
         Mockito.when(mockMain.lang()).thenReturn(mockLang);
 
-        managerCommand.addCommand(new SubCommand.Builder(mockMain, "somecmd")
+        SubCommand spyCommand = Mockito.spy(new SubCommand.Builder(mockMain, "somecmd")
 
-                .create());
+                        .create());
+        managerCommand.addCommand(spyCommand);
         managerCommand.enable();
     }
 
     @Test
     public void onCommand_notFound() throws Exception {
-        Assert.assertTrue(managerCommand.onCommand(mockSender, "somecmd", "somecmd", new String[]{
-                "somecmd"
+        Assert.assertTrue(managerCommand.onCommand(mockSender, "nottest", "nottest", new String[]{
+                "nottest"
         }));
     }
 

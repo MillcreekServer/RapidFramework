@@ -18,17 +18,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 public abstract class BukkitPluginMain extends JavaPlugin {
-    protected final ExecutorService asyncTaskExecutor = Executors.newCachedThreadPool((runnable) -> {
-        Thread thread = new Thread(runnable);
-        thread.setPriority(Thread.MIN_PRIORITY);
-        return thread;
-    });
-
     protected final BukkitPluginBridge bukkitPluginBridge = new BukkitPluginBridge(this);
 
     protected final PluginMain.Builder mainBuilder = PluginMain.Builder.prepare(

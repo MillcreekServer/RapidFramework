@@ -17,8 +17,11 @@ import java.util.UUID;
 public class BukkitPlayer extends AbstractPlayerWrapper implements ICommandSender {
     protected transient Player sender;
 
-    public BukkitPlayer(UUID key) { super(key);
+    private BukkitPlayer() {
+        this(null);
     }
+
+    public BukkitPlayer(UUID key) { super(key); }
 
     @Override
     public UUID getUuid() {

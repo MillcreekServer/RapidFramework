@@ -1,5 +1,8 @@
 package io.github.wysohn.rapidframework2.core.database;
 
+import io.github.wysohn.rapidframework.utils.files.FileUtil;
+import io.github.wysohn.rapidframework2.core.manager.caching.CachedElement;
+import io.github.wysohn.rapidframework2.core.manager.caching.IObserver;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import org.bukkit.Bukkit;
@@ -8,9 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.File;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,10 +64,11 @@ public class TestDatabase {
 
     @Test
     public void testSerialize() {
-        DummyObject obj = new DummyObject();
+        UUID uuid = UUID.randomUUID();
+        DummyObject obj = new DummyObject(uuid);
         String serialized = db.serialize(obj);
         assertEquals("{" + "\"nullStr\":null," + "\"str\":\"test\"," + "\"testInt\":-1," + "\"testLong\":-2,"
-                + "\"testDouble\":-3.0," + "\"testBool\":true" + "}", serialized);
+                + "\"testDouble\":-3.0," + "\"testBool\":true" + ",\"key\":\""+uuid.toString()+"\"}", serialized);
     }
 
     @Test
@@ -191,12 +197,62 @@ public class TestDatabase {
         assertEquals(1, scloc.getJ());
     }
 
-    public static class DummyObject {
+    @Test
+    public void testParentTransient() {
+        String value = "{" + "\"nullStr\":null," + "\"str\":\"test2\"," + "\"testInt\":null," + "\"testLong\":null,"
+                + "\"testDouble\":null," + "\"testBool\":null" + "}";
+
+        DummyObject deserialized = db.deserialize(value, DummyObject.class);
+        assertEquals("", deserialized.nullStr);
+        assertEquals("test2", deserialized.str);
+        assertEquals(0, deserialized.testInt);
+        assertEquals(0, deserialized.testLong);
+        assertEquals(0.0, deserialized.testDouble, 0.000001);
+        assertFalse(deserialized.testBool);
+
+        IObserver mockObserver = Mockito.mock(IObserver.class);
+        deserialized.addObserver(mockObserver);
+    }
+
+    @Test
+    public void testTypeAssertion() {
+        Database.Factory.build(DummyObject.class, FileUtil.join(new File("build"), "tmp", "testFolder"));
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testTypeAssertionFail() {
+        Database.Factory.build(DummyObject2.class, FileUtil.join(new File("build"), "tmp", "testFolder"));
+    }
+
+    public static class DummyObject extends CachedElement<UUID> {
         private String nullStr = null;
         private String str = "test";
         private int testInt = -1;
         private long testLong = -2L;
         private double testDouble = -3.0;
         private boolean testBool = true;
+
+        // without the no-args constructor, gson just skip to unsafe construction without
+        // calling the actual constructors
+        private DummyObject(){
+            this(null);
+        }
+
+        public DummyObject(UUID key) {
+            super(key);
+        }
+    }
+
+    public static class DummyObject2 extends CachedElement<UUID> {
+        private String nullStr = null;
+        private String str = "test";
+        private int testInt = -1;
+        private long testLong = -2L;
+        private double testDouble = -3.0;
+        private boolean testBool = true;
+
+        public DummyObject2(UUID key) {
+            super(key);
+        }
     }
 }

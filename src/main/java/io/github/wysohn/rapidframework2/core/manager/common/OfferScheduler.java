@@ -83,6 +83,9 @@ public class OfferScheduler {
         return true;
     }
 
+    /**
+     * See {@link #sendOffer(AbstractPlayerWrapper, ProgressCallback, Runnable, Runnable, long...)}
+     */
     public boolean sendOffer(AbstractPlayerWrapper player,
                              ProgressCallback onProgressAsync,
                              Runnable onOfferAccept,
@@ -143,17 +146,18 @@ public class OfferScheduler {
                     callback.millis(offerEnds - System.currentTimeMillis());
                     Thread.sleep(50L);
                 }
+
+                taskSupervisor.runSync(()->{
+                    onTimeout.run();
+                    return null;
+                }).get();
             } catch (InterruptedException e) {
+                e.printStackTrace();
                 return null;
             } finally {
                 runningTasks.remove(playerUuid);
             }
 
-            taskSupervisor.runSync(()->{
-                onTimeout.run();
-                return null;
-            }).get();
-            
             return null;
         }
     }

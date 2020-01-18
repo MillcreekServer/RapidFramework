@@ -1,15 +1,21 @@
 package io.github.wysohn.rapidframework2.core.manager.caching;
 
-import java.util.Observable;
-
 /**
- * This is an child of 'Observable' class, thus if any change happens in this class's instance,
- * it has to invoke 1.{@link Observable#setChanged()} and 2.{@link Observable#notifyObservers()}.
+ * For Gson to serialize/deserialize this object, the child class must have no-args
+ * constructor which will call the parent constructor. Gson always use the no-args constructor of the
+ * very child's no-arg constructor, and if it doesn't exist, Gson will skip any constructors and straight up
+ * to use unsafe allocator. It's okay to pass 'null' for the parent class's constructor since Gson will later
+ * fill up the fields.
+ *
+ * This is also an child of 'Observable' class, thus if any change happens in this class's instance,
+ * it has to invoke {@link ObservableElement#notifyObservers()}.
  */
-public abstract class CachedElement<K> extends Observable {
+public abstract class CachedElement<K> extends ObservableElement {
     private final K key;
 
     public CachedElement(K key) {
+        super();
+
         this.key = key;
     }
 

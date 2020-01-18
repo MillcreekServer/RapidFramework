@@ -30,10 +30,10 @@ import io.github.wysohn.rapidframework2.core.database.file.DatabaseFile;
 import io.github.wysohn.rapidframework2.core.database.mysql.DatabaseMysql;
 import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
 import io.github.wysohn.rapidframework2.core.database.serialize.UUIDSerializer;
+import io.github.wysohn.rapidframework2.core.manager.caching.ObservableElement;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.Set;
@@ -145,7 +145,7 @@ public abstract class Database<T> {
 
     };
     private static GsonBuilder builder = new GsonBuilder()
-            .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
+            .enableComplexMapKeySerialization()
             .serializeNulls().registerTypeAdapterFactory(TypeAdapters.newFactory(String.class, NULL_ADOPTER_STRING))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(boolean.class, Boolean.class, NULL_ADOPTER_BOOLEAN))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(int.class, Integer.class, NULL_ADOPTER_NUMBER))
@@ -153,6 +153,7 @@ public abstract class Database<T> {
             .registerTypeAdapterFactory(TypeAdapters.newFactory(float.class, Float.class, NULL_ADOPTER_FLOAT))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(double.class, Double.class, NULL_ADOPTER_NUMBER))
             .registerTypeAdapter(UUID.class, new UUIDSerializer())
+            .registerTypeAdapter(ObservableElement.class, new DefaultSerializer<ObservableElement>())
             .registerTypeAdapter(SimpleLocation.class, new DefaultSerializer<SimpleLocation>())
             .registerTypeAdapter(SimpleChunkLocation.class, new DefaultSerializer<SimpleChunkLocation>());
 
@@ -262,8 +263,19 @@ public abstract class Database<T> {
         Database<V> getDatabase(String dbType);
     }
 
-    public static class Factory{
+    public static class Factory {
+        private static <V> void assertType(Class<V> clazz) {
+            try {
+                clazz.getDeclaredConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new AssertionError(clazz + " does not have no-args constructor, so Gson will not be " +
+                        "able to properly serialize/deserialize it.");
+            }
+        }
+
         public static <V> Database<V> build(Class<V> type, File folder) {
+            assertType(type);
+
             if(!folder.exists())
                 folder.mkdirs();
 
@@ -276,6 +288,8 @@ public abstract class Database<T> {
                                             String tablename,
                                             String username,
                                             String password) throws SQLException {
+            assertType(type);
+
             return new DatabaseMysql<>(type, address, dbName, tablename, username, password);
         }
     }
