@@ -16,11 +16,11 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework2.core.database.file;
 
-import io.github.wysohn.rapidframework.utils.files.FileUtil;
 import io.github.wysohn.rapidframework2.core.database.Database;
+import io.github.wysohn.rapidframework2.tools.FileUtil;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,13 +57,13 @@ public class DatabaseFile<T> extends Database<T> {
         String ser = "";
         try {
             fis = new FileInputStream(file);
-            isr = new InputStreamReader(fis, Charset.forName("UTF-8").newDecoder());
+            isr = new InputStreamReader(fis, StandardCharsets.UTF_8.newDecoder());
             br = new BufferedReader(isr);
 
             String buff;
             while ((buff = br.readLine()) != null)
                 ser += buff;
-            result = (T) deserialize(ser, type);
+            result = deserialize(ser, type);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

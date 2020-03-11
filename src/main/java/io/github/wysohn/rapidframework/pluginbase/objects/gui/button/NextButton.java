@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 public class NextButton extends PageControlButton {
     @SuppressWarnings("deprecation")
     public NextButton(PluginBase base, ManagerGUI.Frame parent) {
-        super(base, parent, new ItemStack(Material.WOOL, 1, (short) 13));
+        super(base, parent, new ItemStack(Material.WHITE_WOOL, 1));
 
         ClickEventHandler handler = new ClickEventHandler();
         this.setLeftClickEventHandler(handler);

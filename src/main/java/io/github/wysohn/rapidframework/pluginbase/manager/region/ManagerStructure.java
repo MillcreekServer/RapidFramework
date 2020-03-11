@@ -596,7 +596,7 @@ public class ManagerStructure<PB extends PluginBase> extends ManagerElementCachi
         lore.add("");
         lore.add(STRUCTURE_TAG);
 
-        ItemStack IS = new ItemStack(Material.GOLD_RECORD);
+        ItemStack IS = new ItemStack(Material.LEGACY_GOLD_RECORD);
         ItemMeta IM = IS.getItemMeta();
         IM.setDisplayName(title);
         IM.setLore(lore);

@@ -29,21 +29,21 @@ public class PageNodeFrame extends ManagerGUI.Frame {
         // fill line 6
         // 0,3,5,8 - glass
         setButton(ManagerGUI.Button.getIndex(5, 0),
-                ManagerGUI.Button.Builder.with(this, Material.STAINED_GLASS_PANE).build());
+                ManagerGUI.Button.Builder.with(this, Material.WHITE_STAINED_GLASS).build());
         setButton(ManagerGUI.Button.getIndex(5, 1), new FirstButton(base, this));
         setButton(ManagerGUI.Button.getIndex(5, 2), new PreviousButton(base, this));
         setButton(ManagerGUI.Button.getIndex(5, 3),
-                ManagerGUI.Button.Builder.with(this, Material.STAINED_GLASS_PANE).build());
+                ManagerGUI.Button.Builder.with(this, Material.WHITE_STAINED_GLASS).build());
         setButton(ManagerGUI.Button.getIndex(5, 4),
-                ManagerGUI.Button.Builder.with(this, Material.STAINED_GLASS_PANE)
+                ManagerGUI.Button.Builder.with(this, Material.WHITE_STAINED_GLASS)
                         .withDisplayName(ChatColor.GREEN + "Pg. " + index)
                         .build());
         setButton(ManagerGUI.Button.getIndex(5, 5),
-                ManagerGUI.Button.Builder.with(this, Material.STAINED_GLASS_PANE).build());
+                ManagerGUI.Button.Builder.with(this, Material.WHITE_STAINED_GLASS).build());
         setButton(ManagerGUI.Button.getIndex(5, 6), new NextButton(base, this));
         setButton(ManagerGUI.Button.getIndex(5, 7), new LastButton(base, this));
         setButton(ManagerGUI.Button.getIndex(5, 8),
-                ManagerGUI.Button.Builder.with(this, Material.STAINED_GLASS_PANE).build());
+                ManagerGUI.Button.Builder.with(this, Material.WHITE_STAINED_GLASS).build());
     }
 
     public int getIndex() {

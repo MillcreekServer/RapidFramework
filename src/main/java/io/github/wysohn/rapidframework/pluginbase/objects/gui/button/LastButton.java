@@ -12,9 +12,8 @@ import org.bukkit.inventory.ItemStack;
 
 public class LastButton extends PageControlButton {
 
-    @SuppressWarnings("deprecation")
     public LastButton(PluginBase base, ManagerGUI.Frame parent) {
-        super(base, parent, new ItemStack(Material.WOOL, 1, (short) 5));
+        super(base, parent, new ItemStack(Material.GREEN_WOOL, 1));
 
         ClickEventHandler handler = new ClickEventHandler();
         this.setLeftClickEventHandler(handler);

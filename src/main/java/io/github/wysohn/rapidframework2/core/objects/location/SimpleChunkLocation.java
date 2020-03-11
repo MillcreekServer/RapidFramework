@@ -27,6 +27,20 @@ public class SimpleChunkLocation {
         this.j = j;
     }
 
+    public SimpleChunkLocation(String world, int x, int y, int z) {
+        super();
+        this.world = world;
+        this.i = x >> 4;
+        this.j = z >> 4;
+    }
+
+    public SimpleChunkLocation(String world, double x, double y, double z) {
+        super();
+        this.world = world;
+        this.i = (int)x >> 4;
+        this.j = (int)z >> 4;
+    }
+
     public SimpleChunkLocation(SimpleLocation sloc) {
         super();
         this.world = sloc.world;
@@ -100,11 +114,8 @@ public class SimpleChunkLocation {
         if (j != other.j)
             return false;
         if (world == null) {
-            if (other.world != null)
-                return false;
-        } else if (!world.equals(other.world))
-            return false;
-        return true;
+            return other.world == null;
+        } else return world.equals(other.world);
     }
 
     @Override

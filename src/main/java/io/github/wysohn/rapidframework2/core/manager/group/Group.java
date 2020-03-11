@@ -1,12 +1,12 @@
 package io.github.wysohn.rapidframework2.core.manager.group;
 
+import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginEntity;
 import io.github.wysohn.rapidframework2.core.manager.caching.CachedElement;
 
 import java.util.*;
 
-public class Group extends CachedElement<UUID> implements IPermissionHolder, IPluginEntity {
+public class Group extends CachedElement<UUID> implements IPermissionHolder, IPluginObject {
     private UUID ownerUuid;
     private UUID parentUuid;
     private String displayName;
@@ -15,8 +15,8 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     private final Set<UUID> children = new HashSet<>();
     private final Map<String, Object> metaData = new HashMap<>();
 
-    public Group() {
-        super(UUID.randomUUID());
+    public Group(UUID key) {
+        super(key);
     }
 
     public UUID getOwnerUuid() {

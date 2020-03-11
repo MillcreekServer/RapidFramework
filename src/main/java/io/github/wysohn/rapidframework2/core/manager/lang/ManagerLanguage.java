@@ -4,9 +4,9 @@ import io.github.wysohn.rapidframework.utils.files.JarUtil;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.KeyValueStorageAdapter;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.IMessageSender;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.MessageBuilder;
+import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSender;
+import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
+import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import util.Validation;
 
 import java.text.DecimalFormat;
@@ -26,9 +26,12 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     private final LanguageSessionFactory sessionFactory;
 
-    private IMessageSender messageSender = ((sender, message) -> sender.sendMessageRaw(Arrays.stream(message)
-            .map(Message::getString)
-            .toArray(String[]::new)));
+    private IMessageSender messageSender = new IMessageSender() {
+        @Override
+        public boolean isJsonEnabled() {
+            return false;
+        }
+    };
     private Locale defaultLang = Locale.ENGLISH;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###,###.##");
 

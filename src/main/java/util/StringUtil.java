@@ -19,6 +19,8 @@ package util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class StringUtil {
@@ -66,5 +68,31 @@ public class StringUtil {
 
     public static boolean isVailedLore(String str) {
         return str.matches("[\\w ]+");
+    }
+
+    public static String spaces(int length){
+        if(length < 1)
+            return "";
+
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < length; i++){
+            builder.append(' ');
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Generate concatenated String of the Enum 'e'
+     * @param e the Enum class
+     * @param join String to be inserted between each enum elements
+     * @param map Function to be applied to each element before concatenated
+     * @param <E> Enum type
+     * @return concatenated String
+     */
+    public static <E extends Enum> String enumsToString(Class<E> e, String join, Function<String, String> map){
+        return String.join("&8, ", Arrays.stream(e.getEnumConstants())
+                .map(Enum::name)
+                .map(map)
+                .toArray(String[]::new));
     }
 }

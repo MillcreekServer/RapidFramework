@@ -12,7 +12,17 @@ public class KeyValueStorageAdapter implements KeyValueStorage {
     }
 
     @Override
+    public <T> Optional<T> get(Object section, String key) {
+        return Optional.empty();
+    }
+
+    @Override
     public void put(String key, Object value) {
+
+    }
+
+    @Override
+    public void put(Object section, String key, Object value) {
 
     }
 
@@ -22,17 +32,22 @@ public class KeyValueStorageAdapter implements KeyValueStorage {
     }
 
     @Override
+    public Set<String> getKeys(Object section, boolean deep) {
+        return null;
+    }
+
+    @Override
     public boolean isSection(Object obj) {
         return false;
     }
 
     @Override
-    public void reload() {
+    public void reload() throws Exception {
 
     }
 
     @Override
-    public void save() {
+    public void save() throws Exception {
 
     }
 }

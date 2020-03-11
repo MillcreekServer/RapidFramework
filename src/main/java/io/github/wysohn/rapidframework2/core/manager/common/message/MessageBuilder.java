@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework2.core.manager.lang.message;
+package io.github.wysohn.rapidframework2.core.manager.common.message;
 
 import java.util.ArrayList;
 import java.util.List;

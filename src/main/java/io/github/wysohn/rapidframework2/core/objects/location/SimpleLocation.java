@@ -16,6 +16,8 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework2.core.objects.location;
 
+import java.util.function.Function;
+
 public class SimpleLocation implements Cloneable {
     String world;
     int x, y, z;
@@ -27,6 +29,14 @@ public class SimpleLocation implements Cloneable {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public SimpleLocation(String world, double x, double y, double z) {
+        super();
+        this.world = world;
+        this.x = (int) x;
+        this.y = (int) y;
+        this.z = (int) z;
     }
 
     public SimpleLocation(String world, int x, int y, int z, float pitch, float yaw) {
@@ -80,6 +90,10 @@ public class SimpleLocation implements Cloneable {
 
     public SimpleLocation add(int x, int y, int z) {
         return new SimpleLocation(this.world, this.x + x, this.y + y, this.z + z);
+    }
+
+    public <T> T transform(Function<SimpleLocation, T> fn){
+        return fn.apply(this.clone());
     }
 
     public SimpleLocation add(SimpleLocation r) {

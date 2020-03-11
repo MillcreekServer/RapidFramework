@@ -18,6 +18,12 @@ public abstract class ObservableElement {
         }
     }
 
+    public void removeObserver(IObserver observer) {
+        if(observer != null){
+            observers.remove(observer);
+        }
+    }
+
     public synchronized void notifyObservers(){
         observers.forEach(iObserver -> iObserver.update(this));
     }

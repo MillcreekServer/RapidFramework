@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.core.interfaces.entity;
 
-import java.util.UUID;
+import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
 
-public interface IPluginEntity {
-    UUID getUuid();
+public interface IPluginEntity extends IPluginObject {
 }

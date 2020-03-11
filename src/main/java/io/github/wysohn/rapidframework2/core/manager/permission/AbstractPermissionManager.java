@@ -6,7 +6,10 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder
 import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
 import util.Validation;
 
+import java.lang.ref.Reference;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractPermissionManager extends AbstractManagerElementCaching<UUID, PermissionStorage> {
@@ -41,7 +44,9 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
         if (holder == null)
             return false;
 
-        PermissionStorage storage = getOrNew(holder.getUuid());
+        PermissionStorage storage = getOrNew(holder.getUuid())
+                .map(Reference::get)
+                .orElse(null);
 
         if (Arrays.stream(permissions)
                 .map(IPermission::getUuid)
@@ -59,7 +64,9 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      * @return true if added; false if already has the permission
      */
     public boolean addPermission(IPermissionHolder holder, IPermission permission) {
-        PermissionStorage storage = getOrNew(holder.getUuid());
+        PermissionStorage storage = getOrNew(holder.getUuid())
+                .map(Reference::get)
+                .orElse(null);
 
         if (storage.contains(permission.getUuid()))
             return false;
@@ -76,7 +83,9 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      * @return true if removed; false if didn't have it
      */
     public boolean removePermission(IPermissionHolder holder, IPermission permission){
-        PermissionStorage storage = getOrNew(holder.getUuid());
+        PermissionStorage storage = getOrNew(holder.getUuid())
+                .map(Reference::get)
+                .orElse(null);
 
         if(!storage.contains(permission.getUuid()))
             return false;
@@ -92,5 +101,30 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      */
     public void resetPermission(IPermissionHolder holder){
         delete(holder.getUuid());
+    }
+
+    public IPermissionHolder getHolderByUUID(UUID uuid){
+        return parentProvider.getHolder(main(), uuid);
+    }
+
+    /**
+     * Get uuid of this and its parent's UUID in order. 'this' will be at index 0, and the utmost
+     * parent IPermissionHolder's UUID will be at index of 'length - 1'
+     *
+     * @param holder the holder to test
+     * @return List. At least the 'holder's UUID at index 0, and parents' UUID if exist. Or, if 'holder' is null,
+     * an empty List will be returned.
+     */
+    public List<UUID> getApplicablePermissionHolders(IPermissionHolder holder) {
+        List<UUID> list = new LinkedList<>();
+        if(holder == null)
+            return list;
+
+        list.add(holder.getUuid());
+        if (holder.getParentUuid() != null) {
+            list.addAll(getApplicablePermissionHolders(parentProvider.getHolder(main(), holder.getParentUuid())));
+        }
+
+        return list;
     }
 }

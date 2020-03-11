@@ -69,7 +69,7 @@ public class ManagerGUI extends PluginManager<PluginBase> implements Listener {
         if (rawSlot >= 0 && rawSlot < frame.buttons.length) {
             Button button = frame.buttons[rawSlot];
             if (button != null)
-                button.handleEvent((InventoryClickEvent) e);
+                button.handleEvent(e);
         }
     }
 
@@ -101,7 +101,7 @@ public class ManagerGUI extends PluginManager<PluginBase> implements Listener {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + inv.getName().hashCode();
+            result = prime * result + inv.hashCode();
             return result;
         }
 
@@ -115,12 +115,9 @@ public class ManagerGUI extends PluginManager<PluginBase> implements Listener {
                 return false;
             InventoryWrapper other = (InventoryWrapper) obj;
             if (inv == null) {
-                if (other.inv != null)
-                    return false;
-            } else if (!inv.equals(other.inv))
-                return false;
+                return other.inv == null;
+            } else return inv.equals(other.inv);
 
-            return true;
         }
     }
 
@@ -226,7 +223,7 @@ public class ManagerGUI extends PluginManager<PluginBase> implements Listener {
             ONE(9), TWO(18), THREE(27), FOUR(36), FIVE(45), SIX(54);
             private final int size;
 
-            private ChestSize(int size) {
+            ChestSize(int size) {
                 this.size = size;
             }
 

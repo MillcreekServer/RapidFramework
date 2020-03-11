@@ -1,9 +1,13 @@
 package io.github.wysohn.rapidframework2.core.interfaces.plugin;
 
 public interface PluginRuntime {
-    public abstract void enable() throws Exception;
+    default void preload() throws Exception{
 
-    public abstract void load() throws Exception;
+    }
 
-    public abstract void disable() throws Exception;
+    void enable() throws Exception;
+
+    void load() throws Exception;
+
+    void disable() throws Exception;
 }

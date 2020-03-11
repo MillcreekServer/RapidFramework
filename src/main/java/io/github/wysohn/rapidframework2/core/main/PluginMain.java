@@ -1,16 +1,19 @@
 package io.github.wysohn.rapidframework2.core.main;
 
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
+import io.github.wysohn.rapidframework2.bukkit.manager.chat.ManagerChat;
+import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
+import io.github.wysohn.rapidframework2.core.manager.api.ExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
+import io.github.wysohn.rapidframework2.core.manager.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
+import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSender;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSessionFactory;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.IMessageSender;
 import util.Validation;
 
 import java.io.File;
@@ -21,6 +24,10 @@ import java.util.stream.Stream;
 public class PluginMain implements PluginRuntime {
     private final Map<Class<? extends Manager>, Manager> managers = new HashMap<>();
     private final Map<String, Manager> managersStr = new HashMap<>();
+
+    private final Map<Class<? extends Mediator>, Mediator> mediators = new HashMap();
+    private final Map<String, Mediator> mediatorsStr = new HashMap<>();
+
     private final List<Manager> orderedManagers = new ArrayList<>();
 
     private final String pluginName;
@@ -34,6 +41,7 @@ public class PluginMain implements PluginRuntime {
     private ManagerExternalAPI api;
     private ManagerConfig conf;
     private ManagerLanguage lang;
+    private ManagerChat chat;
 
     private PluginMain(String pluginName, String description, String mainCommand, String rootPermission,
                        PluginBridge pluginBridge, Logger logger, File pluginDirectory) {
@@ -100,6 +108,13 @@ public class PluginMain implements PluginRuntime {
         manager.main = this;
     }
 
+    private void registerMediator(Mediator mediator){
+        mediators.put(mediator.getClass(), mediator);
+        mediatorsStr.put(mediator.getClass().getSimpleName(), mediator);
+
+        mediator.main = this;
+    }
+
     public <T extends Manager> Optional<T> getManager(Class<T> clazz) {
         return Optional.ofNullable(managers.get(clazz))
                 .filter(clazz::isInstance)
@@ -110,12 +125,22 @@ public class PluginMain implements PluginRuntime {
         return Optional.ofNullable(managersStr.get(managerName));
     }
 
+    public <T extends Mediator> Optional<T> getMediator(Class<T> clazz){
+        return Optional.ofNullable(mediators.get(clazz))
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
+    }
+
+    public Optional<Mediator> getMediator(String mediatorName){
+        return Optional.ofNullable(mediatorsStr.get(mediatorName));
+    }
+
     public Collection<Manager> getOrderedManagers() {
         return Collections.unmodifiableCollection(orderedManagers);
     }
 
     @Override
-    public void enable() throws Exception {
+    public void preload() throws Exception {
         registerManager(conf);
         registerManager(comm);
         registerManager(lang);
@@ -126,9 +151,28 @@ public class PluginMain implements PluginRuntime {
                 .forEachOrdered(orderedManagers::add);
 
         for (Manager manager : orderedManagers) {
-            try{
+            manager.preload();
+        }
+
+        for (Mediator mediator : mediators.values()){
+           mediator.preload();
+        }
+    }
+
+    @Override
+    public void enable() throws Exception {
+        for (Manager manager : orderedManagers) {
+            try {
                 manager.enable();
-            } catch (Exception ex){
+            } catch (Exception ex) {
+
+            }
+        }
+
+        for (Mediator mediator : mediators.values()) {
+            try {
+                mediator.enable();
+            } catch (Exception ex) {
 
             }
         }
@@ -137,14 +181,38 @@ public class PluginMain implements PluginRuntime {
     @Override
     public void load() throws Exception {
         for (Manager manager : orderedManagers) {
-            manager.load();
+            try {
+                manager.load();
+            } catch (Exception ex) {
+
+            }
+        }
+
+        for (Mediator mediator : mediators.values()) {
+            try {
+                mediator.load();
+            } catch (Exception ex) {
+
+            }
         }
     }
 
     @Override
     public void disable() throws Exception {
         for (Manager manager : orderedManagers) {
-            manager.disable();
+            try {
+                manager.disable();
+            } catch (Exception ex) {
+
+            }
+        }
+
+        for (Mediator mediator : mediators.values()) {
+            try {
+                mediator.disable();
+            } catch (Exception ex) {
+
+            }
         }
     }
 
@@ -193,6 +261,14 @@ public class PluginMain implements PluginRuntime {
             return this;
         }
 
+        public Builder andChatManager(AbstractFileSession fileSession, IPlaceholderSupport placeholderSupport){
+            main.chat = new ManagerChat(Manager.FASTEST_PRIORITY,
+                    fileSession,
+                    placeholderSupport);
+
+            return this;
+        }
+
         public <T extends Lang> Builder addLangs(T[] langs) {
             Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
 
@@ -210,8 +286,19 @@ public class PluginMain implements PluginRuntime {
             return this;
         }
 
+        public Builder withExternalAPIs(String pluginName, Class<? extends ExternalAPI> clazz){
+            main.api.registerExternalAPI(pluginName, clazz);
+
+            return this;
+        }
+
         public Builder withManagers(Manager... managers) {
             Stream.of(managers).forEach(main::registerManager);
+            return this;
+        }
+
+        public Builder withMediators(Mediator... mediators){
+            Stream.of(mediators).forEach(main::registerMediator);
             return this;
         }
 
@@ -219,6 +306,7 @@ public class PluginMain implements PluginRuntime {
             Validation.assertNotNull(main.conf, "Register config with .andFileSession() first.");
             Validation.assertNotNull(main.api, "Register IPluginManager with .andPluginManager() first.");
             Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
+            Validation.assertNotNull(main.chat, "Register ManagerChat with .andChatManager() first.");
 
             addLangs(DefaultLangs.values());
 
@@ -226,17 +314,19 @@ public class PluginMain implements PluginRuntime {
         }
     }
 
-    public static abstract class Manager implements PluginRuntime {
-        private final int loadPriority;
-
-        private PluginMain main;
-
-        public Manager(int loadPriority) {
-            this.loadPriority = loadPriority;
-        }
+    private static abstract class PluginModule implements PluginRuntime{
+        PluginMain main;
 
         public PluginMain main() {
             return main;
+        }
+    }
+
+    public static abstract class Manager extends PluginModule {
+        private final int loadPriority;
+
+        public Manager(int loadPriority) {
+            this.loadPriority = loadPriority;
         }
 
         public int getLoadPriority() {
@@ -246,5 +336,9 @@ public class PluginMain implements PluginRuntime {
         public static final int NORM_PRIORITY = 5;
         public static final int SLOWEST_PRIORITY = 10;
         public static final int FASTEST_PRIORITY = 0;
+    }
+
+    public static abstract class Mediator extends PluginModule {
+
     }
 }

@@ -2,9 +2,9 @@ package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
+import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.MessageBuilder;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -63,6 +63,25 @@ public final class ManagerCommand extends PluginMain.Manager {
         commandMap.register(cmd);
     }
 
+    /**
+     * Directly run the command.
+     * Ex) /mainCommand args[0] args[1] ...
+     * @param sender sender
+     * @param args the arguments next to the main command
+     * @return always true since we have our own way to show error messages.
+     */
+    public boolean runSubCommand(ICommandSender sender, String... args){
+        return onCommand(sender, mainCommand, mainCommand, args);
+    }
+
+    /**
+     * adapter method for command handling
+     * @param sender sender
+     * @param command the main command used. Command doesn't run if it does not match with 'mainCommand'
+     * @param label the label of main command. Alias of the command or 'mainCommand'
+     * @param args_in the arguments next to the command. Ex) /mainCommand args[0] args[1] ...
+     * @return always true since we have our own way to show error messages.
+     */
     public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
         if(!mainCommand.equals(command))
             return true;

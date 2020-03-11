@@ -1,14 +1,16 @@
 package io.github.wysohn.rapidframework.pluginbase.api;
 
-import com.coloredcarrot.jsonapi.impl.JsonClickEvent;
-import com.coloredcarrot.jsonapi.impl.JsonHoverEvent;
-import com.coloredcarrot.jsonapi.impl.JsonMsg;
 import io.github.wysohn.rapidframework.pluginbase.PluginAPISupport.APISupport;
 import io.github.wysohn.rapidframework.pluginbase.PluginBase;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JsonApiAPI extends APISupport {
@@ -23,45 +25,47 @@ public class JsonApiAPI extends APISupport {
     }
 
     public void send(Player player, JsonApiAPI.Message[] messages) {
-        JsonMsg jsonMessages = toJsonMessage(messages);
-        jsonMessages.send(player);
+        TextComponent jsonMessages = toJsonMessage(messages);
+        player.spigot().sendMessage(jsonMessages);
     }
 
     public void send(Player[] player, JsonApiAPI.Message[] messages) {
-        JsonMsg jsonMessages = toJsonMessage(messages);
-        jsonMessages.send(player);
+        Arrays.stream(player).forEach(p -> send(p, messages));
     }
 
-    private JsonMsg toJsonMessage(JsonApiAPI.Message[] messages) {
-        JsonMsg head = new JsonMsg();
+    private TextComponent toJsonMessage(JsonApiAPI.Message[] messages) {
+        TextComponent head = new TextComponent();
         for (int i = 0; i < messages.length; i++) {
-            JsonMsg jsonMessage = new JsonMsg();
+            TextComponent jsonMessage = new TextComponent();
             Message message = messages[i];
 
-            jsonMessage.append(message.string);
+            jsonMessage.setText(message.string);
             if (message.click_OpenFile != null) {
-                jsonMessage.clickEvent(JsonClickEvent.openFile(message.click_OpenFile));
+                jsonMessage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, message.click_OpenFile));
             }
             if (message.click_OpenUrl != null) {
-                jsonMessage.clickEvent(JsonClickEvent.openUrl(message.click_OpenUrl));
+                jsonMessage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, message.click_OpenUrl));
             }
             if (message.click_RunCommand != null) {
-                jsonMessage.clickEvent(JsonClickEvent.runCommand(message.click_RunCommand));
+                jsonMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, message.click_RunCommand));
             }
             if (message.click_SuggestCommand != null) {
-                jsonMessage.clickEvent(JsonClickEvent.suggestCommand(message.click_SuggestCommand));
+                jsonMessage.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, message.click_SuggestCommand));
             }
             if (message.hover_ShowText != null) {
-                jsonMessage.hoverEvent(JsonHoverEvent.showText(message.hover_ShowText));
+                jsonMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        new BaseComponent[]{new TextComponent(message.hover_ShowText)}));
             }
             if (message.hover_ShowAchievement != null) {
-                jsonMessage.hoverEvent(JsonHoverEvent.showAchievement(message.hover_ShowAchievement));
+//                jsonMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ACHIEVEMENT,
+//                        new BaseComponent[]{new ComponentBuilder()..create()}));
             }
             if (message.hover_ShowItem != null) {
-                jsonMessage.hoverEvent(JsonHoverEvent.showItem(message.hover_ShowItem));
+//                jsonMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
+//                        new BaseComponent[]{new TextComponent(message.hover_ShowText)}));
             }
 
-            head.append(jsonMessage);
+            head.addExtra(jsonMessage);
         }
 
         return head;

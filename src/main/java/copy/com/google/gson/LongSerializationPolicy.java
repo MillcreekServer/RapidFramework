@@ -26,7 +26,7 @@ package copy.com.google.gson;
  */
 public enum LongSerializationPolicy {
     /**
-     * This is the "default" serialization policy that will output a {@code long}
+     * This is the Civilization.DEFAULT_GROUP serialization policy that will output a {@code long}
      * object as a JSON number. For example, assume an object has a long field named
      * "f" then the serialized output would be: {@code {"f":123}}.
      */

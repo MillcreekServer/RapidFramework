@@ -5,7 +5,12 @@ public enum DefaultLangs implements Lang {
     Plugin_SetEnableToTrue("Please check your setting at config.yml to make sure it's enabled."),
     Plugin_WillBeDisabled("Plugin will be disabled."),
 
-    General_NotInteger("&c${string} is not an integer!"), General_NotDecimal("&c${string} is not a decimal!"),
+    General_String("${string}"),
+
+    General_NotInteger("&c${string} is not an integer!"),
+    General_NotDecimal("&c${string} is not a decimal!"),
+    General_InvalidEnum("&c${string} is not a proper value!",
+            "&9Values &8: ${string}"),
     General_OutOfBound("&c${string} is out of bound!"),
     General_OutOfBound_RangeIs("&crange: &6${integer} &7< &fvalue &7< &6${integer}"),
     General_Line("&6&m &6&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m &7&m "

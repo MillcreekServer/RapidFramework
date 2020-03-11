@@ -11,9 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class FirstButton extends PageControlButton {
-    @SuppressWarnings("deprecation")
     public FirstButton(PluginBase base, ManagerGUI.Frame parent) {
-        super(base, parent, new ItemStack(Material.WOOL, 1, (short) 14));
+        super(base, parent, new ItemStack(Material.RED_WOOL, 1));
 
         ClickEventHandler handler = new ClickEventHandler();
         this.setLeftClickEventHandler(handler);

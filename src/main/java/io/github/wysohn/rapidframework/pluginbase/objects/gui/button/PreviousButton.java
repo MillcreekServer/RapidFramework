@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PreviousButton extends PageControlButton {
     public PreviousButton(PluginBase base, ManagerGUI.Frame parent) {
-        super(base, parent, new ItemStack(Material.WOOL, 1, (short) 1));
+        super(base, parent, new ItemStack(Material.WHITE_WOOL, 1));
 
         ClickEventHandler handler = new ClickEventHandler();
         this.setLeftClickEventHandler(handler);

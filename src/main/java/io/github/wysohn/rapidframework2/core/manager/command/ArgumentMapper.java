@@ -4,16 +4,16 @@ import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import util.StringUtil;
 
 @FunctionalInterface
-public interface ArgumentMapper {
+public interface ArgumentMapper<T> {
     /**
      * map input to output without any conversion
      */
-    ArgumentMapper IDENTITY = arg -> arg;
+    ArgumentMapper<String> IDENTITY = arg -> arg;
     /**
      * Same as IDENTITY except it checks whether the argument is null
      * or not following the pattern defined in {@link StringUtil#isValidName(String)}.
      */
-    ArgumentMapper STRING = arg -> {
+    ArgumentMapper<String> STRING = arg -> {
         if (arg == null || !StringUtil.isValidName(arg))
             throw new InvalidArgumentException(DefaultLangs.General_InvalidString, ((sen, langman) ->
                     langman.addString(arg)));
@@ -23,7 +23,7 @@ public interface ArgumentMapper {
     /**
      * map input to integer if possible
      */
-    ArgumentMapper INTEGER = arg -> {
+    ArgumentMapper<Integer> INTEGER = arg -> {
         try {
             return Integer.parseInt(arg);
         } catch (NumberFormatException ex) {
@@ -34,7 +34,7 @@ public interface ArgumentMapper {
     /**
      * map input to double if possible
      */
-    ArgumentMapper DOUBLE = arg -> {
+    ArgumentMapper<Double> DOUBLE = arg -> {
         try {
             return Double.parseDouble(arg);
         } catch (NumberFormatException ex) {
@@ -42,6 +42,10 @@ public interface ArgumentMapper {
                     langman.addString(arg)));
         }
     };
+
+    static <E extends Enum> ArgumentMapper<E> enumMapper(Class<? extends E> clazz, boolean toUpper){
+        return new EnumArgumentMapper<>(clazz, toUpper);
+    }
 //    /**
 //     * map input to online player if possible
 //     */
@@ -79,5 +83,5 @@ public interface ArgumentMapper {
      *                                  argument was "help", then it will be parsed
      *                                  into "invalid argument help!"
      */
-    Object apply(String arg) throws InvalidArgumentException;
+    T apply(String arg) throws InvalidArgumentException;
 }

@@ -1,15 +1,14 @@
 package io.github.wysohn.rapidframework2.core.manager.permission;
 
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginEntity;
-import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
+import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 
 import java.util.UUID;
-import java.util.function.Predicate;
 
-public interface IPermission extends IPluginEntity {
-    DynamicLang getName();
+public interface IPermission extends IPluginObject {
+    Lang getName();
 
-    DynamicLang getDescription();
+    Lang getDescription();
 
     /**
      * This UUID should be unique and fixed representation of 'this' permission.

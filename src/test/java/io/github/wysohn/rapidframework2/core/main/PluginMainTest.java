@@ -1,120 +1,29 @@
 package io.github.wysohn.rapidframework2.core.main;
 
-import io.github.wysohn.rapidframework.utils.files.FileUtil;
-import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
+import io.github.wysohn.rapidframework2.bukkit.testutils.PluginMainTestBuilder;
+import io.github.wysohn.rapidframework2.bukkit.testutils.SomeManager;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
-import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
+import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
-import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
-import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.util.Optional;
-import java.util.logging.Logger;
-
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
 public class PluginMainTest {
-    private enum SomeLang implements Lang{
-        Blah("This is Blah")
-        ;
-
-        private final String[] eng;
-
-        SomeLang(String... eng) {
-            this.eng = eng;
-        }
-
-        @Override
-        public String[] getEngDefault() {
-            return eng;
-        }
-    }
-
-    private static class SomeManager extends PluginMain.Manager {
-        private boolean enable;
-        private boolean load;
-        private boolean disable;
-
-        public SomeManager(int loadPriority) {
-            super(loadPriority);
-        }
-
-        @Override
-        public void enable() throws Exception {
-            enable = true;
-        }
-
-        @Override
-        public void load() throws Exception {
-            load = true;
-        }
-
-        @Override
-        public void disable() throws Exception {
-            disable = true;
-        }
-
-        public void reset() {
-            enable = false;
-            load = false;
-            disable = false;
-        }
-    }
-
-    private PluginBridge mockBridge;
-    private Logger mockLogger;
-    private AbstractFileSession mockFileSession;
-    private IPluginManager mockPluginManager;
-    private ICommandSender mockSender;
-    private Message mockMessage;
-
+    private PluginMainTestBuilder mainTest;
     private PluginMain main;
 
     @Before
     public void init() throws Exception {
-        mockBridge = mock(PluginBridge.class);
-        mockLogger = mock(Logger.class);
-        mockFileSession = mock(AbstractFileSession.class);
-        mockPluginManager = mock(IPluginManager.class);
-        mockSender = mock(ICommandSender.class);
-        mockMessage = mock(Message.class);
+        mainTest = PluginMainTestBuilder.create();
+        main = mainTest.getMain();
 
-        Mockito.when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
-        Mockito.when(mockMessage.toString()).thenReturn("SomeMessage");
-
-        main = PluginMain.Builder
-                .prepare("CivilSimulator",
-                        "All in one claim plugin",
-                        "test",
-                        "perm.mission",
-                        mockBridge,
-                        mockLogger,
-                        FileUtil.join(new File("build"), "tmp"))
-                .andConfigSession(mockFileSession)
-                .andPluginSupervisor(mockPluginManager)
-                .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
-                .setMessageSender(((sender, message) -> {
-                    String str = message[0].toString();
-                    sender.sendMessageRaw(str);
-                }))
-                .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))
-                .addLangs(SomeLang.values())
-                .build();
-
-        try{
-            main.enable();
-        }catch(Exception ex){
-
-        }
+        main.preload();
+        main.enable();
     }
 
     @Test
@@ -152,9 +61,9 @@ public class PluginMainTest {
 
     @Test
     public void testSetMessageSender(){
-        main.lang().sendRawMessage(mockSender, new Message[]{mockMessage});
+        main.lang().sendRawMessage(mainTest.getMockSender(), new Message[]{mainTest.getMockMessage()});
 
-        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("SomeMessage"));
+        Mockito.verify(mainTest.getMockSender()).sendMessageRaw(Mockito.eq("SomeMessage"));
     }
 
     @Test
@@ -163,7 +72,7 @@ public class PluginMainTest {
         assertNotNull(manager);
 
         main.enable();
-        assertTrue(manager.enable);
+        assertTrue(manager.isEnable());
 
         manager.reset();
     }
@@ -174,7 +83,7 @@ public class PluginMainTest {
         assertNotNull(manager);
 
         main.load();
-        assertTrue(manager.load);
+        assertTrue(manager.isLoad());
 
         manager.reset();
     }
@@ -185,7 +94,7 @@ public class PluginMainTest {
         assertNotNull(manager);
 
         main.disable();
-        assertTrue(manager.disable);
+        assertTrue(manager.isDisable());
 
         manager.reset();
     }

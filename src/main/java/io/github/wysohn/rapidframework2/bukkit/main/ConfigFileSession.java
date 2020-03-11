@@ -38,10 +38,18 @@ public class ConfigFileSession extends AbstractFileSession {
     @Override
     public <T> Optional<T> get(String key) {
         T value = (T) config.get(key, null);
-        if(value == null)
-            return Optional.empty();
-        else
-            return Optional.of(value);
+        return Optional.ofNullable(value);
+    }
+
+    @Override
+    public <T> Optional<T> get(Object section, String key) {
+        if(!isSection(section))
+            throw new RuntimeException(section+" is not a section.");
+
+        ConfigurationSection s = (ConfigurationSection) section;
+
+        T value = (T) s.get(key, null);
+        return Optional.ofNullable(value);
     }
 
     @Override
@@ -50,8 +58,28 @@ public class ConfigFileSession extends AbstractFileSession {
     }
 
     @Override
+    public void put(Object section, String key, Object value) {
+        if(!isSection(section))
+            throw new RuntimeException(section+" is not a section.");
+
+        ConfigurationSection s = (ConfigurationSection) section;
+
+        s.set(key, value);
+    }
+
+    @Override
     public Set<String> getKeys(boolean deep) {
-        return config.getKeys(false);
+        return config.getKeys(deep);
+    }
+
+    @Override
+    public Set<String> getKeys(Object section, boolean deep) {
+        if(!isSection(section))
+            throw new RuntimeException(section+" is not a section.");
+
+        ConfigurationSection s = (ConfigurationSection) section;
+
+        return s.getKeys(deep);
     }
 
     @Override

@@ -28,7 +28,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -118,7 +117,7 @@ public final class PluginLanguage implements PluginProcedure {
         }
     }
 
-    private void reload() throws FileNotFoundException, IOException, InvalidConfigurationException {
+    private void reload() throws IOException, InvalidConfigurationException {
         for (Entry<String, LanguageFileSession> entry : langFiles.entrySet()) {
             base.getLogger().info("reloading language [" + entry.getKey() + "]...");
             entry.getValue().reload();
@@ -242,7 +241,8 @@ public final class PluginLanguage implements PluginProcedure {
         String locale = null;
         try {
             if (sender instanceof Player)
-                locale = FakePlugin.nmsEntityManager.getLocale((Player) sender);
+//                locale = FakePlugin.nmsEntityManager.getLocale((Player) sender);
+                locale = ((Player) sender).getLocale();
         } catch (Exception e) {
             // silently fail
         }
@@ -324,7 +324,7 @@ public final class PluginLanguage implements PluginProcedure {
                 while (!((start = str.indexOf("${")) == -1 || (end = str.indexOf("}")) == -1)) {
 
                     String leftStr = str.substring(0, start);
-                    String rightStr = str.substring(end + 1, str.length());
+                    String rightStr = str.substring(end + 1);
 
                     String varName = str.substring(start + 2, end);
 
@@ -342,16 +342,16 @@ public final class PluginLanguage implements PluginProcedure {
                                 else
                                     msg = "NaN";
                             }
-                            str = leftStr + String.valueOf(msg) + rightStr;
+                            str = leftStr + msg + rightStr;
                             break;
                         case "integer":
-                            str = leftStr + String.valueOf(this.integer.poll()) + rightStr;
+                            str = leftStr + this.integer.poll() + rightStr;
                             break;
                         case "long":
-                            str = leftStr + String.valueOf(this.llong.poll()) + rightStr;
+                            str = leftStr + this.llong.poll() + rightStr;
                             break;
                         case "string":
-                            str = leftStr + String.valueOf(this.string.poll()) + rightStr;
+                            str = leftStr + this.string.poll() + rightStr;
                             break;
                         case "bool":
                             Boolean value = this.bool.poll();
@@ -384,10 +384,10 @@ public final class PluginLanguage implements PluginProcedure {
                             str = leftStr + dbTypes + rightStr;
                             break;
                         case "command":
-                            str = leftStr + String.valueOf(command) + rightStr;
+                            str = leftStr + command + rightStr;
                             break;
                         default:
-                            str = leftStr + String.valueOf("?") + rightStr;
+                            str = leftStr + "?" + rightStr;
                             break;
                     }
                 }
@@ -405,7 +405,7 @@ public final class PluginLanguage implements PluginProcedure {
      * @author wysohn
      */
     public interface Language {
-        public String[] getEngDefault();
+        String[] getEngDefault();
     }
 
     @FunctionalInterface

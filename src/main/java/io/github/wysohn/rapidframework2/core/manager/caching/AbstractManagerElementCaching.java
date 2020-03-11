@@ -1,19 +1,23 @@
 package io.github.wysohn.rapidframework2.core.manager.caching;
 
-import io.github.wysohn.rapidframework.utils.files.FileUtil;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.tools.FileUtil;
 import util.Validation;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable);
-        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.setPriority(Thread.NORM_PRIORITY - 1);
         return thread;
     });
 
@@ -27,7 +31,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     private Database<V> db;
 
-    private final ElementObserver observer = new ElementObserver();
+    private final List<IObserver> observers = new ArrayList<IObserver>() {
+        {
+            add(new CachedElementObserver());
+        }
+    };
+
     private final Map<K, V> cachedElements = new HashMap<>();
     private final Map<String, K> nameMap = new HashMap<>();
 
@@ -65,25 +74,32 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             nameMap.clear();
         }
 
-        synchronized (dbLock){
-            for(String keyStr : db.getKeys()){
-                V value = db.load(keyStr, null);
-                if (value != null){
-                    K key = fromString(keyStr);
+        saveTaskPool.submit(()->{
+            synchronized (dbLock){
+                for(String keyStr : db.getKeys()){
+                    V value = db.load(keyStr, null);
+                    if (value != null){
+                        K key = fromString(keyStr);
 
-                    cache(key, value);
+                        cache(key, value);
+                    }
                 }
             }
-        }
+        }).get();
+
     }
 
     @Override
     public void disable() throws Exception {
-        saveTaskPool.shutdown();
+        synchronized (cacheLock){
+            synchronized (dbLock){
+                saveTaskPool.shutdown();
 
-        main().getLogger().info("Waiting for the save tasks to be done...");
-        saveTaskPool.awaitTermination(10, TimeUnit.SECONDS);
-        main().getLogger().info("Save finished.");
+                main().getLogger().info("Waiting for the save tasks to be done...");
+                saveTaskPool.awaitTermination(10, TimeUnit.SECONDS);
+                main().getLogger().info("Save finished.");
+            }
+        }
     }
 
     public void setConstructionHandle(IConstructionHandle<K, V> constructionHandle) {
@@ -105,7 +121,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param name displayName to search for
      * @return The Optional of value. Optional.empty() if couldn't find it.
      */
-    public Optional<V> get(String name){
+    public Optional<WeakReference<V>> get(String name){
         synchronized (cacheLock){
             return get(nameMap.get(name));
         }
@@ -116,24 +132,36 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param key the key
      * @return The Optional of value. Optional.empty() if couldn't find it.
      */
-    public Optional<V> get(K key){
+    public Optional<WeakReference<V>> get(K key){
         if(key == null)
             return Optional.empty();
 
         synchronized (cacheLock){
             if(cachedElements.containsKey(key)){
-                return Optional.of(cachedElements.get(key));
+                return Optional.of(new WeakReference<>(cachedElements.get(key)));
             }
 
-            synchronized (dbLock){
-                V loaded = db.load(key.toString(), null);
+            //try load cache from db if cache is empty
+            try {
+                saveTaskPool.submit(() -> {
+                    V loaded = null;
+                    synchronized (dbLock) {
+                        loaded = db.load(key.toString(), null);
+                    }
 
-                if(loaded != null){
-                    cache(key, loaded);
-                    return Optional.of(loaded);
-                }else{
-                    return Optional.empty();
-                }
+                    if (loaded != null) {
+                        cache(key, loaded);
+                    }
+                }).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            if(cachedElements.containsKey(key)){
+                //at this point, the data really doesn't exist.
+                return Optional.of(new WeakReference<>(cachedElements.get(key)));
+            } else {
+                return Optional.empty();
             }
         }
     }
@@ -143,26 +171,37 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param key the key
      * @return the existing value or newly created one
      */
-    public V getOrNew(K key){
+    public Optional<WeakReference<V>> getOrNew(K key){
         Validation.assertNotNull(key);
 
-        V value = get(key).orElseGet(() -> newInstance(key));
-
+        V value = get(key)
+                .map(Reference::get)
+                .orElseGet(() -> newInstance(key));
         synchronized (cacheLock){
             cache(key, value);
         }
 
-        return value;
+        return get(key);
     }
 
     private void cache(K key, V value) {
-        value.addObserver(observer);
+        observers.forEach(value::addObserver);
         cachedElements.put(key, value);
 
         if(value.getStringKey() != null && !nameMap.containsKey(value.getStringKey()))
             nameMap.put(value.getStringKey(), key);
 
         Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
+    }
+
+    public boolean setName(K key, String name){
+        synchronized (cacheLock){
+            if(nameMap.containsKey(name))
+                return false;
+
+            nameMap.put(name, key);
+            return true;
+        }
     }
 
     /**
@@ -179,10 +218,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      */
     public void delete(K key) {
         synchronized (cacheLock) {
-            V original = cachedElements.remove(key);
-            if (original != null && original.getStringKey() != null) {
-                nameMap.remove(original.getStringKey());
-            }
+            boolean result = deCache(key);
 
             saveTaskPool.submit(() -> {
                 synchronized (dbLock){
@@ -202,8 +238,27 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      */
     public boolean deCache(K key){
         synchronized (cacheLock){
-            return cachedElements.remove(key) != null;
+            V original = cachedElements.remove(key);
+            if(original != null){
+                observers.forEach(original::addObserver);
+                if(original.getStringKey() != null){
+                    nameMap.remove(original.getStringKey());
+                }
+            }
+            return original != null;
         }
+    }
+
+    /**
+     * Delete data from both cache and database and recreate a new instance.
+     * @param value value to reset
+     * @param doBefore consumer to work on 'value' before the reset
+     */
+    public void reset(V value, Consumer<V> doBefore) {
+        doBefore.andThen(v -> {
+            delete(v.getKey());
+            getOrNew(v.getKey());
+        }).accept(value);
     }
 
     public Set<K> keySet(){
@@ -245,26 +300,31 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         void after(V obj);
     }
 
-    private class ElementObserver implements IObserver{
+    private class CachedElementObserver implements IObserver {
         /**
          * Should be called only by Observable instances.
+         *
          * @param observable
          */
         @Override
         public void update(ObservableElement observable) {
             V value = (V) observable;
 
-            synchronized (cacheLock){
-                cache(value.getKey(), value);
+            synchronized (cacheLock) {
+                V cached = cachedElements.get(value.getKey());
 
-                saveTaskPool.submit(() -> {
-                    synchronized (dbLock) {
-                        db.save(value.getKey().toString(), value);
-                    }
-                });
+                //ensure that the ObservableElement is the actual 'V'
+                if (cached == value) {
+                    saveTaskPool.submit(() -> {
+                        synchronized (dbLock) {
+                            db.save(cached.getKey().toString(), cached);
+                        }
+                    });
+                } else {
+                    throw new RuntimeException("Inconsistent cache detected. The cache x and the caller instance " +
+                            "are not equivalent. Perhaps the caller instance is not discarded after reset()?");
+                }
             }
         }
     }
-
-
 }

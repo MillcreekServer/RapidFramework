@@ -3,9 +3,9 @@ package io.github.wysohn.rapidframework2.core.manager.command;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.DoubleChecker;
-import io.github.wysohn.rapidframework2.core.manager.common.ReactivePredicate;
+import io.github.wysohn.rapidframework2.core.manager.common.RPredicate;
+import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
-import io.github.wysohn.rapidframework2.core.manager.lang.message.MessageBuilder;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -60,8 +60,8 @@ class SubCommandMap {
             }
 
             for(Predicate<ICommandSender> predicate : command.predicates){
-                if (predicate instanceof ReactivePredicate
-                        && !((ReactivePredicate<ICommandSender>) predicate).testWithMessage(sender)) {
+                if (predicate instanceof RPredicate
+                        && !((RPredicate<ICommandSender>) predicate).testWithMessage(sender)) {
                     return true;
                 } else if (!predicate.test(sender)) {
                     return true;

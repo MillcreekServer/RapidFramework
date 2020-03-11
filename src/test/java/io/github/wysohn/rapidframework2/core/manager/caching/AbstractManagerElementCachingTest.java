@@ -10,7 +10,10 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
+import java.lang.ref.Reference;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,12 @@ public class AbstractManagerElementCachingTest {
 
         public TempValue(UUID uuid) {
             super(uuid);
+            str = "SomeName";
+        }
+
+        public TempValue(UUID uuid, String stringKey){
+            super(uuid);
+            this.str = stringKey;
         }
 
         @Override
@@ -93,7 +102,7 @@ public class AbstractManagerElementCachingTest {
         //start manager
         manager.load();
 
-        TempValue tempValue = manager.getOrNew(uuid);
+        TempValue tempValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
         tempValue.setStr("Constructed");
 
         Assert.assertEquals(someObj, tempValue.dummy);
@@ -131,11 +140,11 @@ public class AbstractManagerElementCachingTest {
                 UUID.randomUUID(),
         };
         TempValue[] mockValues = new TempValue[]{
-                new TempValue(uuids[0]).setStr("value0"),
-                new TempValue(uuids[1]).setStr("value1"),
-                new TempValue(uuids[2]).setStr("value2"),
-                new TempValue(uuids[3]).setStr("value3"),
-                new TempValue(uuids[4]).setStr("value4"),
+                new TempValue(uuids[0], "value0"),
+                new TempValue(uuids[1], "value1"),
+                new TempValue(uuids[2], "value2"),
+                new TempValue(uuids[3], "value3"),
+                new TempValue(uuids[4], "value4"),
         };
 
         Mockito.when(mockDatabase.getKeys()).thenReturn(Arrays.stream(uuids)
@@ -159,7 +168,7 @@ public class AbstractManagerElementCachingTest {
 
         Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
-        Object observer = Whitebox.getInternalState(manager, "observer");
+        List observers = Whitebox.getInternalState(manager, "observers");
 
         for(int i = 0; i < uuids.length; i++){
             Assert.assertEquals(mockValues[i], cachedElements.get(uuids[i]));
@@ -168,7 +177,7 @@ public class AbstractManagerElementCachingTest {
             Mockito.verify(mockDatabase).load(Mockito.eq(uuids[i].toString()), Mockito.isNull(TempValue.class));
 
             Vector<Observer> obs = Whitebox.getInternalState(mockValues[i], "observers");
-            Assert.assertTrue(obs.contains(observer));
+            Assert.assertTrue(observers.stream().allMatch(obs::contains));
         }
     }
 
@@ -185,11 +194,30 @@ public class AbstractManagerElementCachingTest {
 
         //get
         Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(value);
-        Assert.assertEquals(value, manager.get(uuid).orElse(null));
+        Assert.assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
 
         //check if cache is updated
         Assert.assertEquals(value, cachedElements.get(uuid));
         Assert.assertEquals(uuid, nameMap.get("SomeName"));
+
+        //end the db life-cycle
+        manager.disable();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()), Mockito.isNull(TempValue.class));
+    }
+
+    @Test
+    public void valueNotExist() throws Exception{
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        UUID uuid = UUID.randomUUID();
+        TempValue value = new TempValue(uuid).setStr("SomeName");
+
+        //start manager
+        manager.load();
+
+        //get
+        Assert.assertFalse(manager.get(uuid).isPresent());
 
         //end the db life-cycle
         manager.disable();
@@ -207,23 +235,23 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //get (new)
-        TempValue value = manager.getOrNew(uuid);
+        TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
         value.setStr("SomeName");
 
         Assert.assertEquals(value, cachedElements.get(uuid));
         Assert.assertEquals(uuid, nameMap.get("SomeName"));
 
         //update
-        value.setStr("OtherName");
+        Assert.assertTrue(manager.setName(uuid, "OtherName"));
 
         //get
         Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(value);
-        Assert.assertEquals(value, manager.get(uuid).orElse(null));
-        Assert.assertEquals("OtherName", manager.get(uuid).orElse(null).str);
+        Assert.assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+        Assert.assertEquals(value, manager.get("OtherName").map(Reference::get).orElse(null));
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase, Mockito.times(2)).save(Mockito.eq(uuid.toString()), Mockito.eq(value));
+        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Mockito.eq(value));
     }
 
     @Test
@@ -237,7 +265,7 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //new
-        TempValue mockValue = manager.getOrNew(uuid);
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
         mockValue.setStr("SomeName");
 
         Assert.assertEquals(mockValue, cachedElements.get(uuid));
@@ -251,6 +279,85 @@ public class AbstractManagerElementCachingTest {
         //end the db life-cycle
         manager.disable();
         Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Matchers.isNull(TempValue.class));
+    }
+
+    @Test
+    public void reset() throws Exception {
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.setStr("Initial value");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+        Assert.assertEquals(uuid, nameMap.get("SomeName"));
+
+        //change value
+        mockValue.setStr("ChangedName");
+        Assert.assertEquals("ChangedName", mockValue.str);
+
+        //reset
+        manager.setConstructionHandle((v) -> v.setStr("ConstructionHandleCalled"));
+
+        AtomicBoolean called = new AtomicBoolean(false);
+        Consumer<TempValue> mockConsumer = (v) -> called.set(true);
+        manager.reset(mockValue, mockConsumer);
+        Assert.assertTrue(called.get());
+
+        //get current data after reset
+        TempValue newMockValue = manager.get(uuid).map(Reference::get).orElse(null);
+        Assert.assertNotNull(cachedElements.get(uuid));
+        Assert.assertNotNull(nameMap.get("SomeName"));
+        Assert.assertNotNull(newMockValue);
+        Assert.assertEquals("ConstructionHandleCalled", newMockValue.str);
+
+        //end the db life-cycle
+        manager.disable();
+        //one for new, one for change value
+        Mockito.verify(mockDatabase, Mockito.times(2)).save(Mockito.eq(uuid.toString()), Mockito.eq(mockValue));
+        //reset will delete data from database
+        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Mockito.isNull(TempValue.class));
+        //reset -> construction handle called -> setStr() is called -> new data saved to db
+        Mockito.verify(mockDatabase, Mockito.times(1)).save(Mockito.eq(uuid.toString()), Mockito.eq(newMockValue));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void resetInvalidCache() throws Exception {
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.setStr("Initial value");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+        Assert.assertEquals(uuid, nameMap.get("SomeName"));
+
+        //change value
+        mockValue.setStr("ChangedName");
+        Assert.assertEquals("ChangedName", mockValue.str);
+
+        //reset
+        manager.setConstructionHandle((v) -> v.setStr("ConstructionHandleCalled"));
+
+        AtomicBoolean called = new AtomicBoolean(false);
+        Consumer<TempValue> mockConsumer = (v) -> called.set(true);
+        manager.reset(mockValue, mockConsumer);
+        Assert.assertTrue(called.get());
+        //test with old instance (the observer should be unregistered at this point)
+        //it will throw exception if it's still subscribed with observer
+        mockValue.setStr("Invalid call");
     }
 
     @Test

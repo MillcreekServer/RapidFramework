@@ -2,19 +2,27 @@ package io.github.wysohn.rapidframework2.core.manager.common;
 
 import java.util.function.Predicate;
 
-public class ReactivePredicate<T> implements Predicate<T> {
+public class RPredicate<T> implements Predicate<T> {
     private final Predicate<T> predicate;
-    private final FailHandle<T> onFail;
-    private final boolean showOnFail;
+    private FailHandle<T> onFail;
+    private boolean showOnFail;
 
-    public ReactivePredicate(Predicate<T> predicate, FailHandle<T> onFail, boolean shwoOnFail) {
+    RPredicate(Predicate<T> predicate, FailHandle<T> onFail, boolean shwoOnFail) {
         this.predicate = predicate;
         this.onFail = onFail;
         this.showOnFail = shwoOnFail;
     }
 
-    public ReactivePredicate(Predicate<T> predicate, FailHandle<T> onFail) {
+    private RPredicate(Predicate<T> predicate, FailHandle<T> onFail) {
         this(predicate, onFail, false);
+    }
+
+    public static <T> RPredicate<T> of(Predicate<T> predicate, FailHandle<T> onFail, boolean shwoOnFail) {
+        return new RPredicate<T>(predicate, onFail, shwoOnFail);
+    }
+
+    public static <T> RPredicate<T> of(Predicate<T> predicate, FailHandle<T> onFail) {
+        return new RPredicate<T>(predicate, onFail);
     }
 
     @Override

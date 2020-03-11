@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 public class PageButton extends PageControlButton {
 
     public PageButton(PluginBase base, ManagerGUI.Frame parent) {
-        super(base, parent, new ItemStack(Material.BOOK_AND_QUILL, 1));
+        super(base, parent, new ItemStack(Material.WHITE_WOOL, 1));
         // TODO Auto-generated constructor stub
     }
 

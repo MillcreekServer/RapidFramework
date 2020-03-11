@@ -14,10 +14,11 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package io.github.wysohn.rapidframework.utils.files;
+package io.github.wysohn.rapidframework2.tools;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 
 public class FileUtil {
     /**
@@ -41,7 +42,7 @@ public class FileUtil {
         File temp = File.createTempFile("CopyOf_" + file.getName(), ".tmp", file.getParentFile());
 
         try (FileOutputStream fos = new FileOutputStream(temp);
-             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");) {
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
             osw.write(str);
         }
 
@@ -55,13 +56,13 @@ public class FileUtil {
         temp.delete();
     }
 
-    public static String readFromFile(File file) throws UnsupportedEncodingException, IOException {
+    public static String readFromFile(File file) throws IOException {
         if (!file.exists())
             return null;
 
         StringBuilder builder = new StringBuilder();
         try (FileInputStream fis = new FileInputStream(file);
-             InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
+             InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8)) {
             int read = -1;
             while ((read = isr.read()) != -1) {
                 builder.append((char) read);
@@ -70,9 +71,9 @@ public class FileUtil {
         }
     }
 
-    public static String readFromStream(InputStream stream) throws UnsupportedEncodingException, IOException {
+    public static String readFromStream(InputStream stream) throws IOException {
         StringBuilder builder = new StringBuilder();
-        try (InputStreamReader isr = new InputStreamReader(stream, "UTF-8")) {
+        try (InputStreamReader isr = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             int read = -1;
             while ((read = isr.read()) != -1) {
                 builder.append((char) read);

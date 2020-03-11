@@ -5,7 +5,7 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
-import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,32 +21,32 @@ public class AbstractPermissionManagerTest {
 
     enum Perms implements IPermission{
         SomePerm(UUID.fromString("ce04af26-0533-4d20-81b6-183bca8107c1"),
-                new DynamicLang(DefaultLangs.Structure_Title), new DynamicLang(DefaultLangs.Structure_Title)),
+                DefaultLangs.Structure_Title, DefaultLangs.Structure_Title),
         SomePerm2(UUID.fromString("1467f8bb-7426-4f36-870f-839ee64b210f"),
-                new DynamicLang(DefaultLangs.Structure_Title), new DynamicLang(DefaultLangs.Structure_Title)),
+                DefaultLangs.Structure_Title, DefaultLangs.Structure_Title),
         SomePerm3(UUID.fromString("45640d6a-5ace-4552-b755-eab2f074d8fc"),
-                new DynamicLang(DefaultLangs.Structure_Title), new DynamicLang(DefaultLangs.Structure_Title)),
+                DefaultLangs.Structure_Title, DefaultLangs.Structure_Title),
         SomePerm4(UUID.fromString("d0756229-d4d5-46c1-8293-ccbc2bffd58d"),
-                new DynamicLang(DefaultLangs.Structure_Title), new DynamicLang(DefaultLangs.Structure_Title)),
+                DefaultLangs.Structure_Title, DefaultLangs.Structure_Title),
         ;
 
         private final UUID uuid;
-        private final DynamicLang name;
-        private final DynamicLang desc;
+        private final Lang name;
+        private final Lang desc;
 
-        Perms(UUID uuid, DynamicLang name, DynamicLang desc) {
+        Perms(UUID uuid, Lang name, Lang desc) {
             this.uuid = uuid;
             this.name = name;
             this.desc = desc;
         }
 
         @Override
-        public DynamicLang getName() {
+        public Lang getName() {
             return name;
         }
 
         @Override
-        public DynamicLang getDescription() {
+        public Lang getDescription() {
             return desc;
         }
 

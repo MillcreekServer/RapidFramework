@@ -45,25 +45,25 @@ public class InventoryUtil {
         switch (IS.getType()) {
             case LEATHER_HELMET:
             case IRON_HELMET:
-            case GOLD_HELMET:
+            case GOLDEN_HELMET:
             case DIAMOND_HELMET:
             case CHAINMAIL_HELMET:
                 return 5;
             case LEATHER_CHESTPLATE:
             case IRON_CHESTPLATE:
-            case GOLD_CHESTPLATE:
+            case GOLDEN_CHESTPLATE:
             case DIAMOND_CHESTPLATE:
             case CHAINMAIL_CHESTPLATE:
                 return 6;
             case LEATHER_LEGGINGS:
             case IRON_LEGGINGS:
-            case GOLD_LEGGINGS:
+            case GOLDEN_LEGGINGS:
             case DIAMOND_LEGGINGS:
             case CHAINMAIL_LEGGINGS:
                 return 7;
             case LEATHER_BOOTS:
             case IRON_BOOTS:
-            case GOLD_BOOTS:
+            case GOLDEN_BOOTS:
             case DIAMOND_BOOTS:
             case CHAINMAIL_BOOTS:
                 return 8;

@@ -1,11 +1,10 @@
 package io.github.wysohn.rapidframework2.core.manager.api;
 
-import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginManager;
+import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class allow plugins to be loaded while using the APIs of third party plugins.
@@ -14,8 +13,8 @@ import java.util.Map;
  * with it is to dynamically instantiate the class only if the target third party plugin actually exist and enabled.
  */
 public class ManagerExternalAPI extends PluginMain.Manager {
-    private final Map<String, Class<? extends ExternalAPI>> apiClasses = new HashMap<>();
-    private final Map<String, ExternalAPI> externalAPIs = new HashMap<>();
+    private final Map<String, Set<Class<? extends ExternalAPI>>> apiClasses = new HashMap<>();
+    private final Map<Class<? extends ExternalAPI>, ExternalAPI> externalAPIs = new HashMap<>();
 
     private final IPluginManager pluginManager;
 
@@ -27,53 +26,84 @@ public class ManagerExternalAPI extends PluginMain.Manager {
 
     @Override
     public void enable() throws Exception {
-        for (Map.Entry<String, Class<? extends ExternalAPI>> entry : apiClasses.entrySet()) {
+        for (Map.Entry<String, Set<Class<? extends ExternalAPI>>> entry : apiClasses.entrySet()) {
             String pluginName = entry.getKey();
-            Class<? extends ExternalAPI> clazz = entry.getValue();
+            Set<Class<? extends ExternalAPI>> clazzes = entry.getValue();
 
             if (!pluginManager.isEnabled(pluginName))
                 continue;
 
-            try {
-                Constructor con = clazz.getConstructor(PluginMain.class, String.class);
-                ExternalAPI api = (ExternalAPI) con.newInstance(main(), pluginName);
-                api.enable();
+            clazzes.forEach(clazz -> {
+                try {
+                    Constructor con = clazz.getConstructor(PluginMain.class, String.class);
+                    ExternalAPI api = (ExternalAPI) con.newInstance(main(), pluginName);
+                    api.enable();
 
-                externalAPIs.put(pluginName, api);
+                    externalAPIs.put(clazz, api);
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                main().getLogger().severe("Failed to enable API support for [" + pluginName + "]");
-            }
+                    main().getLogger().info("["+clazz.getSimpleName()+"] Hooked to "+pluginName+".");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    main().getLogger().severe("Failed to enable API support for [" + pluginName + "]");
+                }
+            });
         }
     }
 
+//    public static void main(String[] ar){
+//        AtomicInteger executed = new AtomicInteger();
+//        Runnable dontraise = executed::getAndIncrement;
+//        Runnable raise = () -> {
+//            throw new RuntimeException("ex");
+//        };
+//
+//        List<Runnable> tests = new ArrayList<>();
+//        tests.add(dontraise);
+//        tests.add(dontraise);
+//        tests.add(dontraise);
+//        tests.add(raise);
+//        tests.add(dontraise);
+//        tests.forEach(runnable -> {
+//            try{
+//                runnable.run();
+//            }catch (Exception ex){
+//                ex.printStackTrace();
+//            }
+//        });
+//
+//        System.out.println(executed);
+//    }
+
     @Override
     public void load() throws Exception {
-        for (Map.Entry<String, ExternalAPI> entry : externalAPIs.entrySet()) {
-            String pluginName = entry.getKey();
+        for (Map.Entry<Class<? extends ExternalAPI>, ExternalAPI> entry : externalAPIs.entrySet()) {
+            Class<? extends ExternalAPI> clazz = entry.getKey();
             ExternalAPI api = entry.getValue();
 
             try {
                 api.load();
+
+                main().getLogger().info("["+clazz.getSimpleName()+"] load complete.");
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main().getLogger().severe("Failed to load API support for [" + pluginName + "]");
+                main().getLogger().severe("Failed to load API support for [" + clazz.getSimpleName() + "]");
             }
         }
     }
 
     @Override
     public void disable() throws Exception {
-        for (Map.Entry<String, ExternalAPI> entry : externalAPIs.entrySet()) {
-            String pluginName = entry.getKey();
+        for (Map.Entry<Class<? extends ExternalAPI>, ExternalAPI> entry : externalAPIs.entrySet()) {
+            Class<? extends ExternalAPI> clazz = entry.getKey();
             ExternalAPI api = entry.getValue();
 
             try {
                 api.disable();
+
+                main().getLogger().info("["+clazz.getSimpleName()+"] disabled.");
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main().getLogger().severe("Failed to load API support for [" + pluginName + "]");
+                main().getLogger().severe("Failed to load API support for [" + clazz.getSimpleName() + "]");
             }
         }
     }
@@ -86,11 +116,11 @@ public class ManagerExternalAPI extends PluginMain.Manager {
      * @return true if registered; false if replaced (which means plugin name duplicates)
      */
     public boolean registerExternalAPI(String name, Class<? extends ExternalAPI> clazz) {
-        return apiClasses.put(name, clazz) == null;
+        return apiClasses.computeIfAbsent(name, (key) -> new HashSet<>()).add(clazz);
     }
 
-    public ExternalAPI getAPI(String pluginName) {
-        return externalAPIs.get(pluginName);
+    public <T extends ExternalAPI> Optional<T> getAPI(Class<T> clazz) {
+        return Optional.ofNullable((T) externalAPIs.get(clazz));
     }
 
 

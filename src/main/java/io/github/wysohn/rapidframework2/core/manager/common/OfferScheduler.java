@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
 import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +62,7 @@ public class OfferScheduler {
                         if (currentIndex >= masks.length)
                             return;
 
-                        while (masks[currentIndex] >= left) {
+                        while (currentIndex < masks.length && masks[currentIndex] >= left) {
                             try {
                                 taskSupervisor.runSync(() -> {
                                     onProgress.millis(masks[currentIndex++]);
@@ -77,8 +78,10 @@ public class OfferScheduler {
                 },
                 onTimeout));
 
-        pendingOffers.put(player.getUuid(), onOfferAccept);
-        runningTasks.put(player.getUuid(), future);
+        Optional.ofNullable(future).ifPresent(f -> {
+            pendingOffers.put(player.getUuid(), onOfferAccept);
+            runningTasks.put(player.getUuid(), f);
+        });
 
         return true;
     }
@@ -152,6 +155,9 @@ public class OfferScheduler {
                     return null;
                 }).get();
             } catch (InterruptedException e) {
+                // e.printStackTrace();
+                return null;
+            } catch (Exception e){
                 e.printStackTrace();
                 return null;
             } finally {
