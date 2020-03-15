@@ -95,24 +95,6 @@ dependencies {
     testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.0'
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "RapidFramework"
-            url = uri("https://maven.pkg.github.com/wysohn/rapidframework")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
-    }
-}
-
 jar {
     from sourceSets.main.allSource
 }
