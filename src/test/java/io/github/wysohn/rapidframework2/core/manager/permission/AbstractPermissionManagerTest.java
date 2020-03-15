@@ -41,16 +41,6 @@ public class AbstractPermissionManagerTest {
         }
 
         @Override
-        public Lang getName() {
-            return name;
-        }
-
-        @Override
-        public Lang getDescription() {
-            return desc;
-        }
-
-        @Override
         public UUID getUuid() {
             return uuid;
         }

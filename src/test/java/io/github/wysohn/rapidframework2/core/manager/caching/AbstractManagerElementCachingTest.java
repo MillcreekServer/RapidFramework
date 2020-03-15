@@ -12,8 +12,6 @@ import org.powermock.reflect.Whitebox;
 
 import java.lang.ref.Reference;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -304,11 +302,7 @@ public class AbstractManagerElementCachingTest {
 
         //reset
         manager.setConstructionHandle((v) -> v.setStr("ConstructionHandleCalled"));
-
-        AtomicBoolean called = new AtomicBoolean(false);
-        Consumer<TempValue> mockConsumer = (v) -> called.set(true);
-        manager.reset(mockValue, mockConsumer);
-        Assert.assertTrue(called.get());
+        manager.reset(mockValue);
 
         //get current data after reset
         TempValue newMockValue = manager.get(uuid).map(Reference::get).orElse(null);
@@ -350,11 +344,7 @@ public class AbstractManagerElementCachingTest {
 
         //reset
         manager.setConstructionHandle((v) -> v.setStr("ConstructionHandleCalled"));
-
-        AtomicBoolean called = new AtomicBoolean(false);
-        Consumer<TempValue> mockConsumer = (v) -> called.set(true);
-        manager.reset(mockValue, mockConsumer);
-        Assert.assertTrue(called.get());
+        manager.reset(mockValue);
         //test with old instance (the observer should be unregistered at this point)
         //it will throw exception if it's still subscribed with observer
         mockValue.setStr("Invalid call");

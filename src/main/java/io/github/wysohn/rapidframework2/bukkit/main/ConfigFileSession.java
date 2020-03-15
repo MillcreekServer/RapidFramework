@@ -1,8 +1,8 @@
 package io.github.wysohn.rapidframework2.bukkit.main;
 
+import io.github.wysohn.rapidframework2.bukkit.utils.Utf8YamlConfiguration;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -11,17 +11,17 @@ import java.util.Optional;
 import java.util.Set;
 
 public class ConfigFileSession extends AbstractFileSession {
-    private FileConfiguration config;
+    private YamlConfiguration config;
 
     public ConfigFileSession(File file) {
         super(file);
 
-        config = YamlConfiguration.loadConfiguration(file);
+        config = Utf8YamlConfiguration.loadConfiguration(file);
     }
 
     @Override
     public void reload() throws IOException {
-        config = YamlConfiguration.loadConfiguration(file);
+        config = Utf8YamlConfiguration.loadConfiguration(file);
     }
 
     @Override

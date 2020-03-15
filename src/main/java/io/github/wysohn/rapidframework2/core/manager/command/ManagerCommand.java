@@ -83,7 +83,7 @@ public final class ManagerCommand extends PluginMain.Manager {
      * @return always true since we have our own way to show error messages.
      */
     public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
-        if(!mainCommand.equals(command))
+        if (!command.equals(mainCommand))
             return true;
 
         final String[] args;

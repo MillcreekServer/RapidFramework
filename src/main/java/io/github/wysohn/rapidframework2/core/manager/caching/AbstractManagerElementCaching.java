@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
@@ -251,14 +250,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     /**
      * Delete data from both cache and database and recreate a new instance.
+     *
      * @param value value to reset
-     * @param doBefore consumer to work on 'value' before the reset
      */
-    public void reset(V value, Consumer<V> doBefore) {
-        doBefore.andThen(v -> {
-            delete(v.getKey());
-            getOrNew(v.getKey());
-        }).accept(value);
+    public void reset(V value) {
+        delete(value.getKey());
+        getOrNew(value.getKey());
     }
 
     public Set<K> keySet(){

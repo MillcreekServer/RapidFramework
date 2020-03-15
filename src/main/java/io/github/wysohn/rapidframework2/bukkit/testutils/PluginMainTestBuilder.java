@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.command.PluginCommand;
+import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -19,15 +20,19 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PluginMainTestBuilder {
+    private final ExecutorService async = Executors.newSingleThreadExecutor();
+
     private PluginBridge mockBridge;
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
@@ -37,10 +42,9 @@ public class PluginMainTestBuilder {
     private PluginMain main;
     private BukkitPluginBridge core;
 
-    private List<Supplier<String>> mockSubCommands = new LinkedList<>();
+    private List<Object> expectations = new LinkedList<>();
     private List<Consumer<PluginMainTestBuilder>> befores = new LinkedList<>();
     private List<Consumer<PluginMainTestBuilder>> afters = new LinkedList<>();
-    private List<Function<PluginMainTestBuilder, Boolean>> expectations = new LinkedList<>();
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
     private TaskSupervisor mockSupervisor;
@@ -58,6 +62,12 @@ public class PluginMainTestBuilder {
         when(mockMessage.getString()).thenReturn("SomeMessage");
         when(mockBukkit.getCommand(Mockito.anyString())).thenReturn(mockCommand);
         when(mockBukkit.getTaskSupervisor()).thenReturn(mockSupervisor);
+
+        when(mockSupervisor.runSync(any())).then(ans -> {
+            Object r = ((Callable) ans.getArguments()[0]).call();
+            return new SimpleFuture(r);
+        });
+        when(mockSupervisor.runAsync(any())).then(ans -> async.submit((Callable) ans.getArguments()[0]));
     }
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, PluginMain.Manager... managers){
@@ -150,9 +160,9 @@ public class PluginMainTestBuilder {
         return mockBukkit;
     }
 
-    public TaskSupervisor getMockSupervisor() {
-        return mockSupervisor;
-    }
+//    public TaskSupervisor getMockSupervisor() {
+//        return mockSupervisor;
+//    }
 
     public PluginMain getMain() {
         return main;
@@ -162,7 +172,7 @@ public class PluginMainTestBuilder {
         return core;
     }
 
-    public PluginMainTestBuilder before(Consumer<PluginMainTestBuilder> consumer){
+    public PluginMainTestBuilder before(Consumer<PluginMainTestBuilder> consumer) {
         befores.add(consumer);
         return this;
     }
@@ -173,37 +183,76 @@ public class PluginMainTestBuilder {
     }
 
 
-    public PluginMainTestBuilder mockSubCommand(Supplier<String> subCommandSupplier){
-        this.mockSubCommands.add(subCommandSupplier);
+    public PluginMainTestBuilder mockSubCommand(Supplier<String> subCommandSupplier) {
+        this.expectations.add(subCommandSupplier);
         return this;
     }
 
-    public PluginMainTestBuilder expect(Function<PluginMainTestBuilder, Boolean> fn){
+    public PluginMainTestBuilder expect(Function<PluginMainTestBuilder, Boolean> fn) {
         this.expectations.add(fn);
         return this;
     }
 
-    public int test(ICommandSender sender, boolean boolToCheck){
-        int count = 0;
+    public void test(ICommandSender sender, boolean boolToCheck) {
+        int index = 1;
 
         befores.forEach(pluginMainTestBuilderConsumer -> pluginMainTestBuilderConsumer.accept(this));
 
-        for(Supplier<String> mockSubCommand : mockSubCommands){
-            String command = mockSubCommand.get();
-            if(!main.comm().onCommand(sender,
-                    main.comm().getMainCommand(),
-                    main.comm().getMainCommand(),
-                    command.split(" ")))
-                throw new RuntimeException("Command "+command+" returned false.");
-        }
+        for (Object expt : expectations) {
+            if (expt instanceof Supplier) {
+                Supplier<String> mockCommand = (Supplier<String>) expt;
 
-        for(Function<PluginMainTestBuilder, Boolean> fn : expectations){
-            if(fn.apply(this) == boolToCheck)
-                count++;
+                String command = mockCommand.get();
+                if (!main.comm().onCommand(sender,
+                        main.comm().getMainCommand(),
+                        main.comm().getMainCommand(),
+                        command.split(" ")))
+                    throw new RuntimeException("Command " + command + " returned false.");
+            } else if (expt instanceof Function) {
+                Function<PluginMainTestBuilder, Boolean> fn = (Function<PluginMainTestBuilder, Boolean>) expt;
+
+                if (fn.apply(this) != boolToCheck)
+                    throw new RuntimeException("Did not meet [" + index + "]th expectation.");
+                else
+                    index++;
+            }
         }
 
         afters.forEach(pluginMainTestBuilderConsumer -> pluginMainTestBuilderConsumer.accept(this));
 
-        return count;
+        async.shutdown();
+    }
+
+    private static class SimpleFuture implements Future {
+        private final Object r;
+
+        public SimpleFuture(Object r) {
+            this.r = r;
+        }
+
+        @Override
+        public boolean cancel(boolean b) {
+            return true;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return true;
+        }
+
+        @Override
+        public boolean isDone() {
+            return true;
+        }
+
+        @Override
+        public Object get() throws InterruptedException, ExecutionException {
+            return r;
+        }
+
+        @Override
+        public Object get(long l, @NotNull TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+            return r;
+        }
     }
 }

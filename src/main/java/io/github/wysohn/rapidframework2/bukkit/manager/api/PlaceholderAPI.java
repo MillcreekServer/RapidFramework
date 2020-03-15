@@ -40,7 +40,11 @@ public class PlaceholderAPI extends ExternalAPI {
      * it will be %myplugin_some_thing_...%
      */
     public void register(Placeholder placeholder) {
-        me.clip.placeholderapi.PlaceholderAPI.registerPlaceholderHook(main.getPluginName().toLowerCase(),
+        register(main.getPluginName().toLowerCase(), placeholder);
+    }
+
+    public void register(String prefix, Placeholder placeholder) {
+        me.clip.placeholderapi.PlaceholderAPI.registerPlaceholderHook(prefix,
                 new PlaceholderHook() {
 
                     @Override

@@ -97,7 +97,7 @@ public class PluginMain implements PluginRuntime {
         return rootPermission;
     }
 
-    public PluginBridge getPluginBridge() {
+    public PluginBridge getBridge() {
         return pluginBridge;
     }
 

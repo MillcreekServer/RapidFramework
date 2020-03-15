@@ -1,12 +1,12 @@
 package io.github.wysohn.rapidframework2.core.manager.lang;
 
-import io.github.wysohn.rapidframework.utils.files.JarUtil;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.KeyValueStorageAdapter;
 import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSender;
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
+import util.JarUtil;
 import util.Validation;
 
 import java.text.DecimalFormat;
@@ -60,7 +60,7 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     @Override
     public void enable() throws Exception {
-        JarUtil.copyFolderFromJar("lang", main().getPluginDirectory(), JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+        JarUtil.copyFromJar("lang/**", main().getPluginDirectory(), JarUtil.CopyOption.COPY_IF_NOT_EXIST);
     }
 
     @Override
@@ -286,7 +286,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public void broadcast(Lang lang, PreParseHandle handle){
-        main().getPluginBridge().forEachSender(player -> sendMessage(player, lang, handle));
+        main().getBridge().forEachSender(player -> sendMessage(player, lang, handle));
     }
 
     public void broadcast(Lang lang){

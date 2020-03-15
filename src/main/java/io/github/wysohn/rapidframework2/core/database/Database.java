@@ -24,13 +24,13 @@ import copy.com.google.gson.internal.bind.TypeAdapters;
 import copy.com.google.gson.stream.JsonReader;
 import copy.com.google.gson.stream.JsonToken;
 import copy.com.google.gson.stream.JsonWriter;
-import io.github.wysohn.rapidframework.pluginbase.objects.SimpleChunkLocation;
-import io.github.wysohn.rapidframework.pluginbase.objects.SimpleLocation;
 import io.github.wysohn.rapidframework2.core.database.file.DatabaseFile;
 import io.github.wysohn.rapidframework2.core.database.mysql.DatabaseMysql;
 import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
 import io.github.wysohn.rapidframework2.core.database.serialize.UUIDSerializer;
 import io.github.wysohn.rapidframework2.core.manager.caching.ObservableElement;
+import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
+import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 
 import java.io.File;
 import java.io.IOException;

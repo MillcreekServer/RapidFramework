@@ -14,10 +14,14 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.event.Listener;
+import org.bukkit.permissions.Permission;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -30,9 +34,21 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
 
     public BukkitPluginBridge(AbstractBukkitPlugin bukkit) {
         this(bukkit.getDescription().getName(),
-                bukkit.getDescription().getDescription(),
-                bukkit.getDescription().getCommands().entrySet().stream().findFirst().get().getKey(),
-                bukkit.getDescription().getPermissions().stream().findFirst().get().getName(),
+                Optional.of(bukkit)
+                        .map(JavaPlugin::getDescription)
+                        .map(PluginDescriptionFile::getDescription)
+                        .orElse("No plugin description."),
+                bukkit.getDescription().getCommands()
+                        .entrySet()
+                        .stream()
+                        .findFirst()
+                        .map(Map.Entry::getKey)
+                        .orElse(null),
+                bukkit.getDescription().getPermissions()
+                        .stream()
+                        .findFirst()
+                        .map(Permission::getName)
+                        .orElse(bukkit.getDescription().getName().toLowerCase()),
                 bukkit.getLogger(),
                 bukkit.getDataFolder(),
                 pluginName -> bukkit.getPluginManager().isPluginEnabled(pluginName),
