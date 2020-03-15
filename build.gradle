@@ -43,6 +43,20 @@ sourceSets {
     }
 }
 
+test{
+    maxParallelForks = 2
+    maxHeapSize = '512m'
+    forkEvery = 100
+
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    onOutput { descriptor, event ->
+        logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+    }
+}
+
 sourceCompatibility = 1.8
 
 task copyThirdPartyJar(type: Copy) {
