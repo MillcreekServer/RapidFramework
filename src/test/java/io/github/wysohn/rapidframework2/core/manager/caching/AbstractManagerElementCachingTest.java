@@ -276,6 +276,8 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
+        Mockito.verify(mockDatabase).getKeys();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()), Matchers.isNull(TempValue.class));
         Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Matchers.isNull(TempValue.class));
     }
 

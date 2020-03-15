@@ -46,6 +46,8 @@ sourceSets {
 test {
     minHeapSize = "128m"
     maxHeapSize = "512m"
+    forkEvery = 25
+    maxParallelForks = 2
 
     testLogging {
         exceptionFormat = 'full'
