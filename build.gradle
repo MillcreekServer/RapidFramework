@@ -130,7 +130,7 @@ jar {
 publishing {
     repositories {
         maven {
-            name = "GitHubPackages"
+            name = "RapidFramework"
             url = uri("https://maven.pkg.github.com/wysohn/RapidFramework")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
