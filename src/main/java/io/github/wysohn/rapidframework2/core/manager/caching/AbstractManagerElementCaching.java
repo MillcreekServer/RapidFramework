@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
@@ -92,10 +91,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public void disable() throws Exception {
         synchronized (cacheLock){
             synchronized (dbLock){
-                saveTaskPool.shutdown();
-
                 main().getLogger().info("Waiting for the save tasks to be done...");
-                saveTaskPool.awaitTermination(10, TimeUnit.SECONDS);
+                saveTaskPool.shutdownNow().forEach(Runnable::run);
                 main().getLogger().info("Save finished.");
             }
         }
