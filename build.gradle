@@ -44,9 +44,9 @@ sourceSets {
 }
 
 test{
-    maxParallelForks = 2
-    maxHeapSize = '512m'
-    forkEvery = 100
+    maxParallelForks = 1
+    minHeapSize = "128m"
+    maxHeapSize = "512m"
 
     beforeTest { descriptor ->
         logger.lifecycle("Running test: " + descriptor)
