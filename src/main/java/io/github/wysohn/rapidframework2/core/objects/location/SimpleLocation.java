@@ -92,7 +92,11 @@ public class SimpleLocation implements Cloneable {
         return new SimpleLocation(this.world, this.x + x, this.y + y, this.z + z);
     }
 
-    public <T> T transform(Function<SimpleLocation, T> fn){
+    public SimpleLocation add(Vector vector) {
+        return add((int) vector.getX(), (int) vector.getY(), (int) vector.getZ());
+    }
+
+    public <T> T transform(Function<SimpleLocation, T> fn) {
         return fn.apply(this.clone());
     }
 

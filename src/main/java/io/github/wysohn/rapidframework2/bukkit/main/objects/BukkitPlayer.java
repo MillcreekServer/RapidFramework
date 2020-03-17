@@ -4,8 +4,11 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.IPlayer;
 import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
+import io.github.wysohn.rapidframework2.core.objects.location.Vector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -93,6 +96,15 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
                         location.getBlockX() >> 4,
                         location.getBlockZ() >> 4))
                 .orElse(null);
+    }
+
+    @Override
+    public Vector getDirection() {
+        return Optional.ofNullable(sender)
+                .map(Entity::getFacing)
+                .map(BlockFace::getDirection)
+                .map(v -> new Vector(v.getX(), v.getY(), v.getZ()))
+                .orElse(Vector.zero());
     }
 
     @Override

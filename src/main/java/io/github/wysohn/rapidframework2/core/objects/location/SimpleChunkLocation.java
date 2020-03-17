@@ -86,6 +86,10 @@ public class SimpleChunkLocation {
         return new SimpleChunkLocation(world, this.i + i, this.j + j);
     }
 
+    public SimpleChunkLocation add(Vector dir) {
+        return add((int) dir.getX(), (int) dir.getZ());
+    }
+
     public double distance(SimpleChunkLocation other) {
         return Math.sqrt(i * other.i + j * other.j);
     }
