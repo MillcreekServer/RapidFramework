@@ -45,6 +45,32 @@ public class Vector {
         return x == 0.0 && y == 0.0 && z == 0.0;
     }
 
+    public Vector add(Vector v) {
+        return add(v.x, v.y, v.z);
+    }
+
+    public Vector add(double x, double y, double z) {
+        return new Vector(this.x + x, this.y + y, this.z + z);
+    }
+
+    /**
+     * Matrix multiplication (this^T . V)
+     *
+     * @param v
+     * @return
+     */
+    public Vector mult(Vector v) {
+        return mult(v.x, v.y, v.z);
+    }
+
+    public Vector mult(double x, double y, double z) {
+        return new Vector(this.x * x, this.y * y, this.z * z);
+    }
+
+    public Vector mult(double scalar) {
+        return new Vector(scalar * x, scalar * y, scalar * z);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

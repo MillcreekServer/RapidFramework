@@ -53,4 +53,41 @@ public class VectorTest {
 
         assertEquals(new Vector(0, 0, 0), v);
     }
+
+    @Test
+    public void add() {
+        Vector v = new Vector(3, 4, 5);
+        Vector u = new Vector(1.5, 3, 4);
+
+        assertEquals(new Vector(4.5, 7, 9), v.add(u));
+    }
+
+    @Test
+    public void testAdd() {
+        Vector v = new Vector(3, 4, 5);
+
+        assertEquals(new Vector(5, 10, 11.3), v.add(2, 6, 6.3));
+    }
+
+    @Test
+    public void mult() {
+        Vector v = new Vector(3, 4, 5);
+        Vector u = new Vector(1.5, 3, 4);
+
+        assertEquals(new Vector(4.5, 12, 20), v.mult(u));
+    }
+
+    @Test
+    public void testMult() {
+        Vector v = new Vector(3, 4, 5);
+
+        assertEquals(new Vector(5, 10, 11.3), v.mult(5 / 3.0, 5 / 2.0, 11.3 / 5.0));
+    }
+
+    @Test
+    public void testMult1() {
+        Vector v = new Vector(3, 4, 5);
+
+        assertEquals(new Vector(24, 32, 40), v.mult(8));
+    }
 }
