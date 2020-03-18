@@ -57,10 +57,10 @@ public interface TabCompleter {
     }
 
     /**
-     * Show candidates values that can be used to complete the argument.
+     * Show candidate values that can be used to complete the argument.
      * It works after when a player provides at least one character (args.length > 0).
      * <p>
-     * Example) /cmd subcmd a[abc, aabbcc, aaaa, ...]
+     * Example) <b>/cmd subcmd a</b>[abc, aabbcc, aaaa, ...]
      *
      * @param part partially finished argument
      * @return list of candidates; empty list; null (which shows online players)
@@ -69,9 +69,9 @@ public interface TabCompleter {
 
     /**
      * Show hint. This only shows when a player just entered a space after an
-     * argument before and not a character is provided yet (args.length < 1).
+     * argument before it and not a character is provided yet (args.length < 1).
      * <p>
-     * Example) /cmd subcmd [somehint]
+     * Example) <b>/cmd subcmd </b>[somehint]
      *
      * @return String list with size 1; empty list; null (which shows online players)
      */

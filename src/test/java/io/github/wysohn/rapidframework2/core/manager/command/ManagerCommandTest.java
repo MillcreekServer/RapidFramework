@@ -87,7 +87,7 @@ public class ManagerCommandTest {
                 new String[]{"ot"}));
 
         // hint of ENPTY
-        Assert.assertEquals(TabCompleter.list("?"), managerCommand.onTabComplete(mockSender, "test", "",
+        Assert.assertEquals(TabCompleter.list(), managerCommand.onTabComplete(mockSender, "test", "",
                 new String[]{"somecmd", ""}));
         // tab complete
         Assert.assertEquals(TabCompleter.list(), managerCommand.onTabComplete(mockSender, "test", "",
