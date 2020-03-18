@@ -20,7 +20,7 @@ public interface TabCompleter {
 
         @Override
         public List<String> getHint() {
-            return TabCompleter.list("?");
+            return TabCompleter.list();
         }
     };
     /**
