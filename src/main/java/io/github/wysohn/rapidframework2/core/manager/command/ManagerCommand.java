@@ -6,10 +6,7 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -258,15 +255,37 @@ public final class ManagerCommand extends PluginMain.Manager {
         return builder.toString();
     }
 
-    public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args){
-        return commandMap.entrySet().stream()
-                .map(Map.Entry::getValue)
-                .filter(cmd -> args.length == 1)
-                .filter(cmd -> sender.hasPermission(cmd.permission))
-                .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
-                .filter(cmd -> cmd.name.startsWith(args[args.length - 1]))
-                .sorted((Comparator.comparing(cmd -> cmd.name)))
-                .map(cmd -> cmd.name)
-                .collect(Collectors.toList());
+    /**
+     * adapter method for command handling
+     *
+     * @param sender  sender
+     * @param command the main command used. Command doesn't run if it does not match with 'mainCommand'
+     * @param alias   the label of main command. Alias of the command or 'mainCommand'
+     * @param args_in the arguments next to the command. Ex) /mainCommand args[0] args[1] ...
+     */
+    public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args_in) {
+        if (!command.equals(mainCommand))
+            return new ArrayList<>();
+
+        if (args_in.length < 2) {
+            List<String> result = commandMap.entrySet().stream()
+                    .map(Map.Entry::getValue)
+                    .filter(cmd -> args_in.length == 1)
+                    .filter(cmd -> args_in[args_in.length - 1].length() > 0)
+                    .filter(cmd -> sender.hasPermission(cmd.permission))
+                    .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
+                    .filter(cmd -> cmd.name.startsWith(args_in[args_in.length - 1]))
+                    .sorted((Comparator.comparing(cmd -> cmd.name)))
+                    .map(cmd -> cmd.name)
+                    .collect(Collectors.toList());
+
+            if (result.isEmpty())
+                result.add("...");
+
+            return result;
+        } else {
+            // /cmd subcmd i0 i1 ...
+            return commandMap.tabComplete(sender, args_in[0], args_in.length - 2, args_in[args_in.length - 1]);
+        }
     }
 }

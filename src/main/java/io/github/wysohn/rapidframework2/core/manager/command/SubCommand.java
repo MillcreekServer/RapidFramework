@@ -25,6 +25,7 @@ public class SubCommand {
     boolean doubleCheck = false;
     private CommandAction action;
     private List<ArgumentMapper> argumentMappers = new ArrayList<>();
+    private List<TabCompleter> tabCompleters = new ArrayList<>();
 
     SubCommand(PluginMain main, String name, int nArguments) {
         this.main = main;
@@ -46,6 +47,27 @@ public class SubCommand {
             return action.execute(sender, argsObj);
         else
             return true;
+    }
+
+    public List<String> tabHint(int index) {
+        if (index < tabCompleters.size())
+            return tabCompleters.get(index).getHint();
+        else
+            return TabCompleter.EMPTY.getHint();
+    }
+
+    /**
+     * Get list of possible tab completes.
+     *
+     * @param index the index of unfinished argument
+     * @param part  the partially finished argument.
+     * @return list of possible completions
+     */
+    public List<String> tabComplete(int index, String part) {
+        if (index < tabCompleters.size())
+            return tabCompleters.get(index).getCandidates(part);
+        else
+            return TabCompleter.EMPTY.getCandidates(part);
     }
 
     public static class Builder {
@@ -124,7 +146,19 @@ public class SubCommand {
             return this;
         }
 
-        public Builder needDoubleCheck(){
+        public Builder addTabCompleter(int index, TabCompleter completer) {
+            if (completer == null)
+                throw new RuntimeException(
+                        "Cannot use null for completer! Use TabCompleter.EMPTY if mapping is not required.");
+
+            while (command.tabCompleters.size() <= index)
+                command.tabCompleters.add(TabCompleter.EMPTY);
+            command.tabCompleters.set(index, completer);
+
+            return this;
+        }
+
+        public Builder needDoubleCheck() {
             command.doubleCheck = true;
             return this;
         }

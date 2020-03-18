@@ -115,6 +115,18 @@ class SubCommandMap {
         }
     }
 
+    public List<String> tabComplete(ICommandSender sender, String subCommand, int index, String partial) {
+        SubCommand cmd = commandList.get(subCommand);
+        if (cmd == null)
+            return new ArrayList<>();
+
+        if (partial.length() < 1) { // show hint if nothing is entered yet
+            return cmd.tabHint(index);
+        } else {
+            return cmd.tabComplete(index, partial);
+        }
+    }
+
     public SubCommand getCommand(String arg0) {
         return commandList.get(arg0);
     }
@@ -138,6 +150,4 @@ class SubCommandMap {
         commandList.put(cmd.name, cmd);
         return true;
     }
-
-
 }
