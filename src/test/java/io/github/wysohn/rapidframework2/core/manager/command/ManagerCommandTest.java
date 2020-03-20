@@ -64,6 +64,7 @@ public class ManagerCommandTest {
                         return TabCompleter.list("hint");
                     }
                 })
+                .addTabCompleter(3, TabCompleter.simple("ddeeff", "ggrr", "gger"))
                 .create());
         managerCommand.addCommand(new SubCommand.Builder(mockMain, "othercmd")
                 .create());
@@ -106,6 +107,19 @@ public class ManagerCommandTest {
         // tab complete of custom
         Assert.assertEquals(TabCompleter.list("abc", "opq", "bddb"), managerCommand.onTabComplete(mockSender, "test", "",
                 new String[]{"somecmd", "arg1", "arg2", "arg3"}));
+
+        // hint of simple
+        Assert.assertEquals(TabCompleter.list("ddeeff", "ggrr", "gger"), managerCommand.onTabComplete(mockSender, "test", "",
+                new String[]{"somecmd", "arg1", "arg2", "arg3", ""}));
+        // tab complete of simple
+        Assert.assertEquals(TabCompleter.list("ddeeff"), managerCommand.onTabComplete(mockSender, "test", "",
+                new String[]{"somecmd", "arg1", "arg2", "arg3", "dd"}));
+        Assert.assertEquals(TabCompleter.list("ggrr", "gger"), managerCommand.onTabComplete(mockSender, "test", "",
+                new String[]{"somecmd", "arg1", "arg2", "arg3", "gg"}));
+        Assert.assertEquals(TabCompleter.list("ggrr"), managerCommand.onTabComplete(mockSender, "test", "",
+                new String[]{"somecmd", "arg1", "arg2", "arg3", "ggr"}));
+        Assert.assertEquals(TabCompleter.list("gger"), managerCommand.onTabComplete(mockSender, "test", "",
+                new String[]{"somecmd", "arg1", "arg2", "arg3", "gge"}));
     }
 
     class TempSender implements ICommandSender {

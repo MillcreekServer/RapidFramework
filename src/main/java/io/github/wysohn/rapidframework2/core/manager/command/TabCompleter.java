@@ -56,6 +56,25 @@ public interface TabCompleter {
         };
     }
 
+    static TabCompleter simple(String... arg) {
+        return new TabCompleter() {
+            @Override
+            public List<String> getCandidates(String part) {
+                return Arrays.stream(arg)
+                        .filter(val -> val.startsWith(part))
+                        .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<String> getHint() {
+                return Arrays.stream(arg)
+                        .collect(Collectors.toList());
+            }
+        };
+    }
+
+    ;
+
     /**
      * Show candidate values that can be used to complete the argument.
      * It works after when a player provides at least one character (args.length > 0).
