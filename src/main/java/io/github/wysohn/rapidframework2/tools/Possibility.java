@@ -19,23 +19,6 @@ package io.github.wysohn.rapidframework2.tools;
 import java.util.Random;
 
 public class Possibility {
-    public static void main(String[] ar) {
-        double possibility = 0.3;
-
-        for (int x = 0; x < 5; x++) {
-            int win = 0, lose = 0;
-            for (int i = 0; i < 1000; i++) {
-                if (isWin(possibility, 2))
-                    win++;
-                else
-                    lose++;
-            }
-
-            System.out.println("win: " + win);
-            System.out.println("lose: " + lose);
-        }
-
-    }
 
     /**
      * 1/(2(level - vert))
