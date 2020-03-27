@@ -1,19 +1,20 @@
 package io.github.wysohn.rapidframework2.tools;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FailSensitiveTask {
-    private final Runnable task;
+    private final Supplier<Boolean> task;
 
     private Runnable onFail;
     private Consumer<Exception> exceptionHandle = (ex) -> {
     };
 
-    private FailSensitiveTask(Runnable runnable) {
-        this.task = runnable;
+    private FailSensitiveTask(Supplier<Boolean> task) {
+        this.task = task;
     }
 
-    public static FailSensitiveTask of(Runnable task) {
+    public static FailSensitiveTask of(Supplier<Boolean> task) {
         return new FailSensitiveTask(task);
     }
 
@@ -28,11 +29,14 @@ public class FailSensitiveTask {
     }
 
     public void run() {
+        boolean result = false;
         try {
-            task.run();
+            result = task.get();
         } catch (Exception ex) {
-            onFail.run();
             exceptionHandle.accept(ex);
+        } finally {
+            if (!result)
+                onFail.run();
         }
     }
 }

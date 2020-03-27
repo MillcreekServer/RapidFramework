@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework2.tools;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -11,24 +12,39 @@ public class FailSensitiveTaskTest {
 
     @Test
     public void onFail() {
-        Runnable mockRunnable = mock(Runnable.class);
+        Supplier mockRunnable = (Supplier<Boolean>) mock(Supplier.class);
         Runnable mockFailRunnable = mock(Runnable.class);
 
-        doThrow(new RuntimeException()).when(mockRunnable).run();
+        doThrow(new RuntimeException()).when(mockRunnable).get();
 
         FailSensitiveTask.of(mockRunnable)
                 .onFail(mockFailRunnable)
                 .run();
 
-        verify(mockRunnable).run();
+        verify(mockRunnable).get();
+        verify(mockFailRunnable).run();
+    }
+
+    @Test
+    public void onFail2() {
+        Supplier<Boolean> mockRunnable = (Supplier<Boolean>) mock(Supplier.class);
+        Runnable mockFailRunnable = mock(Runnable.class);
+
+        when(mockRunnable.get()).thenReturn(false);
+
+        FailSensitiveTask.of(mockRunnable)
+                .onFail(mockFailRunnable)
+                .run();
+
+        verify(mockRunnable).get();
         verify(mockFailRunnable).run();
     }
 
     @Test
     public void handleException() throws Exception {
-        Runnable mockRunnable = mock(Runnable.class);
+        Supplier<Boolean> mockRunnable = (Supplier<Boolean>) mock(Supplier.class);
 
-        doThrow(new RuntimeException()).when(mockRunnable).run();
+        doThrow(new RuntimeException()).when(mockRunnable).get();
 
         AtomicBoolean test = new AtomicBoolean();
         FailSensitiveTask.of(mockRunnable)
@@ -37,17 +53,19 @@ public class FailSensitiveTaskTest {
                 .handleException(e -> test.set(true))
                 .run();
 
-        verify(mockRunnable).run();
+        verify(mockRunnable).get();
         assertTrue(test.get());
     }
 
     @Test
     public void run() {
-        Runnable mockRunnable = mock(Runnable.class);
+        Supplier<Boolean> mockRunnable = (Supplier<Boolean>) mock(Supplier.class);
+
+        when(mockRunnable.get()).thenReturn(true);
 
         FailSensitiveTask.of(mockRunnable)
                 .run();
 
-        verify(mockRunnable).run();
+        verify(mockRunnable).get();
     }
 }
