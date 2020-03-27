@@ -249,7 +249,8 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Mockito.eq(value));
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()), Mockito.isNull(TempValue.class)); // cache not exist so try from db
+        // new data no longer saves unless required
     }
 
     @Test
