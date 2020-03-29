@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
@@ -255,9 +256,33 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         getOrNew(value.getKey());
     }
 
-    public Set<K> keySet(){
-        synchronized (cacheLock){
+    public Set<K> keySet() {
+        synchronized (cacheLock) {
             return new HashSet<>(cachedElements.keySet());
+        }
+    }
+
+    public void forEach(Consumer<V> consumer) {
+        forEach(consumer, false);
+    }
+
+    public void forEach(Consumer<V> consumer, boolean async) {
+        if (async) {
+            keySet().stream()
+                    .map(this::get)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(Reference::get)
+                    .forEach(consumer);
+        } else {
+            synchronized (cacheLock) {
+                keySet().stream()
+                        .map(this::get)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(Reference::get)
+                        .forEach(consumer);
+            }
         }
     }
 

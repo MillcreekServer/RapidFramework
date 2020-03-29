@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class AbstractManagerElementCachingTest {
-
     class TempValue extends CachedElement<UUID> {
         public Object dummy;
         private String str;
@@ -355,5 +354,51 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void keySet() {
+    }
+
+    @Test
+    public void forEach() throws Exception {
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        //start manager
+        manager.load();
+
+        //get (new)
+        for (int i = 0; i < 100; i++) {
+            UUID uuid = UUID.randomUUID();
+            TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+            value.setStr("SomeName" + i);
+        }
+
+        Set<String> names = new HashSet<>();
+        manager.forEach(tempValue -> names.add(tempValue.str));
+        Assert.assertEquals(100, names.size());
+
+        //end the db life-cycle
+        manager.disable();
+    }
+
+    @Test
+    public void forEachAsync() throws Exception {
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        //start manager
+        manager.load();
+
+        //get (new)
+        for (int i = 0; i < 100; i++) {
+            UUID uuid = UUID.randomUUID();
+            TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+            value.setStr("SomeName" + i);
+        }
+
+        Set<String> names = new HashSet<>();
+        manager.forEach(tempValue -> names.add(tempValue.str), true);
+        Assert.assertEquals(100, names.size());
+
+        //end the db life-cycle
+        manager.disable();
     }
 }
