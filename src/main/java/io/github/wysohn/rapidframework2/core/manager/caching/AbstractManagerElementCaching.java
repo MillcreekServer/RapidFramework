@@ -262,11 +262,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     }
 
-    public void forEach(Consumer<V> consumer) {
+    public void forEach(Consumer<? super V> consumer) {
         forEach(consumer, false);
     }
 
-    public void forEach(Consumer<V> consumer, boolean async) {
+    public void forEach(Consumer<? super V> consumer, boolean async) {
         if (async) {
             keySet().stream()
                     .map(this::get)
