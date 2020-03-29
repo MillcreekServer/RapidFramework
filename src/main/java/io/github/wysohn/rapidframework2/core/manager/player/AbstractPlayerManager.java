@@ -5,9 +5,17 @@ import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElem
 import java.util.UUID;
 
 public abstract class AbstractPlayerManager<V extends AbstractPlayerWrapper> extends AbstractManagerElementCaching<UUID, V> {
-    public AbstractPlayerManager(int loadPriority, IConstructionHandle<UUID, V> constructionHandle) {
+    public AbstractPlayerManager(int loadPriority) {
         super(loadPriority);
-        this.setConstructionHandle(constructionHandle);
+    }
+
+    protected abstract IConstructionHandle<UUID, V> createHandle();
+
+    @Override
+    public void enable() throws Exception {
+        super.enable();
+
+        setConstructionHandle(createHandle());
     }
 
     @Override
