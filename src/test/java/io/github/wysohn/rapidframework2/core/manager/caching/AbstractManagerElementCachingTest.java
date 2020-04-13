@@ -97,6 +97,7 @@ public class AbstractManagerElementCachingTest {
         Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(null);
 
         //start manager
+        manager.enable();
         manager.load();
 
         TempValue tempValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
@@ -110,6 +111,7 @@ public class AbstractManagerElementCachingTest {
         Mockito.when(mockDatabase.load(Mockito.any(), Mockito.any())).thenReturn(null);
 
         //start manager
+        manager.enable();
         manager.load();
 
         UUID[] uuids = new UUID[]{
@@ -161,6 +163,7 @@ public class AbstractManagerElementCachingTest {
         });
 
         //start manager
+        manager.enable();
         manager.load();
 
         Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
@@ -187,6 +190,7 @@ public class AbstractManagerElementCachingTest {
         TempValue value = new TempValue(uuid).setStr("SomeName");
 
         //start manager
+        manager.enable();
         manager.load();
 
         //get
@@ -211,6 +215,7 @@ public class AbstractManagerElementCachingTest {
         TempValue value = new TempValue(uuid).setStr("SomeName");
 
         //start manager
+        manager.enable();
         manager.load();
 
         //get
@@ -229,6 +234,7 @@ public class AbstractManagerElementCachingTest {
         UUID uuid = UUID.randomUUID();
 
         //start manager
+        manager.enable();
         manager.load();
 
         //get (new)
@@ -260,6 +266,7 @@ public class AbstractManagerElementCachingTest {
         UUID uuid = UUID.randomUUID();
 
         //start manager
+        manager.enable();
         manager.load();
 
         //new
@@ -289,6 +296,7 @@ public class AbstractManagerElementCachingTest {
         UUID uuid = UUID.randomUUID();
 
         //start manager
+        manager.enable();
         manager.load();
 
         //new
@@ -331,6 +339,7 @@ public class AbstractManagerElementCachingTest {
         UUID uuid = UUID.randomUUID();
 
         //start manager
+        manager.enable();
         manager.load();
 
         //new
@@ -362,6 +371,7 @@ public class AbstractManagerElementCachingTest {
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
 
         //start manager
+        manager.enable();
         manager.load();
 
         //get (new)
@@ -385,6 +395,7 @@ public class AbstractManagerElementCachingTest {
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
 
         //start manager
+        manager.enable();
         manager.load();
 
         //get (new)
