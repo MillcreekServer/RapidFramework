@@ -26,8 +26,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      */
     private final Object cacheLock = new Object();
     private final Object dbLock = new Object();
-    private final Database.DatabaseFactory<V> dbFactory;
 
+    private Database.DatabaseFactory<V> dbFactory;
     private Database<V> db;
 
     private final List<IObserver> observers = new ArrayList<IObserver>() {
@@ -43,7 +43,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     public AbstractManagerElementCaching(int loadPriority) {
         super(loadPriority);
-        dbFactory = createDatabaseFactory();
     }
 
     /**
@@ -58,7 +57,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     @Override
     public void enable() throws Exception {
-
+        dbFactory = createDatabaseFactory();
     }
 
     @Override
