@@ -28,7 +28,7 @@ public class FailSensitiveTask {
         return this;
     }
 
-    public void run() {
+    public boolean run() {
         boolean result = false;
         try {
             result = task.get();
@@ -38,5 +38,7 @@ public class FailSensitiveTask {
             if (!result)
                 onFail.run();
         }
+
+        return result;
     }
 }

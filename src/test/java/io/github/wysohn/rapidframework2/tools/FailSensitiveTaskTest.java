@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -17,9 +18,9 @@ public class FailSensitiveTaskTest {
 
         doThrow(new RuntimeException()).when(mockRunnable).get();
 
-        FailSensitiveTask.of(mockRunnable)
+        assertFalse(FailSensitiveTask.of(mockRunnable)
                 .onFail(mockFailRunnable)
-                .run();
+                .run());
 
         verify(mockRunnable).get();
         verify(mockFailRunnable).run();
@@ -32,9 +33,9 @@ public class FailSensitiveTaskTest {
 
         when(mockRunnable.get()).thenReturn(false);
 
-        FailSensitiveTask.of(mockRunnable)
+        assertFalse(FailSensitiveTask.of(mockRunnable)
                 .onFail(mockFailRunnable)
-                .run();
+                .run());
 
         verify(mockRunnable).get();
         verify(mockFailRunnable).run();
@@ -47,11 +48,11 @@ public class FailSensitiveTaskTest {
         doThrow(new RuntimeException()).when(mockRunnable).get();
 
         AtomicBoolean test = new AtomicBoolean();
-        FailSensitiveTask.of(mockRunnable)
+        assertFalse(FailSensitiveTask.of(mockRunnable)
                 .onFail(() -> {
                 })
                 .handleException(e -> test.set(true))
-                .run();
+                .run());
 
         verify(mockRunnable).get();
         assertTrue(test.get());
@@ -63,8 +64,7 @@ public class FailSensitiveTaskTest {
 
         when(mockRunnable.get()).thenReturn(true);
 
-        FailSensitiveTask.of(mockRunnable)
-                .run();
+        assertTrue(FailSensitiveTask.of(mockRunnable).run());
 
         verify(mockRunnable).get();
     }
