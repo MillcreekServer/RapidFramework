@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -41,6 +43,8 @@ public class AbstractBukkitTest {
     protected final UUID PLAYER_UUID = UUID.randomUUID();
     protected final String PLAYER_NAME = "user";
 
+    private PluginManager pluginManager;
+
     @Before
     public void setupBukkit() {
         player = mock(Player.class);
@@ -58,6 +62,8 @@ public class AbstractBukkitTest {
         UUID_PLAYER_MAP.put(PLAYER_UUID, player);
         NAME_PLAYER_MAP.put(PLAYER_NAME, player);
         log.info("Default sender is set " + player);
+
+        pluginManager = mock(PluginManager.class);
 
         PowerMockito.mockStatic(Bukkit.class);
         Mockito.when(Bukkit.getOfflinePlayer(anyString())).then(ans -> Optional.of(ans)
@@ -96,6 +102,17 @@ public class AbstractBukkitTest {
                     log.info("getPlayer(UUID) returned null.");
                     return null;
                 }));
+        Mockito.when(Bukkit.getPluginManager()).thenReturn(pluginManager);
+
+        java.util.logging.Logger mockLogger = mock(java.util.logging.Logger.class);
+        doAnswer(invocation -> {
+            Level level = (Level) invocation.getArguments()[0];
+            String message = (String) invocation.getArguments()[1];
+
+            log.info(level + ": " + message);
+            return null;
+        }).when(mockLogger).log(any(Level.class), anyString());
+        Mockito.when(Bukkit.getLogger()).thenReturn(mockLogger);
     }
 
     /**
