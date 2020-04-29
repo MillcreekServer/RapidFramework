@@ -115,6 +115,10 @@ public class AbstractBukkitTest {
         Mockito.when(Bukkit.getLogger()).thenReturn(mockLogger);
     }
 
+    public PluginManager getMockPluginManager() {
+        return pluginManager;
+    }
+
     /**
      * Returns atomic Player instance
      *
