@@ -6,10 +6,7 @@ import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.PreParseHandle;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class SubCommand {
@@ -22,6 +19,7 @@ public class SubCommand {
     List<Predicate<ICommandSender>> predicates = new ArrayList<>();
     DynamicLang description;
     List<DynamicLang> usage = new ArrayList<>();
+    Map<String, DynamicLang> specifications = new HashMap<>();
     boolean doubleCheck = false;
     private CommandAction action;
     private List<ArgumentMapper> argumentMappers = new ArrayList<>();
@@ -126,6 +124,37 @@ public class SubCommand {
          */
         public Builder addUsage(Lang lang, PreParseHandle handle) {
             command.usage.add(new DynamicLang(lang, handle));
+            return this;
+        }
+
+        /**
+         * Add specification to show under this subcommand.
+         * <p>
+         * Ex) if the plugin main command is xyz, and this subcommand is wow, then
+         * /xyz wow [subpart...] [lang]
+         *
+         * @param subpart
+         * @param lang
+         * @return
+         */
+        public Builder addSpecification(String subpart, Lang lang) {
+            return addSpecification(subpart, lang, ((sender, managerLanguage) -> {
+            }));
+        }
+
+        /**
+         * Add specification to show under this subcommand.
+         * <p>
+         * Ex) if the plugin main command is xyz, and this subcommand is wow, then
+         * /xyz wow [subpart...] [lang]
+         *
+         * @param subpart
+         * @param lang
+         * @param handle
+         * @return
+         */
+        public Builder addSpecification(String subpart, Lang lang, PreParseHandle handle) {
+            command.specifications.put(subpart, new DynamicLang(lang, handle));
             return this;
         }
 

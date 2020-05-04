@@ -116,6 +116,89 @@ public final class ManagerCommand extends PluginMain.Manager {
         return true;
     }
 
+    static List<Message[]> buildSpecifications(PluginMain main, String label, ICommandSender sender, SubCommand c) {
+        List<Message[]> messages = new ArrayList<>();
+
+        if (c.specifications != null) {
+            c.specifications.forEach((subpart, dlang) -> {
+                MessageBuilder builder = MessageBuilder.forMessage("");
+
+                builder.append("\u2514");
+                builder.append(subpart);
+                builder.withHoverShowText(subpart);
+                builder.withClickSuggestCommand(subpart);
+                builder.append(" ");
+
+                dlang.handle.onParse(sender, main.lang());
+                String descValue = main.lang().parseFirst(sender, dlang.lang);
+                if (descValue.length() < 10) {
+                    builder.append(descValue);
+                } else {
+                    builder.append(descValue.substring(0, 10) + "...");
+                    builder.withHoverShowText(descValue);
+                }
+
+                messages.add(builder.build());
+            });
+        }
+
+        return messages;
+    }
+
+    static Message[] buildCommandDetail(PluginMain main, String label, ICommandSender sender, SubCommand c) {
+        if (c.description == null) {
+            return MessageBuilder.empty();
+        } else {
+            // description
+            c.description.handle.onParse(sender, main.lang());
+            String descValue = main.lang().parseFirst(sender, c.description.lang);
+
+            MessageBuilder messageBuilder = MessageBuilder.forMessage(main.lang().parseFirst(sender,
+                    DefaultLangs.Command_Format_Description, ((sen, langman) -> {
+                        langman.addString(label);
+                        langman.addString(c.name);
+                        langman.addString(descValue);
+                    })))
+                    .withClickSuggestCommand("/" + label + " " + c.name);
+
+            String aliasAndUsage = buildAliasAndUsageString(main, sender, c);
+
+            return messageBuilder.withHoverShowText(aliasAndUsage).build();
+        }
+    }
+
+    static String buildAliasAndUsageString(PluginMain main, ICommandSender sender, SubCommand c) {
+        StringBuilder builder = new StringBuilder();
+
+        // aliases
+        StringBuilder builderAliases = new StringBuilder();
+        for (String alias : c.aliases) {
+            builderAliases.append(' ');
+            builderAliases.append(alias);
+        }
+
+        if (builderAliases.length() > 0) {
+            builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
+                langman.addString(builderAliases.toString());
+            })));
+            builder.append('\n');
+        }
+
+        // usages
+        c.usage.forEach(dynamicLang -> {
+            dynamicLang.handle.onParse(sender, main.lang());
+            String[] usageVals = main.lang().parse(sender, dynamicLang.lang);
+
+            for (String usage : usageVals) {
+                builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) ->
+                        langman.addString(usage))));
+                builder.append('\n');
+            }
+        });
+
+        return builder.toString();
+    }
+
     /**
      * @param sender
      * @param page   0~size()
@@ -154,9 +237,9 @@ public final class ManagerCommand extends PluginMain.Manager {
 
             final SubCommand c = list.get(index);
 
-            Message[] message = buildCommandDetail(main(), label, sender, c);
-
-            main().lang().sendRawMessage(sender, message);
+            main().lang().sendRawMessage(sender, buildCommandDetail(main(), label, sender, c));
+            buildSpecifications(main(), label, sender, c).forEach(message ->
+                    main().lang().sendRawMessage(sender, message));
         }
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
@@ -198,61 +281,6 @@ public final class ManagerCommand extends PluginMain.Manager {
         main().lang().sendMessage(sender, DefaultLangs.Command_Help_PageDescription, ((sen, langman) ->
                 langman.addInteger(pageCopy).addInteger(outof)));
         sender.sendMessageRaw("");
-    }
-
-    static Message[] buildCommandDetail(PluginMain main, String label, ICommandSender sender, SubCommand c) {
-        if(c.description == null){
-            return MessageBuilder.empty();
-        }else {
-            // description
-            c.description.handle.onParse(sender, main.lang());
-            String descValue = main.lang().parseFirst(sender, c.description.lang);
-
-            MessageBuilder messageBuilder = MessageBuilder.forMessage(main.lang().parseFirst(sender,
-                    DefaultLangs.Command_Format_Description, ((sen, langman) -> {
-                        langman.addString(label);
-                        langman.addString(c.name);
-                        langman.addString(descValue);
-                    })))
-                    .withClickSuggestCommand("/"+label+" "+c.name);
-
-            String aliasAndUsage = buildAliasAndUsageString(main, sender, c);
-
-            return messageBuilder.withHoverShowText(aliasAndUsage).build();
-        }
-    }
-
-    static String buildAliasAndUsageString(PluginMain main, ICommandSender sender, SubCommand c) {
-        StringBuilder builder = new StringBuilder();
-
-        // aliases
-        StringBuilder builderAliases = new StringBuilder();
-        for (String alias : c.aliases) {
-            builderAliases.append(' ');
-            builderAliases.append(alias);
-        }
-
-        if (builderAliases.length() > 0) {
-            builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
-                langman.addString(builderAliases.toString());
-            })));
-            builder.append('\n');
-        }
-
-        // usages
-        c.usage.forEach(dynamicLang -> {
-            dynamicLang.handle.onParse(sender, main.lang());
-            String[] usageVals = main.lang().parse(sender, dynamicLang.lang);
-
-            for (String usage : usageVals) {
-                builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) -> {
-                    langman.addString(usage);
-                })));
-                builder.append('\n');
-            }
-        });
-
-        return builder.toString();
     }
 
     /**
