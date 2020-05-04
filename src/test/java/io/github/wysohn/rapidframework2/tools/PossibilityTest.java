@@ -13,7 +13,7 @@ public class PossibilityTest {
     @Test
     public void isWin() {
         double possibility = 0.3;
-        int alpha = 50;
+        int alpha = 100;
 
         for (int x = 0; x < 5; x++) {
             int win = 0, lose = 0;

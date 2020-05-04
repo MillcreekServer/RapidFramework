@@ -65,26 +65,23 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         synchronized (dbLock){
             db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
             Validation.assertNotNull(db);
-        }
 
-        synchronized (cacheLock){
-            cachedElements.clear();
-            nameMap.clear();
-        }
+            main().getLogger().info("Resetting caches of " + getClass().getSimpleName() + "...");
+            synchronized (cacheLock) {
+                cachedElements.clear();
+                nameMap.clear();
+            }
 
-        saveTaskPool.submit(()->{
-            synchronized (dbLock){
-                for(String keyStr : db.getKeys()){
-                    V value = db.load(keyStr, null);
-                    if (value != null){
-                        K key = fromString(keyStr);
+            for (String keyStr : db.getKeys()) {
+                V value = db.load(keyStr, null);
+                if (value != null) {
+                    K key = fromString(keyStr);
 
-                        cache(key, value);
-                    }
+                    cache(key, value);
                 }
             }
-        }).get();
-
+            main().getLogger().info("Resetting done for " + getClass().getSimpleName() + ".");
+        }
     }
 
     @Override
@@ -142,6 +139,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 saveTaskPool.submit(() -> {
                     V loaded = null;
                     synchronized (dbLock) {
+                        Validation.assertNotNull(db, "Key was " + key);
                         loaded = db.load(key.toString(), null);
                     }
 
