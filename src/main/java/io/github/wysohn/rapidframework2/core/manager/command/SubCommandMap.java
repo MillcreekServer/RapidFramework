@@ -69,8 +69,7 @@ class SubCommandMap {
             }
 
             if (command.nArguments != -1 && command.nArguments != args.length) {
-                main.lang().sendRawMessage(sender, MessageBuilder.empty());
-                main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
+                sendCommandDetails(main, sender, label, command);
                 return true;
             }
 
@@ -87,7 +86,7 @@ class SubCommandMap {
                     doubleChecker.init(sender.getUuid(), () -> {
                         checking.remove(sender.getUuid());
                         if (!command.execute(sender, label, args)) {
-                            main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
+                            sendCommandDetails(main, sender, label, command);
                         }
                     }, () -> {
                         checking.remove(sender.getUuid());
@@ -100,7 +99,7 @@ class SubCommandMap {
                 }
             } else {
                 if (!command.execute(sender, label, args)) {
-                    main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
+                    sendCommandDetails(main, sender, label, command);
                 }
             }
 
@@ -113,6 +112,13 @@ class SubCommandMap {
             }));
             return true;
         }
+    }
+
+    private void sendCommandDetails(PluginMain main, ICommandSender sender, String label, SubCommand command) {
+        main.lang().sendRawMessage(sender, MessageBuilder.empty());
+        main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
+        ManagerCommand.buildSpecifications(main, label, sender, command).forEach(message ->
+                main.lang().sendRawMessage(sender, message));
     }
 
     public List<String> tabComplete(ICommandSender sender, String subCommand, int index, String partial) {

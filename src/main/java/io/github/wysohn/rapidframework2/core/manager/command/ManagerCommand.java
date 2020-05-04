@@ -239,8 +239,6 @@ public final class ManagerCommand extends PluginMain.Manager {
             final SubCommand c = list.get(index);
 
             main().lang().sendRawMessage(sender, buildCommandDetail(main(), label, sender, c));
-            buildSpecifications(main(), label, sender, c).forEach(message ->
-                    main().lang().sendRawMessage(sender, message));
         }
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
