@@ -123,12 +123,12 @@ public final class ManagerCommand extends PluginMain.Manager {
             c.specifications.forEach((subpart, dlang) -> {
                 MessageBuilder builder = MessageBuilder.forMessage("");
 
-                builder.append("&8\u2514");
+                builder.append("&8\u2514&d");
                 String combined = "/" + label + " " + c.name + " " + subpart;
                 builder.append(combined);
                 builder.withHoverShowText(combined);
                 builder.withClickSuggestCommand(combined);
-                builder.append(" ");
+                builder.append(" &f");
 
                 dlang.handle.onParse(sender, main.lang());
                 String descValue = main.lang().parseFirst(sender, dlang.lang);
