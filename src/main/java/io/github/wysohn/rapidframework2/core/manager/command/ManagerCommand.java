@@ -5,10 +5,14 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
+import io.github.wysohn.rapidframework2.core.manager.lang.page.ListWrapper;
+import io.github.wysohn.rapidframework2.core.manager.lang.page.Pagination;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class ManagerCommand extends PluginMain.Manager {
     private final String mainCommand;
@@ -213,10 +217,8 @@ public final class ManagerCommand extends PluginMain.Manager {
                 .collect(Collectors.toList());
 
         main().lang().sendMessage(sender, DefaultLangs.General_Line);
-
-        main().lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) -> {
-            langman.addString(main().getPluginName());
-        }));
+        main().lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) ->
+                langman.addString(main().getPluginName())));
         main().lang().sendRawMessage(sender, MessageBuilder.forMessage("").build());
 
         int max = main().conf().get("command.help.sentenceperpage")
@@ -224,62 +226,8 @@ public final class ManagerCommand extends PluginMain.Manager {
                 .map(Integer::parseInt)
                 .orElse(6);
 
-        int remainder = list.size() % max;
-        int divided = list.size() / max;
-        int outof = remainder == 0 ? divided : divided + 1;
-
-        page = Math.max(page, 0);
-        page = Math.min(page, outof - 1);
-
-        int index;
-        for (index = page * max; index >= 0 && index < (page + 1) * max; index++) {
-            if (index >= list.size())
-                break;
-
-            final SubCommand c = list.get(index);
-
-            main().lang().sendRawMessage(sender, buildCommandDetail(main(), label, sender, c));
-        }
-
-        main().lang().sendMessage(sender, DefaultLangs.General_Line);
-
-        if (main().lang().isJsonEnabled()) {
-            String leftArrow = "&8[&a<---&8]";
-            String home = "&8[&aHome&8]";
-            String rightArrow = "&8[&a--->&8]";
-
-            final String cmdPrev = "/" + mainCommand + " help " + page;
-            final String cmdHome = "/" + mainCommand + " help";
-            final String cmdNext = "/" + mainCommand + " help " + (page + 2);
-
-            Message[] jsonPrev = MessageBuilder.forMessage(leftArrow)
-                    .withHoverShowText(cmdPrev)
-                    .withClickRunCommand(cmdPrev)
-                    .build();
-            Message[] jsonHome = MessageBuilder.forMessage(home)
-                    .withHoverShowText(cmdHome)
-                    .withClickRunCommand(cmdHome)
-                    .build();
-            Message[] jsonNext = MessageBuilder.forMessage(rightArrow)
-                    .withHoverShowText(cmdNext)
-                    .withClickRunCommand(cmdNext)
-                    .build();
-
-            Stream<Message> stream = Stream.of();
-            stream = Stream.concat(stream, Arrays.stream(jsonPrev));
-            stream = Stream.concat(stream, Arrays.stream(jsonHome));
-            stream = Stream.concat(stream, Arrays.stream(jsonNext));
-
-            main().lang().sendRawMessage(sender, stream.toArray(Message[]::new));
-        } else {
-            main().lang().sendMessage(sender, DefaultLangs.Command_Help_TypeHelpToSeeMore, ((sen, langman) ->
-                    langman.addString(label)));
-        }
-
-        final int pageCopy = page + 1;
-        main().lang().sendMessage(sender, DefaultLangs.Command_Help_PageDescription, ((sen, langman) ->
-                langman.addInteger(pageCopy).addInteger(outof)));
-        sender.sendMessageRaw("");
+        new Pagination<>(main(), ListWrapper.wrap(list), max, main().getPluginName(), "/" + mainCommand + " help")
+                .show(sender, page, (s, c) -> buildCommandDetail(main(), label, s, c));
     }
 
     /**

@@ -103,6 +103,47 @@ public class Message {
                 .orElse(null);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Message message = (Message) o;
+
+        if (!string.equals(message.string)) return false;
+        if (click_OpenUrl != null ? !click_OpenUrl.equals(message.click_OpenUrl) : message.click_OpenUrl != null)
+            return false;
+        if (click_OpenFile != null ? !click_OpenFile.equals(message.click_OpenFile) : message.click_OpenFile != null)
+            return false;
+        if (click_RunCommand != null ? !click_RunCommand.equals(message.click_RunCommand) : message.click_RunCommand != null)
+            return false;
+        if (click_SuggestCommand != null ? !click_SuggestCommand.equals(message.click_SuggestCommand) : message.click_SuggestCommand != null)
+            return false;
+        if (hover_ShowText != null ? !hover_ShowText.equals(message.hover_ShowText) : message.hover_ShowText != null)
+            return false;
+        if (hover_ShowAchievement != null ? !hover_ShowAchievement.equals(message.hover_ShowAchievement) : message.hover_ShowAchievement != null)
+            return false;
+        return hover_ShowItem != null ? hover_ShowItem.equals(message.hover_ShowItem) : message.hover_ShowItem == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = string.hashCode();
+        result = 31 * result + (click_OpenUrl != null ? click_OpenUrl.hashCode() : 0);
+        result = 31 * result + (click_OpenFile != null ? click_OpenFile.hashCode() : 0);
+        result = 31 * result + (click_RunCommand != null ? click_RunCommand.hashCode() : 0);
+        result = 31 * result + (click_SuggestCommand != null ? click_SuggestCommand.hashCode() : 0);
+        result = 31 * result + (hover_ShowText != null ? hover_ShowText.hashCode() : 0);
+        result = 31 * result + (hover_ShowAchievement != null ? hover_ShowAchievement.hashCode() : 0);
+        result = 31 * result + (hover_ShowItem != null ? hover_ShowItem.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return string;
+    }
+
     public static Message[] concat(Message[]... msg) {
         if (msg.length < 1)
             return MessageBuilder.empty();
@@ -138,4 +179,6 @@ public class Message {
                 }))
                 .toArray(new Message[0]);
     }
+
+
 }

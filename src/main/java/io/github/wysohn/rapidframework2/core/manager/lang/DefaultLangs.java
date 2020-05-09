@@ -60,7 +60,7 @@ public enum DefaultLangs implements Lang {
     Command_Format_Usage("&8&m &f &7${string}"),
 
     Command_Help_PageDescription("&6Page &7${integer}/${integer}"),
-    Command_Help_TypeHelpToSeeMore("&6Type &6/${string} help &7<page> &6to see next pages."),
+    Command_Help_TypeHelpToSeeMore("&7Type &d${string} &7to see other pages."),
     Command_Help_Description("Show all commands and its desriptions of this plugin."),
     Command_Help_Usage("<page> for page to see."),
 
