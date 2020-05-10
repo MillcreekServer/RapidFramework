@@ -1,9 +1,11 @@
 package io.github.wysohn.rapidframework2.bukkit.testutils;
 
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
+import io.github.wysohn.rapidframework2.bukkit.testutils.impl.CraftInventoryPlayer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -38,10 +40,12 @@ public class AbstractBukkitTest {
     protected static final InetAddress INET_ADDR = InetAddress.getLoopbackAddress();
     protected static final Map<UUID, Player> UUID_PLAYER_MAP = new HashMap<>();
     protected static final Map<String, Player> NAME_PLAYER_MAP = new HashMap<>();
+    protected static final Map<UUID, PlayerInventory> UUID_PLAYER_INVENTORY_MAP = new HashMap<>();
 
     private Player player;
     protected final UUID PLAYER_UUID = UUID.randomUUID();
     protected final String PLAYER_NAME = "user";
+    protected final PlayerInventory PLAYER_INVENTORY = new CraftInventoryPlayer();
 
     private PluginManager pluginManager;
 
@@ -53,6 +57,7 @@ public class AbstractBukkitTest {
         when(player.getDisplayName()).thenReturn(PLAYER_NAME);
         when(player.hasPermission(anyString())).thenReturn(true);
         when(player.getLocale()).thenReturn(Locale.ENGLISH.getDisplayName());
+        when(player.getInventory()).thenReturn(PLAYER_INVENTORY);
         doAnswer(invocation -> {
             String[] msgs = (String[]) invocation.getArguments()[0];
             log.info(PLAYER_NAME + " got message: " + Arrays.toString(msgs));
@@ -135,6 +140,7 @@ public class AbstractBukkitTest {
         when(p.getDisplayName()).thenReturn(name);
         when(p.hasPermission(anyString())).thenReturn(true);
         when(p.getLocale()).thenReturn(Locale.ENGLISH.getDisplayName());
+        when(p.getInventory()).then(invocation -> UUID_PLAYER_INVENTORY_MAP.get(uuid));
         doAnswer(invocation -> {
             String[] msgs = (String[]) invocation.getArguments()[0];
             log.info(name + " got message: " + Arrays.toString(msgs));
@@ -142,6 +148,7 @@ public class AbstractBukkitTest {
         }).when(p).sendMessage(any(String[].class));
 
         NAME_PLAYER_MAP.computeIfAbsent(name, (k) -> p);
+        UUID_PLAYER_INVENTORY_MAP.computeIfAbsent(uuid, (k) -> new CraftInventoryPlayer());
         return UUID_PLAYER_MAP.computeIfAbsent(uuid, (k) -> p);
     }
 
