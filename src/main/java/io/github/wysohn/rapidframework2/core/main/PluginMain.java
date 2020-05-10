@@ -96,6 +96,10 @@ public class PluginMain implements PluginRuntime {
         return lang;
     }
 
+    public ITaskSupervisor task() {
+        return taskSupervisor;
+    }
+
     public String getRootPermission() {
         return rootPermission;
     }
