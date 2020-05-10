@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework2.core.main;
 
 import io.github.wysohn.rapidframework2.bukkit.testutils.SomeLang;
 import io.github.wysohn.rapidframework2.bukkit.testutils.SomeManager;
+import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
@@ -18,6 +19,8 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -62,6 +65,27 @@ public class PluginMainTest {
                 .andPluginSupervisor(mockPluginManager)
                 .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
                 .andChatManager(mockFileSession, (sender, str) -> str)
+                .andTaskSupervisor(new ITaskSupervisor() {
+                    @Override
+                    public <V> Future<V> sync(Callable<V> callable) {
+                        return null;
+                    }
+
+                    @Override
+                    public void sync(Runnable runnable) {
+
+                    }
+
+                    @Override
+                    public <V> Future<V> async(Callable<V> callable) {
+                        return null;
+                    }
+
+                    @Override
+                    public void async(Runnable runnable) {
+
+                    }
+                })
                 .setMessageSender(() -> false)
                 .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))
                 .addLangs(SomeLang.values())
