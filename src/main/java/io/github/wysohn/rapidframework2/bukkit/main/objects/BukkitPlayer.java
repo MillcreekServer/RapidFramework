@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.main.objects;
 
+import io.github.wysohn.rapidframework2.bukkit.utils.InventoryUtil;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPlayer;
 import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
@@ -7,14 +8,13 @@ import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.Vector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     protected transient Player sender;
@@ -70,6 +70,84 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         return sender;
     }
 
+    public int give(Material material, int amount) {
+        return give(new ItemStack(material), amount);
+    }
+
+    /**
+     * @param itemStack amount set in ItemStack is ignored
+     * @param amount    number of items to give. Can exceed the max stack size.
+     * @return amount left. 0 if every item fit into inventory.
+     */
+    public int give(ItemStack itemStack, int amount) {
+        if (amount < 1)
+            return 0;
+
+        int maxStack = itemStack.getType().getMaxStackSize();
+
+        while (amount > 0) {
+            int pack = amount / maxStack;
+            int remain = amount % maxStack;
+
+            int deduct = pack > 0 ? 64 : remain;
+
+            ItemStack clone = itemStack.clone();
+            clone.setAmount(deduct);
+            Map<Integer, ItemStack> overflow = sender.getInventory().addItem(clone);
+
+            int leftAmount = 0;
+            for (Map.Entry<Integer, ItemStack> entry : overflow.entrySet()) {
+                leftAmount += entry.getValue().getAmount();
+            }
+
+            amount -= (deduct - leftAmount);
+            if (deduct == leftAmount) { // not fit into inventory at all.
+                break;
+            }
+        }
+
+        return amount;
+    }
+
+    public int take(Material material, int amount) {
+        return take(new ItemStack(material), amount);
+    }
+
+    /**
+     * @param itemStack amount set in ItemStack is ignored
+     * @param amount
+     * @return actual number of items took. Equals to 'amount' if there were enough items.
+     */
+    public int take(ItemStack itemStack, int amount) {
+        if (amount < 1)
+            return 0;
+
+        itemStack = itemStack.clone();
+        itemStack.setAmount(1);
+
+        Map<Integer, ? extends ItemStack> result = InventoryUtil.all(sender.getInventory().getContents(), itemStack);
+        for (Map.Entry<Integer, ? extends ItemStack> entry : result.entrySet()) {
+            ItemStack item = entry.getValue();
+
+            int slot = entry.getKey();
+            int stackAmount = item.getAmount();
+
+            if (stackAmount < amount) {
+                amount -= stackAmount;
+                sender.getInventory().clear(slot);
+            } else if (stackAmount == amount) {
+                amount -= stackAmount;
+                sender.getInventory().clear(slot);
+                break;
+            } else {
+                item.setAmount(stackAmount - amount);
+                break;
+            }
+        }
+
+        return amount;
+    }
+
     @Override
     public boolean isOnline() {
         return sender != null && sender.isOnline();
@@ -79,6 +157,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     public SimpleLocation getSloc() {
         return Optional.ofNullable(sender)
                 .map(Player::getLocation)
+                .filter(location -> location.getWorld() != null)
                 .map(location -> new SimpleLocation(location.getWorld().getName(),
                         location.getBlockX(),
                         location.getBlockY(),
@@ -92,6 +171,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     public SimpleChunkLocation getScloc() {
         return Optional.ofNullable(sender)
                 .map(Player::getLocation)
+                .filter(location -> location.getWorld() != null)
                 .map(location -> new SimpleChunkLocation(location.getWorld().getName(),
                         location.getBlockX() >> 4,
                         location.getBlockZ() >> 4))
