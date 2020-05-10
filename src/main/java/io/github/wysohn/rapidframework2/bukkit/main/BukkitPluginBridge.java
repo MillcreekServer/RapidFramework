@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework2.bukkit.main;
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
 import io.github.wysohn.rapidframework2.bukkit.manager.api.PlaceholderAPI;
 import io.github.wysohn.rapidframework2.bukkit.manager.api.ProtocolLibAPI;
+import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
@@ -13,6 +14,7 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSend
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -23,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -84,6 +90,37 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                         return main.api().getAPI(PlaceholderAPI.class)
                                 .map(api -> api.parse(sender, formatted))
                                 .orElse(formatted);
+                    }
+                })
+                .andTaskSupervisor(new ITaskSupervisor() {
+                    final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
+                        Thread thread = new Thread(runnable);
+                        thread.setName("AsyncTask - " + BukkitPluginBridge.this.getClass().getSimpleName());
+                        thread.setPriority(Thread.NORM_PRIORITY - 1);
+                        return thread;
+                    });
+
+                    @Override
+                    public <V> Future<V> sync(Callable<V> callable) {
+                        return Bukkit.getScheduler().callSyncMethod(bukkit, callable);
+                    }
+
+                    @Override
+                    public void sync(Runnable runnable) {
+                        Bukkit.getScheduler().runTask(bukkit, runnable);
+                    }
+
+                    @Override
+                    public <V> Future<V> async(Callable<V> callable) {
+                        return executor.submit(callable);
+                    }
+
+                    @Override
+                    public void async(Runnable runnable) {
+                        async(() -> {
+                            runnable.run();
+                            return null;
+                        });
                     }
                 })
                 .withExternalAPIs("ProtocolLib", ProtocolLibAPI.class)

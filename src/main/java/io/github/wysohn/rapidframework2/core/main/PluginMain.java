@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework2.core.main;
 
 import io.github.wysohn.rapidframework2.bukkit.manager.chat.ManagerChat;
+import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.manager.api.ExternalAPI;
@@ -42,6 +43,8 @@ public class PluginMain implements PluginRuntime {
     private ManagerConfig conf;
     private ManagerLanguage lang;
     private ManagerChat chat;
+
+    private ITaskSupervisor taskSupervisor;
 
     private PluginMain(String pluginName, String description, String mainCommand, String rootPermission,
                        PluginBridge pluginBridge, Logger logger, File pluginDirectory) {
@@ -261,11 +264,16 @@ public class PluginMain implements PluginRuntime {
             return this;
         }
 
-        public Builder andChatManager(AbstractFileSession fileSession, IPlaceholderSupport placeholderSupport){
+        public Builder andChatManager(AbstractFileSession fileSession, IPlaceholderSupport placeholderSupport) {
             main.chat = new ManagerChat(Manager.FASTEST_PRIORITY,
                     fileSession,
                     placeholderSupport);
 
+            return this;
+        }
+
+        public Builder andTaskSupervisor(ITaskSupervisor taskSupervisor) {
+            main.taskSupervisor = taskSupervisor;
             return this;
         }
 
@@ -307,6 +315,7 @@ public class PluginMain implements PluginRuntime {
             Validation.assertNotNull(main.api, "Register IPluginManager with .andPluginManager() first.");
             Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
             Validation.assertNotNull(main.chat, "Register ManagerChat with .andChatManager() first.");
+            Validation.assertNotNull(main.taskSupervisor, "Register ITaskSupervisor with .andTaskSupervisor() first.");
 
             addLangs(DefaultLangs.values());
 
