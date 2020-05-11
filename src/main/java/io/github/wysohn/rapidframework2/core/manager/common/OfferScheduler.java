@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework2.core.manager.common;
 
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
+import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 
 import java.util.Map;
@@ -14,16 +14,16 @@ import java.util.concurrent.Future;
 public class OfferScheduler {
     private final long WAITING_TIME_MILLIS;
 
-    private final TaskSupervisor taskSupervisor;
+    private final ITaskSupervisor taskSupervisor;
 
     private Map<UUID, Runnable> pendingOffers = new ConcurrentHashMap<>();
     private Map<UUID, Future<Void>> runningTasks = new ConcurrentHashMap<>();
 
-    public OfferScheduler(TaskSupervisor taskSupervisor) {
+    public OfferScheduler(ITaskSupervisor taskSupervisor) {
         this(taskSupervisor, 10 * 1000L);
     }
 
-    public OfferScheduler(TaskSupervisor taskSupervisor, long waiting_millis) {
+    public OfferScheduler(ITaskSupervisor taskSupervisor, long waiting_millis) {
         this.taskSupervisor = taskSupervisor;
         this.WAITING_TIME_MILLIS = waiting_millis;
     }
@@ -52,7 +52,7 @@ public class OfferScheduler {
         if(runningTasks.containsKey(player.getUuid()))
             return false;
 
-        Future<Void> future = taskSupervisor.runAsync(new Offer(player.getUuid(),
+        Future<Void> future = taskSupervisor.async(new Offer(player.getUuid(),
                 System.currentTimeMillis() + WAITING_TIME_MILLIS,
                 new ProgressCallback() {
                     int currentIndex = 0;
@@ -64,7 +64,7 @@ public class OfferScheduler {
 
                         while (currentIndex < masks.length && masks[currentIndex] >= left) {
                             try {
-                                taskSupervisor.runSync(() -> {
+                                taskSupervisor.sync(() -> {
                                     onProgress.millis(masks[currentIndex++]);
                                     return null;
                                 }).get();
@@ -105,7 +105,7 @@ public class OfferScheduler {
         future.cancel(true);
 
         pendingOffers.computeIfPresent(player.getUuid(), ((uuid, runnable) -> {
-            taskSupervisor.runSync(() -> {
+            taskSupervisor.sync(() -> {
                 runnable.run();
                 return null;
             });
@@ -150,7 +150,7 @@ public class OfferScheduler {
                     Thread.sleep(50L);
                 }
 
-                taskSupervisor.runSync(()->{
+                taskSupervisor.sync(() -> {
                     onTimeout.run();
                     return null;
                 }).get();

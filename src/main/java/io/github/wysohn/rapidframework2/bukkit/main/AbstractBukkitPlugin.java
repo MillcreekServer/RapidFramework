@@ -4,7 +4,6 @@ import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitCommandSender;
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 import org.bukkit.Bukkit;
@@ -19,10 +18,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -33,17 +30,6 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         return thread;
     });
 
-    final TaskSupervisor taskSupervisor = new TaskSupervisor() {
-        @Override
-        public <T> Future<T> runAsync(Callable<T> callable) {
-            return asyncTaskExecutor.submit(callable);
-        }
-
-        @Override
-        public <T> Future<T> runSync(Callable<T> callable) {
-            return Bukkit.getScheduler().callSyncMethod(AbstractBukkitPlugin.this, callable);
-        }
-    };
     protected BukkitPluginBridge core;
 
     public PluginMain getMain() {
@@ -66,10 +52,6 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
 
     public PluginManager getPluginManager(){
         return Bukkit.getPluginManager();
-    }
-
-    public TaskSupervisor getTaskSupervisor() {
-        return taskSupervisor;
     }
 
     @Override

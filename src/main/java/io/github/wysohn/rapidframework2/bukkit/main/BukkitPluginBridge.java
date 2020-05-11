@@ -6,7 +6,6 @@ import io.github.wysohn.rapidframework2.bukkit.manager.api.ProtocolLibAPI;
 import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework2.core.manager.command.SubCommand;
@@ -228,11 +227,6 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
     @Override
     public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args) {
         return main.comm().onTabComplete(sender, command, alias, args);
-    }
-
-    @Override
-    public TaskSupervisor getTaskSupervisor() {
-        return bukkit.taskSupervisor;
     }
 
     @Override
