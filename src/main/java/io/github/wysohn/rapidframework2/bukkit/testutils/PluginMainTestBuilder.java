@@ -2,9 +2,9 @@ package io.github.wysohn.rapidframework2.bukkit.testutils;
 
 import io.github.wysohn.rapidframework2.bukkit.main.AbstractBukkitPlugin;
 import io.github.wysohn.rapidframework2.bukkit.main.BukkitPluginBridge;
+import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
-import io.github.wysohn.rapidframework2.core.interfaces.plugin.TaskSupervisor;
 import io.github.wysohn.rapidframework2.core.main.PluginBridge;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
@@ -27,8 +27,7 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PluginMainTestBuilder {
     private final ExecutorService async = Executors.newSingleThreadExecutor();
@@ -47,30 +46,9 @@ public class PluginMainTestBuilder {
     private List<Consumer<PluginMainTestBuilder>> afters = new LinkedList<>();
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
-    private TaskSupervisor mockSupervisor;
+    private ITaskSupervisor mockSupervisor;
 
-    private void initMocks() {
-        mockBridge = mock(PluginBridge.class);
-        mockLogger = mock(Logger.class);
-        mockFileSession = mock(AbstractFileSession.class);
-        mockPluginManager = mock(IPluginManager.class);
-        mockMessage = mock(Message.class);
-        mockBukkit = Mockito.mock(AbstractBukkitPlugin.class);
-        mockSupervisor = Mockito.mock(TaskSupervisor.class);
-
-        when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
-        when(mockMessage.getString()).thenReturn("SomeMessage");
-        when(mockBukkit.getCommand(Mockito.anyString())).thenReturn(mockCommand);
-        when(mockBukkit.getTaskSupervisor()).thenReturn(mockSupervisor);
-
-        when(mockSupervisor.runSync(any())).then(ans -> {
-            Object r = ((Callable) ans.getArguments()[0]).call();
-            return new SimpleFuture(r);
-        });
-        when(mockSupervisor.runAsync(any())).then(ans -> async.submit((Callable) ans.getArguments()[0]));
-    }
-
-    private PluginMainTestBuilder(String mainCommand, String adminPerm, PluginMain.Manager... managers){
+    private PluginMainTestBuilder(String mainCommand, String adminPerm, PluginMain.Manager... managers) {
         initMocks();
 
         main = PluginMain.Builder
@@ -85,11 +63,41 @@ public class PluginMainTestBuilder {
                 .andPluginSupervisor(mockPluginManager)
                 .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
                 .andChatManager(mockFileSession, (sender, str) -> str)
+                .andTaskSupervisor(mockSupervisor)
                 .setMessageSender(() -> false)
                 .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))
                 .withManagers(managers)
                 .addLangs(SomeLang.values())
                 .build();
+    }
+
+    private void initMocks() {
+        mockBridge = mock(PluginBridge.class);
+        mockLogger = mock(Logger.class);
+        mockFileSession = mock(AbstractFileSession.class);
+        mockPluginManager = mock(IPluginManager.class);
+        mockMessage = mock(Message.class);
+        mockBukkit = Mockito.mock(AbstractBukkitPlugin.class);
+        mockSupervisor = Mockito.mock(ITaskSupervisor.class);
+
+        when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
+        when(mockMessage.getString()).thenReturn("SomeMessage");
+        when(mockBukkit.getCommand(Mockito.anyString())).thenReturn(mockCommand);
+
+        when(mockSupervisor.sync(any(Callable.class))).then(ans -> {
+            Object r = ((Callable) ans.getArguments()[0]).call();
+            return new SimpleFuture(r);
+        });
+        doAnswer(ans -> {
+            ((Runnable) ans.getArguments()[0]).run();
+            return null;
+        }).when(mockSupervisor).sync(any(Runnable.class));
+
+        when(mockSupervisor.async(any(Callable.class))).then(ans -> async.submit((Callable) ans.getArguments()[0]));
+        doAnswer(ans -> {
+            async.submit((Runnable) ans.getArguments()[0]);
+            return null;
+        }).when(mockSupervisor).async(any(Runnable.class));
     }
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, Class<? extends BukkitPluginBridge> clazz) throws Exception {
