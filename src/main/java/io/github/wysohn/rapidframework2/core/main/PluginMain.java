@@ -206,17 +206,17 @@ public class PluginMain implements PluginRuntime {
 
     @Override
     public void disable() throws Exception {
-        for (Manager manager : orderedManagers) {
+        for (Mediator mediator : mediators.values()) {
             try {
-                manager.disable();
+                mediator.disable();
             } catch (Exception ex) {
 
             }
         }
 
-        for (Mediator mediator : mediators.values()) {
+        for (Manager manager : orderedManagers) {
             try {
-                mediator.disable();
+                manager.disable();
             } catch (Exception ex) {
 
             }
