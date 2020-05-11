@@ -16,9 +16,13 @@ public class CraftInventoryPlayer extends CraftInventory implements PlayerInvent
     public ItemStack itemInOffHand;
     public HumanEntity owner;
 
+    public CraftInventoryPlayer() {
+        inventory = new ItemStack[6 * 9 + 4];
+    }
+
     @Override
     public int getSize() {
-        return super.getSize() - 4;
+        return super.getSize();
     }
 
     public ItemStack getItemInHand() {
