@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
@@ -86,12 +87,15 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     @Override
     public void disable() throws Exception {
-        synchronized (cacheLock){
-            synchronized (dbLock){
-                main().getLogger().info("Waiting for the save tasks to be done...");
-                saveTaskPool.shutdownNow().forEach(Runnable::run);
-                main().getLogger().info("Save finished.");
+        synchronized (cacheLock) {
+            main().getLogger().info("Waiting for the save tasks to be done...");
+            List<Runnable> notDone;
+            synchronized (dbLock) { // wait for db tasks that are waiting for monitor
+                notDone = new ArrayList<>(saveTaskPool.shutdownNow());
             }
+            saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
+            notDone.forEach(Runnable::run); // manually run all queued tasks
+            main().getLogger().info("Save finished.");
         }
     }
 
