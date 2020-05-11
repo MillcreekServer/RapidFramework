@@ -6,7 +6,9 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -20,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -48,6 +52,7 @@ public class AbstractBukkitTest {
     protected final PlayerInventory PLAYER_INVENTORY = new CraftInventoryPlayer();
 
     private PluginManager pluginManager;
+    protected BukkitScheduler bukkitScheduler;
 
     @Before
     public void setupBukkit() {
@@ -108,6 +113,20 @@ public class AbstractBukkitTest {
                     return null;
                 }));
         Mockito.when(Bukkit.getPluginManager()).thenReturn(pluginManager);
+
+        bukkitScheduler = mock(BukkitScheduler.class);
+        when(bukkitScheduler.callSyncMethod(any(Plugin.class), any(Callable.class)))
+                .then(invocation -> {
+                    FutureTask task = new FutureTask((Callable) invocation.getArguments()[1]);
+                    task.run();
+                    return task;
+                });
+        when(bukkitScheduler.runTask(any(Plugin.class), any(Runnable.class)))
+                .then(invocation -> {
+                    ((Runnable) invocation.getArguments()[1]).run();
+                    return null;
+                });
+        Mockito.when(Bukkit.getScheduler()).thenReturn(bukkitScheduler);
 
         java.util.logging.Logger mockLogger = mock(java.util.logging.Logger.class);
         doAnswer(invocation -> {
