@@ -148,6 +148,24 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         return amount;
     }
 
+    public boolean contains(Material material, int amount) {
+        return contains(new ItemStack(material), amount);
+    }
+
+    /**
+     * This method in fact directly calls {@link org.bukkit.inventory.Inventory#containsAtLeast(ItemStack, int)}
+     *
+     * @param itemStack amount set in ItemStack is ignored
+     * @param amount
+     * @return
+     */
+    public boolean contains(ItemStack itemStack, int amount) {
+        if (amount < 1)
+            return true;
+
+        return sender.getInventory().containsAtLeast(itemStack, amount);
+    }
+
     @Override
     public boolean isOnline() {
         return sender != null && sender.isOnline();
