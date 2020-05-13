@@ -6,8 +6,6 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 
-import java.util.function.BiFunction;
-
 public class Pagination<T> {
     public static String LEFT_ARROW = "&8[&a<---&8]";
     public static String HOME = "&8[&aHome&8]";
@@ -33,8 +31,7 @@ public class Pagination<T> {
      * @param page      0 ~ size (exclusive, yet out of bound value is acceptable)
      * @param messageFn
      */
-    public void show(ICommandSender sender, int page,
-                     BiFunction<ICommandSender, T, Message[]> messageFn) {
+    public void show(ICommandSender sender, int page, MessageConverter<T> messageFn) {
         main.lang().sendMessage(sender, DefaultLangs.General_Line);
         main.lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) ->
                 langman.addString(title)));
@@ -52,7 +49,7 @@ public class Pagination<T> {
             if (index >= list.size())
                 break;
 
-            main.lang().sendRawMessage(sender, messageFn.apply(sender, list.get(index)));
+            main.lang().sendRawMessage(sender, messageFn.convert(sender, list.get(index), index));
         }
 
         main.lang().sendMessage(sender, DefaultLangs.General_Line);
@@ -91,5 +88,10 @@ public class Pagination<T> {
         int size();
 
         T get(int index);
+    }
+
+    @FunctionalInterface
+    public interface MessageConverter<T> {
+        Message[] convert(ICommandSender sender, T from, int index);
     }
 }

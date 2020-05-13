@@ -47,7 +47,7 @@ public class PaginationTest {
         Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
-        pagination.show(mockSender, 0, (sender, message) -> MessageBuilder.forMessage(message).build());
+        pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -81,7 +81,7 @@ public class PaginationTest {
         Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
-        pagination.show(mockSender, 1, (sender, message) -> MessageBuilder.forMessage(message).build());
+        pagination.show(mockSender, 1, (sender, message, i) -> MessageBuilder.forMessage(message).build());
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -115,7 +115,7 @@ public class PaginationTest {
         Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
-        pagination.show(mockSender, 3, (sender, message) -> MessageBuilder.forMessage(message).build());
+        pagination.show(mockSender, 3, (sender, message, i) -> MessageBuilder.forMessage(message).build());
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -149,7 +149,7 @@ public class PaginationTest {
         Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
-        pagination.show(mockSender, 0, (sender, message) -> MessageBuilder.forMessage(message).build());
+        pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -183,7 +183,7 @@ public class PaginationTest {
         Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
-        pagination.show(mockSender, 0, (sender, message) -> MessageBuilder.forMessage(message).build());
+        pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
 
         // three times
         verify(mockLang, times(3)).sendMessage(eq(mockSender), any(), any());

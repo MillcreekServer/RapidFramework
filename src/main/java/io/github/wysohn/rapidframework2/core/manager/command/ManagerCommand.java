@@ -227,7 +227,7 @@ public final class ManagerCommand extends PluginMain.Manager {
                 .orElse(6);
 
         new Pagination<>(main(), ListWrapper.wrap(list), max, main().getPluginName(), "/" + mainCommand + " help")
-                .show(sender, page, (s, c) -> buildCommandDetail(main(), label, s, c));
+                .show(sender, page, (s, c, i) -> buildCommandDetail(main(), label, s, c));
     }
 
     /**
