@@ -48,6 +48,9 @@ public class FakePlugin extends AbstractBukkitPlugin {
         if (args.length > 0 && "test".equalsIgnoreCase(args[0])) {
             if (args.length > 1 && "conv".equalsIgnoreCase(args[1])) {
                 ConversationBuilder.of(getMain())
+                        .doTask(context -> {
+                            context.setSessionData("Confirmed", false);
+                        })
                         .appendInt((context, integer) -> {
                             context.setSessionData("Integer", integer);
                             return true;
@@ -56,9 +59,13 @@ public class FakePlugin extends AbstractBukkitPlugin {
                             context.setSessionData("Double", aDouble);
                             return true;
                         })
+                        .appendConfirm((context) -> {
+                            context.setSessionData("Confirmed", true);
+                        })
                         .doTask(context -> {
                             sender.sendMessage("Integer: " + context.getSessionData("Integer"));
                             sender.sendMessage("Double: " + context.getSessionData("Double"));
+                            sender.sendMessage("Confirmed: " + context.getSessionData("Confirmed"));
                         })
                         .build((Conversable) sender)
                         .begin();

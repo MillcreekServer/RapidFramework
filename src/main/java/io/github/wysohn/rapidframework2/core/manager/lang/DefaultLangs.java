@@ -48,6 +48,7 @@ public enum DefaultLangs implements Lang {
 
     General_Prompt_Int("&7Enter an integer in chat. (or type &dexit &7to exit.)"),
     General_Prompt_Double("&7Enter a decimal number in chat. (or type &dexit &7to exit.)"),
+    General_Prompt_Confirm("&7Type &dyes &7in the chat to continue. (or type &dexit &7to exit.)"),
 
     Economy_NotEnoughMoney("&cNot enough money! Required:[&6${double}&c]"),
     Economy_TookMoney("&aTook [&6${double}&a] from your account!"),

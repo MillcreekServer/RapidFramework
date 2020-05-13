@@ -63,6 +63,18 @@ public class ConversationBuilder {
         return this;
     }
 
+    public ConversationBuilder appendConfirm(Consumer<ConversationContext> consumer) {
+        prompts.add(SimplePrompt.of(main, new DynamicLang(DefaultLangs.General_Prompt_Confirm), (context, input) -> {
+            if ("yes".equalsIgnoreCase(input)) {
+                consumer.accept(context);
+                return true;
+            } else {
+                return false;
+            }
+        }));
+        return this;
+    }
+
     public ConversationBuilder doTask(Consumer<ConversationContext> consumer) {
         prompts.add(SimplePrompt.of(main, null, (context, input) -> {
             consumer.accept(context);
