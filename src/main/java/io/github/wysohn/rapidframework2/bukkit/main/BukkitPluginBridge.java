@@ -152,7 +152,7 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                         } finally {
                             // fallback just in case something went wrong so
                             // the chat continues with auxiliary sender
-                            if(!sent){
+                            if (!sent) {
                                 IMessageSender.super.send(sender, message);
                             }
                         }
@@ -161,12 +161,17 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
     }
 
     @Override
-    public void init(){
+    public <T> T getPlatform() {
+        return (T) bukkit;
+    }
+
+    @Override
+    public void init() {
         try {
             main = init(mainBuilder);
 
             main.preload();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bukkit.setEnableState(false);
         }

@@ -10,6 +10,8 @@ public interface PluginBridge {
 
     PluginMain getMain();
 
+    <T> T getPlatform();
+
     void init();
 
     void enable();

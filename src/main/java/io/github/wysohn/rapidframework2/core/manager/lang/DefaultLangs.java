@@ -34,19 +34,20 @@ public enum DefaultLangs implements Lang {
     General_NotEnoughPermission("&cYou don't have enough permission!"),
     General_NothingOnYourHand("&cNothing on your hand!"),
 
-    General_Prompt_EnterNumber("&7Enter the &6number &7below."),
-    General_Prompt_EnterBoolean("&7Enter '&atrue&7' or '&cfalse&7' below."),
-    General_Prompt_EnterString("&7Enter the new &6string&7 value below."),
+//    General_Prompt_EnterNumber("&7Enter the &6number &7below."),
+//    General_Prompt_EnterBoolean("&7Enter '&atrue&7' or '&cfalse&7' below."),
+//    General_Prompt_EnterString("&7Enter the new &6string&7 value below."),
+//
+//    General_IndexBasedPrompt_ListFormat("&3${integer}&8. &7${string}"),
+//    General_IndexBasedPrompt_UpDescription("&du <num> &8- &7go up the list"),
+//    General_IndexBasedPrompt_DownDescription("&dd <num> &8- &7go down the list"),
+//    General_IndexBasedPrompt_Done("&ddone &8- &7finish editing"),
+//
+//    General_ListEditPrompt_Add("&dadd <value> &8- &7add <value> to the list. Ex) add hoho"),
+//    General_ListEditPrompt_Del("&ddel <num> &8- &7delete data at <num> index. Ex) del 3"),
 
-    General_IndexBasedPrompt_ListFormat("&3${integer}&8. &7${string}"),
-    General_IndexBasedPrompt_UpDescription("&du <num> &8- &7go up the list"),
-    General_IndexBasedPrompt_DownDescription("&dd <num> &8- &7go down the list"),
-    General_IndexBasedPrompt_Done("&ddone &8- &7finish editing"),
-
-    General_ListEditPrompt_Add("&dadd <value> &8- &7add <value> to the list. Ex) add hoho"),
-    General_ListEditPrompt_Del("&ddel <num> &8- &7delete data at <num> index. Ex) del 3"),
-
-    General_PromptMain_EnterIndex("Enter the index of property to edit."),
+    General_Prompt_Int("&7Enter an integer in chat. (or type &dexit &7to exit.)"),
+    General_Prompt_Double("&7Enter a decimal number in chat. (or type &dexit &7to exit.)"),
 
     Economy_NotEnoughMoney("&cNot enough money! Required:[&6${double}&c]"),
     Economy_TookMoney("&aTook [&6${double}&a] from your account!"),
