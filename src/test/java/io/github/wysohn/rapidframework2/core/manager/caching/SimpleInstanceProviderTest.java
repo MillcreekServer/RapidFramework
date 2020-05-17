@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -29,6 +30,9 @@ public class SimpleInstanceProviderTest {
     private Value mockVal1;
     private Value2 mockVal2;
     private Value3 mockVal3;
+    private UUID uuid1;
+    private UUID uuid2;
+    private UUID uuid3;
 
     @Before
     public void init() {
@@ -36,9 +40,12 @@ public class SimpleInstanceProviderTest {
         mockManager2 = mock(AbstractManagerElementCaching.class);
         mockManager3 = mock(AbstractManagerElementCaching.class);
 
-        mockVal1 = new Value(UUID.randomUUID());
-        mockVal2 = new Value2(UUID.randomUUID());
-        mockVal3 = new Value3(UUID.randomUUID());
+        uuid1 = UUID.randomUUID();
+        mockVal1 = new Value(uuid1);
+        uuid2 = UUID.randomUUID();
+        mockVal2 = new Value2(uuid2);
+        uuid3 = UUID.randomUUID();
+        mockVal3 = new Value3(uuid3);
 
         optVal1 = Optional.of(new WeakReference<>(mockVal1));
         optVal2 = Optional.of(new WeakReference<>(mockVal2));
@@ -52,6 +59,14 @@ public class SimpleInstanceProviderTest {
                 return Optional.empty();
             }
         }));
+        when(mockManager1.search(any(Predicate.class))).then(invocation -> {
+            Predicate predicate = (Predicate) invocation.getArguments()[0];
+            List l = new ArrayList();
+            if (predicate.test(mockVal1))
+                l.add(mockVal1);
+
+            return l;
+        });
 
         doAnswer(invocation -> {
             Consumer consumer = (Consumer) invocation.getArguments()[0];
@@ -68,6 +83,14 @@ public class SimpleInstanceProviderTest {
                 return Optional.empty();
             }
         }));
+        when(mockManager2.search(any(Predicate.class))).then(invocation -> {
+            Predicate predicate = (Predicate) invocation.getArguments()[0];
+            List l = new ArrayList();
+            if (predicate.test(mockVal2))
+                l.add(mockVal2);
+
+            return l;
+        });
 
         doAnswer(invocation -> {
             Consumer consumer = (Consumer) invocation.getArguments()[0];
@@ -84,6 +107,14 @@ public class SimpleInstanceProviderTest {
                 return Optional.empty();
             }
         }));
+        when(mockManager3.search(any(Predicate.class))).then(invocation -> {
+            Predicate predicate = (Predicate) invocation.getArguments()[0];
+            List l = new ArrayList();
+            if (predicate.test(mockVal3))
+                l.add(mockVal3);
+
+            return l;
+        });
 
         doAnswer(invocation -> {
             Consumer consumer = (Consumer) invocation.getArguments()[0];
@@ -147,6 +178,16 @@ public class SimpleInstanceProviderTest {
         List<Interface3> values = new ArrayList<>();
         provider.forEachHolder(values::add);
         assertEquals(3, values.size());
+    }
+
+    @Test
+    public void search() {
+        IInstanceProvider<Interface3> provider = new SimpleInstanceProvider<>(Interface3.class,
+                mockManager1, mockManager2, mockManager3);
+
+        assertEquals(1, provider.search(val -> uuid1.equals(val.getUuid())).size());
+        assertEquals(1, provider.search(val -> uuid2.equals(val.getUuid())).size());
+        assertEquals(1, provider.search(val -> uuid3.equals(val.getUuid())).size());
     }
 
     private interface InterfaceAll extends IPluginObject {

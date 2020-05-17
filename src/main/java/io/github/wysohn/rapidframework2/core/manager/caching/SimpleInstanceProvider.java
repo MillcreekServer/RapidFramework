@@ -3,18 +3,17 @@ package io.github.wysohn.rapidframework2.core.manager.caching;
 import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SimpleInstanceProvider<T extends IPluginObject> implements IInstanceProvider<T> {
-    private final Class<T> clazz;
+public class SimpleInstanceProvider<V extends IPluginObject> implements IInstanceProvider<V> {
+    private final Class<V> clazz;
     private final AbstractManagerElementCaching<?, ?>[] managers;
 
-    public SimpleInstanceProvider(Class<T> clazz, AbstractManagerElementCaching<?, ?>... managers) {
+    public SimpleInstanceProvider(Class<V> clazz, AbstractManagerElementCaching<?, ?>... managers) {
         this.clazz = clazz;
         this.managers = Arrays.stream(managers)
                 .filter(Objects::nonNull)
@@ -23,7 +22,7 @@ public class SimpleInstanceProvider<T extends IPluginObject> implements IInstanc
     }
 
     @Override
-    public T get(UUID uuid) {
+    public V get(UUID uuid) {
         return Stream.of(managers)
                 .map(AbstractManagerElementCaching.class::cast)
                 .map(manager -> manager.get(uuid))
@@ -38,9 +37,20 @@ public class SimpleInstanceProvider<T extends IPluginObject> implements IInstanc
     }
 
     @Override
-    public void forEachHolder(Consumer<T> consumer) {
+    public void forEachHolder(Consumer<V> consumer) {
         Stream.of(managers)
                 .map(AbstractManagerElementCaching.class::cast)
                 .forEach(manager -> manager.forEach(consumer));
+    }
+
+    @Override
+    public List<V> search(Predicate<V> predicate) {
+        return Stream.of(managers)
+                .map(AbstractManagerElementCaching.class::cast)
+                .map(manger -> manger.search(predicate))
+                .flatMap(Collection::stream)
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .collect(Collectors.toList());
     }
 }
