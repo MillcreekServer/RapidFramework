@@ -367,9 +367,6 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void forEach() throws Exception {
-        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
-        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
-
         //start manager
         manager.enable();
         manager.load();
@@ -391,9 +388,6 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void forEachAsync() throws Exception {
-        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
-        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
-
         //start manager
         manager.enable();
         manager.load();
@@ -411,5 +405,28 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
+    }
+
+    @Test
+    public void search() throws Exception {
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.setStr("Initial value");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+
+        //search
+        Assert.assertTrue(manager.search(tempValue -> tempValue.getStringKey().equals("Other")).isEmpty());
+        Assert.assertEquals(1, manager.search(tempValue ->
+                tempValue.getStringKey().equals("Initial value")).size());
     }
 }
