@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
@@ -284,6 +286,21 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                         .map(Reference::get)
                         .forEach(consumer);
             }
+        }
+    }
+
+    /**
+     * Search for cache, which the value V confirms with the 'predicate'. It is a simple Linear search
+     * (O(n)) algorithm, so there can be overhead using this method.
+     *
+     * @param predicate filtering predicate.
+     * @return List of values which passes the 'predicate'
+     */
+    public List<V> search(Predicate<V> predicate) {
+        synchronized (cacheLock) {
+            return cachedElements.values().stream()
+                    .filter(predicate)
+                    .collect(Collectors.toList());
         }
     }
 
