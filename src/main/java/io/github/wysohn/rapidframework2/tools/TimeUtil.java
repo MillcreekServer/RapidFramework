@@ -1,5 +1,8 @@
 package io.github.wysohn.rapidframework2.tools;
 
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +73,25 @@ public class TimeUtil {
         return hour + "h " + minute + "m " + second + "s";
     }
 
-    public static void main(String[] ar) {
-        System.out.println(parseTime("12h33m50s"));
+    public static String toDate(long timestamp, Locale locale) {
+        return toDate(timestamp, DateFormat.SHORT, locale);
     }
+
+    /**
+     * @param timestamp
+     * @param format    {@link DateFormat}
+     * @param locale
+     * @return
+     */
+    public static String toDate(long timestamp, int format, Locale locale) {
+        Date date = new Date(timestamp);
+        DateFormat dateFormat = DateFormat.getDateInstance(format, locale);
+        DateFormat timeFormat = DateFormat.getTimeInstance(format, locale);
+        return dateFormat.format(date) + " @ " + timeFormat.format(date);
+    }
+
+//    public static void main(String[] ar) {
+//        System.out.println(toDate(System.currentTimeMillis(), Locale.KOREA));
+//        System.out.println(toDate(System.currentTimeMillis(), Locale.ENGLISH));
+//    }
 }
