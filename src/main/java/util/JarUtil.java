@@ -66,7 +66,11 @@ public class JarUtil {
             return;
         }
 
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(new File(fullPath)))) {
+        File target = new File(fullPath);
+        if (!target.isFile())
+            return; // probably the case when it's not called via java -jar
+
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(target))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 String fileName = entry.getName();

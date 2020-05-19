@@ -10,10 +10,15 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
+import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class AbstractManagerElementCachingTest {
     class TempValue extends CachedElement<UUID> {
@@ -72,7 +77,7 @@ public class AbstractManagerElementCachingTest {
     private TempManager manager;
 
     @Before
-    public void init(){
+    public void init() {
         mockDatabase = Mockito.mock(Database.class);
         mockMain = Mockito.mock(PluginMain.class);
         mockConfig = Mockito.mock(ManagerConfig.class);
@@ -81,10 +86,10 @@ public class AbstractManagerElementCachingTest {
 
         Whitebox.setInternalState(manager, "main", mockMain);
 
-        Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
-        Mockito.when(mockMain.conf()).thenReturn(mockConfig);
+        when(mockMain.getLogger()).thenReturn(mockLogger);
+        when(mockMain.conf()).thenReturn(mockConfig);
 
-        Mockito.when(mockConfig.get(Mockito.anyString())).thenReturn(Optional.of("file"));
+        when(mockConfig.get(Mockito.anyString())).thenReturn(Optional.of("file"));
     }
 
     @Test
@@ -94,7 +99,7 @@ public class AbstractManagerElementCachingTest {
         manager.setConstructionHandle(obj -> obj.dummy = someObj);
         UUID uuid = UUID.randomUUID();
 
-        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(null);
+        when(mockDatabase.load(Mockito.eq(uuid.toString()), any())).thenReturn(null);
 
         //start manager
         manager.enable();
@@ -108,7 +113,7 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void getCacheSize() throws Exception{
-        Mockito.when(mockDatabase.load(Mockito.any(), Mockito.any())).thenReturn(null);
+        when(mockDatabase.load(any(), any())).thenReturn(null);
 
         //start manager
         manager.enable();
@@ -146,15 +151,15 @@ public class AbstractManagerElementCachingTest {
                 new TempValue(uuids[4], "value4"),
         };
 
-        Mockito.when(mockDatabase.getKeys()).thenReturn(Arrays.stream(uuids)
+        when(mockDatabase.getKeys()).thenReturn(Arrays.stream(uuids)
                 .map(UUID::toString)
                 .collect(Collectors.toSet()));
-        Mockito.when(mockDatabase.load(Mockito.anyString(), Mockito.any())).then(invocation -> {
+        when(mockDatabase.load(Mockito.anyString(), any())).then(invocation -> {
             String key = (String) invocation.getArguments()[0];
             TempValue defVal = (TempValue) invocation.getArguments()[1];
 
-            for(int i = 0; i < uuids.length; i++){
-                if(key.equals(uuids[i].toString())){
+            for (int i = 0; i < uuids.length; i++) {
+                if (key.equals(uuids[i].toString())) {
                     return mockValues[i];
                 }
             }
@@ -194,7 +199,7 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //get
-        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(value);
+        when(mockDatabase.load(Mockito.eq(uuid.toString()), any())).thenReturn(value);
         Assert.assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
 
         //check if cache is updated
@@ -248,7 +253,7 @@ public class AbstractManagerElementCachingTest {
         Assert.assertTrue(manager.setName(uuid, "OtherName"));
 
         //get
-        Mockito.when(mockDatabase.load(Mockito.eq(uuid.toString()), Mockito.any())).thenReturn(value);
+        when(mockDatabase.load(Mockito.eq(uuid.toString()), any())).thenReturn(value);
         Assert.assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
         Assert.assertEquals(value, manager.get("OtherName").map(Reference::get).orElse(null));
 
@@ -258,8 +263,32 @@ public class AbstractManagerElementCachingTest {
         // new data no longer saves unless required
     }
 
+    @Test(expected = RuntimeException.class)
+    public void getOrNewException() throws Exception {
+        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //unexpected database failure
+        doThrow(new IOException("Unexpected DB failure"))
+                .when(mockDatabase)
+                .load(anyString(), any(TempValue.class));
+        manager.getOrNew(uuid);
+
+        //end the db life-cycle
+        manager.disable();
+
+        //no data should be written
+        verify(mockDatabase, never()).save(anyString(), any(TempValue.class));
+    }
+
     @Test
-    public void delete() throws Exception{
+    public void delete() throws Exception {
         Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameMap");
 

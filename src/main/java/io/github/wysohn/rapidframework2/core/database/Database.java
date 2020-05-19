@@ -185,7 +185,7 @@ public abstract class Database<T> {
      * @param def default value to be used if data was not found.
      * @return the deserialized data
      */
-    public abstract T load(String key, T def);
+    public abstract T load(String key, T def) throws IOException;
 
     /**
      * Serialize the data and put it into the database.
@@ -193,7 +193,7 @@ public abstract class Database<T> {
      * @param key   the key to pair the data with
      * @param value the data to be saved
      */
-    public abstract void save(String key, T value);
+    public abstract void save(String key, T value) throws IOException;
 
     /**
      * Check if the key exists in the database

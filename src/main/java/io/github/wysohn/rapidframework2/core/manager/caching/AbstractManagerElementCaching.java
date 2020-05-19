@@ -5,13 +5,11 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
 import util.Validation;
 
+import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -107,21 +105,33 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     /**
      * Get number of elements exist in the cache table now.
+     *
      * @return cache size.
      */
-    public int getCacheSize(){
+    public int getCacheSize() {
         return cachedElements.size();
+    }
+
+    private void handleDBOperationFailure(K key, Throwable throwable) {
+        main().getLogger().severe("Key: " + key);
+        main().getLogger().severe("Manager: " + getClass().getSimpleName());
+
+        // At this point, irreversible data corruption can happen, so it's safe to turn off the plugin.
+        main().shutdown();
+
+        throw new RuntimeException(throwable);
     }
 
     /**
      * Get data associated with 'name' String. This may not have any effect if the
      * Class used in the Template V does not implement getName() method correctly so the method always
      * return null. In this case, you have to use {@link #get(K)} instead.
+     *
      * @param name displayName to search for
      * @return The Optional of value. Optional.empty() if couldn't find it.
      */
-    public Optional<WeakReference<V>> get(String name){
-        synchronized (cacheLock){
+    public Optional<WeakReference<V>> get(String name) {
+        synchronized (cacheLock) {
             return get(nameMap.get(name));
         }
     }
@@ -142,7 +152,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
             //try load cache from db if cache is empty
             try {
-                saveTaskPool.submit(() -> {
+                saveTaskPool.submit((Callable<Void>) () -> {
                     V loaded = null;
                     synchronized (dbLock) {
                         Validation.assertNotNull(db, "Key was " + key);
@@ -150,11 +160,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     }
 
                     if (loaded != null) {
-                        cache(key, loaded);
+                        AbstractManagerElementCaching.this.cache(key, loaded);
                     }
+
+                    return null;
                 }).get();
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                handleDBOperationFailure(key, e);
             }
 
             if(cachedElements.containsKey(key)){
@@ -171,13 +183,18 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param key the key
      * @return the existing value or newly created one
      */
-    public Optional<WeakReference<V>> getOrNew(K key){
+    public Optional<WeakReference<V>> getOrNew(K key) {
         Validation.assertNotNull(key);
 
         V value = get(key)
                 .map(Reference::get)
-                .orElseGet(() -> newInstance(key));
-        synchronized (cacheLock){
+                .orElse(null);
+
+        if (value == null) {
+            value = newInstance(key);
+        }
+
+        synchronized (cacheLock) {
             cache(key, value);
         }
 
@@ -221,8 +238,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             boolean result = deCache(key);
 
             saveTaskPool.submit(() -> {
-                synchronized (dbLock){
-                    db.save(key.toString(), null);
+                synchronized (dbLock) {
+                    try {
+                        db.save(key.toString(), null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
@@ -354,7 +375,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 if (cached == value) {
                     saveTaskPool.submit(() -> {
                         synchronized (dbLock) {
-                            db.save(cached.getKey().toString(), cached);
+                            try {
+                                db.save(cached.getKey().toString(), cached);
+                            } catch (IOException e) {
+                                handleDBOperationFailure(value.getKey(), e);
+                            }
                         }
                     });
                 } else {

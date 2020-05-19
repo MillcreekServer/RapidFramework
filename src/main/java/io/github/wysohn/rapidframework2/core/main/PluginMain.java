@@ -169,57 +169,33 @@ public class PluginMain implements PluginRuntime {
     @Override
     public void enable() throws Exception {
         for (Manager manager : orderedManagers) {
-            try {
-                manager.enable();
-            } catch (Exception ex) {
-
-            }
+            manager.enable();
         }
 
         for (Mediator mediator : mediators.values()) {
-            try {
-                mediator.enable();
-            } catch (Exception ex) {
-
-            }
+            mediator.enable();
         }
     }
 
     @Override
     public void load() throws Exception {
         for (Manager manager : orderedManagers) {
-            try {
-                manager.load();
-            } catch (Exception ex) {
-
-            }
+            manager.load();
         }
 
         for (Mediator mediator : mediators.values()) {
-            try {
-                mediator.load();
-            } catch (Exception ex) {
-
-            }
+            mediator.load();
         }
     }
 
     @Override
     public void disable() throws Exception {
         for (Mediator mediator : mediators.values()) {
-            try {
-                mediator.disable();
-            } catch (Exception ex) {
-
-            }
+            mediator.disable();
         }
 
         for (Manager manager : orderedManagers) {
-            try {
-                manager.disable();
-            } catch (Exception ex) {
-
-            }
+            manager.disable();
         }
     }
 
@@ -229,6 +205,14 @@ public class PluginMain implements PluginRuntime {
 
     public File getPluginDirectory() {
         return pluginDirectory;
+    }
+
+    /**
+     * Completely shutdown the plugin. Event hooks will be unregistered, and the plugin will not
+     * function.
+     */
+    public void shutdown() {
+        getBridge().shutdown();
     }
 
     public static class Builder {

@@ -21,4 +21,10 @@ public interface PluginBridge {
     boolean onCommand(ICommandSender sender, String command, String label, String[] args_in);
 
     List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args);
+
+    /**
+     * Completely shutdown the plugin. Event hooks will be unregistered, and the plugin will not
+     * function.
+     */
+    void shutdown();
 }

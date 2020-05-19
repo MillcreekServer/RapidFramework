@@ -238,4 +238,9 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
     public void forEachSender(Consumer<ICommandSender> consumer) {
         bukkit.forEachSender(consumer);
     }
+
+    @Override
+    public void shutdown() {
+        bukkit.setEnableState(false);
+    }
 }
