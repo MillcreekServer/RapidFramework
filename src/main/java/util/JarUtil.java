@@ -25,7 +25,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -52,11 +56,21 @@ public class JarUtil {
 
         byte[] buffer = new byte[1024];
 
-        URI fullPath = null;
-        String path = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
+        Optional<String> optFullPath = Optional.of(clazz)
+                .map(Class::getProtectionDomain)
+                .map(ProtectionDomain::getCodeSource)
+                .map(CodeSource::getLocation)
+                .map(URL::getPath);
+
+        if (!optFullPath.isPresent())
+            return; // can't do much in this case
+
+        String path = optFullPath.get();
         if (trimmer != null)
             path = trimmer.trim(path);
         String decodedPath = URLDecoder.decode(path, "UTF-8").replace(" ", "%20");
+
+        URI fullPath = null;
         try {
             if (!decodedPath.startsWith("file"))
                 decodedPath = "file://" + decodedPath;
