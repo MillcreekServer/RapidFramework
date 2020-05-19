@@ -165,8 +165,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
                     return null;
                 }).get();
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (ExecutionException e) {
                 handleDBOperationFailure(key, e);
+            } catch (InterruptedException e) {
+                // ignore
             }
 
             if(cachedElements.containsKey(key)){
