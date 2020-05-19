@@ -252,8 +252,8 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     public String parseFirst(ICommandSender sender, Lang lang, PreParseHandle handle) {
         Validation.assertNotNull(sender);
-
-        return parseFirst(sender.getLocale(), lang, handle);
+        String[] parsed = parse(sender.getLocale(), sender, lang, handle);
+        return parsed.length > 0 ? parsed[0] : "NULL";
     }
 
     public String parseFirst(ICommandSender sender, Lang lang) {
