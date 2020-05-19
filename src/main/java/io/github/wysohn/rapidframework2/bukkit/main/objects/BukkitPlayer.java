@@ -34,7 +34,11 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
 
     @Override
     public Locale getLocale() {
-        return Locale.forLanguageTag(sender.getLocale());
+        return Optional.ofNullable(sender)
+                .map(Player::getLocale)
+                .map(locale -> locale.replace('_', '-'))
+                .map(Locale::forLanguageTag)
+                .orElse(Locale.ENGLISH);
     }
 
     @Override
