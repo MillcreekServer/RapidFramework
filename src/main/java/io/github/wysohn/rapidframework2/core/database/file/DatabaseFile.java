@@ -44,56 +44,28 @@ public class DatabaseFile<T> extends Database<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized T load(String key, T def) {
+    public synchronized T load(String key, T def) throws IOException {
         File file = new File(folder, key);
         if (!file.exists())
             return def;
 
-        FileInputStream fis = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
-
         T result = def;
-        String ser = "";
-        try {
-            fis = new FileInputStream(file);
-            isr = new InputStreamReader(fis, StandardCharsets.UTF_8.newDecoder());
-            br = new BufferedReader(isr);
+        StringBuilder ser = new StringBuilder();
+        try (FileInputStream fis = new FileInputStream(file);
+             InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8.newDecoder());
+             BufferedReader br = new BufferedReader(isr);) {
 
             String buff;
             while ((buff = br.readLine()) != null)
-                ser += buff;
-            result = deserialize(ser, type);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (br != null)
-                    br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                if (isr != null)
-                    isr.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                if (fis != null)
-                    fis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                ser.append(buff);
+            result = deserialize(ser.toString(), type);
         }
 
         return result;
     }
 
     @Override
-    public synchronized void save(String key, T value) {
+    public synchronized void save(String key, T value) throws IOException {
         File dest = new File(folder, key);
         if (value == null) {
             dest.delete();
@@ -101,12 +73,7 @@ public class DatabaseFile<T> extends Database<T> {
         }
 
         String ser = serialize(value, type);
-
-        try {
-            FileUtil.writeToFile(dest, ser);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileUtil.writeToFile(dest, ser);
 
         /*
          * File file = new File(folder, key+"_tmp"); file.getParentFile().mkdirs();
