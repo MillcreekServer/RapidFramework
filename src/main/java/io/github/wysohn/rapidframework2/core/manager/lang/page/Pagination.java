@@ -49,7 +49,12 @@ public class Pagination<T> {
             if (index >= list.size())
                 break;
 
-            main.lang().sendRawMessage(sender, messageFn.convert(sender, list.get(index), index));
+            T val = list.get(index);
+            if (list.omit(val)) {
+                continue;
+            }
+
+            main.lang().sendRawMessage(sender, messageFn.convert(sender, val, index));
         }
 
         main.lang().sendMessage(sender, DefaultLangs.General_Line);
