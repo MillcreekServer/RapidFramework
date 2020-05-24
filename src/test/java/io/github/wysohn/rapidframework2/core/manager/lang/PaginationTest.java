@@ -35,7 +35,7 @@ public class PaginationTest {
     }
 
     @Test
-    public void showWithJson() {
+    public void showWithJson() throws InterruptedException {
         Mockito.when(mockLang.isJsonEnabled()).thenReturn(true);
 
         List<String> messages = new ArrayList<>();
@@ -48,6 +48,7 @@ public class PaginationTest {
                 "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -69,7 +70,7 @@ public class PaginationTest {
     }
 
     @Test
-    public void showWithJson2() {
+    public void showWithJson2() throws InterruptedException {
         Mockito.when(mockLang.isJsonEnabled()).thenReturn(true);
 
         List<String> messages = new ArrayList<>();
@@ -82,6 +83,7 @@ public class PaginationTest {
                 "title", cmd);
 
         pagination.show(mockSender, 1, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -103,7 +105,7 @@ public class PaginationTest {
     }
 
     @Test
-    public void showWithJson3() {
+    public void showWithJson3() throws InterruptedException {
         Mockito.when(mockLang.isJsonEnabled()).thenReturn(true);
 
         List<String> messages = new ArrayList<>();
@@ -116,6 +118,7 @@ public class PaginationTest {
                 "title", cmd);
 
         pagination.show(mockSender, 3, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -137,7 +140,7 @@ public class PaginationTest {
     }
 
     @Test
-    public void showWithJson4() {
+    public void showWithJson4() throws InterruptedException {
         Mockito.when(mockLang.isJsonEnabled()).thenReturn(true);
 
         List<String> messages = new ArrayList<>();
@@ -150,6 +153,7 @@ public class PaginationTest {
                 "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
 
         // pad
         verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
@@ -171,7 +175,7 @@ public class PaginationTest {
     }
 
     @Test
-    public void showWithoutJson() {
+    public void showWithoutJson() throws InterruptedException {
         Mockito.when(mockLang.isJsonEnabled()).thenReturn(false);
 
         List<String> messages = new ArrayList<>();
@@ -184,6 +188,7 @@ public class PaginationTest {
                 "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
 
         // three times
         verify(mockLang, times(3)).sendMessage(eq(mockSender), any(), any());

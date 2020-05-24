@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Pagination<T> {
     private final ExecutorService exec = Executors.newCachedThreadPool();
@@ -94,6 +95,11 @@ public class Pagination<T> {
                     langman.addInteger(pageCopy).addInteger(outof)));
             sender.sendMessageRaw("");
         }));
+    }
+
+    public void shutdown() throws InterruptedException {
+        exec.shutdownNow().forEach(Runnable::run);
+        exec.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     public interface DataProvider<T> {
