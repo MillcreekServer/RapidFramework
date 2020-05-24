@@ -88,6 +88,10 @@ public class Pagination<T> {
         int size();
 
         T get(int index);
+
+        default boolean omit(T val) {
+            return false;
+        }
     }
 
     @FunctionalInterface
