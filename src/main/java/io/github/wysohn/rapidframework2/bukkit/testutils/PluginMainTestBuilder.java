@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
 
@@ -33,6 +34,7 @@ public class PluginMainTestBuilder {
     private final ExecutorService async = Executors.newSingleThreadExecutor();
 
     private PluginBridge mockBridge;
+    private Plugin mockPlatform;
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
     private IPluginManager mockPluginManager;
@@ -73,6 +75,7 @@ public class PluginMainTestBuilder {
 
     private void initMocks() {
         mockBridge = mock(PluginBridge.class);
+        mockPlatform = mock(Plugin.class);
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
@@ -80,6 +83,7 @@ public class PluginMainTestBuilder {
         mockBukkit = Mockito.mock(AbstractBukkitPlugin.class);
         mockSupervisor = Mockito.mock(ITaskSupervisor.class);
 
+        when(mockBridge.getPlatform()).thenReturn(mockPlatform);
         when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
         when(mockMessage.getString()).thenReturn("SomeMessage");
         when(mockBukkit.getCommand(Mockito.anyString())).thenReturn(mockCommand);
@@ -142,6 +146,10 @@ public class PluginMainTestBuilder {
 
     public PluginBridge getMockBridge() {
         return mockBridge;
+    }
+
+    public Plugin getMockPlatform() {
+        return mockPlatform;
     }
 
     public Logger getMockLogger() {
