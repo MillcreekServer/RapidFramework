@@ -21,7 +21,9 @@ import io.github.wysohn.rapidframework2.tools.FileUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,7 +47,7 @@ public class DatabaseFile<T> extends Database<T> {
     @SuppressWarnings("unchecked")
     @Override
     public synchronized T load(String key, T def) throws IOException {
-        File file = new File(folder, key);
+        File file = new File(folder, key + ".json");
         if (!file.exists())
             return def;
 
@@ -66,7 +68,7 @@ public class DatabaseFile<T> extends Database<T> {
 
     @Override
     public synchronized void save(String key, T value) throws IOException {
-        File dest = new File(folder, key);
+        File dest = new File(folder, key + ".json");
         if (value == null) {
             dest.delete();
             return;
@@ -113,16 +115,22 @@ public class DatabaseFile<T> extends Database<T> {
     public synchronized Set<String> getKeys() {
         Set<String> keys = new HashSet<String>();
 
-        for (File file : folder.listFiles()) {
-            keys.add(file.getName());
-        }
+        Optional.ofNullable(folder.listFiles())
+                .map(Arrays::stream)
+                .ifPresent(fileStream -> fileStream
+                        .map(File::getName)
+                        .forEach(keys::add));
 
         return keys;
     }
 
     @Override
     public synchronized boolean has(String key) {
-        for (String fileName : folder.list()) {
+        String[] files = folder.list();
+        if (files == null || files.length < 1)
+            return false;
+
+        for (String fileName : files) {
             if (fileName.equalsIgnoreCase(key))
                 return true;
         }
