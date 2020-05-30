@@ -20,8 +20,6 @@ import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.database.MiniConnectionPoolManager;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,7 +44,7 @@ public class DatabaseMysql<T> extends Database<T> {
     private final MiniConnectionPoolManager pool;
 
     private final String CREATETABLEQUARY = "" + "CREATE TABLE IF NOT EXISTS %s (" + "" + KEY
-            + " CHAR(128) PRIMARY KEY," + "" + VALUE + " MEDIUMBLOB" + ")";
+            + " CHAR(128) PRIMARY KEY," + "" + VALUE + " JSON" + ")";
 
     private final String CREATEDATABASEQUARY = "" + "CREATE DATABASE IF NOT EXISTS %s";
     private final String UPDATEQUARY = "INSERT INTO %s VALUES (" + "?," + "?" + ") " + "ON DUPLICATE KEY UPDATE " + ""
@@ -106,16 +104,11 @@ public class DatabaseMysql<T> extends Database<T> {
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                InputStream input = rs.getBinaryStream(VALUE);
-                InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
-                BufferedReader br = new BufferedReader(isr);
-
-                String ser = br.readLine();
-                result = deserialize(ser, type);
+                String res = rs.getString(VALUE); // https://forums.mysql.com/read.php?39,662014,662042
+                result = deserialize(res, type);
             }
             pstmt.close();
-
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -139,11 +132,11 @@ public class DatabaseMysql<T> extends Database<T> {
 
             if (value != null) {
                 String ser = serialize(value, type);
-                InputStream input = new ByteArrayInputStream(ser.getBytes(StandardCharsets.UTF_8));
+//                InputStream input = new ByteArrayInputStream(ser.getBytes(StandardCharsets.UTF_8));
 
                 PreparedStatement pstmt = conn.prepareStatement(String.format(UPDATEQUARY, tablename));
                 pstmt.setString(1, key);
-                pstmt.setBinaryStream(2, input);
+                pstmt.setString(2, ser); // https://forums.mysql.com/read.php?39,662014,662042
                 pstmt.executeUpdate();
                 pstmt.close();
             } else {
