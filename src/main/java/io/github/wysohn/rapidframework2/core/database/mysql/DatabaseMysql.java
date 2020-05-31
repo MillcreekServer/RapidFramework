@@ -108,7 +108,7 @@ public class DatabaseMysql<T> extends Database<T> {
                 result = deserialize(res, type);
             }
             pstmt.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -145,8 +145,7 @@ public class DatabaseMysql<T> extends Database<T> {
                 pstmt.executeUpdate();
                 pstmt.close();
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -176,7 +175,7 @@ public class DatabaseMysql<T> extends Database<T> {
             rs.close();
             pstmt.close();
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
