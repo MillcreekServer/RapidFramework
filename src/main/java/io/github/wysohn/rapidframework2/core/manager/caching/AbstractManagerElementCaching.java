@@ -112,7 +112,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         return cachedElements.size();
     }
 
-    private void handleDBOperationFailure(K key, Throwable throwable) {
+    private void handleDBOperationFailure(String key, Throwable throwable) {
         main().getLogger().severe("Key: " + key);
         main().getLogger().severe("Manager: " + getClass().getSimpleName());
 
@@ -166,7 +166,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     return null;
                 }).get();
             } catch (ExecutionException e) {
-                handleDBOperationFailure(key, e);
+                handleDBOperationFailure(key.toString(), e);
             } catch (InterruptedException e) {
                 // ignore
             }
@@ -343,10 +343,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                 FileUtil.join(main().getPluginDirectory(), tablename));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-
-                return Database.Factory.build(clazz,
-                        FileUtil.join(main().getPluginDirectory(), tablename));
+                handleDBOperationFailure(tablename, e);
+                return null;
             }
         });
     }
@@ -380,7 +378,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                             try {
                                 db.save(cached.getKey().toString(), cached);
                             } catch (IOException e) {
-                                handleDBOperationFailure(value.getKey(), e);
+                                handleDBOperationFailure(value.getKey().toString(), e);
                             }
                         }
                     });
