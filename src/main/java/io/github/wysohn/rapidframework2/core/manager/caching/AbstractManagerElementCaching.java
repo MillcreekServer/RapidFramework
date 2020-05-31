@@ -377,7 +377,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                         synchronized (dbLock) {
                             try {
                                 db.save(cached.getKey().toString(), cached);
-                            } catch (IOException e) {
+                            } catch (Exception e) {
                                 handleDBOperationFailure(value.getKey().toString(), e);
                             }
                         }
