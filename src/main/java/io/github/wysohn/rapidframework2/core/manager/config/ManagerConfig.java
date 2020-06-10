@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
@@ -87,10 +88,11 @@ public class ManagerConfig extends PluginMain.Manager implements KeyValueStorage
 
     @Override
     public void save() {
-        try {
-            fileSession.save();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        fileSession.save();
+    }
+
+    @Override
+    public void save(File saveTo) {
+        fileSession.save(saveTo);
     }
 }

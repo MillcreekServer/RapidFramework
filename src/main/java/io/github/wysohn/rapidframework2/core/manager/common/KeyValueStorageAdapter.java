@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework2.core.manager.common;
 
 import io.github.wysohn.rapidframework2.core.interfaces.KeyValueStorage;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,7 +48,12 @@ public class KeyValueStorageAdapter implements KeyValueStorage {
     }
 
     @Override
-    public void save() throws Exception {
+    public void save() {
+
+    }
+
+    @Override
+    public void save(File saveTo) {
 
     }
 }
