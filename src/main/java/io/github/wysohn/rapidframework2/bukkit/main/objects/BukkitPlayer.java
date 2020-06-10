@@ -13,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -36,28 +37,39 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         return getKey();
     }
 
+    private transient boolean legacy = false;
     private transient Method handleMethod = null;
     private transient Field localeField = null;
 
-    private String attemptLegacyLocale(Player sender) {
+    @Nullable
+    private String getLocaleReflection(Player sender) {
         try {
-            return sender.getLocale();
-        } catch (Exception ex) {
-            try {
-                if (handleMethod == null)
-                    handleMethod = sender.getClass().getDeclaredMethod("getHandle");
+            if (handleMethod == null)
+                handleMethod = sender.getClass().getDeclaredMethod("getHandle");
 
-                Object handle = handleMethod.invoke(sender);
-                if (localeField == null)
-                    localeField = handle.getClass().getDeclaredField("locale");
+            Object handle = handleMethod.invoke(sender);
+            if (localeField == null)
+                localeField = handle.getClass().getDeclaredField("locale");
 
-                return (String) localeField.get(handle);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+            return (String) localeField.get(handle);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
+
+    private String attemptLegacyLocale(Player sender) {
+        if (legacy)
+            return getLocaleReflection(sender);
+
+        try {
+            return sender.getLocale();
+        } catch (NoSuchMethodError ex) {
+            legacy = true;
+            return getLocaleReflection(sender);
+        }
+    }
+
 
     @Override
     public Locale getLocale() {
