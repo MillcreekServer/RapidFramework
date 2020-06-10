@@ -15,6 +15,10 @@ public class TranslateManager extends PluginMain.Manager {
 
     public TranslateManager(int loadPriority) {
         super(loadPriority);
+    }
+
+    @Override
+    public void preload() throws Exception {
         this.folder = new File(main().getPluginDirectory(), "Translates");
         this.defaultSession = new ConfigFileSession(new File(folder, "translates.yml"));
     }
