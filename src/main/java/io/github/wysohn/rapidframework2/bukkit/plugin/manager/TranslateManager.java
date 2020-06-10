@@ -43,13 +43,6 @@ public class TranslateManager extends PluginMain.Manager {
         }
 
         if (session == null) {
-            File file = new File(folder, "translates_" + localeCode + ".yml");
-            if (!file.exists()) {
-                defaultSession.save(file);
-            } else {
-
-            }
-
             return defaultSession;
         } else {
             return session;
@@ -58,8 +51,21 @@ public class TranslateManager extends PluginMain.Manager {
 
     @Override
     public void load() throws Exception {
-        defaultSession.reload();
+        File[] files = folder.listFiles(f -> f.getName().endsWith(".yml")
+                && f.getName().contains("_"));
+        if (files != null) {
+            for (File file : files) {
+                String name = file.getName().substring(0, file.getName().indexOf('.'));
+                String[] split = name.split("_", 2);
+                if (split.length < 2)
+                    continue;
 
+                main().getLogger().info("translation file: " + file);
+                sessionMap.put(split[1], new ConfigFileSession(file));
+            }
+        }
+
+        defaultSession.reload();
         for (Map.Entry<String, ConfigFileSession> entry : sessionMap.entrySet()) {
             try {
                 entry.getValue().reload();
