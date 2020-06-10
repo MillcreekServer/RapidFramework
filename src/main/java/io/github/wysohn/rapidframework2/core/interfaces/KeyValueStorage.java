@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework2.core.interfaces;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,13 +65,18 @@ public interface KeyValueStorage {
 
     /**
      * Wipe all caches and reload data from data source.
+     *
      * @throws Exception
      */
     void reload() throws Exception;
 
     /**
-     * Save current caches to the data source.
-     * @throws Exception
+     * Save current caches to the data source. Asynchronous.
      */
-    void save() throws Exception;
+    void save();
+
+    /**
+     * Save current caches to the data source. Asynchronous.
+     */
+    void save(File saveTo);
 }

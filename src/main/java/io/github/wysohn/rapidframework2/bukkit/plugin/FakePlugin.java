@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework2.bukkit.plugin;
 
 import io.github.wysohn.rapidframework2.bukkit.main.AbstractBukkitPlugin;
 import io.github.wysohn.rapidframework2.bukkit.main.BukkitPluginBridge;
+import io.github.wysohn.rapidframework2.bukkit.plugin.manager.TranslateManager;
 import io.github.wysohn.rapidframework2.bukkit.utils.conversation.ConversationBuilder;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
@@ -39,14 +40,11 @@ public class FakePlugin extends AbstractBukkitPlugin {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
-        if (!sender.hasPermission("rapidframework.admin"))
-            return true;
-
-        if (!"rapidframework".equalsIgnoreCase(command.getName()))
-            return true;
-
         if (args.length > 0 && "test".equalsIgnoreCase(args[0])) {
             if (args.length > 1 && "conv".equalsIgnoreCase(args[1])) {
+                if (!sender.hasPermission("rapidframework.admin"))
+                    return true;
+
                 ConversationBuilder.of(getMain())
                         .doTask(context -> {
                             context.setSessionData("Confirmed", false);
@@ -69,10 +67,12 @@ public class FakePlugin extends AbstractBukkitPlugin {
                         })
                         .build((Conversable) sender)
                         .begin();
+
+                return true;
             }
         }
 
-        return true;
+        return super.onCommand(sender, command, label, args);
     }
 
     @Override
@@ -91,7 +91,9 @@ public class FakePlugin extends AbstractBukkitPlugin {
 
         @Override
         protected PluginMain init(PluginMain.Builder builder) {
-            return builder.build();
+            return builder
+                    .withManagers(new TranslateManager(PluginMain.Manager.NORM_PRIORITY))
+                    .build();
         }
 
         @Override

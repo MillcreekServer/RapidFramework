@@ -15,9 +15,9 @@ public abstract class AbstractFileSession implements KeyValueStorage {
             file.getParentFile().mkdirs();
 
         if (!file.exists()) {
-            try{
+            try {
                 file.createNewFile();
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -25,5 +25,7 @@ public abstract class AbstractFileSession implements KeyValueStorage {
 
     public abstract void reload() throws IOException;
 
-    public abstract void save() throws IOException;
+    public abstract void save();
+
+    public abstract void save(File saveTo);
 }

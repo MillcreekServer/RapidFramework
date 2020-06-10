@@ -25,10 +25,15 @@ public class ConfigFileSession extends AbstractFileSession {
     }
 
     @Override
-    public void save() throws IOException {
-        new Thread(()->{
+    public void save() {
+        save(file);
+    }
+
+    @Override
+    public void save(File saveTo) {
+        new Thread(() -> {
             try {
-                config.save(file);
+                config.save(saveTo);
             } catch (IOException e) {
                 e.printStackTrace();
             }
