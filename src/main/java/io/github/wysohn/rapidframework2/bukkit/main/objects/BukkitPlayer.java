@@ -14,6 +14,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
@@ -25,17 +27,42 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         this(null);
     }
 
-    public BukkitPlayer(UUID key) { super(key); }
+    public BukkitPlayer(UUID key) {
+        super(key);
+    }
 
     @Override
     public UUID getUuid() {
         return getKey();
     }
 
+    private transient Method handleMethod = null;
+    private transient Field localeField = null;
+
+    private String attemptLegacyLocale(Player sender) {
+        try {
+            return sender.getLocale();
+        } catch (Exception ex) {
+            try {
+                if (handleMethod == null)
+                    handleMethod = sender.getClass().getDeclaredMethod("getHandle");
+
+                Object handle = handleMethod.invoke(sender);
+                if (localeField == null)
+                    localeField = handle.getClass().getDeclaredField("locale");
+
+                return (String) localeField.get(handle);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
     @Override
     public Locale getLocale() {
         return Optional.ofNullable(sender)
-                .map(Player::getLocale)
+                .map(this::attemptLegacyLocale)
                 .map(locale -> locale.replace('_', '-'))
                 .map(Locale::forLanguageTag)
                 .orElse(Locale.ENGLISH);
