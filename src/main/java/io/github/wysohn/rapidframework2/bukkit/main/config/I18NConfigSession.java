@@ -56,6 +56,10 @@ public class I18NConfigSession implements PluginRuntime {
 
     }
 
+    /**
+     * @param localeCode {@link java.util.Locale#getLanguage()}
+     * @return
+     */
     public ConfigFileSession getSession(String localeCode) {
         ConfigFileSession session;
         synchronized (sessionMap) {
