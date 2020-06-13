@@ -6,6 +6,7 @@ import util.Validation;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class I18NConfigSession implements PluginRuntime {
     public final ConfigFileSession DEFAULT;
@@ -71,5 +72,9 @@ public class I18NConfigSession implements PluginRuntime {
         } else {
             return session;
         }
+    }
+
+    public Set<String> getLocales() {
+        return sessionMap.keySet();
     }
 }
