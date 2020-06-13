@@ -1,0 +1,71 @@
+package io.github.wysohn.rapidframework2.bukkit.main.config;
+
+import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
+import util.Validation;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+public class I18NConfigSession implements PluginRuntime {
+    public final ConfigFileSession DEFAULT;
+    private final Map<String, ConfigFileSession> sessionMap = new HashMap<>();
+    private final File folder;
+
+    public I18NConfigSession(File folder, String fileName) {
+        Validation.assertNotNull(folder);
+        Validation.assertNotNull(fileName);
+        Validation.validate(fileName, name -> name.length() > 0, "Empty fileName.");
+
+        this.folder = folder;
+        this.DEFAULT = new ConfigFileSession(new File(folder, fileName + ".yml"));
+    }
+
+    @Override
+    public void enable() throws Exception {
+
+    }
+
+    @Override
+    public void load() throws Exception {
+        File[] files = folder.listFiles(f -> f.getName().endsWith(".yml")
+                && f.getName().contains("_"));
+        if (files != null) {
+            for (File file : files) {
+                String name = file.getName().substring(0, file.getName().indexOf('.'));
+                String[] split = name.split("_", 2);
+                if (split.length < 2)
+                    continue;
+
+                sessionMap.put(split[1], new ConfigFileSession(file));
+            }
+        }
+
+        DEFAULT.reload();
+        for (Map.Entry<String, ConfigFileSession> entry : sessionMap.entrySet()) {
+            try {
+                entry.getValue().reload();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void disable() throws Exception {
+
+    }
+
+    public ConfigFileSession getSession(String localeCode) {
+        ConfigFileSession session;
+        synchronized (sessionMap) {
+            session = sessionMap.get(localeCode);
+        }
+
+        if (session == null) {
+            return DEFAULT;
+        } else {
+            return session;
+        }
+    }
+}
