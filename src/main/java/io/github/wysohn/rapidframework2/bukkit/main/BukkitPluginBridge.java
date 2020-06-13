@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.main;
 
+import io.github.wysohn.rapidframework2.bukkit.main.config.ConfigFileSession;
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
 import io.github.wysohn.rapidframework2.bukkit.manager.api.PlaceholderAPI;
 import io.github.wysohn.rapidframework2.bukkit.manager.api.ProtocolLibAPI;

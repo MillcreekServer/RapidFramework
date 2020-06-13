@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework2.bukkit.main;
+package io.github.wysohn.rapidframework2.bukkit.main.config;
 
 import io.github.wysohn.rapidframework2.bukkit.utils.Utf8YamlConfiguration;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
