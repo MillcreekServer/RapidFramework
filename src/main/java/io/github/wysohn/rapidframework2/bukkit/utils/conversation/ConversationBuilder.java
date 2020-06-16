@@ -51,7 +51,7 @@ public class ConversationBuilder {
     }
 
     public ConversationBuilder appendDouble(BiFunction<ConversationContext, Double, Boolean> fn) {
-        prompts.add(SimplePrompt.of(main, new DynamicLang(DefaultLangs.General_Prompt_Int), ((context, input) -> {
+        prompts.add(SimplePrompt.of(main, new DynamicLang(DefaultLangs.General_Prompt_Double), ((context, input) -> {
             if (input == null)
                 return false;
 
