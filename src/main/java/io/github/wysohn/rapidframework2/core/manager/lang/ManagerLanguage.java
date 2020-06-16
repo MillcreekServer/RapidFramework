@@ -273,37 +273,50 @@ public class ManagerLanguage extends PluginMain.Manager {
     }
 
     public void sendMessage(ICommandSender commandSender, Lang lang, PreParseHandle handle) {
+        sendMessage(commandSender, lang, handle, false);
+    }
+
+    public void sendMessage(ICommandSender commandSender, Lang lang, PreParseHandle handle, boolean conversation) {
         String[] parsed = parse(commandSender, lang, handle);
 
         Arrays.stream(parsed)
                 .map(msg -> MessageBuilder.forMessage(msg).build())
-                .forEach(message -> messageSender.send(commandSender, message));
+                .forEach(message -> messageSender.send(commandSender, message, conversation));
     }
 
     public void sendMessage(ICommandSender commandSender, Lang lang) {
-        sendMessage(commandSender, lang, ((sen, langman) -> {
-        }));
+        sendMessage(commandSender, lang, false);
     }
 
-    public void broadcast(Lang lang, PreParseHandle handle){
+    public void sendMessage(ICommandSender commandSender, Lang lang, boolean conversation) {
+        sendMessage(commandSender, lang, ((sen, langman) -> {
+        }), conversation);
+    }
+
+    public void broadcast(Lang lang, PreParseHandle handle) {
         main().getBridge().forEachSender(player -> sendMessage(player, lang, handle));
     }
 
-    public void broadcast(Lang lang){
-        broadcast(lang, ((sen, langman) -> {}));
+    public void broadcast(Lang lang) {
+        broadcast(lang, ((sen, langman) -> {
+        }));
     }
 
     public void sendRawMessage(ICommandSender sender, Message[] message) {
-        messageSender.send(sender, message);
+        sendRawMessage(sender, message, false);
     }
 
-    private static String getLastColors(String str){
-        for(int i = str.length() - 1; i >= 0 ; i--){
-            if(str.charAt(i) == '&' && i < str.length() - 2){
-                char c = str.charAt(i+1);
+    public void sendRawMessage(ICommandSender sender, Message[] message, boolean conversation) {
+        messageSender.send(sender, message, conversation);
+    }
 
-                if(('a' <= c && c <= 'f') || Character.isDigit(c))
-                    return "&"+str.charAt(i+1);
+    private static String getLastColors(String str) {
+        for (int i = str.length() - 1; i >= 0; i--) {
+            if (str.charAt(i) == '&' && i < str.length() - 2) {
+                char c = str.charAt(i + 1);
+
+                if (('a' <= c && c <= 'f') || Character.isDigit(c))
+                    return "&" + str.charAt(i + 1);
             }
         }
 
