@@ -14,11 +14,12 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package io.github.wysohn.rapidframework2.tools;
+package util;
 
 import java.util.Random;
+import java.util.stream.IntStream;
 
-public class Possibility {
+public class Sampling {
 
     /**
      * 1/(2(level - vert))
@@ -68,5 +69,38 @@ public class Possibility {
             sum *= num;
         }
         return sum;
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    public static int[] uniform(int max, int size) {
+        return uniform(max, size, true);
+    }
+
+    public static int[] uniform(int max, int size, boolean replace) {
+        if (max < 1)
+            throw new RuntimeException("max must be at least 1");
+
+        if (replace && size > max)
+            throw new RuntimeException("size cannot be larger than maximum value when sampling without replacement.");
+
+        //Durstenfeld algorithm
+        int[] pool = IntStream.range(0, max).toArray();
+        int[] out = new int[size];
+        int j = max;
+
+        for (int i = 0; i < out.length; i++) {
+            int sampledIndex = rand.nextInt(j);
+            out[i] = pool[sampledIndex];
+            if (!replace) {
+                swap(pool, sampledIndex, --j);
+            }
+        }
+
+        return out;
     }
 }
