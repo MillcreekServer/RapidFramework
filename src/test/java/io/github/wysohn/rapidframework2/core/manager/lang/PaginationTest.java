@@ -216,6 +216,11 @@ public class PaginationTest {
         }
 
         @Override
+        public boolean isConversing() {
+            return false;
+        }
+
+        @Override
         public boolean hasPermission(String... permission) {
             return false;
         }

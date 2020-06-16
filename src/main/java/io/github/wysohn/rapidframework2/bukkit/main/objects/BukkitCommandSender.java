@@ -36,6 +36,11 @@ public class BukkitCommandSender implements ICommandSender {
     }
 
     @Override
+    public boolean isConversing() {
+        return false; // CommandSender is not Conversable
+    }
+
+    @Override
     public UUID getUuid() {
         return null;
     }

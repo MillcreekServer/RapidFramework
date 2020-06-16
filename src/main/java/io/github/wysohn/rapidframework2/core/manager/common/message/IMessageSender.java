@@ -8,12 +8,17 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface IMessageSender {
-    default void send(ICommandSender sender, Message[] message) {
+    default void send(ICommandSender sender, Message[] message, boolean conversation) {
         Arrays.stream(message)
                 .map(Message::getString)
                 .filter(Objects::nonNull)
                 .reduce((a, b) -> a + " " + b)
                 .ifPresent(combined -> {
+                    // do not send if sender is engaged in conversation yet conversation is not set
+                    if (sender.isConversing() && !conversation) {
+                        return;
+                    }
+
                     sender.sendMessageRaw(combined);
 
                     if (isJsonEnabled()) {
@@ -24,6 +29,10 @@ public interface IMessageSender {
                                         .forEach(hover -> sender.sendMessageRaw("  " + hover)));
                     }
                 });
+    }
+
+    default void send(ICommandSender sender, Message[] message) {
+        send(sender, message, false);
     }
 
     boolean isJsonEnabled();

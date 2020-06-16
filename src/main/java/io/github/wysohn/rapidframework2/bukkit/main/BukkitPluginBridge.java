@@ -134,16 +134,21 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                     }
 
                     @Override
-                    public void send(ICommandSender sender, Message[] message) {
+                    public void send(ICommandSender sender, Message[] message, boolean conversation) {
                         Optional<ProtocolLibAPI> optApi = main.api().getAPI(ProtocolLibAPI.class);
                         if (failure || !optApi.isPresent()) {
-                            IMessageSender.super.send(sender, message);
+                            IMessageSender.super.send(sender, message, conversation);
                             return;
                         }
 
                         boolean sent = false;
-                        try{
-                            if(sender instanceof BukkitPlayer){
+                        try {
+                            // do not send if sender is engaged in conversation yet conversation is not set
+                            if (sender.isConversing() && !conversation) {
+                                return;
+                            }
+
+                            if (sender instanceof BukkitPlayer) {
                                 optApi.get().send((BukkitPlayer) sender, message);
                                 sent = true;
                             }
@@ -154,7 +159,7 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                             // fallback just in case something went wrong so
                             // the chat continues with auxiliary sender
                             if (!sent) {
-                                IMessageSender.super.send(sender, message);
+                                IMessageSender.super.send(sender, message, conversation);
                             }
                         }
                     }

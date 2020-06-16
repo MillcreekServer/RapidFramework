@@ -98,6 +98,11 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
                         .orElse("<Unknown>"));
     }
 
+    @Override
+    public boolean isConversing() {
+        return sender.isConversing();
+    }
+
     public BukkitPlayer setSender(Player sender) {
         this.sender = sender;
         return this;
