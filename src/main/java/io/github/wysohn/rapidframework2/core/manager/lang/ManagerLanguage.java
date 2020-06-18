@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * <h1>Localization support class.</h1>
+ * <h1>ManagerLanguage</h1>
  * <p>
  * The class which automatically translation {@link Lang} into appropriate locale.
  * The locale respects the {@link Locale} returned by {@link ICommandSender#getLocale()}.
