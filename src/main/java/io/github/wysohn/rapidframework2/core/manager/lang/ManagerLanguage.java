@@ -9,11 +9,58 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuild
 import util.JarUtil;
 import util.Validation;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * <h1>Localization support class.</h1>
+ * <p>
+ * The class which automatically translation {@link Lang} into appropriate locale.
+ * The locale respects the {@link Locale} returned by {@link ICommandSender#getLocale()}.
+ * If the translation file is not specified for the returned {@link Locale}, {@link Locale#ENGLISH}
+ * will be used as default.
+ * <hr>
+ * First, client instantiate the class with the {@link LanguageSessionFactory} which will generate
+ * appropriate {@link LanguageSession} as this class' need. Each {@link LanguageSession} return
+ * String which is equivalent to the {@link Lang} passed to it, and this is how translation work for
+ * different locales.
+ * <hr>
+ * Then, the given String may contain various 'placeholder' which the client can dynamically fill as needed.
+ * For example. the returned String from {@link LanguageSession} may contain special String, which starts with
+ * ${, followed by keyword, and then } (ex. ${integer}). These placeholder will be replaced one by one by insertion
+ * order of 'add' methods of this class. So if the returned String has ${integer} ${integer} ${integer}, these
+ * placeholders will be replaced with the values inserted by {@link ManagerLanguage#addInteger(int)} by
+ * First In First Out (FIFO) manner.
+ * <hr>
+ * <h2>Placeholders</h2>
+ * <ul>
+ *     <li>${integer}</li>
+ *     <li>${double}</li>
+ *     <li>${long}</li>
+ *     <li>${string}</li>
+ *     <li>${boolean}</li>
+ *     <li>${date}</li>
+ * </ul>
+ * ${date} may can add formats: ${date style} ${date style timezone}
+ * <br><br>
+ * style:
+ * <ul>
+ *     <li>default</li>
+ *     <li>short</li>
+ *     <li>medium</li>
+ *     <li>long</li>
+ *     <li>full</li>
+ * </ul>
+ * timezone:
+ * <ul><li>refer {@link TimeZone#getTimeZone(String)}</li></ul>
+ * example) ${date full GMT+09:00}
+ * <br>
+ *
+ * @author wysohn
+ */
 public class ManagerLanguage extends PluginMain.Manager {
     private final Map<Locale, LanguageSession> languageSessions = new HashMap<>();
     private final Set<Lang> languages = new HashSet<>();
@@ -23,6 +70,7 @@ public class ManagerLanguage extends PluginMain.Manager {
     private final Queue<Long> llong = new LinkedList<>();
     private final Queue<String> string = new LinkedList<>();
     private final Queue<Boolean> bool = new LinkedList<>();
+    private final Queue<Date> date = new LinkedList<>();
 
     private final LanguageSessionFactory sessionFactory;
 
@@ -34,6 +82,15 @@ public class ManagerLanguage extends PluginMain.Manager {
     };
     private Locale defaultLang = Locale.ENGLISH;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###,###.##");
+    private final Map<String, Integer> dateStyleMap = new HashMap<>();
+
+    {
+        dateStyleMap.put("default", DateFormat.DEFAULT);
+        dateStyleMap.put("short", DateFormat.SHORT);
+        dateStyleMap.put("medium", DateFormat.MEDIUM);
+        dateStyleMap.put("long", DateFormat.LONG);
+        dateStyleMap.put("full", DateFormat.FULL);
+    }
 
     public ManagerLanguage(int loadPriority, LanguageSessionFactory sessionFactory) {
         super(loadPriority);
@@ -115,6 +172,11 @@ public class ManagerLanguage extends PluginMain.Manager {
         return this;
     }
 
+    public ManagerLanguage addDate(Date date) {
+        this.date.add(date);
+        return this;
+    }
+
     /**
      * @param lang
      * @return true if there was no same ManagerLanguage already registered
@@ -127,7 +189,7 @@ public class ManagerLanguage extends PluginMain.Manager {
         return this.messageSender.isJsonEnabled();
     }
 
-    private void replaceVariables(List<String> strings) {
+    private void replaceVariables(Locale locale, List<String> strings) {
         for (int i = 0; i < strings.size(); i++) {
             String str = strings.get(i);
             if (str == null)
@@ -175,7 +237,42 @@ public class ManagerLanguage extends PluginMain.Manager {
                             }
                             break;
                         default:
-                            str = leftStr + "null" + rightStr;
+                            // ${date} or ${date style} or ${date style UTC}
+                            // style: default, short, medium, long, full
+                            if (varName.startsWith("date")) {
+                                varName = varName.trim();
+                                String[] split = varName.split(" ");
+
+                                Date d = date.poll();
+                                DateFormat format = null;
+                                TimeZone timeZone = null;
+                                if (split.length == 1) {
+                                    format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+                                            DateFormat.SHORT,
+                                            locale);
+                                    timeZone = TimeZone.getTimeZone("UTC");
+                                } else if (split.length == 2) {
+                                    int style = dateStyleMap.getOrDefault(split[1], -1);
+                                    if (style > -1)
+                                        format = DateFormat.getDateTimeInstance(style, style, locale);
+                                    timeZone = TimeZone.getTimeZone("UTC");
+                                } else if (split.length == 3) {
+                                    int style = dateStyleMap.getOrDefault(split[1], -1);
+                                    if (style > -1)
+                                        format = DateFormat.getDateTimeInstance(style, style, locale);
+                                    timeZone = TimeZone.getTimeZone(split[2]);
+                                }
+
+                                if (format == null || timeZone == null) {
+                                    str = leftStr + "?illegal 'date' format?" + rightStr;
+                                    break;
+                                }
+
+                                format.setTimeZone(timeZone);
+                                str = leftStr + format.format(d) + rightStr;
+                            } else {
+                                str = leftStr + "null" + rightStr;
+                            }
                             break;
                     }
                 }
@@ -212,7 +309,7 @@ public class ManagerLanguage extends PluginMain.Manager {
         }
 
         handle.onParse(sender, this);
-        replaceVariables(values);
+        replaceVariables(locale, values);
 
         this.doub.clear();
         this.integer.clear();

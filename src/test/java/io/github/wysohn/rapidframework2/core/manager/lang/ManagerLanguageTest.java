@@ -11,53 +11,25 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 
-public class ManagerLanguageTest{
-    private enum TempLang implements Lang {
-        SomeLang("This is message."),
-        DecimalLang("Number is ${double}."),
-
-        DoubleLang("value=${double},${double}"),
-        IntegerLang("value=${integer},${integer}"),
-        StringLang("value=${string},${string}"),
-        BooleanLang("value=${boolean},${boolean}"),
-        LongLang("value=${long},${long}"),
-
-        VariationLang("value=${double},${integer},${string},${boolean},${long}",
-                "value2=${double},${integer},${string},${boolean},${long}"),
-        VariationLangSingle("value=${double},${integer},${string},${boolean},${long}")
-        ;
-
-        private String[] eng;
-
-        TempLang(String... eng) {
-            this.eng = eng;
-        }
-
-        @Override
-        public String[] getEngDefault() {
-            return eng;
-        }
-    }
-
-    private ManagerLanguage managerLanguage;
-    private KeyValueStorage mockStorageDef;
-    private KeyValueStorage mockStorage;
+public class ManagerLanguageTest {
+    private final Date date = new Date(1592466358000L); // Thursday, June 18, 2020 7:45:58 AM GMT
 
     @Before
     public void init() {
-    	PluginMain mockMain = Mockito.mock(PluginMain.class);
-    	Logger mockLogger = Mockito.mock(Logger.class);
-    	Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
-    	
+        PluginMain mockMain = Mockito.mock(PluginMain.class);
+        Logger mockLogger = Mockito.mock(Logger.class);
+        Mockito.when(mockMain.getLogger()).thenReturn(mockLogger);
+
         managerLanguage = new ManagerLanguage(0, locale -> {
-            if(locale == Locale.ENGLISH)
+            if (locale == Locale.ENGLISH)
                 return new LanguageSession(mockStorageDef);
-            else if(locale == Locale.KOREAN)
+            else if (locale == Locale.KOREAN)
                 return new LanguageSession(mockStorage);
             else
                 return null;
@@ -67,8 +39,30 @@ public class ManagerLanguageTest{
 
         Arrays.stream(TempLang.values())
                 .forEach(managerLanguage::registerLanguage);
-        
+
         Whitebox.setInternalState(managerLanguage, "main", mockMain);
+    }
+
+    private ManagerLanguage managerLanguage;
+    private KeyValueStorage mockStorageDef;
+    private KeyValueStorage mockStorage;
+
+    @Test
+    public void addDouble() {
+        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
+            langman.addDouble(1023.2);
+        });
+        Assert.assertEquals("value=1,023.2,null", parsed);
+
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
+            langman.addDouble(5.2);
+            langman.addDouble(993223.12);
+        });
+        Assert.assertEquals("value=5.2,993,223.12", parsed);
+
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
+        });
+        Assert.assertEquals("value=null,null", parsed);
     }
 
     @Test
@@ -109,23 +103,6 @@ public class ManagerLanguageTest{
     }
 
     @Test
-    public void addDouble() {
-        String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
-            langman.addDouble(1023.2);
-        });
-        Assert.assertEquals("value=1,023.2,null", parsed);
-
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {
-            langman.addDouble(5.2);
-            langman.addDouble(993223.12);
-        });
-        Assert.assertEquals("value=5.2,993,223.12", parsed);
-
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DoubleLang, (sen, langman) -> {});
-        Assert.assertEquals("value=null,null", parsed);
-    }
-
-    @Test
     public void addInteger() {
         String parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, (sen, langman) -> {
             langman.addInteger(1452);
@@ -138,7 +115,8 @@ public class ManagerLanguageTest{
         });
         Assert.assertEquals("value=6231,32905939", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, (sen, langman) -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.IntegerLang, (sen, langman) -> {
+        });
         Assert.assertEquals("value=null,null", parsed);
     }
 
@@ -160,7 +138,8 @@ public class ManagerLanguageTest{
         });
         Assert.assertEquals("value=hehehe,rtrtrt", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, (sen, langman) -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.StringLang, (sen, langman) -> {
+        });
         Assert.assertEquals("value=null,null", parsed);
     }
 
@@ -177,7 +156,8 @@ public class ManagerLanguageTest{
         });
         Assert.assertEquals("value=&cfalse&f,&atrue&f", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, (sen, langman) -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.BooleanLang, (sen, langman) -> {
+        });
         Assert.assertEquals("value=null,null", parsed);
     }
 
@@ -194,8 +174,65 @@ public class ManagerLanguageTest{
         });
         Assert.assertEquals("value=6231,32905939", parsed);
 
-        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, (sen, langman) -> {});
+        parsed = managerLanguage.parseFirst(Locale.KOREAN, TempLang.LongLang, (sen, langman) -> {
+        });
         Assert.assertEquals("value=null,null", parsed);
+    }
+
+    @Test
+    public void addDate1() {
+        String parsed = managerLanguage.parseFirst(Locale.ENGLISH, TempLang.DateLang, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=6/18/20 7:45 AM", parsed);
+
+        String parsed2 = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DateLang, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=20. 6. 18 오전 7:45", parsed2);
+    }
+
+    @Test
+    public void addDate2() {
+        String parsed = managerLanguage.parseFirst(Locale.ENGLISH, TempLang.DateFormatLang, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=Thursday, June 18, 2020 7:45:58 AM UTC", parsed);
+
+        String parsed2 = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DateFormatLang, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=2020년 6월 18일 목요일 오전 7시 45분 58초 UTC", parsed2);
+    }
+
+    @Test
+    public void addDate2_1() {
+        String parsed = managerLanguage.parseFirst(Locale.ENGLISH, TempLang.DateFormatLangInvalid, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=?illegal 'date' format?", parsed);
+    }
+
+    @Test
+    public void addDate3() {
+        String parsed = managerLanguage.parseFirst(Locale.ENGLISH, TempLang.DateFormatTimezoneLang, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=Thursday, June 18, 2020 4:45:58 PM GMT+09:00", parsed);
+
+        String parsed2 = managerLanguage.parseFirst(Locale.KOREAN, TempLang.DateFormatTimezoneLang, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        Assert.assertEquals("value=2020년 6월 18일 목요일 오후 4시 45분 58초 GMT+09:00", parsed2);
+    }
+
+    @Test
+    public void addDate3_1() {
+        String parsed = managerLanguage.parseFirst(Locale.ENGLISH, TempLang.DateFormatTimezoneLangInvalid, (sen, langman) -> {
+            langman.addDate(date);
+        });
+        // TimeZone.getTimeZone() returns GMT if invalid timezone is passed.
+        Assert.assertEquals("value=Thursday, June 18, 2020 7:45:58 AM GMT", parsed);
     }
 
     @Test
@@ -221,7 +258,7 @@ public class ManagerLanguageTest{
         Assert.assertEquals("value2=null,null,null,null,null", parsed[1]);
 
         parsed = managerLanguage.parse(TempLang.VariationLang, (sen, langman) -> {
-            langman.addString(new String[]{"abc","efg"});
+            langman.addString(new String[]{"abc", "efg"});
         });
 
         Assert.assertEquals(2, parsed.length);
@@ -245,6 +282,37 @@ public class ManagerLanguageTest{
         Assert.assertEquals(2, parsed.length);
         Assert.assertEquals("value=null,555,null,&cfalse&f,8987", parsed[0]);
         Assert.assertEquals("value2=null,null,null,&atrue&f,null", parsed[1]);
+    }
+
+    private enum TempLang implements Lang {
+        SomeLang("This is message."),
+        DecimalLang("Number is ${double}."),
+
+        DoubleLang("value=${double},${double}"),
+        IntegerLang("value=${integer},${integer}"),
+        StringLang("value=${string},${string}"),
+        BooleanLang("value=${boolean},${boolean}"),
+        LongLang("value=${long},${long}"),
+        DateLang("value=${date}"),
+        DateFormatLang("value=${date full}"),
+        DateFormatLangInvalid("value=${date blah}"),
+        DateFormatTimezoneLang("value=${date full GMT+09:00}"),
+        DateFormatTimezoneLangInvalid("value=${date full ABC}"),
+
+        VariationLang("value=${double},${integer},${string},${boolean},${long}",
+                "value2=${double},${integer},${string},${boolean},${long}"),
+        VariationLangSingle("value=${double},${integer},${string},${boolean},${long}");
+
+        private final String[] eng;
+
+        TempLang(String... eng) {
+            this.eng = eng;
+        }
+
+        @Override
+        public String[] getEngDefault() {
+            return eng;
+        }
     }
 
     @Test
