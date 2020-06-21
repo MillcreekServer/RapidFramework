@@ -49,6 +49,14 @@ public class JarUtil {
         copyFromJar(clazz, glob, destFolder, option, null);
     }
 
+    /**
+     * @param clazz
+     * @param glob       refer to {@link FilenameUtils#wildcardMatch(String, String)}
+     * @param destFolder
+     * @param option
+     * @param trimmer
+     * @throws IOException
+     */
     public static void copyFromJar(Class<?> clazz, String glob, File destFolder, CopyOption option, PathTrimmer trimmer)
             throws IOException {
         if (!destFolder.exists())
@@ -89,7 +97,7 @@ public class JarUtil {
             while ((entry = zis.getNextEntry()) != null) {
                 String fileName = entry.getName();
 
-                if (!FilenameUtils.wildcardMatch(fileName, glob)) {
+                if (!FilenameUtils.wildcardMatchOnSystem(fileName, glob)) {
                     continue;
                 }
 
@@ -131,7 +139,7 @@ public class JarUtil {
     }
 
     public enum CopyOption {
-        COPY_IF_NOT_EXIST, REPLACE_IF_EXIST;
+        COPY_IF_NOT_EXIST, REPLACE_IF_EXIST
     }
 
     @FunctionalInterface
