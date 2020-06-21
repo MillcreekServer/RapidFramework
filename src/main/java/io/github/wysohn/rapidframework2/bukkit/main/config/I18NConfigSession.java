@@ -18,7 +18,7 @@ public class I18NConfigSession implements PluginRuntime {
         Validation.assertNotNull(folder);
         Validation.assertNotNull(fileName);
         Validation.validate(fileName, name -> name.length() > 0, "Empty fileName.");
-        Validation.validate(fileName, name -> name.indexOf('.') != -1, "do not include extension.");
+        Validation.validate(fileName, name -> name.indexOf('.') == -1, "do not include extension.");
 
         this.folder = folder;
         this.DEFAULT = new ConfigFileSession(new File(folder, fileName + ".yml"));
