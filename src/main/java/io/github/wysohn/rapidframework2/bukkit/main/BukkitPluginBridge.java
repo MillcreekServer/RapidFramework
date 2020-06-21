@@ -201,10 +201,6 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
         try {
             main.enable();
 
-            List<SubCommand> commands = new ArrayList<>();
-            registerCommands(commands);
-            commands.forEach(main.comm()::addCommand);
-
             Optional.ofNullable(bukkit.getCommand(main.comm().getMainCommand()))
                     .ifPresent(pluginCommand -> pluginCommand.setTabCompleter(bukkit));
 
@@ -215,6 +211,10 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                             .ifPresent(pluginManager -> pluginManager.registerEvents(manager, bukkit)));
 
             main.load();
+
+            List<SubCommand> commands = new ArrayList<>();
+            registerCommands(commands);
+            commands.forEach(main.comm()::addCommand);
         } catch (Exception e) {
             e.printStackTrace();
             bukkit.setEnableState(false);
