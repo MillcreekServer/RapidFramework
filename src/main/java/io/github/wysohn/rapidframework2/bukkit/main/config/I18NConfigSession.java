@@ -12,14 +12,17 @@ public class I18NConfigSession implements PluginRuntime {
     public final ConfigFileSession DEFAULT;
     private final Map<String, ConfigFileSession> sessionMap = new HashMap<>();
     private final File folder;
+    private final String fileName;
 
     public I18NConfigSession(File folder, String fileName) {
         Validation.assertNotNull(folder);
         Validation.assertNotNull(fileName);
         Validation.validate(fileName, name -> name.length() > 0, "Empty fileName.");
+        Validation.validate(fileName, name -> name.indexOf('.') != -1, "do not include extension.");
 
         this.folder = folder;
         this.DEFAULT = new ConfigFileSession(new File(folder, fileName + ".yml"));
+        this.fileName = fileName;
     }
 
     @Override
@@ -30,7 +33,8 @@ public class I18NConfigSession implements PluginRuntime {
     @Override
     public void load() throws Exception {
         File[] files = folder.listFiles(f -> f.getName().endsWith(".yml")
-                && f.getName().contains("_"));
+                && f.getName().contains("_")
+                && f.getName().split("_", 2)[0].equals(fileName));
         if (files != null) {
             for (File file : files) {
                 String name = file.getName().substring(0, file.getName().indexOf('.'));
