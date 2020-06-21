@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import util.Validation;
 
+import java.util.Optional;
+
 public class SimplePrompt implements Prompt {
     private final PluginMain main;
     private final DynamicLang promptText;
@@ -54,7 +56,9 @@ public class SimplePrompt implements Prompt {
         BukkitCommandSender sender = new BukkitCommandSender();
         sender.setSender((CommandSender) conversable);
 
-        return main.lang().parseFirst(sender, promptText.lang, promptText.handle);
+        return Optional.ofNullable(promptText)
+                .map(text -> main.lang().parseFirst(sender, text.lang, text.handle))
+                .orElse("");
     }
 
     @Override
