@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework2.bukkit.utils.conversation;
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitCommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversable;
 import org.bukkit.conversations.ConversationContext;
@@ -58,6 +59,7 @@ public class SimplePrompt implements Prompt {
 
         return Optional.ofNullable(promptText)
                 .map(text -> main.lang().parseFirst(sender, text.lang, text.handle))
+                .map(text -> ChatColor.translateAlternateColorCodes('&', text))
                 .orElse("");
     }
 
