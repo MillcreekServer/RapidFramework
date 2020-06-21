@@ -17,7 +17,7 @@ public class TranslateManager extends PluginMain.Manager {
     @Override
     public void preload() throws Exception {
         File folder = new File(main().getPluginDirectory(), "Translates");
-        configSession = new I18NConfigSession(folder, "translates.yml");
+        configSession = new I18NConfigSession(folder, "translates");
     }
 
     @Override
