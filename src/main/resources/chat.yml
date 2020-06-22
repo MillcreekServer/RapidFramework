@@ -1,0 +1,12 @@
+NameFormat: "&8[&7%player_name%&8]"
+Prefixes:
+  a:
+    value: '&8[&6test&8]'
+    #click_OpenUrl: 'http://www.google.com'
+    #click_OpenFile: 'some file'
+    #click_RunCommand: '/some command'
+    click_SuggestCommand: '/w %player_name%'
+    hover_ShowText: 'line1\nline2\nline3'
+    #hover_ShowAchievement: 'achievement'
+  b:
+    value: '&8[&6test2&8]'

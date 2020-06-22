@@ -8,7 +8,6 @@ import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
-import io.github.wysohn.rapidframework2.core.manager.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework2.core.manager.command.SubCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSender;
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
@@ -19,8 +18,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import util.JarUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -82,16 +83,6 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                 .andPluginSupervisor(iPluginManager)
                 .andLanguageSessionFactory(locale -> new LanguageSession(new ConfigFileSession(FileUtil.join(dataFolder,
                         "lang", locale.getLanguage() + ".yml"))))
-                .andChatManager(new ConfigFileSession(FileUtil.join(dataFolder, "chat.yml")), new IPlaceholderSupport() {
-                    @Override
-                    public String parse(ICommandSender sender, String str) {
-                        String formatted = String.format(str, sender.getDisplayName());
-
-                        return main.api().getAPI(PlaceholderAPI.class)
-                                .map(api -> api.parse(sender, formatted))
-                                .orElse(formatted);
-                    }
-                })
                 .andTaskSupervisor(new ITaskSupervisor() {
                     final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
                         Thread thread = new Thread(runnable);
@@ -166,6 +157,11 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                 });
     }
 
+    protected void copyConfigFiles(File dataFolder) throws IOException {
+        JarUtil.copyFromJar(getClass(), "config.yml", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+        JarUtil.copyFromJar("config.yml", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+    }
+
     @Override
     public <T> T getPlatform() {
         return (T) bukkit;
@@ -175,6 +171,8 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
     public void init() {
         try {
             main = init(mainBuilder);
+
+            copyConfigFiles(main.getPluginDirectory());
 
             main.preload();
         } catch (Exception e) {

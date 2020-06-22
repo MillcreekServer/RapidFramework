@@ -2,6 +2,7 @@ author: wysohn
 name: RapidFramework
 main: io.github.wysohn.rapidframework2.bukkit.plugin.FakePlugin
 softdepend:
+  - ProtocolLib
   - Vault
   - PlaceholderAPI
   - UserInterfaceLib

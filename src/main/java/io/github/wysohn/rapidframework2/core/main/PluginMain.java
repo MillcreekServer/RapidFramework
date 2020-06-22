@@ -1,12 +1,10 @@
 package io.github.wysohn.rapidframework2.core.main;
 
-import io.github.wysohn.rapidframework2.bukkit.manager.chat.ManagerChat;
 import io.github.wysohn.rapidframework2.core.interfaces.ITaskSupervisor;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework2.core.manager.api.ExternalAPI;
 import io.github.wysohn.rapidframework2.core.manager.api.ManagerExternalAPI;
-import io.github.wysohn.rapidframework2.core.manager.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework2.core.manager.command.ManagerCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSender;
@@ -33,16 +31,15 @@ public class PluginMain implements PluginRuntime {
 
     private final String pluginName;
     private final String description;
-    private final ManagerCommand comm;
     private final String rootPermission;
     private final PluginBridge pluginBridge;
     private final Logger logger;
     private final File pluginDirectory;
 
+    private final ManagerCommand comm;
     private ManagerExternalAPI api;
     private ManagerConfig conf;
     private ManagerLanguage lang;
-    private ManagerChat chat;
 
     private ITaskSupervisor taskSupervisor;
 
@@ -153,6 +150,11 @@ public class PluginMain implements PluginRuntime {
         registerManager(lang);
         registerManager(api);
 
+        orderedManagers.add(conf);
+        orderedManagers.add(comm);
+        orderedManagers.add(lang);
+        orderedManagers.add(api);
+
         Arrays.stream(getManagersByPriority(managers))
                 .flatMap(List::stream)
                 .forEachOrdered(orderedManagers::add);
@@ -161,7 +163,7 @@ public class PluginMain implements PluginRuntime {
             manager.preload();
         }
 
-        for (Mediator mediator : mediators.values()){
+        for (Mediator mediator : mediators.values()) {
            mediator.preload();
         }
     }
@@ -252,14 +254,6 @@ public class PluginMain implements PluginRuntime {
             return this;
         }
 
-        public Builder andChatManager(AbstractFileSession fileSession, IPlaceholderSupport placeholderSupport) {
-            main.chat = new ManagerChat(Manager.FASTEST_PRIORITY,
-                    fileSession,
-                    placeholderSupport);
-
-            return this;
-        }
-
         public Builder andTaskSupervisor(ITaskSupervisor taskSupervisor) {
             main.taskSupervisor = taskSupervisor;
             return this;
@@ -302,7 +296,6 @@ public class PluginMain implements PluginRuntime {
             Validation.assertNotNull(main.conf, "Register config with .andFileSession() first.");
             Validation.assertNotNull(main.api, "Register IPluginManager with .andPluginManager() first.");
             Validation.assertNotNull(main.lang, "Register ManagerLanguage with .andLanguageSessionFactory() first.");
-            Validation.assertNotNull(main.chat, "Register ManagerChat with .andChatManager() first.");
             Validation.assertNotNull(main.taskSupervisor, "Register ITaskSupervisor with .andTaskSupervisor() first.");
 
             addLangs(DefaultLangs.values());

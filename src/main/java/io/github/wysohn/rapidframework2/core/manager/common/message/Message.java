@@ -153,7 +153,7 @@ public class Message {
                 .filter(Objects::nonNull)
                 .forEach(arr -> Arrays.stream(arr)
                         .filter(Objects::nonNull)
-                        .filter(m -> m.string.trim().length() > 0)
+                        .filter(m -> m.string.length() > 0)
                         .forEach(msgs::add));
 
         return msgs.toArray(new Message[0]);

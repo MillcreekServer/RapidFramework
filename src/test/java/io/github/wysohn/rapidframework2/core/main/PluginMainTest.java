@@ -64,7 +64,6 @@ public class PluginMainTest {
                 .andConfigSession(mockFileSession)
                 .andPluginSupervisor(mockPluginManager)
                 .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
-                .andChatManager(mockFileSession, (sender, str) -> str)
                 .andTaskSupervisor(new ITaskSupervisor() {
                     @Override
                     public <V> Future<V> sync(Callable<V> callable) {

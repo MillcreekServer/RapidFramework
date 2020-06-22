@@ -117,16 +117,18 @@ public class ManagerLanguage extends PluginMain.Manager {
 
     @Override
     public void enable() throws Exception {
-        JarUtil.copyFromJar("lang/**", main().getPluginDirectory(), JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+
     }
 
     @Override
     public void load() throws Exception {
+        JarUtil.copyFromJar("lang/*", main().getPluginDirectory(), JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+
         languageSessions.clear();
 
-        for(Locale locale : sessionFactory.getLocales(main())){
+        for (Locale locale : sessionFactory.getLocales(main())) {
             LanguageSession session = sessionFactory.create(locale);
-            if(session != null){
+            if (session != null) {
                 languageSessions.put(locale, session);
                 session.fill(languages);
             }

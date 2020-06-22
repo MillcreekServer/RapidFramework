@@ -40,12 +40,12 @@ public class PluginMainTestBuilder {
     private IPluginManager mockPluginManager;
     private Message mockMessage;
 
-    private PluginMain main;
+    private final PluginMain main;
     private BukkitPluginBridge core;
 
-    private List<Object> expectations = new LinkedList<>();
-    private List<Consumer<PluginMainTestBuilder>> befores = new LinkedList<>();
-    private List<Consumer<PluginMainTestBuilder>> afters = new LinkedList<>();
+    private final List<Object> expectations = new LinkedList<>();
+    private final List<Consumer<PluginMainTestBuilder>> befores = new LinkedList<>();
+    private final List<Consumer<PluginMainTestBuilder>> afters = new LinkedList<>();
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
     private ITaskSupervisor mockSupervisor;
@@ -64,7 +64,6 @@ public class PluginMainTestBuilder {
                 .andConfigSession(mockFileSession)
                 .andPluginSupervisor(mockPluginManager)
                 .andLanguageSessionFactory(locale -> new LanguageSession(mockFileSession))
-                .andChatManager(mockFileSession, (sender, str) -> str)
                 .andTaskSupervisor(mockSupervisor)
                 .setMessageSender(() -> false)
                 .withManagers(new SomeManager(PluginMain.Manager.FASTEST_PRIORITY))

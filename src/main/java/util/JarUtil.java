@@ -113,7 +113,7 @@ public class JarUtil {
 
                 // duplicate
                 File file = new File(destFolder + File.separator + fileName);
-                if (option == CopyOption.COPY_IF_NOT_EXIST && file.exists())
+                if (option == CopyOption.COPY_IF_NOT_EXIST && file.exists() && file.length() > 0L)
                     continue;
 
                 if (!file.getParentFile().exists())
