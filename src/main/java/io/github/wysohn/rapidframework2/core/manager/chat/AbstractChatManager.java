@@ -5,6 +5,7 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -38,55 +39,64 @@ public abstract class AbstractChatManager extends PluginMain.Manager {
         Message[] formattedName = fileSession.get("NameFormat")
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .map(str -> String.format(str, sender.getDisplayName()))
                 .map(str -> placeholderSupport.parse(sender, str))
                 .map(MessageBuilder::forMessage)
                 .map(MessageBuilder::build)
                 .orElse(MessageBuilder.forMessage("&8[&7"+sender.getDisplayName()+"&8]").build());
 
         Message[] formattedPrefixes = fileSession.get("Prefixes")
-                .filter(Collection.class::isInstance)
-                .map(Collection.class::cast)
-                .map(Collection::stream)
-                .map(sectionStream -> {
+                .filter(ConfigurationSection.class::isInstance)
+                .map(ConfigurationSection.class::cast)
+                .map(section -> section.getValues(false))
+                .map(sections -> {
                     MessageBuilder builder = MessageBuilder.forMessage("");
+                    sections.forEach((key, section) -> {
+                        String value = getConfigValue(sender, section, "value")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse("?"); // at least value has to exist
 
-                    sectionStream.filter(fileSession::isSection)
-                            .forEach(section -> {
-                                String value = getConfigValue(sender, section, "value")
-                                        .orElse("?"); // at least value has to exist
+                        String click_OpenUrl = getConfigValue(sender, section, "click_OpenUrl")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
+                        String click_OpenFile = getConfigValue(sender, section, "click_OpenFile")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
+                        String click_RunCommand = getConfigValue(sender, section, "click_RunCommand")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
+                        String click_SuggestCommand = getConfigValue(sender, section, "click_SuggestCommand")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
 
-                                String click_OpenUrl = getConfigValue(sender, section, "click_OpenUrl")
-                                        .orElse(null);
-                                String click_OpenFile = getConfigValue(sender, section, "click_OpenFile")
-                                        .orElse(null);
-                                String click_RunCommand = getConfigValue(sender, section, "click_RunCommand")
-                                        .orElse(null);
-                                String click_SuggestCommand = getConfigValue(sender, section, "click_SuggestCommand")
-                                        .orElse(null);
+                        String hover_ShowText = getConfigValue(sender, section, "hover_ShowText")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
+                        String hover_ShowAchievement = getConfigValue(sender, section, "hover_ShowAchievement")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
+                        String hover_ShowItem = getConfigValue(sender, section, "hover_ShowItem")
+                                .map(str -> placeholderSupport.parse(sender, str))
+                                .orElse(null);
 
-                                String hover_ShowText = getConfigValue(sender, section, "hover_ShowText")
-                                        .orElse(null);
-                                String hover_ShowAchievement = getConfigValue(sender, section, "hover_ShowAchievement")
-                                        .orElse(null);
-                                String hover_ShowItem = getConfigValue(sender, section, "hover_ShowItem")
-                                        .orElse(null);
-
-                                builder.append(value)
-                                        .withClickOpenUrl(click_OpenUrl)
-                                        .withClickOpenFile(click_OpenFile)
-                                        .withClickRunCommand(click_RunCommand)
-                                        .withClickSuggestCommand(click_SuggestCommand)
-                                        .withHoverShowText(hover_ShowText)
-                                        .withHoverShowAchievement(hover_ShowAchievement)
-                                        .withHoverShowItem(hover_ShowItem)
-                                        .build();
-                            });
-
+                        builder.append(value)
+                                .withClickOpenUrl(click_OpenUrl)
+                                .withClickOpenFile(click_OpenFile)
+                                .withClickRunCommand(click_RunCommand)
+                                .withClickSuggestCommand(click_SuggestCommand)
+                                .withHoverShowText(hover_ShowText)
+                                .withHoverShowAchievement(hover_ShowAchievement)
+                                .withHoverShowItem(hover_ShowItem)
+                                .build();
+                    });
                     return builder.build();
                 }).orElse(MessageBuilder.empty());
 
-        recipients.forEach(recipient -> main().lang().sendRawMessage(recipient, Message.concat(formattedPrefixes, formattedName)));
+        Message[] text = MessageBuilder.forMessage(" ")
+                .append(message)
+                .build();
+
+        recipients.forEach(recipient ->
+                main().lang().sendRawMessage(recipient, Message.concat(formattedPrefixes, formattedName, text)));
     }
 
     private Optional<String> getConfigValue(ICommandSender sender, Object section, String click_openUrl) {

@@ -93,6 +93,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     @Override
     public String getDisplayName() {
         return Optional.ofNullable(lastKnownName)
+                .filter(name -> name.trim().length() > 0)
                 .orElseGet(() -> Optional.ofNullable(sender)
                         .map(Player::getDisplayName)
                         .orElse("<Unknown>"));
