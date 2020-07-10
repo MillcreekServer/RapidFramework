@@ -26,7 +26,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * Use locking only in public method to avoid confusion
      */
     private final Object cacheLock = new Object();
-    private final Object dbLock = new Object();
 
     private Database.DatabaseFactory<V> dbFactory;
     private Database<V> db;
@@ -63,15 +62,18 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     @Override
     public void load() throws Exception {
-        synchronized (dbLock){
-            db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
-            Validation.assertNotNull(db);
+        // prevent any other works before initializing caches
+        synchronized (cacheLock) {
+            // wait for previous save tasks to finish before instantiating new database
+            saveTaskPool.submit(() -> {
+                db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
+                Validation.assertNotNull(db);
+            }).get();
 
             main().getLogger().info("Resetting caches of " + getClass().getSimpleName() + "...");
-            synchronized (cacheLock) {
-                cachedElements.clear();
-                nameMap.clear();
-            }
+
+            cachedElements.clear();
+            nameMap.clear();
 
             for (String keyStr : db.getKeys()) {
                 V value = db.load(keyStr, null);
@@ -89,10 +91,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public void disable() throws Exception {
         synchronized (cacheLock) {
             main().getLogger().info("Waiting for the save tasks to be done...");
-            List<Runnable> notDone;
-            synchronized (dbLock) { // wait for db tasks that are waiting for monitor
-                notDone = new ArrayList<>(saveTaskPool.shutdownNow());
-            }
+            List<Runnable> notDone = new ArrayList<>(saveTaskPool.shutdownNow());
             saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
             notDone.forEach(Runnable::run); // manually run all queued tasks
             main().getLogger().info("Save finished.");
@@ -153,11 +152,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             //try load cache from db if cache is empty
             try {
                 saveTaskPool.submit((Callable<Void>) () -> {
-                    V loaded = null;
-                    synchronized (dbLock) {
-                        Validation.assertNotNull(db, "Key was " + key);
-                        loaded = db.load(key.toString(), null);
-                    }
+                    Validation.assertNotNull(db, "Key was " + key);
+                    V loaded = db.load(key.toString(), null);
 
                     if (loaded != null) {
                         AbstractManagerElementCaching.this.cache(key, loaded);
@@ -172,9 +168,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             }
 
             if(cachedElements.containsKey(key)){
-                //at this point, the data really doesn't exist.
                 return Optional.of(new WeakReference<>(cachedElements.get(key)));
             } else {
+                //at this point, the data really doesn't exist.
                 return Optional.empty();
             }
         }
@@ -240,12 +236,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             boolean result = deCache(key);
 
             saveTaskPool.submit(() -> {
-                synchronized (dbLock) {
-                    try {
-                        db.save(key.toString(), null);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    db.save(key.toString(), null);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
         }
@@ -374,12 +368,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 //ensure that the ObservableElement is the actual 'V'
                 if (cached == value) {
                     saveTaskPool.submit(() -> {
-                        synchronized (dbLock) {
-                            try {
-                                db.save(cached.getKey().toString(), cached);
-                            } catch (Exception e) {
-                                handleDBOperationFailure(value.getKey().toString(), e);
-                            }
+                        try {
+                            db.save(cached.getKey().toString(), cached);
+                        } catch (Exception e) {
+                            handleDBOperationFailure(value.getKey().toString(), e);
                         }
                     });
                 } else {
