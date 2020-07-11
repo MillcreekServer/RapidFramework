@@ -81,6 +81,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     K key = fromString(keyStr);
 
                     cache(key, value);
+                    Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
                 }
             }
             main().getLogger().info("Resetting done for " + getClass().getSimpleName() + ".");
@@ -115,7 +116,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         main().getLogger().severe("Key: " + key);
         main().getLogger().severe("Manager: " + getClass().getSimpleName());
 
-        // At this point, irreversible data corruption can happen, so it's safe to turn off the plugin.
+        // At this point, irreversible data corruption can happen, so it's safer to turn off the plugin.
         main().shutdown();
 
         throw new RuntimeException(throwable);
@@ -140,15 +141,18 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param key the key
      * @return The Optional of value. Optional.empty() if couldn't find it.
      */
-    public Optional<WeakReference<V>> get(K key){
-        if(key == null)
+    public Optional<WeakReference<V>> get(K key) {
+        if (key == null)
             return Optional.empty();
 
-        synchronized (cacheLock){
-            if(cachedElements.containsKey(key)){
+        synchronized (cacheLock) {
+            if (cachedElements.containsKey(key)) {
                 return Optional.of(new WeakReference<>(cachedElements.get(key)));
             }
+        }
 
+        V value = null;
+        synchronized (cacheLock) {
             //try load cache from db if cache is empty
             try {
                 saveTaskPool.submit((Callable<Void>) () -> {
@@ -167,13 +171,15 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 // ignore
             }
 
-            if(cachedElements.containsKey(key)){
-                return Optional.of(new WeakReference<>(cachedElements.get(key)));
-            } else {
-                //at this point, the data really doesn't exist.
-                return Optional.empty();
-            }
+            value = cachedElements.get(key);
         }
+
+        if (value != null) {
+            V finalValue = value;
+            Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(finalValue));
+        }
+
+        return Optional.ofNullable(value).map(WeakReference::new);
     }
 
     /**
@@ -196,6 +202,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             cache(key, value);
         }
 
+        V finalValue = value;
+        Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(finalValue));
+
         return get(key);
     }
 
@@ -205,8 +214,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
         if(value.getStringKey() != null && !nameMap.containsKey(value.getStringKey()))
             nameMap.put(value.getStringKey(), key);
-
-        Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
     }
 
     public boolean setName(K key, String name){
@@ -364,20 +371,19 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
             synchronized (cacheLock) {
                 V cached = cachedElements.get(value.getKey());
-
-                //ensure that the ObservableElement is the actual 'V'
-                if (cached == value) {
-                    saveTaskPool.submit(() -> {
-                        try {
-                            db.save(cached.getKey().toString(), cached);
-                        } catch (Exception e) {
-                            handleDBOperationFailure(value.getKey().toString(), e);
-                        }
-                    });
-                } else {
-                    throw new RuntimeException("Inconsistent cache detected. The cache x and the caller instance " +
-                            "are not equivalent. Perhaps the caller instance is not discarded after reset()?");
+                if (value != cached) {
+                    main().getLogger().warning("The value invoked update() is not a same instance in the " +
+                            "cache. Do not store the cache value retrieved from the manager; retrieval " +
+                            "and modification only.");
                 }
+
+                saveTaskPool.submit(() -> {
+                    try {
+                        db.save(cached.getKey().toString(), cached);
+                    } catch (Exception e) {
+                        handleDBOperationFailure(value.getKey().toString(), e);
+                    }
+                });
             }
         }
     }

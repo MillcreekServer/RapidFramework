@@ -13,6 +13,9 @@ import org.powermock.reflect.Whitebox;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -434,6 +437,67 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
+    }
+
+    @Test
+    public void forEach2() throws Exception {
+        //start manager
+        manager.enable();
+        manager.load();
+
+        Map<String, TempValue> tempDb = new HashMap<>();
+        for (int i = 0; i < 100; i++) {
+            UUID uuid = UUID.randomUUID();
+            TempValue value = new TempValue(uuid);
+            value.setStr(String.valueOf(i));
+            tempDb.put(uuid.toString(), value);
+        }
+
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            TempValue value = (TempValue) invocation.getArguments()[1];
+            tempDb.put(key, value);
+            return null;
+        }).when(mockDatabase).save(anyString(), any(TempValue.class));
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            TempValue value = (TempValue) invocation.getArguments()[1];
+            return tempDb.getOrDefault(key, value);
+        }).when(mockDatabase).load(anyString(), any(TempValue.class));
+
+        AbstractManagerElementCaching.IConstructionHandle<UUID, TempValue> mockHandle
+                = mock(AbstractManagerElementCaching.IConstructionHandle.class);
+        manager.setConstructionHandle(mockHandle);
+
+        doAnswer((invocation -> ((TempValue) invocation.getArguments()[0]).setStr("Value Changed")))
+                .when(mockHandle).after(any(TempValue.class));
+
+        ExecutorService exec = Executors.newCachedThreadPool();
+        tempDb.forEach((uuid, v) -> {
+            exec.execute(() -> {
+                try {
+                    manager.load();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            exec.execute(() -> {
+                try {
+                    Assert.assertEquals("Value Changed", manager.get(UUID.fromString(uuid))
+                            .map(Reference::get)
+                            .map(val -> val.str)
+                            .orElse(null));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+
+        exec.shutdown();
+        exec.awaitTermination(10, TimeUnit.SECONDS);
+
+        verify(mockHandle, times(100)).after(any(TempValue.class));
     }
 
     @Test
