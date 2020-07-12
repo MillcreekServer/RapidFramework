@@ -37,7 +37,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     };
 
     private final Map<K, V> cachedElements = new HashMap<>();
-    private final Map<String, K> nameMap = new HashMap<>();
+
+    private final Map<String, K> nameToKeyMap = new HashMap<>();
+    private final Map<K, String> keyToNameMap = new HashMap<>();
 
     private IConstructionHandle<K, V> constructionHandle;
 
@@ -58,10 +60,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     @Override
     public void enable() throws Exception {
         dbFactory = createDatabaseFactory();
-    }
 
-    @Override
-    public void load() throws Exception {
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
             // wait for previous save tasks to finish before instantiating new database
@@ -69,11 +68,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
                 Validation.assertNotNull(db);
             }).get();
-
-            main().getLogger().info("Resetting caches of " + getClass().getSimpleName() + "...");
-
-            cachedElements.clear();
-            nameMap.clear();
 
             for (String keyStr : db.getKeys()) {
                 V value = db.load(keyStr, null);
@@ -84,8 +78,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     Optional.ofNullable(constructionHandle).ifPresent(handle -> handle.after(value));
                 }
             }
-            main().getLogger().info("Resetting done for " + getClass().getSimpleName() + ".");
         }
+    }
+
+    @Override
+    public void load() throws Exception {
+
     }
 
     @Override
@@ -132,7 +130,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      */
     public Optional<WeakReference<V>> get(String name) {
         synchronized (cacheLock) {
-            return get(nameMap.get(name));
+            return get(nameToKeyMap.get(name));
         }
     }
 
@@ -212,26 +210,17 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         observers.forEach(value::addObserver);
         cachedElements.put(key, value);
 
-        if(value.getStringKey() != null && !nameMap.containsKey(value.getStringKey()))
-            nameMap.put(value.getStringKey(), key);
-    }
+        String oldName = keyToNameMap.get(key);
+        if (!Objects.equals(oldName, value.getStringKey())) {
+            keyToNameMap.remove(key);
+            if (oldName != null)
+                nameToKeyMap.remove(oldName);
 
-    public boolean setName(K key, String name){
-        synchronized (cacheLock){
-            if(nameMap.containsKey(name))
-                return false;
-
-            nameMap.put(name, key);
-            return true;
+            if (value.getStringKey() != null && value.getStringKey().trim().length() > 0) {
+                keyToNameMap.put(key, value.getStringKey());
+                nameToKeyMap.put(value.getStringKey(), key);
+            }
         }
-    }
-
-    /**
-     * Delete the name from nameMap
-     * @param name name to delete
-     */
-    public void deleteName(String name){
-        nameMap.remove(name);
     }
 
     /**
@@ -263,11 +252,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public boolean deCache(K key){
         synchronized (cacheLock){
             V original = cachedElements.remove(key);
-            if(original != null){
-                observers.forEach(original::addObserver);
-                if(original.getStringKey() != null){
-                    nameMap.remove(original.getStringKey());
-                }
+            if(original != null) {
+                observers.forEach(original::removeObserver);
+
+                String name = keyToNameMap.remove(key);
+                if (name != null)
+                    nameToKeyMap.remove(name);
             }
             return original != null;
         }
@@ -328,6 +318,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     }
 
+    public List<IObserver> getObservers() {
+        return Collections.unmodifiableList(observers);
+    }
+
     protected <T> Database.DatabaseFactory<T> getDatabaseFactory(Class<T> clazz, String tablename) {
         return (dbType -> {
             try {
@@ -370,16 +364,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             V value = (V) observable;
 
             synchronized (cacheLock) {
-                V cached = cachedElements.get(value.getKey());
-                if (value != cached) {
-                    main().getLogger().warning("The value invoked update() is not a same instance in the " +
-                            "cache. Do not store the cache value retrieved from the manager; retrieval " +
-                            "and modification only.");
-                }
+                cache(value.getKey(), value);
 
                 saveTaskPool.submit(() -> {
                     try {
-                        db.save(cached.getKey().toString(), cached);
+                        db.save(value.getKey().toString(), value);
                     } catch (Exception e) {
                         handleDBOperationFailure(value.getKey().toString(), e);
                     }
