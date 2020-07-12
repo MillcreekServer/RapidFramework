@@ -101,8 +101,7 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-
-        notifyObservers();
+        this.setStringKey(displayName);
     }
 
     public String getMark() {

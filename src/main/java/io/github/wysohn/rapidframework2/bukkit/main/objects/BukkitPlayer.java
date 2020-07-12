@@ -111,8 +111,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
 
     public void setLastKnownName(String lastKnownName) {
         this.lastKnownName = lastKnownName;
-
-        notifyObservers();
+        setStringKey(lastKnownName);
     }
 
     public Player getSender() {
