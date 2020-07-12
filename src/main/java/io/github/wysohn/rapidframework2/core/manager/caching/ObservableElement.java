@@ -9,22 +9,27 @@ public abstract class ObservableElement {
         observers = new Vector<>();
     }
 
-    public void addObserver(IObserver observer) {
-        if(observer == null)
+    void addObserver(IObserver observer) {
+        if (observer == null)
             throw new NullPointerException("Observer cannot be null");
 
-        if(!observers.contains(observer)){
+        if (!observers.contains(observer)) {
             observers.add(observer);
         }
     }
 
-    public void removeObserver(IObserver observer) {
-        if(observer != null){
+    void removeObserver(IObserver observer) {
+        if (observer != null) {
             observers.remove(observer);
         }
     }
 
-    public synchronized void notifyObservers(){
+    protected synchronized void notifyObservers() {
+        if (observers.size() < 1) {
+            throw new RuntimeException("An ObservableElement invoked notifyObservers() method, yet no observers" +
+                    " are found. Probably this instance was unregistered when delete() method was used. Do not" +
+                    " use the instance that was deleted. Always retrieve the latest instance by get() method.");
+        }
         observers.forEach(iObserver -> iObserver.update(this));
     }
 }

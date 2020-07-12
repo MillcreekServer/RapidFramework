@@ -124,9 +124,4 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     public UUID getUuid() {
         return getKey();
     }
-
-    @Override
-    protected String getStringKey() {
-        return null;
-    }
 }

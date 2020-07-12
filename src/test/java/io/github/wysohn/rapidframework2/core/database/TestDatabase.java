@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.io.File;
 import java.util.Set;
@@ -67,8 +68,9 @@ public class TestDatabase {
         UUID uuid = UUID.randomUUID();
         DummyObject obj = new DummyObject(uuid);
         String serialized = db.serialize(obj);
-        assertEquals("{" + "\"nullStr\":null," + "\"str\":\"test\"," + "\"testInt\":-1," + "\"testLong\":-2,"
-                + "\"testDouble\":-3.0," + "\"testBool\":true" + ",\"key\":\""+uuid.toString()+"\"}", serialized);
+        assertEquals("{\"nullStr\":null,\"str\":\"test\",\"testInt\":-1,\"testLong\":-2," +
+                "\"testDouble\":-3.0,\"testBool\":true,\"key\":\"" + uuid.toString() + "\"," +
+                "\"stringKey\":null}", serialized);
     }
 
     @Test
@@ -198,7 +200,7 @@ public class TestDatabase {
     }
 
     @Test
-    public void testParentTransient() {
+    public void testParentTransient() throws Exception {
         String value = "{" + "\"nullStr\":null," + "\"str\":\"test2\"," + "\"testInt\":null," + "\"testLong\":null,"
                 + "\"testDouble\":null," + "\"testBool\":null" + "}";
 
@@ -211,7 +213,7 @@ public class TestDatabase {
         assertFalse(deserialized.testBool);
 
         IObserver mockObserver = Mockito.mock(IObserver.class);
-        deserialized.addObserver(mockObserver);
+        Whitebox.invokeMethod(deserialized, "addObserver", mockObserver);
     }
 
     @Test
@@ -225,16 +227,16 @@ public class TestDatabase {
     }
 
     public static class DummyObject extends CachedElement<UUID> {
-        private String nullStr = null;
-        private String str = "test";
-        private int testInt = -1;
-        private long testLong = -2L;
-        private double testDouble = -3.0;
-        private boolean testBool = true;
+        private final String nullStr = null;
+        private final String str = "test";
+        private final int testInt = -1;
+        private final long testLong = -2L;
+        private final double testDouble = -3.0;
+        private final boolean testBool = true;
 
         // without the no-args constructor, gson just skip to unsafe construction without
         // calling the actual constructors
-        private DummyObject(){
+        private DummyObject() {
             this(null);
         }
 
@@ -244,12 +246,12 @@ public class TestDatabase {
     }
 
     public static class DummyObject2 extends CachedElement<UUID> {
-        private String nullStr = null;
-        private String str = "test";
-        private int testInt = -1;
-        private long testLong = -2L;
-        private double testDouble = -3.0;
-        private boolean testBool = true;
+        private final String nullStr = null;
+        private final String str = "test";
+        private final int testInt = -1;
+        private final long testLong = -2L;
+        private final double testDouble = -3.0;
+        private final boolean testBool = true;
 
         public DummyObject2(UUID key) {
             super(key);

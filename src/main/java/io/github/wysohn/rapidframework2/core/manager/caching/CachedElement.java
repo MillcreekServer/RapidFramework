@@ -12,6 +12,7 @@ package io.github.wysohn.rapidframework2.core.manager.caching;
  */
 public abstract class CachedElement<K> extends ObservableElement {
     private final K key;
+    private String stringKey;
 
     public CachedElement(K key) {
         super();
@@ -21,21 +22,27 @@ public abstract class CachedElement<K> extends ObservableElement {
 
     /**
      * Key to be used when saved to database. It will be translated to String using toString() method.
+     *
      * @return the key. Never be null;
      */
-    public K getKey(){
+    public K getKey() {
         return key;
     }
 
-    /**
-     * String version of key that is used in nameMap. It's different to getKey()
-     * since it works as an alias for the key, not the actual key used to save it in the database.
-     * Usually the display name of this instance but not necessarily that way.
-     * @return alias key; null if not used.
-     */
-    protected String getStringKey(){
-        return null;
+    public final String getStringKey() {
+        return stringKey;
     }
 
+    /**
+     * Update the stringKey of this instance. This is immediately reflected with the manager which
+     * is holding this instance.
+     *
+     * @param stringKey the new key to update. Providing null or empty String will just delete
+     *                  the stringKey mapping.
+     */
+    public final void setStringKey(String stringKey) {
+        this.stringKey = stringKey;
 
+        notifyObservers();
+    }
 }
