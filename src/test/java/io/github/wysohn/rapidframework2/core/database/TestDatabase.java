@@ -68,19 +68,20 @@ public class TestDatabase {
         UUID uuid = UUID.randomUUID();
         DummyObject obj = new DummyObject(uuid);
         String serialized = db.serialize(obj);
-        assertEquals("{\"nullStr\":null,\"str\":\"test\",\"testInt\":-1,\"testLong\":-2," +
+        assertEquals("{\"nullStr\":null,\"testStr\":\"notset\",\"testInt\":-1,\"testLong\":-2," +
                 "\"testDouble\":-3.0,\"testBool\":true,\"key\":\"" + uuid.toString() + "\"," +
                 "\"stringKey\":null}", serialized);
     }
 
     @Test
     public void testDeserialize() {
-        String value = "{" + "\"nullStr\":\"\"," + "\"str\":\"test2\"," + "\"testInt\":-4," + "\"testLong\":-5,"
-                + "\"testDouble\":-6.0," + "\"testBool\":true" + "}";
+        String value = "{" + "\"nullStr\":\"\"," + "\"testStr\":\"test2\"," + "\"testInt\":-4," + "\"testLong\":-5,"
+                + "\"testDouble\":-6.0," + "\"testBool\":true," + "\"stringKey\":somekey" + "}";
 
         DummyObject deserialized = db.deserialize(value, DummyObject.class);
+        assertEquals("somekey", deserialized.getStringKey());
         assertEquals("", deserialized.nullStr);
-        assertEquals("test2", deserialized.str);
+        assertEquals("test2", deserialized.testStr);
         assertEquals(-4, deserialized.testInt);
         assertEquals(-5L, deserialized.testLong);
         assertEquals(-6.0, deserialized.testDouble, 0.000001);
@@ -89,51 +90,17 @@ public class TestDatabase {
 
     @Test
     public void testDeserializeNull() {
-        String value = "{" + "\"nullStr\":null," + "\"str\":\"test2\"," + "\"testInt\":null," + "\"testLong\":null,"
+        String value = "{" + "\"nullStr\":null," + "\"testStr\":\"test3\"," + "\"testInt\":null," + "\"testLong\":null,"
                 + "\"testDouble\":null," + "\"testBool\":null" + "}";
 
         DummyObject deserialized = db.deserialize(value, DummyObject.class);
         assertEquals("", deserialized.nullStr);
-        assertEquals("test2", deserialized.str);
+        assertEquals("test3", deserialized.testStr);
         assertEquals(0, deserialized.testInt);
         assertEquals(0, deserialized.testLong);
         assertEquals(0.0, deserialized.testDouble, 0.000001);
         assertFalse(deserialized.testBool);
     }
-
-//    @Test
-//    public void testSerializeLocation() {
-//        World mockWorld = mock(World.class);
-//        when(mockWorld.getName()).thenReturn("testWorld");
-//
-//        PowerMockito.mockStatic(Bukkit.class);
-//        when(Bukkit.getWorld(anyString())).thenReturn(mockWorld);
-//
-//        Location loc = new Location(mockWorld, 0, 1, 2, 0.1f, 0.2f);
-//
-//        String serialized = db.serialize(loc);
-//
-//        assertEquals("{" + "\"world\":\"testWorld\"," + "\"x\":0.0," + "\"y\":1.0," + "\"z\":2.0," + "\"pitch\":0.2,"
-//                + "\"yaw\":0.1" + "}", serialized);
-//    }
-
-//    @Test
-//    public void testDeserializeLocation() {
-//        World mockWorld = mock(World.class);
-//        when(mockWorld.getName()).thenReturn("testWorld2");
-//
-//        PowerMockito.mockStatic(Bukkit.class);
-//        when(Bukkit.getWorld(anyString())).thenReturn(mockWorld);
-//
-//        String value = "{" + "\"world\":\"testWorld2\"," + "\"x\":3," + "\"y\":4," + "\"z\":5," + "\"yaw\":null" + "}";
-//        Location loc = db.deserialize(value, Location.class);
-//        assertEquals("testWorld2", loc.getWorld().getName());
-//        assertEquals(3.0, loc.getX(), 0.000001);
-//        assertEquals(4.0, loc.getY(), 0.000001);
-//        assertEquals(5.0, loc.getZ(), 0.000001);
-//        assertEquals(0.0f, loc.getPitch(), 0.000001);
-//        assertEquals(0.0f, loc.getYaw(), 0.000001);
-//    }
 
     @Test
     public void testSerializeItemStack() {
@@ -201,12 +168,13 @@ public class TestDatabase {
 
     @Test
     public void testParentTransient() throws Exception {
-        String value = "{" + "\"nullStr\":null," + "\"str\":\"test2\"," + "\"testInt\":null," + "\"testLong\":null,"
+        String value = "{" + "\"nullStr\":null," + "\"testStr\":\"test2\"," + "\"testInt\":null," + "\"testLong\":null,"
                 + "\"testDouble\":null," + "\"testBool\":null" + "}";
 
         DummyObject deserialized = db.deserialize(value, DummyObject.class);
+        System.out.println(deserialized.testStr);
         assertEquals("", deserialized.nullStr);
-        assertEquals("test2", deserialized.str);
+        assertEquals("test2", deserialized.testStr);
         assertEquals(0, deserialized.testInt);
         assertEquals(0, deserialized.testLong);
         assertEquals(0.0, deserialized.testDouble, 0.000001);
@@ -228,7 +196,7 @@ public class TestDatabase {
 
     public static class DummyObject extends CachedElement<UUID> {
         private final String nullStr = null;
-        private final String str = "test";
+        private final String testStr = "notset";
         private final int testInt = -1;
         private final long testLong = -2L;
         private final double testDouble = -3.0;
@@ -247,7 +215,7 @@ public class TestDatabase {
 
     public static class DummyObject2 extends CachedElement<UUID> {
         private final String nullStr = null;
-        private final String str = "test";
+        private final String testStr = "notset2";
         private final int testInt = -1;
         private final long testLong = -2L;
         private final double testDouble = -3.0;
