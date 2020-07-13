@@ -118,7 +118,9 @@ public class DatabaseFile<T> extends Database<T> {
         Optional.ofNullable(folder.listFiles())
                 .map(Arrays::stream)
                 .ifPresent(fileStream -> fileStream
+                        .filter(file -> file.getName().endsWith(".json"))
                         .map(File::getName)
+                        .map(fileName -> fileName.substring(0, fileName.lastIndexOf('.')))
                         .forEach(keys::add));
 
         return keys;
