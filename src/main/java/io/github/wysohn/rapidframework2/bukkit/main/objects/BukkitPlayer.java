@@ -258,9 +258,9 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         Optional.ofNullable(sloc)
                 .filter(simpleLocation -> Bukkit.getWorld(simpleLocation.getWorld()) != null)
                 .map(simpleLocation -> new Location(Bukkit.getWorld(simpleLocation.getWorld()),
-                        simpleLocation.getX(),
+                        simpleLocation.getX() + 0.5,
                         simpleLocation.getY(),
-                        simpleLocation.getZ(),
+                        simpleLocation.getZ() + 0.5,
                         simpleLocation.getYaw(),
                         simpleLocation.getPitch()))
                 .ifPresent(location -> Optional.ofNullable(sender)
