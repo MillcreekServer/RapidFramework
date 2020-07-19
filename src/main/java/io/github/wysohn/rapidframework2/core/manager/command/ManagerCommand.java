@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public final class ManagerCommand extends PluginMain.Manager {
     private final String mainCommand;
-    private String defaultCommand = "help";
+    private final String defaultCommand = "help";
     private SubCommandMap commandMap;
 
     public ManagerCommand(int loadPriority, String mainCommand) {
@@ -216,9 +216,6 @@ public final class ManagerCommand extends PluginMain.Manager {
                 .sorted((Comparator.comparing(cmd -> cmd.name)))
                 .collect(Collectors.toList());
 
-        main().lang().sendMessage(sender, DefaultLangs.General_Line);
-        main().lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) ->
-                langman.addString(main().getPluginName())));
         main().lang().sendRawMessage(sender, MessageBuilder.forMessage("").build());
 
         int max = main().conf().get("command.help.sentenceperpage")
