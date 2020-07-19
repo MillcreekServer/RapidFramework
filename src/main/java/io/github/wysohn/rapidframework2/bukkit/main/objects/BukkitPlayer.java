@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -106,6 +107,9 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
 
     public BukkitPlayer setSender(Player sender) {
         this.sender = sender;
+        Optional.ofNullable(sender)
+                .map(HumanEntity::getName)
+                .ifPresent(this::setLastKnownName);
         return this;
     }
 
