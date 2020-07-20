@@ -32,7 +32,8 @@ public abstract class AbstractUserManager<V extends BukkitPlayer>
                 .ifPresent(player -> getOrNew(player.getUniqueId())
                         .map(Reference::get)
                         .orElse(null)
-                        .setSender(player));
+                        .setSender(player)
+                        .setLastKnownName(player.getName()));
     }
 
     @EventHandler
