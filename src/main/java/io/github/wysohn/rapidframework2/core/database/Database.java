@@ -28,7 +28,7 @@ import io.github.wysohn.rapidframework2.core.database.file.DatabaseFile;
 import io.github.wysohn.rapidframework2.core.database.mysql.DatabaseMysql;
 import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
 import io.github.wysohn.rapidframework2.core.database.serialize.UUIDSerializer;
-import io.github.wysohn.rapidframework2.core.manager.caching.ObservableElement;
+import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 
@@ -144,7 +144,7 @@ public abstract class Database<T> {
         }
 
     };
-    private static GsonBuilder builder = new GsonBuilder()
+    private static final GsonBuilder builder = new GsonBuilder()
             .enableComplexMapKeySerialization()
             .serializeNulls().registerTypeAdapterFactory(TypeAdapters.newFactory(String.class, NULL_ADOPTER_STRING))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(boolean.class, Boolean.class, NULL_ADOPTER_BOOLEAN))
@@ -153,7 +153,7 @@ public abstract class Database<T> {
             .registerTypeAdapterFactory(TypeAdapters.newFactory(float.class, Float.class, NULL_ADOPTER_FLOAT))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(double.class, Double.class, NULL_ADOPTER_NUMBER))
             .registerTypeAdapter(UUID.class, new UUIDSerializer())
-            .registerTypeAdapter(ObservableElement.class, new DefaultSerializer<ObservableElement>())
+            .registerTypeAdapter(AbstractManagerElementCaching.ObservableElement.class, new DefaultSerializer<AbstractManagerElementCaching.ObservableElement>())
             .registerTypeAdapter(SimpleLocation.class, new DefaultSerializer<SimpleLocation>())
             .registerTypeAdapter(SimpleChunkLocation.class, new DefaultSerializer<SimpleChunkLocation>());
 

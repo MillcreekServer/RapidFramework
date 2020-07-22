@@ -6,11 +6,11 @@ package io.github.wysohn.rapidframework2.core.manager.caching;
  * very child's no-arg constructor, and if it doesn't exist, Gson will skip any constructors and straight up
  * to use unsafe allocator. It's okay to pass 'null' for the parent class's constructor since Gson will later
  * fill up the fields.
- *
+ * <p>
  * This is also an child of 'Observable' class, thus if any change happens in this class's instance,
- * it has to invoke {@link ObservableElement#notifyObservers()}.
+ * it has to invoke {@link AbstractManagerElementCaching.ObservableElement#notifyObservers()}.
  */
-public abstract class CachedElement<K> extends ObservableElement {
+public abstract class CachedElement<K> extends AbstractManagerElementCaching.ObservableElement {
     private final K key;
     private String stringKey;
 
