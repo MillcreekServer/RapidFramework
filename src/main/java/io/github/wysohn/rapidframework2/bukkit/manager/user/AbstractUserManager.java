@@ -19,6 +19,11 @@ public abstract class AbstractUserManager<V extends BukkitPlayer>
         super(loadPriority);
     }
 
+    @Override
+    protected UUID fromString(String string) {
+        return UUID.fromString(string);
+    }
+
     @EventHandler
     public void onLogin(AsyncPlayerPreLoginEvent event) {
         if (!this.get(event.getUniqueId()).map(Reference::get).isPresent()) {
