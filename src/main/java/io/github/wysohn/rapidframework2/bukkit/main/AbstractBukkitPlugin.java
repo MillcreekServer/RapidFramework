@@ -8,7 +8,6 @@ import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrappe
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,7 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -104,11 +102,5 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
                 .forEach(consumer);
     }
 
-    protected Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(Player player) {
-        return Optional.ofNullable(player)
-                .map(Entity::getUniqueId)
-                .flatMap(this::getPlayerWrapper);
-    }
-
-    protected abstract Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(UUID uuid);
+    protected abstract Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(Player player);
 }
