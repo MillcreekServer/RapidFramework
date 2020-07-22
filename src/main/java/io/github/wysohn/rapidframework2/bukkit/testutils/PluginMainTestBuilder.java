@@ -77,7 +77,6 @@ public class PluginMainTestBuilder {
     private void initMocks() {
         mockBridge = mock(PluginBridge.class);
         mockPlatform = mock(Plugin.class);
-        mockDescription = mock(PluginDescriptionFile.class);
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
@@ -105,6 +104,7 @@ public class PluginMainTestBuilder {
             return null;
         }).when(mockSupervisor).async(any(Runnable.class));
 
+        mockDescription = new PluginDescriptionFile("test", "test version", "test.main");
         when(mockPlatform.getDescription()).thenReturn(mockDescription);
     }
 
