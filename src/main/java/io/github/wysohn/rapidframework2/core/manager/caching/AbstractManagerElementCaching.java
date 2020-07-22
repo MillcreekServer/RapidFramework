@@ -280,26 +280,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     }
 
     public void forEach(Consumer<? super V> consumer) {
-        forEach(consumer, false);
-    }
-
-    public void forEach(Consumer<? super V> consumer, boolean async) {
-        if (async) {
+        synchronized (cacheLock) {
             keySet().stream()
                     .map(this::get)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .map(Reference::get)
                     .forEach(consumer);
-        } else {
-            synchronized (cacheLock) {
-                keySet().stream()
-                        .map(this::get)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .map(Reference::get)
-                        .forEach(consumer);
-            }
         }
     }
 

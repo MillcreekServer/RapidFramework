@@ -117,7 +117,7 @@ public class AbstractManagerElementCachingTest {
 
             Mockito.verify(mockDatabase).load(Mockito.eq(uuids[i].toString()), Mockito.isNull(TempValue.class));
 
-            Vector<Observer> obs = Whitebox.getInternalState(mockValues[i], "observers");
+            List<Observer> obs = Whitebox.getInternalState(mockValues[i], "observers");
             Assert.assertTrue(observers.stream().allMatch(obs::contains));
         }
     }
@@ -411,10 +411,6 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void forEach2() throws Exception {
-        //start manager
-        manager.enable();
-        manager.load();
-
         AbstractManagerElementCaching.IConstructionHandle<UUID, TempValue> mockHandle
                 = mock(AbstractManagerElementCaching.IConstructionHandle.class);
         doAnswer((invocation -> ((TempValue) invocation.getArguments()[0]).setStr("Value Changed")))
@@ -439,6 +435,11 @@ public class AbstractManagerElementCachingTest {
             TempValue value = (TempValue) invocation.getArguments()[1];
             return tempDb.getOrDefault(key, value);
         }).when(mockDatabase).load(anyString(), any(TempValue.class));
+        when(mockDatabase.getKeys()).thenReturn(tempDb.keySet());
+
+        //start manager
+        manager.enable();
+        manager.load();
 
         ExecutorService exec = Executors.newCachedThreadPool();
         tempDb.forEach((uuid, v) -> {
@@ -469,6 +470,54 @@ public class AbstractManagerElementCachingTest {
     }
 
     @Test
+    public void forEachDeadLock() throws Exception {
+        AbstractManagerElementCaching.IConstructionHandle<UUID, TempValue> mockHandle
+                = mock(AbstractManagerElementCaching.IConstructionHandle.class);
+        doAnswer((invocation -> ((TempValue) invocation.getArguments()[0]).setStr("Value Changed")))
+                .when(mockHandle).after(any(TempValue.class));
+        manager.setConstructionHandle(mockHandle);
+
+        Map<String, TempValue> tempDb = new HashMap<>();
+        for (int i = 0; i < 10000; i++) {
+            UUID uuid = UUID.randomUUID();
+            TempValue value = new TempValue(uuid, observer);
+            tempDb.put(uuid.toString(), value);
+        }
+
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            TempValue value = (TempValue) invocation.getArguments()[1];
+            tempDb.put(key, value);
+            return null;
+        }).when(mockDatabase).save(anyString(), any(TempValue.class));
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            TempValue value = (TempValue) invocation.getArguments()[1];
+            return tempDb.getOrDefault(key, value);
+        }).when(mockDatabase).load(anyString(), any(TempValue.class));
+        when(mockDatabase.getKeys()).thenReturn(tempDb.keySet());
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        Thread thread = new Thread(() -> manager.forEach(val -> val.setStringKey("Other")));
+        Thread thread2 = new Thread(() -> manager.forEach(val -> val.setStringKey("Other2")));
+        Thread thread3 = new Thread(() -> manager.forEach(val -> val.setStringKey("Other3")));
+        thread.start();
+        thread2.start();
+        thread3.start();
+        tempDb.forEach((uuid, v) -> manager.get(uuid)
+                .map(Reference::get)
+                .ifPresent(val -> val.setStringKey("Other4")));
+
+        manager.disable();
+        thread.join();
+        thread2.join();
+        thread3.join();
+    }
+
+    @Test
     public void keySet() {
     }
 
@@ -487,27 +536,6 @@ public class AbstractManagerElementCachingTest {
 
         Set<String> names = new HashSet<>();
         manager.forEach(tempValue -> names.add(tempValue.str));
-        Assert.assertEquals(100, names.size());
-
-        //end the db life-cycle
-        manager.disable();
-    }
-
-    @Test
-    public void forEachAsync() throws Exception {
-        //start manager
-        manager.enable();
-        manager.load();
-
-        //get (new)
-        for (int i = 0; i < 100; i++) {
-            UUID uuid = UUID.randomUUID();
-            TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
-            value.setStr("SomeName" + i);
-        }
-
-        Set<String> names = new HashSet<>();
-        manager.forEach(tempValue -> names.add(tempValue.str), true);
         Assert.assertEquals(100, names.size());
 
         //end the db life-cycle
