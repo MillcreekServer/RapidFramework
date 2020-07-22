@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import java.io.File;
 
 public class TranslateManager extends PluginMain.Manager {
+    public static final String PREFIX = "rftrans";
     private I18NConfigSession configSession;
 
     public TranslateManager(int loadPriority) {
@@ -25,13 +26,13 @@ public class TranslateManager extends PluginMain.Manager {
         configSession.enable();
 
         main().api().getAPI(PlaceholderAPI.class).ifPresent(placeholderAPI ->
-                placeholderAPI.register("rftrans", (p, params) -> {
+                placeholderAPI.register(PREFIX, (p, params) -> {
                     String localeCode = p.getLocale().getLanguage();
                     ConfigFileSession session = configSession.getSession(localeCode);
 
                     String finalParams = params.replaceAll("_", ".");
                     return String.valueOf(session.get(finalParams).orElseGet(() ->
-                            configSession.DEFAULT.get(finalParams).orElse(null)));
+                            configSession.DEFAULT.get(finalParams).orElse(PREFIX + "_" + params)));
                 }));
     }
 
