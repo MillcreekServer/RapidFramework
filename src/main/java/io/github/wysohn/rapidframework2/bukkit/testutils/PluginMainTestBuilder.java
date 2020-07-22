@@ -34,7 +34,6 @@ public class PluginMainTestBuilder {
     private final ExecutorService async = Executors.newSingleThreadExecutor();
 
     private PluginBridge mockBridge;
-    private Plugin mockPlatform;
     private Logger mockLogger;
     private AbstractFileSession mockFileSession;
     private IPluginManager mockPluginManager;
@@ -75,14 +74,13 @@ public class PluginMainTestBuilder {
     private void initMocks() {
         mockBridge = mock(PluginBridge.class);
         mockLogger = mock(Logger.class);
-        mockPlatform = mock(Plugin.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
         mockMessage = mock(Message.class);
         mockBukkit = Mockito.mock(AbstractBukkitPlugin.class);
         mockSupervisor = Mockito.mock(ITaskSupervisor.class);
 
-        when(mockBridge.getPlatform()).thenReturn(mockPlatform);
+        when(mockBridge.getPlatform()).thenReturn(mockBukkit);
         when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
         when(mockMessage.getString()).thenReturn("SomeMessage");
         when(mockBukkit.getCommand(Mockito.anyString())).thenReturn(mockCommand);
@@ -102,7 +100,7 @@ public class PluginMainTestBuilder {
             return null;
         }).when(mockSupervisor).async(any(Runnable.class));
 
-        when(mockPlatform.getName()).thenReturn("test");
+        when(mockBukkit.getName()).thenReturn("test");
     }
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, Class<? extends BukkitPluginBridge> clazz) throws Exception {
@@ -127,7 +125,6 @@ public class PluginMainTestBuilder {
                 file,
                 mockPluginManager,
                 mockBukkit);
-
         core.init();
         main = core.getMain();
     }
@@ -150,7 +147,7 @@ public class PluginMainTestBuilder {
     }
 
     public Plugin getMockPlatform() {
-        return mockPlatform;
+        return mockBukkit;
     }
 
     public Logger getMockLogger() {
@@ -171,10 +168,6 @@ public class PluginMainTestBuilder {
 
     public PluginCommand getMockCommand() {
         return mockCommand;
-    }
-
-    public AbstractBukkitPlugin getMockBukkit() {
-        return mockBukkit;
     }
 
 //    public TaskSupervisor getMockSupervisor() {
