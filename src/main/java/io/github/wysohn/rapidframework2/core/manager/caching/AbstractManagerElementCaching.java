@@ -378,10 +378,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     }
 
     public abstract static class ObservableElement {
-        private transient final Vector<IObserver> observers;
+        private transient final List<IObserver> observers;
 
         public ObservableElement() {
-            observers = new Vector<>();
+            observers = new LinkedList<>();
         }
 
         void addObserver(IObserver observer) {
