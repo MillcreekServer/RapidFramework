@@ -13,6 +13,7 @@ import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
 
@@ -49,6 +50,7 @@ public class PluginMainTestBuilder {
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
     private ITaskSupervisor mockSupervisor;
+    private PluginDescriptionFile mockDescription;
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, PluginMain.Manager... managers) {
         initMocks();
@@ -75,6 +77,7 @@ public class PluginMainTestBuilder {
     private void initMocks() {
         mockBridge = mock(PluginBridge.class);
         mockPlatform = mock(Plugin.class);
+        mockDescription = mock(PluginDescriptionFile.class);
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
@@ -101,6 +104,8 @@ public class PluginMainTestBuilder {
             async.submit((Runnable) ans.getArguments()[0]);
             return null;
         }).when(mockSupervisor).async(any(Runnable.class));
+
+        when(mockPlatform.getDescription()).thenReturn(mockDescription);
     }
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, Class<? extends BukkitPluginBridge> clazz) throws Exception {
