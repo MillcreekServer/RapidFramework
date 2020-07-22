@@ -28,7 +28,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         this(null);
     }
 
-    BukkitPlayer(UUID key) {
+    protected BukkitPlayer(UUID key) {
         super(key);
     }
 

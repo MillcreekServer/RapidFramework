@@ -11,7 +11,7 @@ import java.util.UUID;
 public class BukkitBlock implements IBlock {
     private transient final Block block;
 
-    BukkitBlock(Block block) {
+    protected BukkitBlock(Block block) {
         this.block = block;
     }
 

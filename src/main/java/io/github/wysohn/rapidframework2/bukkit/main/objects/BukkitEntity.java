@@ -13,7 +13,7 @@ import java.util.UUID;
 public class BukkitEntity implements IPluginEntity {
     protected final transient Entity entity;
 
-    BukkitEntity(Entity entity) {
+    protected BukkitEntity(Entity entity) {
         this.entity = entity;
     }
 
