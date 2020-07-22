@@ -63,6 +63,7 @@ public class AbstractBukkitTest {
         when(player.hasPermission(anyString())).thenReturn(true);
         when(player.getLocale()).thenReturn(Locale.ENGLISH.getDisplayName());
         when(player.getInventory()).thenReturn(PLAYER_INVENTORY);
+        when(player.isConversing()).thenReturn(false);
         doAnswer(invocation -> {
             String[] msgs = (String[]) invocation.getArguments()[0];
             log.info(PLAYER_NAME + " got message: " + Arrays.toString(msgs));
