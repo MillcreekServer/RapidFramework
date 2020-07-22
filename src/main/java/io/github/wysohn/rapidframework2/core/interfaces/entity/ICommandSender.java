@@ -1,8 +1,10 @@
 package io.github.wysohn.rapidframework2.core.interfaces.entity;
 
+import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
+
 import java.util.Locale;
 
-public interface ICommandSender extends IPluginEntity {
+public interface ICommandSender extends IPluginObject {
     void sendMessageRaw(String... msg);
 
     Locale getLocale();

@@ -10,6 +10,9 @@ import java.util.UUID;
 public class BukkitCommandSender implements ICommandSender {
     private CommandSender sender;
 
+    BukkitCommandSender() {
+    }
+
     public ICommandSender setSender(CommandSender sender) {
         this.sender = sender;
         return this;

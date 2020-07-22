@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.main.objects;
 
-import io.github.wysohn.rapidframework2.core.interfaces.ILocatable;
-import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.IPluginEntity;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.Vector;
@@ -11,10 +10,10 @@ import org.bukkit.entity.Entity;
 import java.util.Optional;
 import java.util.UUID;
 
-public class BukkitEntity implements IPluginObject, ILocatable {
+public class BukkitEntity implements IPluginEntity {
     protected final transient Entity entity;
 
-    public BukkitEntity(Entity entity) {
+    BukkitEntity(Entity entity) {
         this.entity = entity;
     }
 
