@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework2.bukkit.utils.conversation;
 
-import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitCommandSender;
+import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
+import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
 import org.bukkit.ChatColor;
@@ -54,8 +55,7 @@ public class SimplePrompt implements Prompt {
         Conversable conversable = context.getForWhom();
         Validation.validate(conversable, c -> c instanceof CommandSender, "Only available for CommandSender.");
 
-        BukkitCommandSender sender = new BukkitCommandSender();
-        sender.setSender((CommandSender) conversable);
+        ICommandSender sender = BukkitWrapper.sender((CommandSender) conversable);
 
         return Optional.ofNullable(promptText)
                 .map(text -> main.lang().parseFirst(sender, text.lang, text.handle))

@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.testutils;
 
-import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
+import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.bukkit.testutils.impl.CraftInventoryPlayer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import org.bukkit.Bukkit;
@@ -172,7 +172,7 @@ public class AbstractBukkitTest {
     }
 
     protected ICommandSender wrap(Player player){
-        return new BukkitPlayer(player.getUniqueId()).setSender(player);
+        return BukkitWrapper.player(player);
     }
 
     protected UUID uuid() {

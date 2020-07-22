@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.main;
 
-import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitCommandSender;
-import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
+import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
@@ -80,7 +79,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
                         .map(Player.class::cast)
                         .flatMap(this::getPlayerWrapper)
                         .map(ICommandSender.class::cast)
-                        .orElseGet(() -> new BukkitCommandSender().setSender(sender)),
+                        .orElseGet(() -> BukkitWrapper.sender(sender)),
                 command.getName(),
                 label,
                 args);
@@ -93,7 +92,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
                         .map(Player.class::cast)
                         .flatMap(this::getPlayerWrapper)
                         .map(ICommandSender.class::cast)
-                        .orElseGet(() -> new BukkitCommandSender().setSender(sender)),
+                        .orElseGet(() -> BukkitWrapper.sender(sender)),
                 command.getName(),
                 label,
                 args);
@@ -101,7 +100,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
 
     public void forEachSender(Consumer<ICommandSender> consumer) {
         Bukkit.getOnlinePlayers().stream()
-                .map(player -> new BukkitPlayer(player.getUniqueId()).setSender(player))
+                .map(BukkitWrapper::player)
                 .forEach(consumer);
     }
 

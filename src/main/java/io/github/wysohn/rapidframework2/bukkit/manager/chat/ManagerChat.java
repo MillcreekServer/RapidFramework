@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.manager.chat;
 
-import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitCommandSender;
+import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.core.manager.chat.AbstractChatManager;
 import io.github.wysohn.rapidframework2.core.manager.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
@@ -21,9 +21,9 @@ public class ManagerChat extends AbstractChatManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
         try {
-            onChat(new BukkitCommandSender().setSender(event.getPlayer()),
+            onChat(BukkitWrapper.player(event.getPlayer()),
                     event.getRecipients().stream()
-                            .map(new BukkitCommandSender()::setSender)
+                            .map(BukkitWrapper::sender)
                             .collect(Collectors.toList()),
                     event.getMessage());
 

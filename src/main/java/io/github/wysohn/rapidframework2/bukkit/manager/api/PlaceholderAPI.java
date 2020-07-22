@@ -1,11 +1,11 @@
 package io.github.wysohn.rapidframework2.bukkit.manager.api;
 
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
+import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.api.ExternalAPI;
 import me.clip.placeholderapi.PlaceholderHook;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
@@ -54,9 +54,7 @@ public class PlaceholderAPI extends ExternalAPI {
                     public String onPlaceholderRequest(Player p, String params) {
                         return placeholder.parse(Optional.ofNullable(p)
                                         .flatMap(player -> Optional.of(p)
-                                                .map(Entity::getUniqueId)
-                                                .map(BukkitPlayer::new)
-                                                .map(bukkitPlayer -> bukkitPlayer.setSender(player)))
+                                                .map(BukkitWrapper::player))
                                         .orElse(null),
                                 params);
                     }
