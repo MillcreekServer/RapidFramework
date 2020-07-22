@@ -14,6 +14,7 @@ import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
 
@@ -51,6 +52,7 @@ public class PluginMainTestBuilder {
     private AbstractBukkitPlugin mockBukkit;
     private ITaskSupervisor mockSupervisor;
     private PluginDescriptionFile mockDescription;
+    private Plugin platform;
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, PluginMain.Manager... managers) {
         initMocks();
@@ -76,8 +78,10 @@ public class PluginMainTestBuilder {
 
     private void initMocks() {
         mockBridge = mock(PluginBridge.class);
-        mockPlatform = mock(Plugin.class);
         mockLogger = mock(Logger.class);
+        platform = new JavaPlugin() {
+        };
+        mockPlatform = spy(platform);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
         mockMessage = mock(Message.class);
