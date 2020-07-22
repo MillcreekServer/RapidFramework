@@ -15,6 +15,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -77,7 +78,7 @@ public class PluginMainTestBuilder {
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
         mockMessage = mock(Message.class);
-        mockBukkit = Mockito.mock(AbstractBukkitPlugin.class);
+        mockBukkit = PowerMockito.mock(AbstractBukkitPlugin.class);
         mockSupervisor = Mockito.mock(ITaskSupervisor.class);
 
         when(mockBridge.getPlatform()).thenReturn(mockBukkit);

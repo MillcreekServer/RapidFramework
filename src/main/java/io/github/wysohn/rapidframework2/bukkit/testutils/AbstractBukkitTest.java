@@ -32,7 +32,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Bukkit.class})
+@PrepareForTest({Bukkit.class, Plugin.class})
 @PowerMockIgnore({"javax.management.*"})
 public class AbstractBukkitTest {
     protected static Logger log = LoggerFactory.getLogger(AbstractBukkitTest.class);
