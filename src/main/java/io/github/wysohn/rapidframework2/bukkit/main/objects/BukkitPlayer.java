@@ -76,6 +76,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         return Optional.ofNullable(sender)
                 .map(this::attemptLegacyLocale)
                 .map(locale -> locale.replace('_', '-'))
+                .map(locale -> locale.split("-")[0])
                 .map(Locale::forLanguageTag)
                 .orElse(Locale.ENGLISH);
     }
