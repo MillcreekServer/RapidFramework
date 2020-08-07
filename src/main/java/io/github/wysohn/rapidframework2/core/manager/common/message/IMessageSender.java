@@ -22,13 +22,11 @@ public interface IMessageSender {
 
                     sender.sendMessageRaw(combined);
 
-                    if (isJsonEnabled()) {
-                        Optional.ofNullable(message[0].getHover_ShowText())
-                                .map(text -> text.split("\n"))
-                                .map(Stream::of)
-                                .ifPresent(stringStream -> stringStream
-                                        .forEach(hover -> sender.sendMessageRaw("  " + hover)));
-                    }
+                    Optional.ofNullable(message[0].getHover_ShowText())
+                            .map(text -> text.split("\n"))
+                            .map(Stream::of)
+                            .ifPresent(stringStream -> stringStream
+                                    .forEach(hover -> sender.sendMessageRaw("  " + hover)));
                 });
     }
 
