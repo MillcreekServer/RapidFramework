@@ -26,7 +26,22 @@ public interface IMessageSender {
                             .map(text -> text.split("\n"))
                             .map(Stream::of)
                             .ifPresent(stringStream -> stringStream
+                                    .map(s -> s.replaceAll("&", "\u00a7"))
                                     .forEach(hover -> sender.sendMessageRaw("  " + hover)));
+
+                    Optional.ofNullable(message[0].getClick_RunCommand())
+                            .map(text -> text.split("\n"))
+                            .map(Stream::of)
+                            .ifPresent(stringStream -> stringStream
+                                    .map(s -> s.replaceAll("&", "\u00a7"))
+                                    .forEach(run -> sender.sendMessageRaw("  " + run)));
+
+                    Optional.ofNullable(message[0].getClick_SuggestCommand())
+                            .map(text -> text.split("\n"))
+                            .map(Stream::of)
+                            .ifPresent(stringStream -> stringStream
+                                    .map(s -> s.replaceAll("&", "\u00a7"))
+                                    .forEach(suggest -> sender.sendMessageRaw("  " + suggest)));
                 });
     }
 
