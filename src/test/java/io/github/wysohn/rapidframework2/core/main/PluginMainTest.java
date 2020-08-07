@@ -46,7 +46,7 @@ public class PluginMainTest {
         mockMessage = mock(Message.class);
 
         when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
-        when(mockMessage.getString()).thenReturn("SomeMessage");
+        when(mockMessage.getString()).thenReturn("&7SomeMessage");
     }
 
     @Before
@@ -131,7 +131,7 @@ public class PluginMainTest {
     public void testSetMessageSender(){
         main.lang().sendRawMessage(mockSender, new Message[]{mockMessage});
 
-        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("SomeMessage"));
+        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("\u00A77SomeMessage"));
     }
 
     @Test
