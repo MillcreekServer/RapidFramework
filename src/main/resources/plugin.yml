@@ -14,7 +14,7 @@ commands:
     - rap
     description: description
 authors: [
-]
+  ]
 depend: [
 ]
 permissions:
