@@ -13,7 +13,7 @@ public interface IMessageSender {
                 .map(Message::getString)
                 .filter(Objects::nonNull)
                 .reduce((a, b) -> a + " " + b)
-                .map(s -> toString().replaceAll("&", "/u00a7")) // translate to section sign
+                .map(s -> s.replaceAll("&", "/u00a7")) // translate to section sign
                 .ifPresent(combined -> {
                     // do not send if sender is engaged in conversation yet conversation is not set
                     if (sender.isConversing() && !conversation) {
