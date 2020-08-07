@@ -68,6 +68,7 @@ public enum DefaultLangs implements Lang {
 
     Command_Reload_Description("reload config"),
     Command_Reload_Usage("&6/... reload &8- &7reload config"),
+    Command_Reload_Done("&aReload done."),
 
     Command_Status_Description("Show status of the plugin."),
     Command_Status_Usage("&6/... status &8- &7show status of all modules",

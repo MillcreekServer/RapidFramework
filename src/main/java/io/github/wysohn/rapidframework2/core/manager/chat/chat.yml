@@ -1,8 +1,0 @@
-NameFormat: '&8[\%civilsimulation_name_color_%1$s\%&8]'
-Prefixes:
-  -
-    value: something
-    click_OpenUrl: someurl
-  -
-    value: something
-    click_OpenUrl: someurl

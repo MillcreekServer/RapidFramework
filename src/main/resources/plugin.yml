@@ -5,15 +5,19 @@ softdepend:
   - ProtocolLib
   - Vault
   - PlaceholderAPI
-  - UserInterfaceLib
-  - JsonApi
-  - TitleAPI
-  - TTA
-version: 2.8.0
+  - ProtocolLib
+  - WorldGuard
+version: 2.12.14
 commands:
   rapidframework:
     aliases:
-      - rf
-      - rframe
-    description: some description
-    permission: rapidframework.admin
+      - rap
+    description: description
+authors: [
+]
+depend: [
+]
+permissions:
+  rapidframework:
+    description: Grant admin permission
+api-version: '1.13'

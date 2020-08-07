@@ -237,6 +237,10 @@ public class PluginMain implements PluginRuntime {
             return builder;
         }
 
+        public File getPluginDirectory() {
+            return main.getPluginDirectory();
+        }
+
         public Builder andConfigSession(AbstractFileSession session) {
             main.conf = new ManagerConfig(Manager.FASTEST_PRIORITY, session);
             main.registerManager(main.conf);

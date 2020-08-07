@@ -38,6 +38,7 @@ public final class ManagerCommand extends PluginMain.Manager {
                 .action(((sender, args) -> {
                     try {
                         main().load();
+                        main().lang().sendMessage(sender, DefaultLangs.Command_Reload_Done);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

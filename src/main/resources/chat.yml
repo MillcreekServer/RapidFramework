@@ -1,4 +1,7 @@
-NameFormat: "&8[&7%player_name%&8]"
+NameFormat:
+  value: "&8[&7%player_name%&8]"
+  click_SuggestCommand: '/w %player_name%'
+  hover_ShowText: 'line1\nline2\nline3'
 Prefixes:
   a:
     value: '&8[&6test&8]'
