@@ -353,12 +353,12 @@ public class ManagerLanguageTest {
         ICommandSender mockSender = Mockito.mock(ICommandSender.class);
 
         managerLanguage.sendMessage(mockSender, TempLang.VariationLangSingle);
-        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("value=null,null,null,null,null"));
+        Mockito.verify(mockSender).sendMessageRaw(Mockito.anyBoolean(), Mockito.eq("value=null,null,null,null,null"));
 
         managerLanguage.sendMessage(mockSender, TempLang.VariationLangSingle, (sen, langman) -> {
             langman.addLong(888);
             langman.addDouble(1445246.389);
         });
-        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("value=1,445,246.39,null,null,null,888"));
+        Mockito.verify(mockSender).sendMessageRaw(Mockito.anyBoolean(), Mockito.eq("value=1,445,246.39,null,null,null,888"));
     }
 }

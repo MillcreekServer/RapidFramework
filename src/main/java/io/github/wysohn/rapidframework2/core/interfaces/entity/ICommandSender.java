@@ -5,7 +5,11 @@ import io.github.wysohn.rapidframework2.core.interfaces.IPluginObject;
 import java.util.Locale;
 
 public interface ICommandSender extends IPluginObject {
-    void sendMessageRaw(String... msg);
+    default void sendMessageRaw(String... msg) {
+        sendMessageRaw(false, msg);
+    }
+
+    void sendMessageRaw(boolean conversation, String... msg);
 
     Locale getLocale();
 

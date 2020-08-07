@@ -131,7 +131,7 @@ public class PluginMainTest {
     public void testSetMessageSender(){
         main.lang().sendRawMessage(mockSender, new Message[]{mockMessage});
 
-        Mockito.verify(mockSender).sendMessageRaw(Mockito.eq("\u00A77SomeMessage"));
+        Mockito.verify(mockSender).sendMessageRaw(Mockito.anyBoolean(), Mockito.eq("\u00A77SomeMessage"));
     }
 
     @Test

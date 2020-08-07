@@ -196,7 +196,7 @@ public class PaginationTest {
 
     class TempSender implements ICommandSender {
         @Override
-        public void sendMessageRaw(String... msg) {
+        public void sendMessageRaw(boolean conversation, String... msg) {
 
         }
 

@@ -19,7 +19,7 @@ public class BukkitCommandSender implements ICommandSender {
     }
 
     @Override
-    public void sendMessageRaw(String... msg) {
+    public void sendMessageRaw(boolean conversation, String... msg) {
         sender.sendMessage(msg);
     }
 

@@ -82,8 +82,14 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     }
 
     @Override
-    public void sendMessageRaw(String... msg) {
-        sender.sendMessage(msg);
+    public void sendMessageRaw(boolean conversation, String... msg) {
+        if (conversation) {
+            for (String s : msg) {
+                sender.sendRawMessage(s);
+            }
+        } else {
+            sender.sendMessage(msg);
+        }
     }
 
     @Override
