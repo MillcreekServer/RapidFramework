@@ -2,11 +2,11 @@ author: wysohn
 name: RapidFramework
 main: io.github.wysohn.rapidframework2.bukkit.plugin.FakePlugin
 softdepend:
-  - ProtocolLib
-  - Vault
-  - PlaceholderAPI
-  - ProtocolLib
-  - WorldGuard
+- ProtocolLib
+- Vault
+- PlaceholderAPI
+- ProtocolLib
+- WorldGuard
 version: 2.12.14
 commands:
   rapidframework:

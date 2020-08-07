@@ -28,11 +28,21 @@ public class ManagerChat extends AbstractChatManager implements Listener {
                 CHAT_YML,
                 main().getPluginDirectory(),
                 JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+
+        if (!main().conf().get("chat.enable").isPresent()) {
+            main().conf().put("chat.enable", false);
+            main().conf().save();
+        }
     }
 
     //Msg[x1,x2,x3,...] Msg2[x1,x2,x3,...]
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
+        if (!main().conf().get("chat.enable")
+                .map(Boolean.class::cast)
+                .orElse(false))
+            return;
+
         try {
             onChat(BukkitWrapper.player(event.getPlayer()),
                     event.getRecipients().stream()
