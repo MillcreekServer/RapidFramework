@@ -16,7 +16,7 @@ commands:
 authors: [
   ]
 depend: [
-]
+  ]
 permissions:
   rapidframework:
     description: Grant admin permission
