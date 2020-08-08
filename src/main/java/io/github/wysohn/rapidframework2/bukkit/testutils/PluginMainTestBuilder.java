@@ -101,7 +101,7 @@ public class PluginMainTestBuilder {
             return null;
         }).when(mockSupervisor).async(any(Runnable.class));
 
-        when(mockBukkit.getName()).thenReturn("test");
+        //when(mockBukkit.getName()).thenReturn("test");
     }
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, Class<? extends BukkitPluginBridge> clazz) throws Exception {
