@@ -9,7 +9,9 @@ import io.github.wysohn.rapidframework2.core.objects.location.Vector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
+import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -108,7 +110,9 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
 
     @Override
     public boolean isConversing() {
-        return sender.isConversing();
+        return Optional.ofNullable(sender)
+                .map(Conversable::isConversing)
+                .orElse(false);
     }
 
     public BukkitPlayer setSender(Player sender) {
@@ -223,7 +227,9 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
 
     @Override
     public boolean isOnline() {
-        return sender != null && sender.isOnline();
+        return Optional.ofNullable(sender)
+                .map(OfflinePlayer::isOnline)
+                .orElse(false);
     }
 
     @Override
