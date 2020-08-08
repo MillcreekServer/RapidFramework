@@ -7,21 +7,26 @@ import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.IPluginManager;
 import io.github.wysohn.rapidframework2.core.main.PluginBridge;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.command.SubCommand;
 import io.github.wysohn.rapidframework2.core.manager.common.AbstractFileSession;
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
+import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
+import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,6 +54,7 @@ public class PluginMainTestBuilder {
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
     private ITaskSupervisor mockSupervisor;
+    private Server mockServer;
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, PluginMain.Manager... managers) {
         initMocks();
@@ -73,13 +79,23 @@ public class PluginMainTestBuilder {
     }
 
     private void initMocks() {
+        mockServer = mock(Server.class);
         mockBridge = mock(PluginBridge.class);
         mockLogger = mock(Logger.class);
         mockFileSession = mock(AbstractFileSession.class);
         mockPluginManager = mock(IPluginManager.class);
         mockMessage = mock(Message.class);
-        mockBukkit = PowerMockito.mock(AbstractBukkitPlugin.class);
         mockSupervisor = Mockito.mock(ITaskSupervisor.class);
+
+        when(mockServer.getLogger()).thenReturn(mockLogger);
+
+        JavaPluginLoader mockLoader = new JavaPluginLoader(mockServer);
+        PluginDescriptionFile mockDescription = new PluginDescriptionFile("name",
+                "version",
+                "mainclass");
+        File mockFolder = new File("build/tmp/");
+        File mockFile = mock(File.class);
+        mockBukkit = new MockPlugin(mockLoader, mockDescription, mockFolder, mockFile);
 
         when(mockBridge.getPlatform()).thenReturn(mockBukkit);
         when(mockFileSession.get(Mockito.anyString())).thenReturn(Optional.empty());
@@ -101,14 +117,15 @@ public class PluginMainTestBuilder {
             return null;
         }).when(mockSupervisor).async(any(Runnable.class));
 
+
         //when(mockBukkit.getName()).thenReturn("test");
     }
 
     private PluginMainTestBuilder(String mainCommand, String adminPerm, Class<? extends BukkitPluginBridge> clazz) throws Exception {
-        initMocks();
-
-        File file = new File("build"+File.separator+"tmp");
+        File file = new File("build" + File.separator + "tmp");
         FileUtil.delete(file); //clean up before starting any test
+
+        initMocks();
 
         Constructor con = clazz.getConstructor(String.class,
                 String.class,
@@ -126,6 +143,7 @@ public class PluginMainTestBuilder {
                 file,
                 mockPluginManager,
                 mockBukkit);
+
         core.init();
         main = core.getMain();
     }
@@ -264,6 +282,60 @@ public class PluginMainTestBuilder {
         @Override
         public Object get(long l, @NotNull TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
             return r;
+        }
+    }
+
+    private class MockBridge extends BukkitPluginBridge {
+        public MockBridge(AbstractBukkitPlugin bukkit) {
+            super(bukkit);
+        }
+
+        public MockBridge(String pluginName, String pluginDescription, String mainCommand, String adminPermission, Logger logger, File dataFolder, IPluginManager iPluginManager, AbstractBukkitPlugin bukkit) {
+            super(pluginName, pluginDescription, mainCommand, adminPermission, logger, dataFolder, iPluginManager, bukkit);
+        }
+
+        @Override
+        protected PluginMain init(PluginMain.Builder builder) {
+            return null;
+        }
+
+        @Override
+        protected void registerCommands(List<SubCommand> commands) {
+
+        }
+    }
+
+    private class MockPlugin extends AbstractBukkitPlugin {
+        public MockPlugin(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
+            super(loader, description, dataFolder, file);
+        }
+
+        @Override
+        protected BukkitPluginBridge createCore() {
+            return null;
+        }
+
+        @Override
+        protected BukkitPluginBridge createCore(String pluginName,
+                                                String pluginDescription,
+                                                String mainCommand,
+                                                String adminPermission,
+                                                Logger logger,
+                                                File dataFolder,
+                                                IPluginManager iPluginManager) {
+            return new MockBridge("TestPluginName",
+                    "This is a description of test plugin",
+                    mainCommand,
+                    adminPermission,
+                    mockLogger,
+                    dataFolder,
+                    mockPluginManager,
+                    mockBukkit);
+        }
+
+        @Override
+        protected Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(UUID uuid) {
+            return Optional.empty();
         }
     }
 }
