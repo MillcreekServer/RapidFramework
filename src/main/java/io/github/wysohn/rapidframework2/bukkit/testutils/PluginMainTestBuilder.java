@@ -15,14 +15,20 @@ import io.github.wysohn.rapidframework2.core.manager.player.AbstractPlayerWrappe
 import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.Mockito;
 
+import java.awt.*;
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +56,7 @@ public class PluginMainTestBuilder {
 
     private final List<Object> expectations = new LinkedList<>();
     private final List<Consumer<PluginMainTestBuilder>> befores = new LinkedList<>();
+    private final List<Function<PluginMainTestBuilder, Event>> mockEvents = new LinkedList<>();
     private final List<Consumer<PluginMainTestBuilder>> afters = new LinkedList<>();
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
@@ -206,7 +213,7 @@ public class PluginMainTestBuilder {
         return this;
     }
 
-    public PluginMainTestBuilder after(Consumer<PluginMainTestBuilder> consumer){
+    public PluginMainTestBuilder after(Consumer<PluginMainTestBuilder> consumer) {
         afters.add(consumer);
         return this;
     }
@@ -214,6 +221,11 @@ public class PluginMainTestBuilder {
 
     public PluginMainTestBuilder mockSubCommand(Supplier<String> subCommandSupplier) {
         this.expectations.add(subCommandSupplier);
+        return this;
+    }
+
+    public PluginMainTestBuilder mockEvent(Function<PluginMainTestBuilder, Event> fn) {
+        this.mockEvents.add(fn);
         return this;
     }
 
@@ -226,6 +238,29 @@ public class PluginMainTestBuilder {
         int index = 1;
 
         befores.forEach(pluginMainTestBuilderConsumer -> pluginMainTestBuilderConsumer.accept(this));
+
+        main.getOrderedManagers().stream()
+                .filter(Listener.class::isInstance)
+                .forEach(manager -> {
+                    for (Method method : manager.getClass().getMethods()) {
+                        Annotation annotation = method.getAnnotation(EventHandler.class);
+                        if (annotation == null || method.getParameterCount() != 1)
+                            continue;
+
+                        mockEvents.forEach(fn -> {
+                            Event event = fn.apply(this);
+                            Class<? extends Event> eventClass = event.getClass();
+                            if (method.getParameterTypes()[0] != eventClass)
+                                return;
+
+                            try {
+                                method.invoke(manager, event);
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                });
 
         for (Object expt : expectations) {
             if (expt instanceof Supplier) {
