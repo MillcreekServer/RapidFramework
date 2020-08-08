@@ -1,8 +1,8 @@
 package io.github.wysohn.rapidframework2.bukkit.manager.user;
 
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitPlayer;
-import io.github.wysohn.rapidframework2.bukkit.testutils.AbstractBukkitTest;
 import io.github.wysohn.rapidframework2.bukkit.testutils.PluginMainTestBuilder;
+import io.github.wysohn.rapidframework2.bukkit.testutils.manager.AbstractBukkitManagerTest;
 import io.github.wysohn.rapidframework2.bukkit.testutils.manager.ManagerTestBuilder;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
@@ -13,8 +13,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.UUID;
 
 import static org.mockito.Matchers.any;
@@ -22,7 +20,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AbstractUserManagerTest extends AbstractBukkitTest {
+public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
 
     private Database<User> mockDatabase;
     private Temp manager;
@@ -40,11 +38,10 @@ public class AbstractUserManagerTest extends AbstractBukkitTest {
     }
 
     @Test
-    public void onLogin() throws InvocationTargetException, UnknownHostException {
-        InetAddress address = InetAddress.getLocalHost();
+    public void onLogin() throws InvocationTargetException {
         ManagerTestBuilder.of(builder.getMain(), manager, AsyncPlayerPreLoginEvent.class)
                 .before(invokeMethods(PluginMain.Manager::enable, PluginMain.Manager::load))
-                .mockEvent((man) -> new AsyncPlayerPreLoginEvent(PLAYER_NAME, address, PLAYER_UUID))
+                .mockEvent((man) -> login())
                 .expect((man) -> man.get(PLAYER_UUID).isPresent())
                 .test();
     }
@@ -53,7 +50,7 @@ public class AbstractUserManagerTest extends AbstractBukkitTest {
     public void onJoin() throws InvocationTargetException {
         ManagerTestBuilder.of(builder.getMain(), manager, PlayerJoinEvent.class)
                 .before(invokeMethods(PluginMain.Manager::enable, PluginMain.Manager::load))
-                .mockEvent((man) -> new PlayerJoinEvent(player(), "join"))
+                .mockEvent((man) -> join(player()))
                 .expect((man) -> man.get(PLAYER_UUID).isPresent())
                 .test();
     }
