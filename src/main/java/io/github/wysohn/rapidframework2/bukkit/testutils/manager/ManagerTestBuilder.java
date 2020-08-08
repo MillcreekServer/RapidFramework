@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.mockito.internal.util.reflection.Whitebox;
+import util.Validation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +21,7 @@ public class ManagerTestBuilder<M extends PluginMain.Manager, T extends Event> {
     private int calls = 0;
     private Function<M, T> mockEvent;
     private Function<M, Boolean> expect;
-    private List<Consumer<M>> afters = new LinkedList<>();
+    private final List<Consumer<M>> afters = new LinkedList<>();
 
     private ManagerTestBuilder(M manager, Class<T> event) {
         this.manager = manager;
@@ -58,11 +59,14 @@ public class ManagerTestBuilder<M extends PluginMain.Manager, T extends Event> {
     }
 
     public int test(boolean expectBool) throws InvocationTargetException {
+        Validation.assertNotNull(mockEvent, "You must mock the event " + eventClass);
+        Validation.assertNotNull(expect, "No expectation found.");
+
         Event event = mockEvent.apply(manager);
 
-        for(Method method : manager.getClass().getMethods()){
+        for (Method method : manager.getClass().getMethods()) {
             Annotation annotation = method.getAnnotation(EventHandler.class);
-            if(annotation == null
+            if (annotation == null
                     || method.getParameterCount() != 1
                     || method.getParameterTypes()[0] != eventClass)
                 continue;
