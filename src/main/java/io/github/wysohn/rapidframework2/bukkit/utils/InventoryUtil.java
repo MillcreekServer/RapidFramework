@@ -1,8 +1,14 @@
 package io.github.wysohn.rapidframework2.bukkit.utils;
 
+import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
+import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
+import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
+import io.github.wysohn.rapidframework2.core.manager.lang.PreParseHandle;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashMap;
+import java.util.*;
 
 public class InventoryUtil {
     /**
@@ -25,5 +31,73 @@ public class InventoryUtil {
             }
         }
         return slots;
+    }
+
+    public static void parseFirstToItemTitle(ManagerLanguage langman,
+                                             ICommandSender sender,
+                                             Lang lang,
+                                             PreParseHandle handle,
+                                             ItemStack itemStack) {
+        String parsed = langman.parseFirst(sender, lang, handle);
+        ItemMeta itemMeta = Optional.of(itemStack)
+                .map(ItemStack::getItemMeta)
+                .orElseGet(() -> Bukkit.getItemFactory().getItemMeta(itemStack.getType()));
+        itemMeta.setDisplayName(parsed);
+
+        itemStack.setItemMeta(itemMeta);
+    }
+
+    public static void parseFirstToItemTitle(ManagerLanguage langman,
+                                             ICommandSender sender,
+                                             Lang lang,
+                                             ItemStack itemStack) {
+        parseFirstToItemTitle(langman, sender, lang, ((sen, langman1) -> {
+        }), itemStack);
+    }
+
+    public static void parseToItemLores(ManagerLanguage langman,
+                                        ICommandSender sender,
+                                        Lang lang,
+                                        PreParseHandle handle,
+                                        ItemStack itemStack,
+                                        boolean cleanFirst) {
+        String[] parsed = langman.parse(sender, lang, handle);
+
+        ItemMeta itemMeta = Optional.of(itemStack)
+                .map(ItemStack::getItemMeta)
+                .orElseGet(() -> Bukkit.getItemFactory().getItemMeta(itemStack.getType()));
+        List<String> lores = Optional.of(itemMeta)
+                .map(ItemMeta::getLore)
+                .orElseGet(ArrayList::new);
+        if (cleanFirst)
+            lores.clear();
+        lores.addAll(Arrays.asList(parsed));
+
+        itemStack.setItemMeta(itemMeta);
+    }
+
+    public static void parseToItemLores(ManagerLanguage langman,
+                                        ICommandSender sender,
+                                        Lang lang,
+                                        PreParseHandle handle,
+                                        ItemStack itemStack) {
+        parseToItemLores(langman, sender, lang, handle, itemStack, false);
+    }
+
+    public static void parseToItemLores(ManagerLanguage langman,
+                                        ICommandSender sender,
+                                        Lang lang,
+                                        ItemStack itemStack,
+                                        boolean cleanFirst) {
+        parseToItemLores(langman, sender, lang, ((sen, langman1) -> {
+        }), itemStack, cleanFirst);
+    }
+
+    public static void parseToItemLores(ManagerLanguage langman,
+                                        ICommandSender sender,
+                                        Lang lang,
+                                        ItemStack itemStack) {
+        parseToItemLores(langman, sender, lang, ((sen, langman1) -> {
+        }), itemStack, false);
     }
 }
