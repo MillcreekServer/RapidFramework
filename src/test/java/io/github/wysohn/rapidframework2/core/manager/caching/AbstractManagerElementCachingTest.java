@@ -10,7 +10,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
-import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -281,30 +280,6 @@ public class AbstractManagerElementCachingTest {
         manager.disable();
         Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()), Mockito.isNull(TempValue.class)); // cache not exist so try from db
         // new data no longer saves unless required
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void getOrNewException() throws Exception {
-        Map<UUID, TempValue> cachedElements = Whitebox.getInternalState(manager, "cachedElements");
-        Map<String, UUID> nameMap = Whitebox.getInternalState(manager, "nameToKeyMap");
-
-        UUID uuid = UUID.randomUUID();
-
-        //start manager
-        manager.enable();
-        manager.load();
-
-        //unexpected database failure
-        doThrow(new IOException("Unexpected DB failure"))
-                .when(mockDatabase)
-                .load(anyString(), any(TempValue.class));
-        manager.getOrNew(uuid);
-
-        //end the db life-cycle
-        manager.disable();
-
-        //no data should be written
-        verify(mockDatabase, never()).save(anyString(), any(TempValue.class));
     }
 
     @Test

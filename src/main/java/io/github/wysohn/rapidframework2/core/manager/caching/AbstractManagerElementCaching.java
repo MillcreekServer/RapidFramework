@@ -111,13 +111,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     }
 
     private void handleDBOperationFailure(String key, Throwable throwable) {
+        throwable.printStackTrace();
+
         main().getLogger().severe("Key: " + key);
         main().getLogger().severe("Manager: " + getClass().getSimpleName());
 
         // At this point, irreversible data corruption can happen, so it's safer to turn off the plugin.
         main().shutdown();
-
-        throw new RuntimeException(throwable);
     }
 
     /**
