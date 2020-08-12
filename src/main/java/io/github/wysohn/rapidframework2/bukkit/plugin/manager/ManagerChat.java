@@ -36,7 +36,7 @@ public class ManagerChat extends AbstractChatManager implements Listener {
     }
 
     //Msg[x1,x2,x3,...] Msg2[x1,x2,x3,...]
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent event) {
         if (!main().conf().get("chat.enable")
                 .map(Boolean.class::cast)
