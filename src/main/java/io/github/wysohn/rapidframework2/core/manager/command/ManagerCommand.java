@@ -213,7 +213,6 @@ public final class ManagerCommand extends PluginMain.Manager {
         List<SubCommand> list = commandMap.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .filter(cmd -> sender.hasPermission(cmd.permission))
-                .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
                 .sorted((Comparator.comparing(cmd -> cmd.name)))
                 .collect(Collectors.toList());
 
