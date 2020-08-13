@@ -26,10 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -38,6 +35,13 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
     private final PluginMain.Builder mainBuilder;
 
     private PluginMain main;
+
+    private final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
+        Thread thread = new Thread(runnable);
+        thread.setName("AsyncTask - " + BukkitPluginBridge.this.getClass().getSimpleName());
+        thread.setPriority(Thread.NORM_PRIORITY - 1);
+        return thread;
+    });
 
     public BukkitPluginBridge(AbstractBukkitPlugin bukkit) {
         this(bukkit.getDescription().getName(),
@@ -84,13 +88,6 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                 .andLanguageSessionFactory(locale -> new LanguageSession(new ConfigFileSession(FileUtil.join(dataFolder,
                         "lang", locale.getLanguage() + ".yml"))))
                 .andTaskSupervisor(new ITaskSupervisor() {
-                    final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
-                        Thread thread = new Thread(runnable);
-                        thread.setName("AsyncTask - " + BukkitPluginBridge.this.getClass().getSimpleName());
-                        thread.setPriority(Thread.NORM_PRIORITY - 1);
-                        return thread;
-                    });
-
                     @Override
                     public <V> Future<V> sync(Callable<V> callable) {
                         return Bukkit.getScheduler().callSyncMethod(bukkit, callable);
@@ -222,7 +219,9 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
     @Override
     public void disable() {
         try {
+            executor.shutdown();
             main.disable();
+            executor.awaitTermination(10, TimeUnit.SECONDS);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
