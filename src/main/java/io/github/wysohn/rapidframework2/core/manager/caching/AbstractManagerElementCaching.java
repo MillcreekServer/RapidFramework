@@ -90,9 +90,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public void disable() throws Exception {
         synchronized (cacheLock) {
             main().getLogger().info("Waiting for the save tasks to be done...");
-            List<Runnable> notDone = new ArrayList<>(saveTaskPool.shutdownNow());
+            saveTaskPool.shutdown();
             saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
-            notDone.forEach(Runnable::run); // manually run all queued tasks
             main().getLogger().info("Save finished.");
         }
     }
