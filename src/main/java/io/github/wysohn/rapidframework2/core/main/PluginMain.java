@@ -135,12 +135,16 @@ public class PluginMain implements PluginRuntime {
                 .map(clazz::cast);
     }
 
-    public Optional<Mediator> getMediator(String mediatorName){
+    public Optional<Mediator> getMediator(String mediatorName) {
         return Optional.ofNullable(mediatorsStr.get(mediatorName));
     }
 
     public Collection<Manager> getOrderedManagers() {
         return Collections.unmodifiableCollection(orderedManagers);
+    }
+
+    public Collection<Mediator> getMediators() {
+        return Collections.unmodifiableCollection(mediators.values());
     }
 
     @Override

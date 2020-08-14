@@ -205,6 +205,12 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                     .forEach(manager -> Optional.ofNullable(bukkit.getPluginManager())
                             .ifPresent(pluginManager -> pluginManager.registerEvents(manager, bukkit)));
 
+            main.getMediators().stream()
+                    .filter(Listener.class::isInstance)
+                    .map(Listener.class::cast)
+                    .forEach(mediator -> Optional.ofNullable(bukkit.getPluginManager())
+                            .ifPresent(pluginManager -> pluginManager.registerEvents(mediator, bukkit)));
+
             main.load();
 
             List<SubCommand> commands = new ArrayList<>();
