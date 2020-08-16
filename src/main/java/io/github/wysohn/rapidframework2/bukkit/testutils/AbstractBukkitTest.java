@@ -207,6 +207,13 @@ public class AbstractBukkitTest {
         void accept(T t) throws Exception;
     }
 
+    public static Function<PluginMainTestBuilder, Boolean> runSubCommand(Player player2, String... args) {
+        return (context) -> {
+            context.getMain().comm().runSubCommand(BukkitWrapper.player(player2), args);
+            return true;
+        };
+    }
+
     public static Function<PluginMainTestBuilder, Event> loginEvent(String playerName, UUID playerUuid){
         InetAddress address = null;
         try {
