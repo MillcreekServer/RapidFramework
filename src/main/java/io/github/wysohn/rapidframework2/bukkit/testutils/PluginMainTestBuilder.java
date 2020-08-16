@@ -18,6 +18,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -56,7 +57,6 @@ public class PluginMainTestBuilder {
 
     private final List<Object> expectations = new LinkedList<>();
     private final List<Consumer<PluginMainTestBuilder>> befores = new LinkedList<>();
-    private final List<Function<PluginMainTestBuilder, Event>> mockEvents = new LinkedList<>();
     private final List<Consumer<PluginMainTestBuilder>> afters = new LinkedList<>();
     private PluginCommand mockCommand;
     private AbstractBukkitPlugin mockBukkit;
@@ -224,8 +224,8 @@ public class PluginMainTestBuilder {
         return this;
     }
 
-    public PluginMainTestBuilder mockEvent(Function<PluginMainTestBuilder, Event> fn) {
-        this.mockEvents.add(fn);
+    public PluginMainTestBuilder mockEvent(MockEventProvider fn) {
+        expectations.add(fn);
         return this;
     }
 
@@ -234,11 +234,7 @@ public class PluginMainTestBuilder {
         return this;
     }
 
-    public void test(ICommandSender sender, boolean boolToCheck) {
-        int index = 1;
-
-        befores.forEach(pluginMainTestBuilderConsumer -> pluginMainTestBuilderConsumer.accept(this));
-
+    private void mimicEvent(Function<PluginMainTestBuilder, Event> fn){
         main.getOrderedManagers().stream()
                 .filter(Listener.class::isInstance)
                 .forEach(manager -> {
@@ -247,20 +243,24 @@ public class PluginMainTestBuilder {
                         if (annotation == null || method.getParameterCount() != 1)
                             continue;
 
-                        mockEvents.forEach(fn -> {
-                            Event event = fn.apply(this);
-                            Class<? extends Event> eventClass = event.getClass();
-                            if (method.getParameterTypes()[0] != eventClass)
-                                return;
+                        Event event = fn.apply(this);
+                        Class<? extends Event> eventClass = event.getClass();
+                        if (method.getParameterTypes()[0] != eventClass)
+                            continue;
 
-                            try {
-                                method.invoke(manager, event);
-                            } catch (IllegalAccessException | InvocationTargetException e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        try {
+                            method.invoke(manager, event);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
+    }
+
+    public void test(ICommandSender sender, boolean boolToCheck) {
+        int index = 1;
+
+        befores.forEach(pluginMainTestBuilderConsumer -> pluginMainTestBuilderConsumer.accept(this));
 
         for (Object expt : expectations) {
             if (expt instanceof Supplier) {
@@ -272,6 +272,9 @@ public class PluginMainTestBuilder {
                         main.comm().getMainCommand(),
                         command.split(" ")))
                     throw new RuntimeException("Command " + command + " returned false.");
+            } else if(expt instanceof MockEventProvider){
+                Function<PluginMainTestBuilder, Event> fn = (MockEventProvider) expt;
+                mimicEvent(fn);
             } else if (expt instanceof Function) {
                 Function<PluginMainTestBuilder, Boolean> fn = (Function<PluginMainTestBuilder, Boolean>) expt;
 
@@ -318,6 +321,10 @@ public class PluginMainTestBuilder {
         public Object get(long l, @NotNull TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
             return r;
         }
+    }
+
+    public interface MockEventProvider extends Function<PluginMainTestBuilder, Event>{
+
     }
 
     private class MockBridge extends BukkitPluginBridge {
