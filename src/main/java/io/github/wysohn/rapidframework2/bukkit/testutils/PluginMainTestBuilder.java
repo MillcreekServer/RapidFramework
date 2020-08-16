@@ -237,24 +237,29 @@ public class PluginMainTestBuilder {
     private void mimicEvent(Function<PluginMainTestBuilder, Event> fn){
         main.getOrderedManagers().stream()
                 .filter(Listener.class::isInstance)
-                .forEach(manager -> {
-                    for (Method method : manager.getClass().getMethods()) {
-                        Annotation annotation = method.getAnnotation(EventHandler.class);
-                        if (annotation == null || method.getParameterCount() != 1)
-                            continue;
-
-                        Event event = fn.apply(this);
-                        Class<? extends Event> eventClass = event.getClass();
-                        if (method.getParameterTypes()[0] != eventClass)
-                            continue;
-
-                        try {
-                            method.invoke(manager, event);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                .map(Listener.class::cast)
+                .forEach(listener -> {
+                    Event event = fn.apply(this);
+                    mimicEvent(listener, event);
                 });
+    }
+
+    public static void mimicEvent(Listener listener, Event event){
+        for (Method method : listener.getClass().getMethods()) {
+            Class<? extends Event> eventClass = event.getClass();
+            if (method.getParameterTypes()[0] != eventClass)
+                continue;
+
+            Annotation annotation = method.getAnnotation(EventHandler.class);
+            if (annotation == null || method.getParameterCount() != 1)
+                continue;
+
+            try {
+                method.invoke(listener, event);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void test(ICommandSender sender, boolean boolToCheck) {
