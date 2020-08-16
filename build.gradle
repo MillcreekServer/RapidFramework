@@ -16,12 +16,11 @@ plugins {
 }
 
 group = 'io.github.wysohn'
-version = '2.13.7'
+version = '2.13.8'
 
 ext {
     kotlin_version = '1.3.21'
     plugin_version = version
-    bukkit_version = '1.15.2-R0.1-SNAPSHOT'
 
     description = 'description'
     author = 'wysohn'
@@ -127,6 +126,8 @@ test {
 }
 
 sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
 
 task copyThirdPartyJar(type: Copy) {
     from file('libs')
@@ -164,7 +165,7 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
 
     implementation fileTree(dir: "libs", includes: ['*.jar'])
-    implementation "org.spigotmc:spigot-api:${bukkit_version}"
+    implementation "org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'org.mockito:mockito-core:1.9.5'
     implementation 'org.powermock:powermock:1.5.6'
