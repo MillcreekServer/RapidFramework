@@ -247,6 +247,9 @@ public class PluginMainTestBuilder {
     public static void mimicEvent(Listener listener, Event event){
         for (Method method : listener.getClass().getMethods()) {
             Class<? extends Event> eventClass = event.getClass();
+            if(method.getParameterTypes().length < 1)
+                continue;
+
             if (method.getParameterTypes()[0] != eventClass)
                 continue;
 
