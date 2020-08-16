@@ -214,7 +214,7 @@ public class AbstractBukkitTest {
         };
     }
 
-    public static Function<PluginMainTestBuilder, Event> loginEvent(String playerName, UUID playerUuid){
+    public static PluginMainTestBuilder.MockEventProvider loginEvent(String playerName, UUID playerUuid){
         InetAddress address = null;
         try {
             address = InetAddress.getLocalHost();
@@ -226,11 +226,11 @@ public class AbstractBukkitTest {
         return context -> new AsyncPlayerPreLoginEvent(playerName, finalAddress, playerUuid);
     }
 
-    public static Function<PluginMainTestBuilder, Event> joinEvent(Player mockPlayer){
+    public static PluginMainTestBuilder.MockEventProvider joinEvent(Player mockPlayer){
         return context -> new PlayerJoinEvent(mockPlayer, mockPlayer+" join event.");
     }
 
-    public static Function<PluginMainTestBuilder, Event> quitEvent(Player mockPlayer){
+    public static PluginMainTestBuilder.MockEventProvider quitEvent(Player mockPlayer){
         return context -> new PlayerQuitEvent(mockPlayer, mockPlayer+" quit event.");
     }
 }
