@@ -5,6 +5,10 @@ import io.github.wysohn.rapidframework2.bukkit.testutils.impl.CraftInventoryPlay
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -21,10 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import static org.mockito.Matchers.any;
@@ -199,5 +205,32 @@ public class AbstractBukkitTest {
 
     public interface ThrowingConsumer<T>{
         void accept(T t) throws Exception;
+    }
+
+    public static Function<PluginMainTestBuilder, Boolean> runSubCommand(Player player2, String... args) {
+        return (context) -> {
+            context.getMain().comm().runSubCommand(BukkitWrapper.player(player2), args);
+            return true;
+        };
+    }
+
+    public static PluginMainTestBuilder.MockEventProvider loginEvent(String playerName, UUID playerUuid){
+        InetAddress address = null;
+        try {
+            address = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        InetAddress finalAddress = address;
+        return context -> new AsyncPlayerPreLoginEvent(playerName, finalAddress, playerUuid);
+    }
+
+    public static PluginMainTestBuilder.MockEventProvider joinEvent(Player mockPlayer){
+        return context -> new PlayerJoinEvent(mockPlayer, mockPlayer+" join event.");
+    }
+
+    public static PluginMainTestBuilder.MockEventProvider quitEvent(Player mockPlayer){
+        return context -> new PlayerQuitEvent(mockPlayer, mockPlayer+" quit event.");
     }
 }
