@@ -13,7 +13,9 @@ import java.util.*;
 
 public class InventoryUtil {
     private static String color(String str) {
-        return ChatColor.translateAlternateColorCodes('&', str);
+        return Optional.ofNullable(str)
+                .map(s -> ChatColor.translateAlternateColorCodes('&', str))
+                .orElse(null);
     }
 
     private static String[] color(String... strs) {
