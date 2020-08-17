@@ -200,11 +200,6 @@ public class CraftInventory implements Inventory {
         return -1;
     }
 
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
     public int firstPartial(Material material) {
         ItemStack[] inventory = getContents();
         for (int i = 0; i < inventory.length; i++) {
