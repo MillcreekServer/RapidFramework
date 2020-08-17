@@ -5,12 +5,23 @@ import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
 import io.github.wysohn.rapidframework2.core.manager.lang.PreParseHandle;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
 public class InventoryUtil {
+    private static String color(String str) {
+        return ChatColor.translateAlternateColorCodes('&', str);
+    }
+
+    private static String[] color(String... strs) {
+        return Arrays.stream(strs)
+                .map(InventoryUtil::color)
+                .toArray(String[]::new);
+    }
+
     /**
      * Copied from CraftInventory
      * <p>
@@ -38,7 +49,7 @@ public class InventoryUtil {
                                              Lang lang,
                                              PreParseHandle handle,
                                              ItemStack itemStack) {
-        String parsed = langman.parseFirst(sender, lang, handle);
+        String parsed = color(langman.parseFirst(sender, lang, handle));
         ItemMeta itemMeta = Optional.of(itemStack)
                 .map(ItemStack::getItemMeta)
                 .orElseGet(() -> Bukkit.getItemFactory().getItemMeta(itemStack.getType()));
@@ -61,7 +72,7 @@ public class InventoryUtil {
                                         PreParseHandle handle,
                                         ItemStack itemStack,
                                         boolean cleanFirst) {
-        String[] parsed = langman.parse(sender, lang, handle);
+        String[] parsed = color(langman.parse(sender, lang, handle));
 
         ItemMeta itemMeta = Optional.of(itemStack)
                 .map(ItemStack::getItemMeta)

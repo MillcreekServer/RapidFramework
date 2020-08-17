@@ -18,7 +18,7 @@ public class EnumArgumentMapper<E extends Enum> implements ArgumentMapper<E> {
         try {
             return (E) Enum.valueOf(clazz, toUpper ? arg.toUpperCase() : arg);
         } catch (IllegalArgumentException ex) {
-            throw new InvalidArgumentException(DefaultLangs.General_NotDecimal, ((sen, langman) ->
+            throw new InvalidArgumentException(DefaultLangs.General_EnumNotMatching, ((sen, langman) ->
                     langman.addString(arg)
                             .addString(String.join("&8, ", Arrays.stream(clazz.getEnumConstants())
                                     .map(Enum::name)
