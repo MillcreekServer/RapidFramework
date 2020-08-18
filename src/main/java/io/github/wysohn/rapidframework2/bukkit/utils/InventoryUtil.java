@@ -85,6 +85,7 @@ public class InventoryUtil {
         if (cleanFirst)
             lores.clear();
         lores.addAll(Arrays.asList(parsed));
+        itemMeta.setLore(lores);
 
         itemStack.setItemMeta(itemMeta);
     }
