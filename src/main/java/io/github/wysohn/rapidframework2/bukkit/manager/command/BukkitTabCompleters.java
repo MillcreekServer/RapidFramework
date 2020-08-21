@@ -11,7 +11,7 @@ public class BukkitTabCompleters {
 
         @Override
         public List<String> getCandidates(String part) {
-            return materialTrie.getAllStartsWith(part);
+            return materialTrie.getAllStartsWith(part.toUpperCase());
         }
 
         @Override
