@@ -6,7 +6,7 @@ import io.github.wysohn.rapidframework2.core.manager.command.TabCompleter;
 import java.util.List;
 
 public class BukkitTabCompleters {
-    TabCompleter MATERIAL = new TabCompleter() {
+    public static TabCompleter MATERIAL = new TabCompleter() {
         private final MaterialTrie materialTrie = MaterialTrie.singleton();
 
         @Override
