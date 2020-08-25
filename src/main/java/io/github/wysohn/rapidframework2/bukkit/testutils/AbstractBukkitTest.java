@@ -4,8 +4,9 @@ import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.bukkit.testutils.impl.CraftInventoryPlayer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -60,9 +61,16 @@ public class AbstractBukkitTest {
     private PluginManager pluginManager;
     protected BukkitScheduler bukkitScheduler;
 
+    protected Location mockLocation;
+    protected World mockWorld;
+    protected double x;
+    protected double y;
+    protected double z;
+
     @Before
     public void setupBukkit() {
         player = mock(Player.class);
+
         when(player.getUniqueId()).thenReturn(PLAYER_UUID);
         when(player.getName()).thenReturn(PLAYER_NAME);
         when(player.getDisplayName()).thenReturn(PLAYER_NAME);
@@ -70,11 +78,30 @@ public class AbstractBukkitTest {
         when(player.getLocale()).thenReturn(Locale.ENGLISH.getDisplayName());
         when(player.getInventory()).thenReturn(PLAYER_INVENTORY);
         when(player.isConversing()).thenReturn(false);
+
         doAnswer(invocation -> {
             String[] msgs = (String[]) invocation.getArguments()[0];
             log.info(PLAYER_NAME + " got message: " + Arrays.toString(msgs));
             return null;
         }).when(player).sendMessage(any(String[].class));
+
+        mockLocation = mock(Location.class);
+        mockWorld = mock(World.class);
+        when(player.getLocation()).thenReturn(mockLocation);
+        when(mockLocation.getWorld()).thenReturn(mockWorld);
+        when(mockLocation.getX()).thenReturn(x);
+        when(mockLocation.getBlockX()).thenReturn((int) x);
+        when(mockLocation.getY()).thenReturn(y);
+        when(mockLocation.getBlockY()).thenReturn((int) y);
+        when(mockLocation.getZ()).thenReturn(z);
+        when(mockLocation.getBlockZ()).thenReturn((int) z);
+        doAnswer(invocation -> {
+            Location loc = (Location) invocation.getArguments()[0];
+            x = loc.getX();
+            y = loc.getY();
+            z = loc.getZ();
+            return null;
+        }).when(player).teleport(any(Location.class));
 
         UUID_PLAYER_MAP.put(PLAYER_UUID, player);
         NAME_PLAYER_MAP.put(PLAYER_NAME, player);
@@ -190,11 +217,21 @@ public class AbstractBukkitTest {
         return PLAYER_NAME;
     }
 
+    protected void location(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    protected Location location() {
+        return mockLocation;
+    }
+
     @SafeVarargs
     protected final <T> Consumer<T> invokeMethods(ThrowingConsumer<T>... fn) {
         return manager -> {
             try {
-                for(ThrowingConsumer<T> consumer : fn){
+                for (ThrowingConsumer<T> consumer : fn) {
                     consumer.accept(manager);
                 }
             } catch (Exception e) {
