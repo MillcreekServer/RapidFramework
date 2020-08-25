@@ -200,6 +200,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
                 break;
             } else { // single stack contains more than target. Adjust the amount and terminate.
                 item.setAmount(stackAmount - amount);
+                sender.getInventory().setItem(slot, item.clone());
                 amount = 0;
                 break;
             }

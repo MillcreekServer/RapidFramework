@@ -19,8 +19,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Bukkit.class})
@@ -204,6 +203,8 @@ public class BukkitPlayerTest {
         items[5] = new ItemStack(Material.DIAMOND, 50);
 
         assertEquals(80 - 50, bukkitPlayer.take(Material.DIAMOND, 80));
+
+        verify(mockInventory).clear(eq(5));
     }
 
     @Test
@@ -213,6 +214,8 @@ public class BukkitPlayerTest {
         items[5] = new ItemStack(Material.DIAMOND, 100);
 
         assertEquals(0, bukkitPlayer.take(Material.DIAMOND, 80));
+
+        verify(mockInventory).setItem(5, new ItemStack(Material.DIAMOND, 20));
     }
 
 
@@ -228,5 +231,12 @@ public class BukkitPlayerTest {
         items[10] = new ItemStack(Material.DIAMOND, 10);
 
         assertEquals(0, bukkitPlayer.take(Material.DIAMOND, 80));
+
+        verify(mockInventory).clear(eq(5));
+        verify(mockInventory).clear(eq(6));
+        verify(mockInventory).clear(eq(7));
+        verify(mockInventory).clear(eq(8));
+        verify(mockInventory).clear(eq(9));
+        verify(mockInventory).clear(eq(10));
     }
 }
