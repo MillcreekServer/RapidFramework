@@ -63,6 +63,7 @@ public class AbstractBukkitTest {
 
     protected Location mockLocation;
     protected World mockWorld;
+    protected String worldName;
     protected double x;
     protected double y;
     protected double z;
@@ -87,6 +88,7 @@ public class AbstractBukkitTest {
 
         mockLocation = mock(Location.class);
         mockWorld = mock(World.class);
+        when(mockWorld.getName()).thenReturn(worldName);
         when(player.getLocation()).thenReturn(mockLocation);
         when(mockLocation.getWorld()).thenReturn(mockWorld);
         when(mockLocation.getX()).thenReturn(x);
@@ -218,6 +220,13 @@ public class AbstractBukkitTest {
     }
 
     protected void location(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    protected void location(String name, double x, double y, double z) {
+        this.worldName = name;
         this.x = x;
         this.y = y;
         this.z = z;
