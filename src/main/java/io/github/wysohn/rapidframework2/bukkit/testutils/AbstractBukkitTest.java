@@ -63,10 +63,10 @@ public class AbstractBukkitTest {
 
     protected Location mockLocation;
     protected World mockWorld;
-    protected String worldName;
-    protected double x;
-    protected double y;
-    protected double z;
+    protected String worldName = "world";
+    protected double x = 0.0;
+    protected double y = 0.0;
+    protected double z = 0.0;
 
     @Before
     public void setupBukkit() {
