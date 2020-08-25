@@ -60,6 +60,7 @@ public class AbstractBukkitTest {
     protected final PlayerInventory PLAYER_INVENTORY = new CraftInventoryPlayer();
 
     private PluginManager pluginManager;
+    private ItemFactory itemFactory;
     protected BukkitScheduler bukkitScheduler;
 
     protected Location mockLocation;
@@ -68,7 +69,6 @@ public class AbstractBukkitTest {
     protected double x = 0.0;
     protected double y = 0.0;
     protected double z = 0.0;
-    private ItemFactory itemFactory;
 
     @Before
     public void setupBukkit() {
@@ -181,6 +181,10 @@ public class AbstractBukkitTest {
 
     public PluginManager getMockPluginManager() {
         return pluginManager;
+    }
+
+    public ItemFactory getItemFactory() {
+        return itemFactory;
     }
 
     /**
