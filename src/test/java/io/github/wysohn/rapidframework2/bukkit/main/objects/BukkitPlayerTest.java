@@ -210,6 +210,16 @@ public class BukkitPlayerTest {
     public void take3() {
         for (int i = 0; i < items.length; i++)
             items[i] = new ItemStack(Material.COBBLESTONE);
+        items[5] = new ItemStack(Material.DIAMOND, 100);
+
+        assertEquals(0, bukkitPlayer.take(Material.DIAMOND, 80));
+    }
+
+
+    @Test
+    public void take4() {
+        for (int i = 0; i < items.length; i++)
+            items[i] = new ItemStack(Material.COBBLESTONE);
         items[5] = new ItemStack(Material.DIAMOND, 20);
         items[6] = new ItemStack(Material.DIAMOND, 30);
         items[7] = new ItemStack(Material.DIAMOND, 10);

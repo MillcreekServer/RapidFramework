@@ -175,7 +175,7 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     /**
      * @param itemStack amount set in ItemStack is ignored
      * @param amount
-     * @return actual number of items took. Equals to 'amount' if there were enough items.
+     * @return count of item that couldn't take. If all of the 'amount' are successfully taken, it will be 0.
      */
     public int take(ItemStack itemStack, int amount) {
         if (amount < 1)
@@ -191,15 +191,16 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
             int slot = entry.getKey();
             int stackAmount = item.getAmount();
 
-            if (stackAmount < amount) {
+            if (stackAmount < amount) { // less than target. Still may add up to the target number
                 amount -= stackAmount;
                 sender.getInventory().clear(slot);
-            } else if (stackAmount == amount) {
+            } else if (stackAmount == amount) { // exact match.
                 amount -= stackAmount;
                 sender.getInventory().clear(slot);
                 break;
-            } else {
+            } else { // single stack contains more than target. Adjust the amount and terminate.
                 item.setAmount(stackAmount - amount);
+                amount = 0;
                 break;
             }
         }
