@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -67,6 +68,7 @@ public class AbstractBukkitTest {
     protected double x = 0.0;
     protected double y = 0.0;
     protected double z = 0.0;
+    private ItemFactory itemFactory;
 
     @Before
     public void setupBukkit() {
@@ -110,6 +112,7 @@ public class AbstractBukkitTest {
         log.info("Default sender is set " + player);
 
         pluginManager = mock(PluginManager.class);
+        itemFactory = mock(ItemFactory.class);
 
         PowerMockito.mockStatic(Bukkit.class);
         Mockito.when(Bukkit.getOfflinePlayer(anyString())).then(ans -> Optional.of(ans)
@@ -149,6 +152,7 @@ public class AbstractBukkitTest {
                     return null;
                 }));
         Mockito.when(Bukkit.getPluginManager()).thenReturn(pluginManager);
+        Mockito.when(Bukkit.getItemFactory()).thenReturn(itemFactory);
 
         bukkitScheduler = mock(BukkitScheduler.class);
         when(bukkitScheduler.callSyncMethod(any(Plugin.class), any(Callable.class)))
