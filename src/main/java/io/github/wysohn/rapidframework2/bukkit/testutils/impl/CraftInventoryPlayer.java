@@ -8,6 +8,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * These are codes copied directly from spigotmc for test purpose.
+ */
 public class CraftInventoryPlayer extends CraftInventory implements PlayerInventory {
     public ItemStack[] extraContents;
     public ItemStack[] armorContents;

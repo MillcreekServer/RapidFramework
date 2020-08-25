@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * These are codes copied directly from spigotmc for test purpose.
+ */
 public class CraftInventory implements Inventory {
     public ItemStack[] inventory = new ItemStack[6 * 9];
 
@@ -120,6 +123,17 @@ public class CraftInventory implements Inventory {
 
     @Override
     public boolean containsAtLeast(@Nullable ItemStack item, int amount) {
+        if (item == null) {
+            return false;
+        }
+        if (amount <= 0) {
+            return true;
+        }
+        for (ItemStack i : getStorageContents()) {
+            if (item.isSimilar(i) && (amount -= i.getAmount()) <= 0) {
+                return true;
+            }
+        }
         return false;
     }
 
