@@ -3,16 +3,16 @@ package io.github.wysohn.rapidframework2.core.manager.common.message;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageBuilder {
-    private List<Message> messages = new ArrayList<>();
-    private Message message;
+public class MessageBuilder<ItemStack> {
+    protected final List<Message> messages = new ArrayList<>();
+    protected Message message;
 
-    private MessageBuilder(String str) {
+    protected MessageBuilder(String str) {
         append(str);
     }
 
-    public static MessageBuilder forMessage(String str) {
-        return new MessageBuilder(str);
+    public static MessageBuilder<Void> forMessage(String str) {
+        return new MessageBuilder<>(str);
     }
 
     /**
@@ -23,7 +23,7 @@ public class MessageBuilder {
      * @param str string to append. Putting null in str does nothing.
      * @return the object itself.
      */
-    public MessageBuilder append(String str) {
+    public MessageBuilder<ItemStack> append(String str) {
         if (str == null)
             return this;
 
@@ -32,46 +32,50 @@ public class MessageBuilder {
         return this;
     }
 
-    public MessageBuilder withClickOpenUrl(String value) {
+    public MessageBuilder<ItemStack> withClickOpenUrl(String value) {
         message.resetClick();
         message.click_OpenUrl = value;
         return this;
     }
 
-    public MessageBuilder withClickOpenFile(String value) {
+    public MessageBuilder<ItemStack> withClickOpenFile(String value) {
         message.resetClick();
         message.click_OpenFile = value;
         return this;
     }
 
-    public MessageBuilder withClickRunCommand(String value) {
+    public MessageBuilder<ItemStack> withClickRunCommand(String value) {
         message.resetClick();
         message.click_RunCommand = value;
         return this;
     }
 
-    public MessageBuilder withClickSuggestCommand(String value) {
+    public MessageBuilder<ItemStack> withClickSuggestCommand(String value) {
         message.resetClick();
         message.click_SuggestCommand = value;
         return this;
     }
 
-    public MessageBuilder withHoverShowText(String value) {
+    public MessageBuilder<ItemStack> withHoverShowText(String value) {
         message.resetHover();
         message.hover_ShowText = value;
         return this;
     }
 
-    public MessageBuilder withHoverShowAchievement(String value) {
+    public MessageBuilder<ItemStack> withHoverShowAchievement(String value) {
         message.resetHover();
         message.hover_ShowAchievement = value;
         return this;
     }
 
-    public MessageBuilder withHoverShowItem(String value) {
+    public MessageBuilder<ItemStack> withHoverShowItem(String value) {
         message.resetHover();
         message.hover_ShowItem = value;
         return this;
+    }
+
+    public MessageBuilder<ItemStack> withHoverShowItem(ItemStack itemStack) {
+        throw new RuntimeException("Not implemented.");
     }
 
     public Message[] build() {

@@ -21,14 +21,14 @@ public class Message {
         this.string = str;
     }
 
-    void resetClick() {
+    public void resetClick() {
         click_OpenUrl = null;
         click_OpenFile = null;
         click_RunCommand = null;
         click_SuggestCommand = null;
     }
 
-    void resetHover() {
+    public void resetHover() {
         hover_ShowText = null;
         hover_ShowAchievement = null;
         hover_ShowItem = null;
@@ -66,39 +66,59 @@ public class Message {
         return hover_ShowItem;
     }
 
+    public void setClick_OpenUrl(String click_OpenUrl) {
+        this.click_OpenUrl = click_OpenUrl;
+    }
+
+    public void setClick_OpenFile(String click_OpenFile) {
+        this.click_OpenFile = click_OpenFile;
+    }
+
+    public void setClick_RunCommand(String click_RunCommand) {
+        this.click_RunCommand = click_RunCommand;
+    }
+
+    public void setClick_SuggestCommand(String click_SuggestCommand) {
+        this.click_SuggestCommand = click_SuggestCommand;
+    }
+
+    public void setHover_ShowText(String hover_ShowText) {
+        this.hover_ShowText = hover_ShowText;
+    }
+
+    public void setHover_ShowAchievement(String hover_ShowAchievement) {
+        this.hover_ShowAchievement = hover_ShowAchievement;
+    }
+
+    public void setHover_ShowItem(String hover_ShowItem) {
+        this.hover_ShowItem = hover_ShowItem;
+    }
+
     public void colorize(Function<String, String> consumer) {
         this.string = Optional.ofNullable(this.string)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
 
         this.click_OpenUrl = Optional.ofNullable(this.click_OpenUrl)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
         this.click_OpenFile = Optional.ofNullable(this.click_OpenFile)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
         this.click_RunCommand = Optional.ofNullable(this.click_RunCommand)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
         this.click_SuggestCommand = Optional.ofNullable(this.click_SuggestCommand)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
 
         this.hover_ShowText = Optional.ofNullable(this.hover_ShowText)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
         this.hover_ShowAchievement = Optional.ofNullable(this.hover_ShowAchievement)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
         this.hover_ShowItem = Optional.ofNullable(this.hover_ShowItem)
-                .filter(Objects::nonNull)
                 .map(consumer)
                 .orElse(null);
     }
@@ -111,19 +131,19 @@ public class Message {
         Message message = (Message) o;
 
         if (!string.equals(message.string)) return false;
-        if (click_OpenUrl != null ? !click_OpenUrl.equals(message.click_OpenUrl) : message.click_OpenUrl != null)
+        if (!Objects.equals(click_OpenUrl, message.click_OpenUrl))
             return false;
-        if (click_OpenFile != null ? !click_OpenFile.equals(message.click_OpenFile) : message.click_OpenFile != null)
+        if (!Objects.equals(click_OpenFile, message.click_OpenFile))
             return false;
-        if (click_RunCommand != null ? !click_RunCommand.equals(message.click_RunCommand) : message.click_RunCommand != null)
+        if (!Objects.equals(click_RunCommand, message.click_RunCommand))
             return false;
-        if (click_SuggestCommand != null ? !click_SuggestCommand.equals(message.click_SuggestCommand) : message.click_SuggestCommand != null)
+        if (!Objects.equals(click_SuggestCommand, message.click_SuggestCommand))
             return false;
-        if (hover_ShowText != null ? !hover_ShowText.equals(message.hover_ShowText) : message.hover_ShowText != null)
+        if (!Objects.equals(hover_ShowText, message.hover_ShowText))
             return false;
-        if (hover_ShowAchievement != null ? !hover_ShowAchievement.equals(message.hover_ShowAchievement) : message.hover_ShowAchievement != null)
+        if (!Objects.equals(hover_ShowAchievement, message.hover_ShowAchievement))
             return false;
-        return hover_ShowItem != null ? hover_ShowItem.equals(message.hover_ShowItem) : message.hover_ShowItem == null;
+        return Objects.equals(hover_ShowItem, message.hover_ShowItem);
     }
 
     @Override

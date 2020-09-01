@@ -33,9 +33,14 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
     });
 
     protected BukkitPluginBridge core;
+    protected String nmsVersion;
 
     public PluginMain getMain() {
         return core.getMain();
+    }
+
+    public String getNmsVersion() {
+        return nmsVersion;
     }
 
     public AbstractBukkitPlugin() {
@@ -65,6 +70,9 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        String packageName = getServer().getClass().getPackage().getName();
+        nmsVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
+
         super.onLoad();
         core = createCore();
         core.init();

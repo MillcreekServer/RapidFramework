@@ -85,8 +85,7 @@ public class ProtocolLibAPI extends ExternalAPI {
                 jsonMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ACHIEVEMENT, toComponent(message.getHover_ShowAchievement())));
             }
             if (message.getHover_ShowItem() != null) {
-                //TODO
-                //jsonMessage.hoverEvent(JsonHoverEvent.showItem(message.getHover_ShowItem()));
+                jsonMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, toComponent(message.getHover_ShowItem())));
             }
 
             head.addExtra(jsonMessage);
