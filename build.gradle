@@ -183,6 +183,14 @@ dependencies {
     testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.0'
 }
 
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
 jar {
     from sourceSets.main.allSource
 }

@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
@@ -278,15 +279,32 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     }
 
+    /**
+     * Work on each element. This is the snapshot copied at the moment, so it may not
+     * accurately reflect every element when it is executed.
+     * @param consumer
+     */
+    public void forEach(Consumer<? super V> consumer, Consumer<Throwable> exConsumer) {
+        keySet().stream()
+                .map(this::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Reference::get)
+                .forEach(v -> {
+                    try {
+                        consumer.accept(v);
+                    } catch (Exception ex) {
+                        exConsumer.accept(ex);
+                    }
+                });
+    }
+
+    /**
+     * {@link #forEach(Consumer, Consumer)}
+     * @param consumer
+     */
     public void forEach(Consumer<? super V> consumer) {
-        synchronized (cacheLock) {
-            keySet().stream()
-                    .map(this::get)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .map(Reference::get)
-                    .forEach(consumer);
-        }
+        this.forEach(consumer, ex -> main().getLogger().log(Level.FINE, "forEach()", ex));
     }
 
     /**
