@@ -169,6 +169,14 @@ public class BukkitPlayerTest {
     }
 
     @Test
+    public void giveNonStacking() {
+        assertEquals(0, bukkitPlayer.give(Material.DIAMOND_PICKAXE, 130));
+        assertEquals(new ItemStack(Material.DIAMOND_PICKAXE, 64), items[0]);
+        assertEquals(new ItemStack(Material.DIAMOND_PICKAXE, 64), items[1]);
+        assertEquals(new ItemStack(Material.DIAMOND_PICKAXE, 2), items[2]);
+    }
+
+    @Test
     public void give2() {
         for (int i = 0; i < items.length; i++)
             items[i] = new ItemStack(Material.COBBLESTONE);

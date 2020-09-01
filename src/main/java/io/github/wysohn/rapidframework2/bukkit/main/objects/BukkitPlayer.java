@@ -145,8 +145,10 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
         int maxStack = itemStack.getType().getMaxStackSize();
 
         while (amount > 0) {
-            int pack = amount / maxStack;
-            int remain = amount % maxStack;
+            // max stack can be 1 (or maybe below 1 yet haven't seen such a case)
+            int pack = maxStack < 2 ? 0 : amount / maxStack;
+            // max stack can be 1 (or maybe below 1 yet haven't seen such a case)
+            int remain = maxStack < 2 ? amount : amount % maxStack;
 
             int deduct = pack > 0 ? 64 : remain;
 
