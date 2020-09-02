@@ -15,6 +15,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetbrains.annotations.NotNull;
+import util.Validation;
 
 import java.io.File;
 import java.util.List;
@@ -26,21 +27,31 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public abstract class AbstractBukkitPlugin extends JavaPlugin {
-    private static final ExecutorService asyncTaskExecutor = Executors.newCachedThreadPool((runnable)->{
+    private static final ExecutorService asyncTaskExecutor = Executors.newCachedThreadPool((runnable) -> {
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.MAX_PRIORITY);
         return thread;
     });
 
+    private static String nmsVersion;
+
+    public static String getNmsVersion() {
+        return nmsVersion;
+    }
+
+    /**
+     * @param className NMS class name without packages (Just ItemStack, not net.minecraft.server...ItemStack)
+     * @return NMS class correspond to current server's version.
+     */
+    public static Class<?> getNMSClass(String className) throws ClassNotFoundException {
+        Validation.assertNotNull(className);
+        return Class.forName("net.minecraft.server." + nmsVersion + "." + className);
+    }
+
     protected BukkitPluginBridge core;
-    protected String nmsVersion;
 
     public PluginMain getMain() {
         return core.getMain();
-    }
-
-    public String getNmsVersion() {
-        return nmsVersion;
     }
 
     public AbstractBukkitPlugin() {

@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework2.bukkit.manager.common.message;
 
+import io.github.wysohn.rapidframework2.bukkit.main.AbstractBukkitPlugin;
 import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuilder;
 import io.github.wysohn.rapidframework2.tools.NMSWrapper;
 import org.bukkit.inventory.ItemStack;
@@ -18,15 +19,17 @@ public class BukkitMessageBuilder extends MessageBuilder<ItemStack> {
     public BukkitMessageBuilder withHoverShowItem(ItemStack value) {
         message.resetHover();
         try {
-            message.setHover_ShowItem(NMSWrapper.target(value.getClass()) // CraftItemStack
+            Class<?> NBTCompoundClass = AbstractBukkitPlugin.getNMSClass("NBTTagCompound");
+            Object NBTCompound = NBTCompoundClass.newInstance();
+
+            NMSWrapper.target(value.getClass()) // CraftItemStack
                     .prepare("asNMSCopy", ItemStack.class)
                     .invoke(value) // NMS ItemStack
-                    .prepare("getTag")
-                    .invoke() // NBTTagCompound
-                    .result()
-                    .map(Object::toString) // json
-                    .orElseThrow(() -> new RuntimeException("NBTCompound to json failed.")));
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                    .prepare("save", NBTCompoundClass)
+                    .invoke(NBTCompound);
+
+            message.setHover_ShowItem(NBTCompound.toString());
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException | InstantiationException e) {
             e.printStackTrace();
         }
         return this;
