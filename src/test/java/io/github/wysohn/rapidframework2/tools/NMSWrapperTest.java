@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework2.tools;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,7 +11,17 @@ public class NMSWrapperTest {
     @Test
     public void invoke() throws Exception {
         assertEquals(12.0, NMSWrapper.target(Test1.class)
-                        .invoke("iamstatic", 3, 4.0, 5.0)
+                        .prepare("iamstatic", int.class, double.class, double.class)
+                        .invoke(3, 4.0, 5.0)
+                        .result()
+                        .map(Double.class::cast)
+                        .orElseThrow(RuntimeException::new),
+                0.000001);
+
+        ItemStack itemStack = new ItemStack(Material.DIAMOND);
+        assertEquals(99.84, NMSWrapper.target(Test1.class)
+                        .prepare("iamstatic2", ItemStack.class)
+                        .invoke(itemStack)
                         .result()
                         .map(Double.class::cast)
                         .orElseThrow(RuntimeException::new),
@@ -17,8 +29,10 @@ public class NMSWrapperTest {
 
         Test1 test1 = new Test1();
         assertEquals("invoked", NMSWrapper.target(test1)
-                .invoke("chained")
-                .invoke("immethod")
+                .prepare("chained")
+                .invoke()
+                .prepare("immethod")
+                .invoke()
                 .result()
                 .map(String.class::cast)
                 .orElseThrow(RuntimeException::new));
@@ -35,6 +49,10 @@ public class NMSWrapperTest {
 
         private static double iamstatic(int a, double b, double c) {
             return a + b + c;
+        }
+
+        private static double iamstatic2(ItemStack itemStack) {
+            return 99.84;
         }
 
         private Test2 chained() {

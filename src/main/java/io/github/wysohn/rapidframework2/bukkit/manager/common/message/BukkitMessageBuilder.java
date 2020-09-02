@@ -19,8 +19,10 @@ public class BukkitMessageBuilder extends MessageBuilder<ItemStack> {
         message.resetHover();
         try {
             message.setHover_ShowItem(NMSWrapper.target(value.getClass()) // CraftItemStack
-                    .invoke("asNMSCopy", value) // NMS ItemStack
-                    .invoke("getTag") // NBTTagCompound
+                    .prepare("asNMSCopy", ItemStack.class)
+                    .invoke(value) // NMS ItemStack
+                    .prepare("getTag")
+                    .invoke() // NBTTagCompound
                     .result()
                     .map(Object::toString) // json
                     .orElseThrow(() -> new RuntimeException("NBTCompound to json failed.")));
