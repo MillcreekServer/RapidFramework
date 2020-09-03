@@ -189,8 +189,6 @@ dependencies {
 }
 
 shadowJar {
-    archiveClassifier.set('')
-
     from sourceSets.main.allSource
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
@@ -205,7 +203,6 @@ shadowJar {
 
 jar {
     dependsOn(shadowJar)
-    archiveName(project.getName() + "-core")
 }
 
 compileJava {
@@ -229,7 +226,7 @@ publishing {
     }
     publications {
         gpr(MavenPublication) {
-            from(components.java)
+            from components.java
         }
     }
 }
