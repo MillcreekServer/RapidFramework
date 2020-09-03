@@ -4,6 +4,7 @@ import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.ICommandSender;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import io.github.wysohn.rapidframework2.tools.Validation;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversable;
@@ -11,7 +12,6 @@ import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import util.Validation;
 
 import java.util.Optional;
 

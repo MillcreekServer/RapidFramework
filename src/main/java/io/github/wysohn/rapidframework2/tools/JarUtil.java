@@ -1,4 +1,4 @@
-package util;
+package io.github.wysohn.rapidframework2.tools;
 
 /*******************************************************************************
  *     Copyright (C) 2017 wysohn

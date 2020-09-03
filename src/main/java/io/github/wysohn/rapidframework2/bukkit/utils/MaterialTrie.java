@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework2.bukkit.utils;
 
+import io.github.wysohn.rapidframework2.tools.trie.StringListTrie;
 import org.bukkit.Material;
-import util.trie.StringListTrie;
 
 import java.util.Arrays;
 import java.util.List;

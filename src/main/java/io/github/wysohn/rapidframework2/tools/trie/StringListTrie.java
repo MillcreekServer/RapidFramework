@@ -1,4 +1,4 @@
-package util.trie;
+package io.github.wysohn.rapidframework2.tools.trie;
 
 import java.util.ArrayList;
 import java.util.Collection;

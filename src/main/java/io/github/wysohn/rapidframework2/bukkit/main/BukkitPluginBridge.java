@@ -13,12 +13,12 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.IMessageSend
 import io.github.wysohn.rapidframework2.core.manager.common.message.Message;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSession;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
+import io.github.wysohn.rapidframework2.tools.JarUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import util.JarUtil;
 
 import java.io.File;
 import java.io.IOException;

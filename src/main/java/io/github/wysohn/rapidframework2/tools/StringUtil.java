@@ -14,7 +14,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package util;
+package io.github.wysohn.rapidframework2.tools;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class StringUtil {
-    private static Pattern pattern = Pattern.compile(
+    private static final Pattern pattern = Pattern.compile(
             "# Match a valid Windows filename (unspecified file system).          \n"
                     + "^                                # Anchor to start of string.        \n"
                     + "(?!                              # Assert filename is not: CON, PRN, \n"

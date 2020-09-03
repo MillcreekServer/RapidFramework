@@ -1,4 +1,4 @@
-package util.trie;
+package io.github.wysohn.rapidframework2.tools.trie;
 
 /**
  * Mostly copied form https://www.baeldung.com/trie-java

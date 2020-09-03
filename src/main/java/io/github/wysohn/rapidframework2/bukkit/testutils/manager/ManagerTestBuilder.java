@@ -1,10 +1,10 @@
 package io.github.wysohn.rapidframework2.bukkit.testutils.manager;
 
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.tools.Validation;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.mockito.internal.util.reflection.Whitebox;
-import util.Validation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;

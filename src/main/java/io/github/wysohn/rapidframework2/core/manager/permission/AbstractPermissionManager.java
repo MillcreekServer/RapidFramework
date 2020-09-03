@@ -4,7 +4,7 @@ import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
 import io.github.wysohn.rapidframework2.core.interfaces.entity.IPermissionHolder;
 import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
-import util.Validation;
+import io.github.wysohn.rapidframework2.tools.Validation;
 
 import java.lang.ref.Reference;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package util.trie;
+package io.github.wysohn.rapidframework2.tools.trie;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -6,8 +6,8 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import static io.github.wysohn.rapidframework2.tools.trie.TestShare.fillTrie;
 import static org.junit.Assert.assertEquals;
-import static util.trie.TestShare.fillTrie;
 
 public class StringListTrieTest {
 

@@ -4,11 +4,11 @@ import io.github.wysohn.rapidframework2.bukkit.main.config.ConfigFileSession;
 import io.github.wysohn.rapidframework2.bukkit.main.objects.BukkitWrapper;
 import io.github.wysohn.rapidframework2.core.manager.chat.AbstractChatManager;
 import io.github.wysohn.rapidframework2.core.manager.chat.IPlaceholderSupport;
+import io.github.wysohn.rapidframework2.tools.JarUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import util.JarUtil;
 
 import java.io.File;
 import java.util.stream.Collectors;

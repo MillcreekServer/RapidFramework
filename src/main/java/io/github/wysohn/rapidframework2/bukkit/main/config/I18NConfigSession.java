@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework2.bukkit.main.config;
 
 import io.github.wysohn.rapidframework2.core.interfaces.plugin.PluginRuntime;
-import util.Validation;
+import io.github.wysohn.rapidframework2.tools.Validation;
 
 import java.io.File;
 import java.util.HashMap;

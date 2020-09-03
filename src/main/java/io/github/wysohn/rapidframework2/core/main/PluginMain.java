@@ -13,7 +13,7 @@ import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.Lang;
 import io.github.wysohn.rapidframework2.core.manager.lang.LanguageSessionFactory;
 import io.github.wysohn.rapidframework2.core.manager.lang.ManagerLanguage;
-import util.Validation;
+import io.github.wysohn.rapidframework2.tools.Validation;
 
 import java.io.File;
 import java.util.*;

@@ -1,4 +1,4 @@
-package util.trie;
+package io.github.wysohn.rapidframework2.tools.trie;
 
 public class TestShare {
     public static void fillTrie(Trie trie) {

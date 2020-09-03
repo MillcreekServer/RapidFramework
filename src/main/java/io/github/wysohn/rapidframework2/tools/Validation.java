@@ -3,34 +3,17 @@ package io.github.wysohn.rapidframework2.tools;
 import java.util.function.Predicate;
 
 public class Validation {
-    /**
-     * Null check with default message
-     *
-     * @param obj
-     */
-    public static <T> void validate(T obj) {
-        validate(obj, x -> x == null, "Cannot be null");
+    public static void assertNotNull(Object obj, String message) {
+        if (obj == null)
+            throw new RuntimeException(message);
     }
 
-    /**
-     * Null check with custom message
-     *
-     * @param obj
-     * @param message
-     */
-    public static <T> void validate(T obj, String message) {
-        validate(obj, x -> x == null, message);
+    public static void assertNotNull(Object obj) {
+        assertNotNull(obj, "Cannot be null here.");
     }
 
-    /**
-     * Custom test with custom message
-     *
-     * @param obj
-     * @param pred    the fail condition
-     * @param message
-     */
-    public static <T> void validate(T obj, Predicate<T> pred, String message) {
-        if (pred.test(obj))
+    public static <T> void validate(T val, Predicate<T> pred, String message) {
+        if (pred.negate().test(val))
             throw new RuntimeException(message);
     }
 }

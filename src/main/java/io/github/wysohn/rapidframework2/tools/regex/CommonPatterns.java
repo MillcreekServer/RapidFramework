@@ -1,4 +1,4 @@
-package util.regex;
+package io.github.wysohn.rapidframework2.tools.regex;
 
 import java.util.regex.Pattern;
 

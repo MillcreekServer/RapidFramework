@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework2.core.manager.command;
 
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
-import util.StringUtil;
+import io.github.wysohn.rapidframework2.tools.StringUtil;
 
 @FunctionalInterface
 public interface ArgumentMapper<T> {

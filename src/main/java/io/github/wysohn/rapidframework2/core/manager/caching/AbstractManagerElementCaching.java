@@ -3,7 +3,7 @@ package io.github.wysohn.rapidframework2.core.manager.caching;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.tools.FileUtil;
-import util.Validation;
+import io.github.wysohn.rapidframework2.tools.Validation;
 
 import java.io.IOException;
 import java.lang.ref.Reference;

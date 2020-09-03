@@ -3,11 +3,11 @@ package io.github.wysohn.rapidframework2.bukkit.utils.conversation;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.DynamicLang;
+import io.github.wysohn.rapidframework2.tools.Validation;
+import io.github.wysohn.rapidframework2.tools.regex.CommonPatterns;
 import org.bukkit.conversations.Conversable;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
-import util.Validation;
-import util.regex.CommonPatterns;
 
 import java.util.Iterator;
 import java.util.LinkedList;

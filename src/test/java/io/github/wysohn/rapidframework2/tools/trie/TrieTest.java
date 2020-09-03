@@ -1,11 +1,11 @@
-package util.trie;
+package io.github.wysohn.rapidframework2.tools.trie;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import static io.github.wysohn.rapidframework2.tools.trie.TestShare.fillTrie;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static util.trie.TestShare.fillTrie;
 
 public class TrieTest {
 

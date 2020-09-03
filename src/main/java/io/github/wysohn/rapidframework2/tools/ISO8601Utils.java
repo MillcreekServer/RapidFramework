@@ -1,4 +1,4 @@
-package util;
+package io.github.wysohn.rapidframework2.tools;
 
 import java.text.ParseException;
 import java.text.ParsePosition;
