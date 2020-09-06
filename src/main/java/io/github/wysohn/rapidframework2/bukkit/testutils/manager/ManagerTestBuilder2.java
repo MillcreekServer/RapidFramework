@@ -91,34 +91,32 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
     }
 
     public boolean test() {
-        try {
-            for (Execution<M, ?> execution : executions) {
-                Object result = execution.apply(manager);
-                if (result instanceof Event) {
-                    Class<? extends Event> eventClass = (Class<? extends Event>) result.getClass();
-                    for (Method method : manager.getClass().getMethods()) {
-                        Annotation annotation = method.getAnnotation(EventHandler.class);
-                        if (annotation == null
-                                || method.getParameterCount() != 1
-                                || method.getParameterTypes()[0] != eventClass)
-                            continue;
+        for (Execution<M, ?> execution : executions) {
+            Object result = execution.apply(manager);
 
-                        try {
-                            method.invoke(manager, result);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
+            if (result instanceof Event) {
+                Class<? extends Event> eventClass = (Class<? extends Event>) result.getClass();
+                for (Method method : manager.getClass().getMethods()) {
+                    Annotation annotation = method.getAnnotation(EventHandler.class);
+                    if (annotation == null
+                            || method.getParameterCount() != 1
+                            || method.getParameterTypes()[0] != eventClass)
+                        continue;
+
+                    try {
+                        method.invoke(manager, result);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
                     }
-                } else if (result instanceof Boolean) {
-                    if (!(boolean) result)
-                        return false;
                 }
+            } else if (result instanceof Boolean) {
+                if (!(boolean) result)
+                    return false;
             }
-
-            return true;
-        } finally {
-            FileUtil.delete(TEMP_FOLDER);
         }
+
+        FileUtil.delete(TEMP_FOLDER);
+        return true;
     }
 
     @FunctionalInterface
