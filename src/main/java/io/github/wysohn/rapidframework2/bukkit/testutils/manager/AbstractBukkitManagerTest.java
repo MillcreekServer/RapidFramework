@@ -67,7 +67,7 @@ public class AbstractBukkitManagerTest extends AbstractBukkitTest {
         Whitebox.setInternalState(manager, "db", mockDatabse);
     }
 
-    private IObserver addFakeObserver(AbstractManagerElementCaching.ObservableElement element) {
+    protected IObserver addFakeObserver(AbstractManagerElementCaching.ObservableElement element) {
         IObserver observer = mock(IObserver.class);
         List<IObserver> observers = (List<IObserver>) Whitebox.getInternalState(element, "observers");
         observers.add(observer);
