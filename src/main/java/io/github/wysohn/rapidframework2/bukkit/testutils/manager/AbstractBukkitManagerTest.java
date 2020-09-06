@@ -3,12 +3,17 @@ package io.github.wysohn.rapidframework2.bukkit.testutils.manager;
 import io.github.wysohn.rapidframework2.bukkit.testutils.AbstractBukkitTest;
 import io.github.wysohn.rapidframework2.core.database.Database;
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
+import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework2.core.manager.caching.CachedElement;
+import io.github.wysohn.rapidframework2.core.manager.caching.IObserver;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.api.mockito.PowerMockito;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.mockito.Mockito.*;
@@ -49,13 +54,23 @@ public class AbstractBukkitManagerTest extends AbstractBukkitTest {
         };
     }
 
-    protected AsyncPlayerPreLoginEvent login(){
+    protected AsyncPlayerPreLoginEvent login() {
         return spy(new AsyncPlayerPreLoginEvent(PLAYER_NAME, INET_ADDR, PLAYER_UUID));
     }
 
-    protected PlayerJoinEvent join(Player player){
+    protected PlayerJoinEvent join(Player player) {
         return spy(new PlayerJoinEvent(player, MESSAGE_JOIN));
     }
 
+    protected <K, V extends CachedElement<K>> void fakeDB(AbstractManagerElementCaching<K, V> manager,
+                                                          Database<V> mockDatabse) {
+        Whitebox.setInternalState(manager, "db", mockDatabse);
+    }
 
+    private IObserver addFakeObserver(AbstractManagerElementCaching.ObservableElement element) {
+        IObserver observer = mock(IObserver.class);
+        List<IObserver> observers = (List<IObserver>) Whitebox.getInternalState(element, "observers");
+        observers.add(observer);
+        return observer;
+    }
 }

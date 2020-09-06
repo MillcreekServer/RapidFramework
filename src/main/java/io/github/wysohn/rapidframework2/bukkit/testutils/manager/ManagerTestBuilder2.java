@@ -6,12 +6,15 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,11 +29,19 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
     private ManagerTestBuilder2(M manager) {
         this.manager = manager;
         Whitebox.setInternalState(manager, "main", main);
+        when(main.getPluginDirectory()).thenReturn(new File("build/tmp/"));
         when(main.conf()).thenReturn(config);
+
+
     }
 
     public static <M extends PluginMain.Manager> ManagerTestBuilder2<M> of(M manager) {
         return new ManagerTestBuilder2<>(manager);
+    }
+
+    public ManagerTestBuilder2<M> config(String key, Object output) {
+        when(config.get(eq(key))).thenReturn(Optional.of(output));
+        return this;
     }
 
     public ManagerTestBuilder2<M> mockAny(Execution<M, Void> fn) {
