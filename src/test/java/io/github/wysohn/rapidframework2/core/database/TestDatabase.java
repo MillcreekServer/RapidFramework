@@ -201,12 +201,12 @@ public class TestDatabase {
     }
 
     public static class DummyObject extends CachedElement<UUID> {
-        private final String nullStr = null;
-        private final String testStr = "notset";
-        private final int testInt = -1;
-        private final long testLong = -2L;
-        private final double testDouble = -3.0;
-        private final boolean testBool = true;
+        private String nullStr = null;
+        private String testStr = "notset";
+        private int testInt = -1;
+        private long testLong = -2L;
+        private double testDouble = -3.0;
+        private boolean testBool = true;
 
         // without the no-args constructor, gson just skip to unsafe construction without
         // calling the actual constructors
@@ -220,12 +220,12 @@ public class TestDatabase {
     }
 
     public static class DummyObject2 extends CachedElement<UUID> {
-        private final String nullStr = null;
-        private final String testStr = "notset2";
-        private final int testInt = -1;
-        private final long testLong = -2L;
-        private final double testDouble = -3.0;
-        private final boolean testBool = true;
+        private String nullStr = null;
+        private String testStr = "notset2";
+        private int testInt = -1;
+        private long testLong = -2L;
+        private double testDouble = -3.0;
+        private boolean testBool = true;
 
         public DummyObject2(UUID key) {
             super(key);
