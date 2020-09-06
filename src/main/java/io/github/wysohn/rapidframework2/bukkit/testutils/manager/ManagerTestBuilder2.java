@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.when;
 public class ManagerTestBuilder2<M extends PluginMain.Manager> {
     public static final File TEMP_FOLDER = new File("build/tmp/managertest/");
     private final PluginMain main = mock(PluginMain.class);
+    private final Logger logger = mock(Logger.class);
     private final ManagerConfig config = mock(ManagerConfig.class);
 
     private final M manager;
@@ -34,6 +36,7 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
 
         Whitebox.setInternalState(manager, "main", main);
         when(main.getPluginDirectory()).thenReturn(TEMP_FOLDER);
+        when(main.getLogger()).thenReturn(logger);
         when(main.conf()).thenReturn(config);
     }
 
