@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework2.bukkit.testutils.manager;
 
 import io.github.wysohn.rapidframework2.core.main.PluginMain;
 import io.github.wysohn.rapidframework2.core.manager.config.ManagerConfig;
+import io.github.wysohn.rapidframework2.tools.FileUtil;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -29,7 +30,7 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
     private ManagerTestBuilder2(M manager) {
         this.manager = manager;
         Whitebox.setInternalState(manager, "main", main);
-        when(main.getPluginDirectory()).thenReturn(new File("build/tmp/"));
+        when(main.getPluginDirectory()).thenReturn(new File("build/tmp/test/"));
         when(main.conf()).thenReturn(config);
 
 
@@ -80,30 +81,34 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
     }
 
     public boolean test() {
-        for (Execution<M, ?> execution : executions) {
-            Object result = execution.apply(manager);
-            if (result instanceof Event) {
-                Class<? extends Event> eventClass = (Class<? extends Event>) result.getClass();
-                for (Method method : manager.getClass().getMethods()) {
-                    Annotation annotation = method.getAnnotation(EventHandler.class);
-                    if (annotation == null
-                            || method.getParameterCount() != 1
-                            || method.getParameterTypes()[0] != eventClass)
-                        continue;
+        try {
+            for (Execution<M, ?> execution : executions) {
+                Object result = execution.apply(manager);
+                if (result instanceof Event) {
+                    Class<? extends Event> eventClass = (Class<? extends Event>) result.getClass();
+                    for (Method method : manager.getClass().getMethods()) {
+                        Annotation annotation = method.getAnnotation(EventHandler.class);
+                        if (annotation == null
+                                || method.getParameterCount() != 1
+                                || method.getParameterTypes()[0] != eventClass)
+                            continue;
 
-                    try {
-                        method.invoke(manager, result);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
+                        try {
+                            method.invoke(manager, result);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
                     }
+                } else if (result instanceof Boolean) {
+                    if (!(boolean) result)
+                        return false;
                 }
-            } else if (result instanceof Boolean) {
-                if (!(boolean) result)
-                    return false;
             }
-        }
 
-        return true;
+            return true;
+        } finally {
+            FileUtil.delete(main.getPluginDirectory());
+        }
     }
 
     @FunctionalInterface
