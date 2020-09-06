@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class DatabaseFile<T> extends Database<T> {
 
-    private File folder;
+    private final File folder;
 
     public DatabaseFile(Class<T> type, File folder) {
         super(type, folder.getName());
@@ -55,7 +55,7 @@ public class DatabaseFile<T> extends Database<T> {
         StringBuilder ser = new StringBuilder();
         try (FileInputStream fis = new FileInputStream(file);
              InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8.newDecoder());
-             BufferedReader br = new BufferedReader(isr);) {
+             BufferedReader br = new BufferedReader(isr)) {
 
             String buff;
             while ((buff = br.readLine()) != null)
@@ -76,39 +76,12 @@ public class DatabaseFile<T> extends Database<T> {
 
         String ser = serialize(value, type);
         FileUtil.writeToFile(dest, ser);
+    }
 
-        /*
-         * File file = new File(folder, key+"_tmp"); file.getParentFile().mkdirs();
-         *
-         * FileChannel fc = null; FileOutputStream fos = null; BufferedWriter bw = null;
-         * FileLock lock = null;
-         *
-         * try { fos = new FileOutputStream(file); fc = fos.getChannel(); bw = new
-         * BufferedWriter(new OutputStreamWriter(fos,
-         * Charset.forName("UTF-8").newEncoder()));
-         *
-         * String ser = serialize(value, type);
-         *
-         * lock = fc.lock(); bw.write(ser);
-         *
-         * } catch (Exception e) { e.printStackTrace(); } finally { try { if(lock !=
-         * null) lock.release(); } catch (IOException e) { e.printStackTrace(); }
-         *
-         * try { if(bw != null) bw.close(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         *
-         * try { if(fc != null) fc.close(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         *
-         * try { if(fos != null) fos.close(); } catch (IOException e) {
-         * e.printStackTrace(); }
-         *
-         * try { if(file != null && dest != null) Files.move(file.toPath(),
-         * dest.toPath(), StandardCopyOption.REPLACE_EXISTING); } catch (IOException e)
-         * { e.printStackTrace(); }
-         *
-         * file.delete(); }
-         */
+    @Override
+    public void saveSerializedString(String key, String serialized) throws IOException {
+        File dest = new File(folder, key + ".json");
+        FileUtil.writeToFile(dest, serialized);
     }
 
     @Override

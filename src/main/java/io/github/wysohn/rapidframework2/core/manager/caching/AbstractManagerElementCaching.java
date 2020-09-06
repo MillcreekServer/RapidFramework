@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
-    private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
+    private final ExecutorService saveTaskPool = Executors.newCachedThreadPool(runnable -> {
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.NORM_PRIORITY - 1);
         return thread;
@@ -64,11 +64,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
-            // wait for previous save tasks to finish before instantiating new database
-            saveTaskPool.submit(() -> {
-                db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
-                Validation.assertNotNull(db);
-            }).get();
+            db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
+            Validation.assertNotNull(db);
 
             for (String keyStr : db.getKeys()) {
                 V value = db.load(keyStr, null);
@@ -370,9 +367,14 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             synchronized (cacheLock) {
                 cache(value.getKey(), value);
 
+                // Serialize the object while blocking to ensure thread safety of the individual objects.
+                String serialized = db.serialize(value);
+
                 saveTaskPool.submit(() -> {
                     try {
-                        db.save(value.getKey().toString(), value);
+                        // at this point, as Object is already a plain Json text, there will be no concern about
+                        // thread safety
+                        db.saveSerializedString(value.getKey().toString(), serialized);
                     } catch (Exception e) {
                         handleDBOperationFailure(value.getKey().toString(), e);
                     }

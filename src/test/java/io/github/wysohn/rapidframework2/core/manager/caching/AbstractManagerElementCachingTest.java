@@ -345,12 +345,11 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
-        //one for new, one for change value
-        Mockito.verify(mockDatabase, Mockito.times(2)).save(Mockito.eq(uuid.toString()), Mockito.eq(mockValue));
+        //each setStr() will notify observers to update
+        Mockito.verify(mockDatabase, Mockito.times(3))
+                .saveSerializedString(Mockito.eq(uuid.toString()), Mockito.anyString());
         //reset will delete data from database
         Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), Mockito.isNull(TempValue.class));
-        //reset -> construction handle called -> setStr() is called -> new data saved to db
-        Mockito.verify(mockDatabase, Mockito.times(1)).save(Mockito.eq(uuid.toString()), Mockito.eq(newMockValue));
     }
 
     @Test(expected = RuntimeException.class)

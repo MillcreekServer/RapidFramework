@@ -188,12 +188,38 @@ public abstract class Database<T> {
     public abstract T load(String key, T def) throws IOException;
 
     /**
-     * Serialize the data and put it into the database.
+     * Serialize the data and put it into the database. Be aware that this is a two step process:
+     * <p>
+     * 1. It serializes the object
+     * <p>
+     * 2. It saves the serialized object.
+     * <p>
+     * Regarding the first step, it's possible that while Gson is serializing the object, some other thread
+     * may still be working on the object, so it makes the object not thread safe.
+     * If thread safety is a concern, use {@link #serialize(Object)} and {@link #saveSerializedString(String, String)}
+     * methods manually to replicate the processes above, yet you can block the threads while working on step 1. so that
+     * it can guarantee the thread safety.
      *
      * @param key   the key to pair the data with
      * @param value the data to be saved
      */
     public abstract void save(String key, T value) throws IOException;
+
+    /**
+     * Simply save the serialized json object. This is in fact same as what {@link #save(String, Object)}
+     * internally do, except, serialization part is not included.
+     * This is useful to ensure thread safety because if we use {@link #save(String, Object)} directly,
+     * while the serialization is still in progress for the Object, the Object can still be modified, so the state
+     * of the Object is no longer stable.
+     * <p>
+     * Ideally, serialize the Object using {@link #serialize(Object)} while blocking other threads, and using
+     * the resulting String, save it using this method in another thread (because I/O is slow). Though, since it's
+     * already serialized, the state of Object is no longer an issue.
+     *
+     * @param key
+     * @param serialized
+     */
+    public abstract void saveSerializedString(String key, String serialized) throws IOException;
 
     /**
      * Check if the key exists in the database
@@ -221,13 +247,13 @@ public abstract class Database<T> {
     private Gson gson;
 
     /**
-     * Serialize the object using the class type of object itself.
+     * Serialize the object using the class type of defined parameter.
      *
      * @param obj
      * @return serialized string
      */
-    protected String serialize(Object obj) {
-        return serialize(obj, obj.getClass());
+    public String serialize(T obj) {
+        return serialize(obj, type);
     }
 
     /**
@@ -237,7 +263,7 @@ public abstract class Database<T> {
      * @param clazz
      * @return serialzied string
      */
-    protected String serialize(Object obj, Type clazz) {
+    public String serialize(Object obj, Type clazz) {
         if (gson == null)
             gson = builder.create();
 

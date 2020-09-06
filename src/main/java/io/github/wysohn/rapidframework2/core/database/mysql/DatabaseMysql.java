@@ -34,8 +34,8 @@ import java.util.Set;
  * @author wysohn
  */
 public class DatabaseMysql<T> extends Database<T> {
-    private String dbName;
-    private String tablename;
+    private final String dbName;
+    private final String tablename;
 
     private final String KEY = "dbkey";
     private final String VALUE = "dbval";
@@ -132,7 +132,6 @@ public class DatabaseMysql<T> extends Database<T> {
 
             if (value != null) {
                 String ser = serialize(value, type);
-//                InputStream input = new ByteArrayInputStream(ser.getBytes(StandardCharsets.UTF_8));
 
                 PreparedStatement pstmt = conn.prepareStatement(String.format(UPDATEQUARY, tablename));
                 pstmt.setString(1, key);
@@ -145,6 +144,29 @@ public class DatabaseMysql<T> extends Database<T> {
                 pstmt.executeUpdate();
                 pstmt.close();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void saveSerializedString(String key, String serialized) {
+        Connection conn = null;
+        try {
+            conn = pool.getConnection();
+
+            PreparedStatement pstmt = conn.prepareStatement(String.format(UPDATEQUARY, tablename));
+            pstmt.setString(1, key);
+            pstmt.setString(2, serialized); // https://forums.mysql.com/read.php?39,662014,662042
+            pstmt.executeUpdate();
+            pstmt.close();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

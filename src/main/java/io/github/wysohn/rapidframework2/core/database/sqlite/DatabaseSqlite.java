@@ -23,6 +23,11 @@ public class DatabaseSqlite<T> extends Database<T> {
     }
 
     @Override
+    public void saveSerializedString(String key, String serialized) {
+
+    }
+
+    @Override
     public boolean has(String key) {
         // TODO Auto-generated method stub
         return false;

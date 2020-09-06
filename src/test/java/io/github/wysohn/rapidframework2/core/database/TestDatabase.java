@@ -17,6 +17,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,6 +41,11 @@ public class TestDatabase {
             @Override
             public void save(String key, DummyObject value) {
                 // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void saveSerializedString(String key, String serialized) throws IOException {
 
             }
 
@@ -119,7 +125,7 @@ public class TestDatabase {
     @Test
     public void testSerializeUUID() {
         UUID uuid = UUID.fromString("4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7");
-        String ser = db.serialize(uuid);
+        String ser = db.serialize(uuid, UUID.class);
         assertEquals("\"4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7\"", ser);
     }
 
@@ -132,7 +138,7 @@ public class TestDatabase {
     @Test
     public void testSerializeSimpleLocation() {
         SimpleLocation sloc = new SimpleLocation("testWorld", 1, 2, 3);
-        String serialized = db.serialize(sloc);
+        String serialized = db.serialize(sloc, SimpleLocation.class);
         assertEquals("{" + "\"world\":\"testWorld\"," + "\"x\":1," + "\"y\":2," + "\"z\":3," + "\"pitch\":0.0,"
                 + "\"yaw\":0.0" + "}", serialized);
     }
@@ -153,7 +159,7 @@ public class TestDatabase {
     @Test
     public void testSerializeSimpleChunkLocation() {
         SimpleChunkLocation scloc = new SimpleChunkLocation("testWorld", 0, 1);
-        String serialized = db.serialize(scloc);
+        String serialized = db.serialize(scloc, SimpleChunkLocation.class);
         assertEquals("{" + "\"world\":\"testWorld\"," + "\"i\":0," + "\"j\":1" + "}", serialized);
     }
 
@@ -195,12 +201,12 @@ public class TestDatabase {
     }
 
     public static class DummyObject extends CachedElement<UUID> {
-        private String nullStr = null;
-        private String testStr = "notset";
-        private int testInt = -1;
-        private long testLong = -2L;
-        private double testDouble = -3.0;
-        private boolean testBool = true;
+        private final String nullStr = null;
+        private final String testStr = "notset";
+        private final int testInt = -1;
+        private final long testLong = -2L;
+        private final double testDouble = -3.0;
+        private final boolean testBool = true;
 
         // without the no-args constructor, gson just skip to unsafe construction without
         // calling the actual constructors
@@ -214,12 +220,12 @@ public class TestDatabase {
     }
 
     public static class DummyObject2 extends CachedElement<UUID> {
-        private String nullStr = null;
-        private String testStr = "notset2";
-        private int testInt = -1;
-        private long testLong = -2L;
-        private double testDouble = -3.0;
-        private boolean testBool = true;
+        private final String nullStr = null;
+        private final String testStr = "notset2";
+        private final int testInt = -1;
+        private final long testLong = -2L;
+        private final double testDouble = -3.0;
+        private final boolean testBool = true;
 
         public DummyObject2(UUID key) {
             super(key);
