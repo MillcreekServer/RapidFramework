@@ -20,7 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ManagerTestBuilder2<M extends PluginMain.Manager> {
-    public static final File TEMP_FOLDER = new File("build/tmp/test/");
+    public static final File TEMP_FOLDER = new File("build/tmp/managertest/");
     private final PluginMain main = mock(PluginMain.class);
     private final ManagerConfig config = mock(ManagerConfig.class);
 
@@ -30,6 +30,8 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
 
     private ManagerTestBuilder2(M manager) {
         this.manager = manager;
+        TEMP_FOLDER.mkdirs();
+
         Whitebox.setInternalState(manager, "main", main);
         when(main.getPluginDirectory()).thenReturn(TEMP_FOLDER);
         when(main.conf()).thenReturn(config);
