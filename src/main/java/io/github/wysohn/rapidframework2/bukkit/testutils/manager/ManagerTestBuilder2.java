@@ -50,23 +50,29 @@ public class ManagerTestBuilder2<M extends PluginMain.Manager> {
     }
 
     public ManagerTestBuilder2<M> enable() {
-        try {
-            manager.enable();
-            return this;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return this;
-        }
+        mockAny(manager -> {
+            try {
+                manager.enable();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+
+        return this;
     }
 
     public ManagerTestBuilder2<M> disable() {
-        try {
-            manager.disable();
-            return this;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return this;
-        }
+        mockAny(manager -> {
+            try {
+                manager.disable();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+
+        return this;
     }
 
     public ManagerTestBuilder2<M> mockAny(Execution<M, Void> fn) {
