@@ -20,7 +20,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '2.19.1'
+version = '2.20.0'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
@@ -178,6 +178,8 @@ dependencies {
     implementation group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
     implementation group: 'org.slf4j', name:'slf4j-simple', version: '1.7.2'
     implementation "com.sparkjava:spark-core:${spark_version}"
+    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-core:1.9.5'
