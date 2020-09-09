@@ -43,7 +43,16 @@ public class PluginMain implements PluginRuntime {
 
     private ITaskSupervisor taskSupervisor;
 
+    /**
+     * @deprecated
+     */
     private PluginMain(String pluginName, String description, String mainCommand, String rootPermission,
+                       PluginBridge pluginBridge, Logger logger, File pluginDirectory) {
+        this(pluginName, description, new String[]{mainCommand}, rootPermission, pluginBridge, logger, pluginDirectory);
+    }
+
+
+    private PluginMain(String pluginName, String description, String[] mainCommand, String rootPermission,
                        PluginBridge pluginBridge, Logger logger, File pluginDirectory) {
         this.pluginName = pluginName;
         this.description = description;
@@ -228,9 +237,23 @@ public class PluginMain implements PluginRuntime {
 
         }
 
+        /**
+         * @deprecated
+         */
         public static Builder prepare(String pluginName,
                                       String pluginDesc,
                                       String mainCommand,
+                                      String adminPermission,
+                                      PluginBridge pluginBridge,
+                                      Logger logger,
+                                      File pluginDirectory) {
+            return prepare(pluginName, pluginDesc, new String[]{mainCommand}, adminPermission, pluginBridge, logger,
+                    pluginDirectory);
+        }
+
+        public static Builder prepare(String pluginName,
+                                      String pluginDesc,
+                                      String[] mainCommand,
                                       String adminPermission,
                                       PluginBridge pluginBridge,
                                       Logger logger,

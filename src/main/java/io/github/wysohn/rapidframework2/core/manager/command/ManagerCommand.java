@@ -7,26 +7,34 @@ import io.github.wysohn.rapidframework2.core.manager.common.message.MessageBuild
 import io.github.wysohn.rapidframework2.core.manager.lang.DefaultLangs;
 import io.github.wysohn.rapidframework2.core.manager.lang.page.ListWrapper;
 import io.github.wysohn.rapidframework2.core.manager.lang.page.Pagination;
+import io.github.wysohn.rapidframework2.tools.Validation;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class ManagerCommand extends PluginMain.Manager {
-    private final String mainCommand;
+    private final String[] mainCommands;
     private final String defaultCommand = "help";
-    private SubCommandMap commandMap;
+    private final Map<String, SubCommandMap> commandMaps = new HashMap<>();
 
-    public ManagerCommand(int loadPriority, String mainCommand) {
+    /**
+     * Construct command manager.
+     *
+     * @param loadPriority
+     * @param mainCommands commands (used after /). If more than one is provided, first command is served as 'main'
+     */
+    public ManagerCommand(int loadPriority, String... mainCommands) {
         super(loadPriority);
-        this.mainCommand = mainCommand;
+        Validation.validate(mainCommands.length, val -> val > 0, "Must provide at least one command.");
+
+        this.mainCommands = mainCommands;
     }
 
     @Override
     public void enable() throws Exception {
-        this.commandMap = new SubCommandMap();
+        for (String mainCommand : mainCommands) {
+            commandMaps.put(mainCommand, new SubCommandMap());
+        }
 
         initDefaultCommands();
     }
@@ -57,35 +65,57 @@ public final class ManagerCommand extends PluginMain.Manager {
     public void disable() throws Exception {
 
     }
+
     public String getMainCommand() {
-        return mainCommand;
+        return mainCommands[0];
+    }
+
+    public void addCommand(String mainCommand, SubCommand cmd) {
+        if (!commandMaps.containsKey(mainCommand))
+            throw new RuntimeException(mainCommand + " is not a valid command.");
     }
 
     public void addCommand(SubCommand cmd) {
-        commandMap.register(cmd);
+        addCommand(mainCommands[0], cmd);
     }
 
     /**
      * Directly run the command.
      * Ex) /mainCommand args[0] args[1] ...
+     *
      * @param sender sender
-     * @param args the arguments next to the main command
+     * @param args   the arguments next to the main command
      * @return always true since we have our own way to show error messages.
      */
-    public boolean runSubCommand(ICommandSender sender, String... args){
+    public boolean runSubCommand(ICommandSender sender, String... args) {
+        return runSubCommand(sender, mainCommands[0], args);
+    }
+
+    /**
+     * Directly run the command.
+     * Ex) /mainCommand args[0] args[1] ...
+     *
+     * @param sender      sender
+     * @param mainCommand specific command to be used
+     * @param args        the arguments next to the main command
+     * @return always true since we have our own way to show error messages.
+     */
+    public boolean runSubCommand(ICommandSender sender, String mainCommand, String... args) {
         return onCommand(sender, mainCommand, mainCommand, args);
     }
 
     /**
      * adapter method for command handling
      * @param sender sender
-     * @param command the main command used. Command doesn't run if it does not match with 'mainCommand'
+     * @param command the main command used. Command doesn't run if it does not match with one of the
+     *                registered mainCommands
      * @param label the label of main command. Alias of the command or 'mainCommand'
      * @param args_in the arguments next to the command. Ex) /mainCommand args[0] args[1] ...
      * @return always true since we have our own way to show error messages.
      */
     public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
-        if (!command.equals(mainCommand))
+        SubCommandMap commandMap = commandMaps.get(command);
+        if (commandMap == null)
             return true;
 
         final String[] args;
@@ -209,7 +239,11 @@ public final class ManagerCommand extends PluginMain.Manager {
      * @param sender
      * @param page   0~size()
      */
-    public void showHelp(String label, final ICommandSender sender, int page) {
+    public void showHelp(String mainCommand, String label, final ICommandSender sender, int page) {
+        SubCommandMap commandMap = commandMaps.get(mainCommand);
+        if (commandMap == null)
+            throw new RuntimeException("Invalid main command: " + mainCommand);
+
         List<SubCommand> list = commandMap.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .filter(cmd -> sender.hasPermission(cmd.permission))
@@ -228,6 +262,14 @@ public final class ManagerCommand extends PluginMain.Manager {
     }
 
     /**
+     * @param sender
+     * @param page   0~size()
+     */
+    public void showHelp(String label, final ICommandSender sender, int page) {
+        showHelp(mainCommands[0], label, sender, page);
+    }
+
+    /**
      * adapter method for command handling
      *
      * @param sender  sender
@@ -236,7 +278,8 @@ public final class ManagerCommand extends PluginMain.Manager {
      * @param args_in the arguments next to the command. Ex) /mainCommand args[0] args[1] ...
      */
     public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args_in) {
-        if (!command.equals(mainCommand))
+        SubCommandMap commandMap = commandMaps.get(command);
+        if (commandMap == null)
             return new ArrayList<>();
 
         if (args_in.length < 2) {

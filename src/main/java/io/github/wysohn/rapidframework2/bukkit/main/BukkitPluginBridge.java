@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -50,11 +49,8 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                         .map(PluginDescriptionFile::getDescription)
                         .orElse("No plugin description."),
                 bukkit.getDescription().getCommands()
-                        .entrySet()
-                        .stream()
-                        .findFirst()
-                        .map(Map.Entry::getKey)
-                        .orElse(null),
+                        .keySet()
+                        .toArray(new String[0]),
                 bukkit.getDescription().getPermissions()
                         .stream()
                         .findFirst()
@@ -66,9 +62,24 @@ public abstract class BukkitPluginBridge implements io.github.wysohn.rapidframew
                 bukkit);
     }
 
+    /**
+     * @deprecated
+     */
     public BukkitPluginBridge(String pluginName,
                               String pluginDescription,
                               String mainCommand,
+                              String adminPermission,
+                              Logger logger,
+                              File dataFolder,
+                              IPluginManager iPluginManager,
+                              AbstractBukkitPlugin bukkit) {
+        this(pluginName, pluginDescription, new String[]{mainCommand}, adminPermission, logger, dataFolder,
+                iPluginManager, bukkit);
+    }
+
+    public BukkitPluginBridge(String pluginName,
+                              String pluginDescription,
+                              String[] mainCommand,
                               String adminPermission,
                               Logger logger,
                               File dataFolder,
