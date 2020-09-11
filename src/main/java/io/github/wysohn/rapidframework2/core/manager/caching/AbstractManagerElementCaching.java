@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends PluginMain.Manager {
-    private final ExecutorService saveTaskPool = Executors.newCachedThreadPool(runnable -> {
+    private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.NORM_PRIORITY - 1);
         return thread;

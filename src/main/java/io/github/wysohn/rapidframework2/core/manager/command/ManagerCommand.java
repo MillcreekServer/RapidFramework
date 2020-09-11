@@ -73,6 +73,8 @@ public final class ManagerCommand extends PluginMain.Manager {
     public void addCommand(String mainCommand, SubCommand cmd) {
         if (!commandMaps.containsKey(mainCommand))
             throw new RuntimeException(mainCommand + " is not a valid command.");
+
+        commandMaps.get(mainCommand).register(cmd);
     }
 
     public void addCommand(SubCommand cmd) {
@@ -100,7 +102,7 @@ public final class ManagerCommand extends PluginMain.Manager {
      * @param args        the arguments next to the main command
      * @return always true since we have our own way to show error messages.
      */
-    public boolean runSubCommand(ICommandSender sender, String mainCommand, String... args) {
+    public boolean runSubCommand(ICommandSender sender, String mainCommand, String[] args) {
         return onCommand(sender, mainCommand, mainCommand, args);
     }
 
