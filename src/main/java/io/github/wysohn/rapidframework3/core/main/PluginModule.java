@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import io.github.wysohn.rapidframework3.core.interfaces.plugn.PluginRuntime;
+import io.github.wysohn.rapidframework3.core.interfaces.plugin.PluginRuntime;
 
 public abstract class PluginModule implements PluginRuntime {
     private final PluginMain main;

@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.core.api;
 
-import io.github.wysohn.rapidframework3.core.interfaces.plugn.IGlobalPluginManager;
+import io.github.wysohn.rapidframework3.core.interfaces.plugin.IGlobalPluginManager;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 
