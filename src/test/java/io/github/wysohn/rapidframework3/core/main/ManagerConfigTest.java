@@ -1,6 +1,5 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import io.github.wysohn.rapidframework3.core.interfaces.io.file.IFileReader;
@@ -9,6 +8,7 @@ import io.github.wysohn.rapidframework3.core.interfaces.serialize.IStorageSerial
 import io.github.wysohn.rapidframework3.core.interfaces.store.temporary.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.modules.MockFileIOModule;
 import io.github.wysohn.rapidframework3.modules.MockMainModule;
+import io.github.wysohn.rapidframework3.modules.MockPluginConfigModule;
 import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +37,7 @@ public class ManagerConfigTest {
         moduleList.add(new MockMainModule());
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockFileIOModule(mockFileReader, mockFileWriter));
-        moduleList.add(new AbstractModule() {
-
-        });
+        moduleList.add(new MockPluginConfigModule(mockSerializer, mockStorage));
     }
 
 
