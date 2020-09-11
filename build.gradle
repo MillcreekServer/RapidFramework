@@ -20,7 +20,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '2.22.5'
+version = '2.22.3'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
@@ -181,6 +181,11 @@ dependencies {
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
 
+    // https://mvnrepository.com/artifact/com.google.inject/guice
+    compile group: 'com.google.inject', name: 'guice', version: '4.2.3'
+    // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
+    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
+
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile 'org.powermock:powermock:1.5.6'
@@ -197,6 +202,7 @@ shadowJar {
     include "*.jar"
     include "io/github/wysohn/**"
     include "copy/**"
+    include "com/google/inject/**"
     include "org/apache/commons/**"
     include "spark/**"
     include "**.txt"
