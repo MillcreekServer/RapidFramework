@@ -1,18 +1,16 @@
 package io.github.wysohn.rapidframework3.core.main;
 
 import com.google.inject.*;
+import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
 import io.github.wysohn.rapidframework3.core.inject.module.*;
 import io.github.wysohn.rapidframework3.core.interfaces.io.file.IFileReader;
 import io.github.wysohn.rapidframework3.core.interfaces.io.file.IFileWriter;
 import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.core.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.core.interfaces.plugn.ITaskSupervisor;
+import io.github.wysohn.rapidframework3.core.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.core.interfaces.serialize.IStorageSerializer;
 import io.github.wysohn.rapidframework3.core.interfaces.store.temporary.IKeyValueStorage;
-import io.github.wysohn.rapidframework3.modules.MockFileIOModule;
-import io.github.wysohn.rapidframework3.modules.MockLanguageModule;
-import io.github.wysohn.rapidframework3.modules.MockPluginConfigModule;
-import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.modules.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,6 +34,8 @@ public class PluginMainTest {
 
     @Before
     public void init() {
+        GuiceDebug.enable();
+
         ITaskSupervisor mockTaskSupervisor = mock(ITaskSupervisor.class);
 
         mockFileReader = mock(IFileReader.class);
@@ -54,10 +54,13 @@ public class PluginMainTest {
                 Manager3.class));
         moduleList.add(new MediatorModule());
         moduleList.add(new LanguagesModule());
+        moduleList.add(new ExternalAPIModule(
+                ExternalAPIModule.Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockFileIOModule(mockFileReader, mockFileWriter));
         moduleList.add(new MockLanguageModule(langSessionFactory, broadcaster));
         moduleList.add(new MockPluginConfigModule(mockSerializer, mockStorage));
+        moduleList.add(new MockGlobalPluginManager());
         moduleList.add(new AbstractModule() {
             @Provides
             ITaskSupervisor getTaskSupervisor() {
@@ -140,6 +143,27 @@ public class PluginMainTest {
         public Manager3(PluginMain main) {
             super(main);
             dependsOn(Manager2.class);
+        }
+
+        @Override
+        public void enable() throws Exception {
+
+        }
+
+        @Override
+        public void load() throws Exception {
+
+        }
+
+        @Override
+        public void disable() throws Exception {
+
+        }
+    }
+
+    private static class SomeExternalAPISupport extends ExternalAPI {
+        public SomeExternalAPISupport(PluginMain main, String pluginName) {
+            super(main, pluginName);
         }
 
         @Override

@@ -1,8 +1,9 @@
 package io.github.wysohn.rapidframework3.core.main;
 
+import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
-import io.github.wysohn.rapidframework3.core.interfaces.plugn.ITaskSupervisor;
-import io.github.wysohn.rapidframework3.core.interfaces.plugn.PluginRuntime;
+import io.github.wysohn.rapidframework3.core.interfaces.plugin.ITaskSupervisor;
+import io.github.wysohn.rapidframework3.core.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.utils.graph.DependencyGraph;
 
@@ -40,7 +41,7 @@ public class PluginMain implements PluginRuntime {
     private File pluginDirectory;
 
     //    private ManagerCommand comm;
-//    private ManagerExternalAPI api;
+    private ManagerExternalAPI api;
     private ManagerConfig conf;
     private ManagerLanguage lang;
 
@@ -76,6 +77,7 @@ public class PluginMain implements PluginRuntime {
 
     @Override
     public void preload() throws Exception {
+        api = Objects.requireNonNull(getManager(ManagerExternalAPI.class));
         conf = Objects.requireNonNull(getManager(ManagerConfig.class));
         lang = Objects.requireNonNull(getManager(ManagerLanguage.class));
 
