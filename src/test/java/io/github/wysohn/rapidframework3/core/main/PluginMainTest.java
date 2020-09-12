@@ -8,8 +8,8 @@ import io.github.wysohn.rapidframework3.core.interfaces.io.file.IFileWriter;
 import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.core.interfaces.message.IBroadcaster;
 import io.github.wysohn.rapidframework3.core.interfaces.plugin.ITaskSupervisor;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.IStorageSerializer;
-import io.github.wysohn.rapidframework3.core.interfaces.store.temporary.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.modules.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class PluginMainTest {
     private ILangSessionFactory langSessionFactory;
     private IBroadcaster broadcaster;
 
-    private IStorageSerializer mockSerializer;
+    private ISerializer mockSerializer;
     private IKeyValueStorage mockStorage;
 
     @Before
@@ -44,7 +44,7 @@ public class PluginMainTest {
         langSessionFactory = mock(ILangSessionFactory.class);
         broadcaster = mock(IBroadcaster.class);
 
-        mockSerializer = mock(IStorageSerializer.class);
+        mockSerializer = mock(ISerializer.class);
         mockStorage = mock(IKeyValueStorage.class);
 
         moduleList.add(new PluginInfoModule("testPlugin", "desc", "root"));

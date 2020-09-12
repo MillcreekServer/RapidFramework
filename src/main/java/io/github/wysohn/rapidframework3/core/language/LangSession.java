@@ -2,16 +2,14 @@ package io.github.wysohn.rapidframework3.core.language;
 
 import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSession;
-import io.github.wysohn.rapidframework3.core.interfaces.store.permanent.ILoadable;
-import io.github.wysohn.rapidframework3.core.interfaces.store.permanent.ISavable;
-import io.github.wysohn.rapidframework3.core.interfaces.store.temporary.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
 
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LangSession implements ILangSession, ISavable, ILoadable {
+public class LangSession implements ILangSession {
     private final IKeyValueStorage storage;
 
     @Inject
@@ -36,15 +34,5 @@ public class LangSession implements ILangSession, ISavable, ILoadable {
                         storage.put(key, Arrays.asList(lang.getEngDefault()));
                     }
                 }));
-    }
-
-    @Override
-    public void restoreFromString(String data) {
-        storage.restoreFromString(data);
-    }
-
-    @Override
-    public String storeAsString() {
-        return storage.storeAsString();
     }
 }

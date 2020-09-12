@@ -1,12 +1,13 @@
-package io.github.wysohn.rapidframework3.core.interfaces.store.temporary;
+package io.github.wysohn.rapidframework3.core.interfaces.store;
 
-import io.github.wysohn.rapidframework3.core.interfaces.store.permanent.ILoadable;
-import io.github.wysohn.rapidframework3.core.interfaces.store.permanent.ISavable;
-
+import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 
-public interface IKeyValueStorage extends ISavable, ILoadable {
+public interface IKeyValueStorage {
+
+    void reload(File file) throws Exception;
+
     /**
      * Get value relative to the root of this key/value storage.
      *

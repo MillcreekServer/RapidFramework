@@ -3,21 +3,21 @@ package io.github.wysohn.rapidframework3.modules;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginConfig;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.IStorageSerializer;
-import io.github.wysohn.rapidframework3.core.interfaces.store.temporary.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
 
 public class MockPluginConfigModule extends AbstractModule {
-    private final IStorageSerializer mockSerializer;
+    private final ISerializer mockSerializer;
     private final IKeyValueStorage mockStorage;
 
-    public MockPluginConfigModule(IStorageSerializer mockSerializer, IKeyValueStorage mockStorage) {
+    public MockPluginConfigModule(ISerializer mockSerializer, IKeyValueStorage mockStorage) {
         this.mockSerializer = mockSerializer;
         this.mockStorage = mockStorage;
     }
 
     @Provides
     @PluginConfig
-    IStorageSerializer getSerializer() {
+    ISerializer getSerializer() {
         return mockSerializer;
     }
 

@@ -24,18 +24,18 @@ import java.util.stream.Stream;
 /**
  * <h1>ManagerLanguage</h1>
  * <p>
- * The class which automatically translation {@link Lang} into appropriate locale.
+ * The class which automatically translation {@link ILang} into appropriate locale.
  * The locale respects the {@link Locale} returned by {@link ICommandSender#getLocale()}.
  * If the translation file is not specified for the returned {@link Locale}, {@link Locale#ENGLISH}
  * will be used as default.
  * <hr>
- * First, client instantiate the class with the {@link LanguageSessionFactory} which will generate
- * appropriate {@link LanguageSession} as this class' need. Each {@link LanguageSession} return
- * String which is equivalent to the {@link Lang} passed to it, and this is how translation work for
+ * First, client instantiate the class with the {@link ILangSessionFactory} which will generate
+ * appropriate {@link ILangSession} as this class' need. Each {@link ILangSession} return
+ * String which is equivalent to the {@link ILang} passed to it, and this is how translation work for
  * different locales.
  * <hr>
  * Then, the given String may contain various 'placeholder' which the client can dynamically fill as needed.
- * For example. the returned String from {@link LanguageSession} may contain special String, which starts with
+ * For example. the returned String from {@link ILangSession} may contain special String, which starts with
  * ${, followed by keyword, and then } (ex. ${integer}). These placeholder will be replaced one by one by insertion
  * order of 'add' methods of this class. So if the returned String has ${integer} ${integer} ${integer}, these
  * placeholders will be replaced with the values inserted by {@link ManagerLanguage#addInteger(int)} by

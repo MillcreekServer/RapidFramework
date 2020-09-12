@@ -16,6 +16,12 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * (Injectable)
+ * <p>
+ * The class that holds all Managers and Mediators and some of the fields necessary for
+ * the plugin to function.
+ */
 @Singleton
 public class PluginMain implements PluginRuntime {
     @Inject
@@ -171,5 +177,9 @@ public class PluginMain implements PluginRuntime {
         for (Manager manager : orderedManagers) {
             manager.disable();
         }
+    }
+
+    public void shutdown() {
+        //TODO
     }
 }
