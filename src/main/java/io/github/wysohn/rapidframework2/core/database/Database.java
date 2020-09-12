@@ -281,7 +281,11 @@ public abstract class Database<T> {
         if (gson == null)
             gson = builder.create();
 
-        return gson.fromJson(ser, clazz);
+        try {
+            return gson.fromJson(ser, clazz);
+        } catch (JsonSyntaxException ex) {
+            throw new RuntimeException("Invalid syntax: " + ser);
+        }
     }
 
     @FunctionalInterface
