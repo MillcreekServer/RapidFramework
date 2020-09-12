@@ -11,6 +11,7 @@ import io.github.wysohn.rapidframework3.core.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.modules.MockMainModule;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -18,13 +19,16 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.lang.ref.Reference;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class AbstractManagerElementCachingTest {
     private static Database mockDatabase;
@@ -39,7 +43,7 @@ public class AbstractManagerElementCachingTest {
 
     @Before
     public void init() {
-        mockDatabase = Mockito.mock(Database.class);
+        mockDatabase = mock(Database.class);
         mockMainModule = new MockMainModule();
         when(mockMainModule.mockConfig.get(eq("dbType"))).thenReturn(Optional.of("file"));
 
@@ -98,6 +102,384 @@ public class AbstractManagerElementCachingTest {
             assertTrue(observers.stream().allMatch(obs::contains));
         }
     }
+
+    @Test
+    public void getCacheSize() throws Exception {
+        when(mockDatabase.load(any())).thenReturn(null);
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        UUID[] uuids = new UUID[]{
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+        };
+
+        for (UUID uuid : uuids) {
+            manager.getOrNew(uuid);
+        }
+
+        assertEquals(5, manager.getCacheSize());
+    }
+
+    @Test
+    public void getDecached() throws Exception {
+        Map<UUID, TempValue> cachedElements = org.powermock.reflect.Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = org.powermock.reflect.Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        UUID uuid = UUID.randomUUID();
+        TempValue value = new TempValue(uuid);
+
+        //get (will load from db as it's not loaded yet)
+        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn("{\"key\": \"" + uuid.toString() + "\"}");
+        assertEquals(value.getKey(), manager.get(uuid)
+                .map(Reference::get)
+                .map(CachedElement::getKey)
+                .orElse(null));
+
+        //check if cache is updated
+        assertEquals(value.getKey(), cachedElements.get(uuid).getKey());
+
+        //end the db life-cycle
+        manager.disable();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
+    }
+
+    @Test
+    public void valueNotExist() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        UUID uuid = UUID.randomUUID();
+        TempValue value = new TempValue(uuid);
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //get
+        assertFalse(manager.get(uuid).isPresent());
+
+        //end the db life-cycle
+        manager.disable();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
+    }
+
+    @Test
+    public void getOrNew() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //get (new)
+        TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        assertEquals(value, cachedElements.get(uuid));
+
+        //get
+        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn("{\"key\": \"" + uuid.toString() + "\"}");
+        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+
+        //end the db life-cycle
+        manager.disable();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString())); // cache not exist so try from db
+        // new data no longer saves unless required
+    }
+
+    @Test
+    public void updateKeyString() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //get (new)
+        TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        assertEquals(value, cachedElements.get(uuid));
+
+        //update
+        value.setStringKey("NewKey");
+
+        //get
+        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+        assertEquals(value, manager.get("NewKey").map(Reference::get).orElse(null));
+
+        //update2
+        value.setStringKey("NewKey2");
+
+        //get2
+        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+        assertEquals(value, manager.get("NewKey2").map(Reference::get).orElse(null));
+
+        //update3
+        value.setStringKey("");
+
+        //get3
+        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+        assertNull(manager.get("").map(Reference::get).orElse(null));
+
+        //update4
+        value.setStringKey(null);
+
+        //get4
+        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+        assertNull(manager.get("NewKey2").map(Reference::get).orElse(null));
+
+        //end the db life-cycle
+        manager.disable();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString())); // cache not exist so try from db
+        // new data no longer saves unless required
+    }
+
+    @Test
+    public void delete() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+        Map<UUID, String> keyToNameMap = (Map<UUID, String>) Whitebox.getInternalState(manager, "keyToNameMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.setStringKey("SomeName");
+
+        assertEquals(mockValue, cachedElements.get(uuid));
+        assertEquals(uuid, nameMap.get("SomeName"));
+
+        //delete
+        manager.delete(uuid);
+        assertNull(cachedElements.get(uuid));
+        assertNull(nameMap.get("SomeName"));
+        assertNull(keyToNameMap.get(uuid));
+
+        //end the db life-cycle
+        manager.disable();
+        Mockito.verify(mockDatabase).getKeys();
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
+        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), isNull(String.class));
+    }
+
+    @Test
+    public void reset() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.setStr("Initial value");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+
+        //change value
+        mockValue.setStr("ChangedName");
+        Assert.assertEquals("ChangedName", mockValue.str);
+
+        //reset
+        manager.reset(mockValue);
+
+        //get current data after reset
+        TempValue newMockValue = manager.get(uuid).map(Reference::get).orElse(null);
+        Assert.assertNotNull(cachedElements.get(uuid));
+        Assert.assertNotNull(newMockValue);
+
+        //end the db life-cycle
+        manager.disable();
+        //2 for setStr() and 1 for delete()
+        Mockito.verify(mockDatabase, Mockito.times(3))
+                .save(Mockito.eq(uuid.toString()), Mockito.anyString());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void resetInvalidCache() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.setStringKey("Initial value");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+        Assert.assertEquals(uuid, nameMap.get("Initial value"));
+
+        //change value
+        mockValue.setStr("ChangedName");
+        Assert.assertEquals("ChangedName", mockValue.str);
+
+        //reset
+        manager.reset(mockValue);
+
+        //test with old instance (the observer should be unregistered at this point)
+        //it will throw exception if it's still subscribed with observer
+        mockValue.setStr("Old instance");
+    }
+
+    @Test
+    public void forEach2() throws Exception {
+        Map<String, String> tempDb = new HashMap<>();
+        for (int i = 0; i < 100; i++) {
+            UUID uuid = UUID.randomUUID();
+            tempDb.put(uuid.toString(), "{\"key\": \"" + uuid + "\", \"str\": \"Value Changed\"}");
+        }
+
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            String value = (String) invocation.getArguments()[1];
+            tempDb.put(key, value);
+            return null;
+        }).when(mockDatabase).save(anyString(), anyString());
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            return tempDb.get(key);
+        }).when(mockDatabase).load(anyString());
+        when(mockDatabase.getKeys()).thenReturn(tempDb.keySet());
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        ExecutorService exec = Executors.newCachedThreadPool();
+        tempDb.forEach((uuid, v) -> {
+            exec.execute(() -> {
+                try {
+                    manager.load();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            exec.execute(() -> {
+                try {
+                    Assert.assertEquals("Value Changed", manager.get(UUID.fromString(uuid))
+                            .map(Reference::get)
+                            .map(val -> val.str)
+                            .orElse(null));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+
+        exec.shutdown();
+        exec.awaitTermination(10, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void forEachDeadLock() throws Exception {
+        Map<String, String> tempDb = new HashMap<>();
+        for (int i = 0; i < 10000; i++) {
+            UUID uuid = UUID.randomUUID();
+            tempDb.put(uuid.toString(), "{\"key\": \"" + uuid + "\", \"str\": \"Value Changed\"}");
+        }
+
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            String value = (String) invocation.getArguments()[1];
+            tempDb.put(key, value);
+            return null;
+        }).when(mockDatabase).save(anyString(), anyString());
+        doAnswer(invocation -> {
+            String key = (String) invocation.getArguments()[0];
+            return tempDb.get(key);
+        }).when(mockDatabase).load(anyString());
+        when(mockDatabase.getKeys()).thenReturn(tempDb.keySet());
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        Thread thread = new Thread(() -> manager.forEach(val -> val.setStringKey("Other")));
+        Thread thread2 = new Thread(() -> manager.forEach(val -> val.setStringKey("Other2")));
+        Thread thread3 = new Thread(() -> manager.forEach(val -> val.setStringKey("Other3")));
+        thread.start();
+        thread2.start();
+        thread3.start();
+        tempDb.forEach((uuid, v) -> manager.get(uuid)
+                .map(Reference::get)
+                .ifPresent(val -> val.setStringKey("Other4")));
+
+        manager.disable();
+        thread.join();
+        thread2.join();
+        thread3.join();
+    }
+
+    @Test
+    public void forEach() throws Exception {
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //get (new)
+        for (int i = 0; i < 100; i++) {
+            UUID uuid = UUID.randomUUID();
+            TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+            value.setStr("SomeName" + i);
+        }
+
+        Set<String> names = new HashSet<>();
+        manager.forEach(tempValue -> names.add(tempValue.str));
+        Assert.assertEquals(100, names.size());
+
+        //end the db life-cycle
+        manager.disable();
+    }
+
+    @Test
+    public void search() throws Exception {
+        Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
+        Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
+
+        UUID uuid = UUID.randomUUID();
+
+        //start manager
+        manager.enable();
+        manager.load();
+
+        //new
+        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        mockValue.addObserver(observer);
+        mockValue.setStr("Initial value");
+
+        Assert.assertEquals(mockValue, cachedElements.get(uuid));
+
+        //search
+        Assert.assertTrue(manager.search(tempValue -> tempValue.str.equals("Other")).isEmpty());
+        Assert.assertEquals(1, manager.search(tempValue ->
+                tempValue.str.equals("Initial value")).size());
+    }
+
 
     @Singleton
     static class TempManager extends AbstractManagerElementCaching<UUID, TempValue> {
