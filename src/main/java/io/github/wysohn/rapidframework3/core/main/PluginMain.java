@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.core.main;
 
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
+import io.github.wysohn.rapidframework3.core.command.ManagerCommand;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.core.interfaces.plugin.PluginRuntime;
@@ -40,12 +41,28 @@ public class PluginMain implements PluginRuntime {
     @PluginDirectory
     private File pluginDirectory;
 
-    //    private ManagerCommand comm;
+    private ManagerCommand comm;
     private ManagerExternalAPI api;
     private ManagerConfig conf;
     private ManagerLanguage lang;
 
     private final List<Manager> orderedManagers = new ArrayList<>();
+
+    public ManagerCommand comm() {
+        return comm;
+    }
+
+    public ManagerExternalAPI api() {
+        return api;
+    }
+
+    public ManagerConfig conf() {
+        return conf;
+    }
+
+    public ManagerLanguage lang() {
+        return lang;
+    }
 
     public <M extends Manager> M getManager(Class<M> clazz) {
         return (M) managerMap.get(clazz);
@@ -77,6 +94,7 @@ public class PluginMain implements PluginRuntime {
 
     @Override
     public void preload() throws Exception {
+        comm = Objects.requireNonNull(getManager(ManagerCommand.class));
         api = Objects.requireNonNull(getManager(ManagerExternalAPI.class));
         conf = Objects.requireNonNull(getManager(ManagerConfig.class));
         lang = Objects.requireNonNull(getManager(ManagerLanguage.class));

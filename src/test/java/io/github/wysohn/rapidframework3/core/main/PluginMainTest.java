@@ -56,6 +56,7 @@ public class PluginMainTest {
         moduleList.add(new LanguagesModule());
         moduleList.add(new ExternalAPIModule(
                 ExternalAPIModule.Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
+        moduleList.add(new MainCommandsModule("test"));
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockFileIOModule(mockFileReader, mockFileWriter));
         moduleList.add(new MockLanguageModule(langSessionFactory, broadcaster));
