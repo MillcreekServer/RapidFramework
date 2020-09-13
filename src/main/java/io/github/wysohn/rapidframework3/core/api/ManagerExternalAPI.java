@@ -1,10 +1,11 @@
 package io.github.wysohn.rapidframework3.core.api;
 
-import io.github.wysohn.rapidframework3.core.interfaces.plugin.IGlobalPluginManager;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IGlobalPluginManager;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -14,6 +15,7 @@ import java.util.*;
  * (since the server can load without the plugin, which contains the required class). Therefore, the best way to deal
  * with it is to dynamically instantiate the class only if the target third party plugin actually exist and enabled.
  */
+@Singleton
 public class ManagerExternalAPI extends Manager {
     private final Map<String, Set<Class<? extends ExternalAPI>>> apiClasses = new HashMap<>();
     private final Map<Class<? extends ExternalAPI>, ExternalAPI> externalAPIs = new HashMap<>();

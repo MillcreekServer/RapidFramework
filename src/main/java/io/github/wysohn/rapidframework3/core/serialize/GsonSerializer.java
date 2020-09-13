@@ -5,13 +5,13 @@ import copy.com.google.gson.internal.bind.TypeAdapters;
 import copy.com.google.gson.stream.JsonReader;
 import copy.com.google.gson.stream.JsonToken;
 import copy.com.google.gson.stream.JsonWriter;
-import io.github.wysohn.rapidframework2.core.database.serialize.DefaultSerializer;
-import io.github.wysohn.rapidframework2.core.database.serialize.UUIDSerializer;
 import io.github.wysohn.rapidframework2.core.manager.caching.AbstractManagerElementCaching;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
 import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import io.github.wysohn.rapidframework2.tools.Validation;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.CustomAdapter;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.utils.Pair;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.UUID;
 
-public class GsonSerializer<T> implements ISerializer<T> {
+public class GsonSerializer implements ISerializer {
     private static final TypeAdapter<String> NULL_ADOPTER_STRING = new TypeAdapter<String>() {
 
         @Override
@@ -148,35 +148,32 @@ public class GsonSerializer<T> implements ISerializer<T> {
             .registerTypeAdapter(SimpleLocation.class, new DefaultSerializer<SimpleLocation>())
             .registerTypeAdapter(SimpleChunkLocation.class, new DefaultSerializer<SimpleChunkLocation>());
 
-    protected final Class<T> type;
     protected final Gson gson;
 
-    public GsonSerializer(Class<T> type) {
-        this.type = type;
-        assertType(type);
+    @SafeVarargs
+    public GsonSerializer(Pair<Class<?>, CustomAdapter<?>>... adapters) {
+
+        for (Pair<Class<?>, CustomAdapter<?>> adapter : adapters) {
+            builder.registerTypeAdapter(adapter.key, adapter.value);
+        }
 
         gson = builder.create();
     }
 
     @Override
-    public String serializeToString(T obj) {
+    public String serializeToString(Class<?> type, Object obj) {
         Validation.assertNotNull(obj);
         Validation.validate(obj.getClass(), type::equals, "Not a valid data type. " + obj);
         return gson.toJson(obj, type);
     }
 
     @Override
-    public T deserializeFromString(String json) {
+    public <T> T deserializeFromString(Class<T> type, String json) throws Exception {
         Validation.assertNotNull(json);
-        return gson.fromJson(json, type);
-    }
-
-    private static <V> void assertType(Class<V> clazz) {
         try {
-            clazz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(clazz + " does not have no-args constructor, so Gson will not be " +
-                    "able to properly serialize/deserialize it.");
+            return gson.fromJson(json, type);
+        } catch (JsonSyntaxException ex) {
+            throw new Exception("Invalid syntax found in: " + json);
         }
     }
 }

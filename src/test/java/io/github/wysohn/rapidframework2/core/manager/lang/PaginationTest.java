@@ -175,6 +175,41 @@ public class PaginationTest {
     }
 
     @Test
+    public void showWithJson5() throws InterruptedException {
+        Mockito.when(mockLang.isJsonEnabled()).thenReturn(true);
+
+        List<String> messages = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            messages.add("message" + i);
+        }
+
+        String cmd = "/some command";
+        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 10,
+                "title", cmd);
+
+        pagination.show(mockSender, 8, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
+
+        // pad
+        verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
+        // contents
+        for (int i = 10; i < 12; i++)
+            verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.forMessage(messages.get(i)).build()));
+        // buttons
+        verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.forMessage("")
+                .append(Pagination.LEFT_ARROW)
+                .withHoverShowText(cmd + " 1")
+                .withClickRunCommand(cmd + " 1")
+                .append(Pagination.HOME)
+                .withHoverShowText(cmd)
+                .withClickRunCommand(cmd)
+                .append(Pagination.RIGHT_ARROW)
+                .withHoverShowText(cmd + " 3")
+                .withClickRunCommand(cmd + " 3")
+                .build()));
+    }
+
+    @Test
     public void showWithoutJson() throws InterruptedException {
         Mockito.when(mockLang.isJsonEnabled()).thenReturn(false);
 

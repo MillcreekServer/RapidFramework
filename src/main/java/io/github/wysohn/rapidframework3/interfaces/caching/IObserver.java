@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces.caching;
+package io.github.wysohn.rapidframework3.interfaces.caching;
 
 import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching;
 

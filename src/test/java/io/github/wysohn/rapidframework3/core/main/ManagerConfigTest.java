@@ -2,10 +2,9 @@ package io.github.wysohn.rapidframework3.core.main;
 
 import com.google.inject.Guice;
 import com.google.inject.Module;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.modules.MockKeyValueStorageModule;
 import io.github.wysohn.rapidframework3.modules.MockMainModule;
-import io.github.wysohn.rapidframework3.modules.MockPluginConfigModule;
 import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,17 +17,15 @@ import static org.mockito.Mockito.*;
 
 public class ManagerConfigTest {
     private List<Module> moduleList = new LinkedList<>();
-    private ISerializer mockSerializer;
     private IKeyValueStorage mockStorage;
 
     @Before
     public void init() {
-        mockSerializer = mock(ISerializer.class);
         mockStorage = mock(IKeyValueStorage.class);
 
         moduleList.add(new MockMainModule());
         moduleList.add(new MockPluginDirectoryModule());
-        moduleList.add(new MockPluginConfigModule(mockSerializer, mockStorage));
+        moduleList.add(new MockKeyValueStorageModule(mockStorage));
     }
 
 
@@ -47,8 +44,6 @@ public class ManagerConfigTest {
     public void put() throws Exception {
         ManagerConfig managerConfig = Guice.createInjector(moduleList)
                 .getInstance(ManagerConfig.class);
-
-        when(mockSerializer.serializeToString(any())).thenReturn("This is serialized!");
 
         Object value = new Object();
 

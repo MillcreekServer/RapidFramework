@@ -3,17 +3,18 @@ package io.github.wysohn.rapidframework3.core.main;
 import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
 import io.github.wysohn.rapidframework3.core.inject.module.*;
-import io.github.wysohn.rapidframework3.core.interfaces.io.file.IFileReader;
-import io.github.wysohn.rapidframework3.core.interfaces.io.file.IFileWriter;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSessionFactory;
-import io.github.wysohn.rapidframework3.core.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.core.interfaces.plugin.ITaskSupervisor;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
+import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
+import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
+import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
+import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.modules.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,7 +30,6 @@ public class PluginMainTest {
     private ILangSessionFactory langSessionFactory;
     private IBroadcaster broadcaster;
 
-    private ISerializer mockSerializer;
     private IKeyValueStorage mockStorage;
 
     @Before
@@ -44,7 +44,6 @@ public class PluginMainTest {
         langSessionFactory = mock(ILangSessionFactory.class);
         broadcaster = mock(IBroadcaster.class);
 
-        mockSerializer = mock(ISerializer.class);
         mockStorage = mock(IKeyValueStorage.class);
 
         moduleList.add(new PluginInfoModule("testPlugin", "desc", "root"));
@@ -60,7 +59,7 @@ public class PluginMainTest {
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockFileIOModule(mockFileReader, mockFileWriter));
         moduleList.add(new MockLanguageModule(langSessionFactory, broadcaster));
-        moduleList.add(new MockPluginConfigModule(mockSerializer, mockStorage));
+        moduleList.add(new MockKeyValueStorageModule(mockStorage));
         moduleList.add(new MockGlobalPluginManager());
         moduleList.add(new AbstractModule() {
             @Provides
@@ -90,6 +89,7 @@ public class PluginMainTest {
     public void disable() {
     }
 
+    @Singleton
     private static class Manager1 extends Manager {
 
         @Inject
@@ -115,6 +115,7 @@ public class PluginMainTest {
         }
     }
 
+    @Singleton
     private static class Manager2 extends Manager {
 
         @Inject
@@ -138,6 +139,7 @@ public class PluginMainTest {
         }
     }
 
+    @Singleton
     private static class Manager3 extends Manager {
 
         @Inject

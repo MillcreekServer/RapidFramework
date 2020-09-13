@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces.command;
+package io.github.wysohn.rapidframework3.interfaces.command;
 
 import java.util.List;
 

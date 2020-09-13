@@ -2,18 +2,20 @@ package io.github.wysohn.rapidframework3.core.command;
 
 import io.github.wysohn.rapidframework2.tools.Validation;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginCommands;
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.language.Pagination;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Singleton
 public final class ManagerCommand extends Manager {
     private final String[] mainCommands;
     private final String defaultCommand = "help";

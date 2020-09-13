@@ -12,22 +12,22 @@ import static org.junit.Assert.*;
 public class GsonSerializerTest {
     @Test
     public void testSerialize() {
-        GsonSerializer<DummyObject> serializer = new GsonSerializer(DummyObject.class);
+        GsonSerializer serializer = new GsonSerializer();
 
         UUID uuid = UUID.randomUUID();
         DummyObject obj = new DummyObject();
-        String serialized = serializer.serializeToString(obj);
+        String serialized = serializer.serializeToString(DummyObject.class, obj);
         assertEquals("{\"stringKey\":\"keynotset\",\"nullStr\":null,\"testStr\":\"notset\",\"testInt\":-1,\"testLong\":-2,\"testDouble\":-3.0,\"testBool\":true}", serialized);
     }
 
     @Test
-    public void testDeserialize() {
-        GsonSerializer<DummyObject> serializer = new GsonSerializer(DummyObject.class);
+    public void testDeserialize() throws Exception {
+        GsonSerializer serializer = new GsonSerializer();
 
         String value = "{" + "\"nullStr\":\"\"," + "\"testStr\":\"test2\"," + "\"testInt\":-4," + "\"testLong\":-5,"
                 + "\"testDouble\":-6.0," + "\"testBool\":true," + "\"stringKey\":somekey" + "}";
 
-        DummyObject deserialized = serializer.deserializeFromString(value);
+        DummyObject deserialized = serializer.deserializeFromString(DummyObject.class, value);
         assertEquals("somekey", deserialized.getStringKey());
         assertEquals("", deserialized.nullStr);
         assertEquals("test2", deserialized.testStr);
@@ -38,13 +38,13 @@ public class GsonSerializerTest {
     }
 
     @Test
-    public void testDeserializeNull() {
-        GsonSerializer<DummyObject> serializer = new GsonSerializer(DummyObject.class);
+    public void testDeserializeNull() throws Exception {
+        GsonSerializer serializer = new GsonSerializer();
 
         String value = "{" + "\"nullStr\":null," + "\"testStr\":\"test3\"," + "\"testInt\":null," + "\"testLong\":null,"
                 + "\"testDouble\":null," + "\"testBool\":null" + "}";
 
-        DummyObject deserialized = serializer.deserializeFromString(value);
+        DummyObject deserialized = serializer.deserializeFromString(DummyObject.class, value);
         assertEquals("", deserialized.nullStr);
         assertEquals("test3", deserialized.testStr);
         assertEquals(0, deserialized.testInt);
@@ -69,39 +69,39 @@ public class GsonSerializerTest {
 
     @Test
     public void testSerializeUUID() {
-        GsonSerializer<UUIDInObject> serializer = new GsonSerializer(UUIDInObject.class);
+        GsonSerializer serializer = new GsonSerializer();
 
         UUID uuid = UUID.fromString("4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7");
         UUIDInObject obj = new UUIDInObject(uuid);
-        String ser = serializer.serializeToString(obj);
+        String ser = serializer.serializeToString(UUIDInObject.class, obj);
         assertEquals("{\"uuid\":\"4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7\"}", ser);
     }
 
     @Test
-    public void testDeserializeUUID() {
-        GsonSerializer<UUIDInObject> serializer = new GsonSerializer(UUIDInObject.class);
+    public void testDeserializeUUID() throws Exception {
+        GsonSerializer serializer = new GsonSerializer();
 
-        UUID uuid = serializer.deserializeFromString("{\"uuid\":\"4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7\"}").uuid;
+        UUID uuid = serializer.deserializeFromString(UUIDInObject.class, "{\"uuid\":\"4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7\"}").uuid;
         assertEquals(UUID.fromString("4b472ef8-5ab9-4d5a-9c74-f2fc318d70e7"), uuid);
     }
 
     @Test
     public void testSerializeSimpleLocation() {
-        GsonSerializer<SimpleLocationInObject> serializer = new GsonSerializer(SimpleLocationInObject.class);
+        GsonSerializer serializer = new GsonSerializer();
 
         SimpleLocation sloc = new SimpleLocation("testWorld", 1, 2, 3);
         SimpleLocationInObject obj = new SimpleLocationInObject(sloc);
 
-        String serialized = serializer.serializeToString(obj);
+        String serialized = serializer.serializeToString(SimpleLocationInObject.class, obj);
         assertEquals("{\"simpleLocation\":{\"world\":\"testWorld\",\"x\":1,\"y\":2,\"z\":3,\"pitch\":0.0,\"yaw\":0.0}}", serialized);
     }
 
     @Test
-    public void testDeserializeSimpleLocation() {
-        GsonSerializer<SimpleLocationInObject> serializer = new GsonSerializer(SimpleLocationInObject.class);
+    public void testDeserializeSimpleLocation() throws Exception {
+        GsonSerializer serializer = new GsonSerializer();
 
         String value = "{\"simpleLocation\":{\"world\":\"testWorld\",\"x\":1,\"y\":2,\"z\":3,\"pitch\":0.0,\"yaw\":0.0}}";
-        SimpleLocation sloc = serializer.deserializeFromString(value).simpleLocation;
+        SimpleLocation sloc = serializer.deserializeFromString(SimpleLocationInObject.class, value).simpleLocation;
 
         assertEquals("testWorld", sloc.getWorld());
         assertEquals(1, sloc.getX());
@@ -113,21 +113,21 @@ public class GsonSerializerTest {
 
     @Test
     public void testSerializeSimpleChunkLocation() {
-        GsonSerializer<SimpleChunkLocationInObject> serializer = new GsonSerializer(SimpleChunkLocationInObject.class);
+        GsonSerializer serializer = new GsonSerializer();
 
         SimpleChunkLocation scloc = new SimpleChunkLocation("testWorld", 2, 3);
         SimpleChunkLocationInObject obj = new SimpleChunkLocationInObject(scloc);
 
-        String serialized = serializer.serializeToString(obj);
+        String serialized = serializer.serializeToString(SimpleChunkLocationInObject.class, obj);
         assertEquals("{\"simpleLocation\":{\"world\":\"testWorld\",\"i\":2,\"j\":3}}", serialized);
     }
 
     @Test
-    public void testDeserializeSimpleChunkLocation() {
-        GsonSerializer<SimpleChunkLocationInObject> serializer = new GsonSerializer(SimpleChunkLocationInObject.class);
+    public void testDeserializeSimpleChunkLocation() throws Exception {
+        GsonSerializer serializer = new GsonSerializer();
 
         String value = "{\"simpleLocation\":{\"world\":\"testWorld\",\"i\":3,\"j\":4}}";
-        SimpleChunkLocation scloc = serializer.deserializeFromString(value).simpleLocation;
+        SimpleChunkLocation scloc = serializer.deserializeFromString(SimpleChunkLocationInObject.class, value).simpleLocation;
         assertEquals("testWorld", scloc.getWorld());
         assertEquals(3, scloc.getI());
         assertEquals(4, scloc.getJ());
@@ -135,12 +135,12 @@ public class GsonSerializerTest {
 
     @Test
     public void testParentTransient() throws Exception {
-        GsonSerializer<DummyObject> serializer = new GsonSerializer(DummyObject.class);
+        GsonSerializer serializer = new GsonSerializer();
 
         String value = "{" + "\"nullStr\":null," + "\"testStr\":\"test2\"," + "\"testInt\":null," + "\"testLong\":null,"
                 + "\"testDouble\":null," + "\"testBool\":null" + "}";
 
-        DummyObject deserialized = serializer.deserializeFromString(value);
+        DummyObject deserialized = serializer.deserializeFromString(DummyObject.class, value);
         System.out.println(deserialized.testStr);
         assertEquals("", deserialized.nullStr);
         assertEquals("test2", deserialized.testStr);
@@ -148,16 +148,6 @@ public class GsonSerializerTest {
         assertEquals(0, deserialized.testLong);
         assertEquals(0.0, deserialized.testDouble, 0.000001);
         assertFalse(deserialized.testBool);
-    }
-
-    @Test
-    public void testTypeAssertion() {
-        new GsonSerializer(DummyObject.class);
-    }
-
-    @Test(expected = AssertionError.class)
-    public void testTypeAssertionFail() {
-        new GsonSerializer(DummyObject2.class);
     }
 
     public static class Parent {

@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces.store;
+package io.github.wysohn.rapidframework3.interfaces.store;
 
 import java.io.File;
 import java.util.Optional;

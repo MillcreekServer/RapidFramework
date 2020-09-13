@@ -8,6 +8,9 @@ public abstract class Mediator extends PluginModule {
      * <p>
      * Mediator loads always after every Manager classes are loaded, so you can safely assume that
      * all the registered Managers will be available when the Mediator is instantiated.
+     * <p>
+     * Each child class, just like Manager, is expected to be 'injectable' and 'singleton'. Refer to
+     * the {@link Manager#Manager(PluginMain)} for the details
      *
      * @param main
      */

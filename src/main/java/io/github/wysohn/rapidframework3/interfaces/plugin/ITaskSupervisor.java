@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces.plugin;
+package io.github.wysohn.rapidframework3.interfaces.plugin;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

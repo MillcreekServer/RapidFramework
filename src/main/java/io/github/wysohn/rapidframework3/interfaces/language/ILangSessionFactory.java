@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces.language;
+package io.github.wysohn.rapidframework3.interfaces.language;
 
 import java.util.Locale;
 import java.util.Set;

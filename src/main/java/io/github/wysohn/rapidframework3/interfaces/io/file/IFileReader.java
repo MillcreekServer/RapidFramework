@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces.io.file;
+package io.github.wysohn.rapidframework3.interfaces.io.file;
 
 import java.io.File;
 import java.io.IOException;

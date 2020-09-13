@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.interfaces;
+package io.github.wysohn.rapidframework3.interfaces;
 
 import java.util.UUID;
 

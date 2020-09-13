@@ -1,7 +1,5 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import io.github.wysohn.rapidframework2.tools.Validation;
-
 import javax.inject.Singleton;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +11,8 @@ public abstract class Manager extends PluginModule {
      * Create a Manager.
      * <p>
      * Each child class is expected to be 'injectable,' which means its constructor, field, and/or method
-     * are annotated with {@link javax.inject.Inject}.
+     * are annotated with {@link javax.inject.Inject}. The class itself must be annotated with
+     * {@link Singleton} to avoid instantiating the Manager per invocation.
      * <p>
      * To manage the load order, you may use {@link #dependsOn(Class)} method to add another Manager
      * which has to load prior to this class.
@@ -24,12 +23,6 @@ public abstract class Manager extends PluginModule {
         super(main);
 
         verifySingleton(this);
-    }
-
-    private static void verifySingleton(Manager manager) {
-        Validation.validate(manager,
-                m -> m.getClass().getAnnotation(Singleton.class) != null,
-                String.format("Manager %s is not annotated with javax.inject.Singleton!", manager.getClass()));
     }
 
     /**

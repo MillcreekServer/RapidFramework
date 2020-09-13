@@ -2,19 +2,20 @@ package io.github.wysohn.rapidframework3.core.language;
 
 import io.github.wysohn.rapidframework2.tools.JarUtil;
 import io.github.wysohn.rapidframework2.tools.Validation;
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangParser;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSession;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSessionFactory;
-import io.github.wysohn.rapidframework3.core.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.core.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangParser;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangSession;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
+import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
+import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -67,6 +68,7 @@ import java.util.stream.Stream;
  *
  * @author wysohn
  */
+@Singleton
 public class ManagerLanguage extends Manager {
     private final Set<ILang> languages;
     private final ILangSessionFactory langSessionFactory;

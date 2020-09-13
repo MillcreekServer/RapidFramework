@@ -1,7 +1,7 @@
-package io.github.wysohn.rapidframework3.core.interfaces.command;
+package io.github.wysohn.rapidframework3.interfaces.command;
 
 import io.github.wysohn.rapidframework3.core.command.SubCommand;
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 
 @FunctionalInterface
 public interface CommandAction {

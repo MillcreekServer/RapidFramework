@@ -1,10 +1,10 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import io.github.wysohn.rapidframework3.core.inject.annotations.PluginConfig;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
-import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class ManagerConfig extends Manager {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -21,7 +22,7 @@ public class ManagerConfig extends Manager {
     @Inject
     public ManagerConfig(PluginMain main,
                          @PluginDirectory File pluginDirectory,
-                         @PluginConfig IKeyValueStorage storage) {
+                         IKeyValueStorage storage) {
         super(main);
         this.pluginDirectory = pluginDirectory;
         this.storage = storage;
@@ -31,8 +32,7 @@ public class ManagerConfig extends Manager {
         if (!pluginDirectory.exists())
             pluginDirectory.mkdirs();
 
-        File file = new File(pluginDirectory, "config.yml");
-        return file;
+        return new File(pluginDirectory, "config.yml");
     }
 
     @Override

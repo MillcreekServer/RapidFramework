@@ -1,7 +1,7 @@
-package io.github.wysohn.rapidframework3.core.interfaces.message;
+package io.github.wysohn.rapidframework3.interfaces.message;
 
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.core.message.Message;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 
 import java.util.Arrays;
 import java.util.Objects;
