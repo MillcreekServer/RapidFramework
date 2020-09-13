@@ -1,9 +1,9 @@
 package io.github.wysohn.rapidframework3.core.language;
 
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;

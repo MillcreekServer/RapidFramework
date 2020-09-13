@@ -1,8 +1,8 @@
 package io.github.wysohn.rapidframework3.core.language;
 
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSession;
-import io.github.wysohn.rapidframework3.core.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangSession;
+import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 
 import javax.inject.Inject;
 import java.util.*;

@@ -1,9 +1,9 @@
 package io.github.wysohn.rapidframework3.core.command;
 
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.utils.DoubleChecker;
 
 import java.util.*;

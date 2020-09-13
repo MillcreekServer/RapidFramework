@@ -5,8 +5,10 @@ import com.google.inject.Provides;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +24,7 @@ public class MockMainModule extends AbstractModule {
 
         when(mockMain.getLogger()).thenReturn(mockLogger);
         when(mockMain.conf()).thenReturn(mockConfig);
+        when(mockConfig.get(eq("dbType"))).thenReturn(Optional.of("file"));
     }
 
     @Provides

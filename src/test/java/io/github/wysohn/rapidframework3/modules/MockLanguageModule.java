@@ -2,9 +2,9 @@ package io.github.wysohn.rapidframework3.modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangSessionFactory;
-import io.github.wysohn.rapidframework3.core.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.core.interfaces.message.IMessageSender;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
+import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
+import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 
 import java.util.Locale;
 

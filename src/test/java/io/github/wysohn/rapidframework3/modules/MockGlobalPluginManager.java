@@ -2,7 +2,7 @@ package io.github.wysohn.rapidframework3.modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import io.github.wysohn.rapidframework3.core.interfaces.plugin.IGlobalPluginManager;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IGlobalPluginManager;
 
 public class MockGlobalPluginManager extends AbstractModule {
     @Provides

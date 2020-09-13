@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.core.language;
 
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 
 public enum DefaultLangs implements ILang {
     Plugin_NotEnabled("Plugin is not enabled. "),

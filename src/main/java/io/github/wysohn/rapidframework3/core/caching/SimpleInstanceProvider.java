@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
-import io.github.wysohn.rapidframework3.core.interfaces.IPluginObject;
-import io.github.wysohn.rapidframework3.core.interfaces.caching.IInstanceProvider;
+import io.github.wysohn.rapidframework3.interfaces.IPluginObject;
+import io.github.wysohn.rapidframework3.interfaces.caching.IInstanceProvider;
 
 import java.lang.ref.WeakReference;
 import java.util.*;

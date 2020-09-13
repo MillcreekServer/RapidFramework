@@ -1,14 +1,14 @@
 package io.github.wysohn.rapidframework3.core.command;
 
 import io.github.wysohn.rapidframework3.core.exceptions.InvalidArgumentException;
-import io.github.wysohn.rapidframework3.core.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.core.interfaces.command.CommandAction;
-import io.github.wysohn.rapidframework3.core.interfaces.command.IArgumentMapper;
-import io.github.wysohn.rapidframework3.core.interfaces.command.ITabCompleter;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangParser;
 import io.github.wysohn.rapidframework3.core.language.DynamicLang;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.command.CommandAction;
+import io.github.wysohn.rapidframework3.interfaces.command.IArgumentMapper;
+import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangParser;
 
 import java.util.*;
 import java.util.function.Predicate;

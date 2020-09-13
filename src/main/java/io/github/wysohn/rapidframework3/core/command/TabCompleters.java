@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.core.command;
 
-import io.github.wysohn.rapidframework3.core.interfaces.command.ITabCompleter;
+import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
 
 import java.util.Arrays;
 import java.util.List;

@@ -4,10 +4,10 @@ import com.google.inject.Injector;
 import io.github.wysohn.rapidframework2.tools.Validation;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
-import io.github.wysohn.rapidframework3.core.interfaces.caching.IObserver;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -32,8 +32,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      */
     private final Object cacheLock = new Object();
 
-    private final ISerializer<V> serializer;
+    private final ISerializer serializer;
     private final Injector injector;
+    private final Class<V> type;
 
     private Databases.DatabaseFactory dbFactory;
     private Database db;
@@ -53,13 +54,16 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param main
      * @param serializer
      * @param injector
+     * @param type       this is not injectable. Pass the type right away.
      */
     public AbstractManagerElementCaching(PluginMain main,
-                                         ISerializer<V> serializer,
-                                         Injector injector) {
+                                         ISerializer serializer,
+                                         Injector injector,
+                                         Class<V> type) {
         super(main);
         this.serializer = serializer;
         this.injector = injector;
+        this.type = type;
     }
 
     /**
@@ -87,7 +91,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 if (json == null)
                     continue;
 
-                V value = serializer.deserializeFromString(json);
+                V value = serializer.deserializeFromString(type, json);
                 if (value == null)
                     continue;
 
@@ -172,7 +176,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     if (json == null)
                         return null;
 
-                    V loaded = serializer.deserializeFromString(json);
+                    V loaded = serializer.deserializeFromString(type, json);
                     if (loaded != null) {
                         AbstractManagerElementCaching.this.cache(key, loaded);
                     }
@@ -385,7 +389,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 cache(value.getKey(), value);
 
                 // Serialize the object while blocking to ensure thread safety of the individual objects.
-                String json = serializer.serializeToString(value);
+                String json = serializer.serializeToString(type, value);
 
                 saveTaskPool.submit(() -> {
                     try {

@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.language;
 
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILangParser;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
+import io.github.wysohn.rapidframework3.interfaces.language.ILangParser;
 
 public class DynamicLang {
     public final ILang lang;

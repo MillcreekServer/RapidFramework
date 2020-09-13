@@ -3,13 +3,13 @@ package io.github.wysohn.rapidframework3.core.caching;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.inject.module.ElementCachingManagerModule;
-import io.github.wysohn.rapidframework3.core.interfaces.caching.IObserver;
-import io.github.wysohn.rapidframework3.core.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.modules.MockMainModule;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,10 +47,8 @@ public class AbstractManagerElementCachingTest {
         mockMainModule = new MockMainModule();
         when(mockMainModule.mockConfig.get(eq("dbType"))).thenReturn(Optional.of("file"));
 
-        moduleList.add(new ElementCachingManagerModule<>(TempManager.class,
-                TempValue.class, new TypeLiteral<ISerializer<TempValue>>() {
-        }
-        ));
+        moduleList.add(new GsonSerializerModule());
+        moduleList.add(new ElementCachingManagerModule<>(TempManager.class, TempValue.class));
         moduleList.add(mockMainModule);
 
         Injector injector = Guice.createInjector(moduleList);
@@ -480,12 +478,21 @@ public class AbstractManagerElementCachingTest {
                 tempValue.str.equals("Initial value")).size());
     }
 
+    @Test
+    public void testTypeAssertion() {
+        new ElementCachingManagerModule<>(TempManager.class, TempValue.class);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testTypeAssertionFail() {
+        new ElementCachingManagerModule<>(TempManager.class, TempValue2.class);
+    }
 
     @Singleton
     static class TempManager extends AbstractManagerElementCaching<UUID, TempValue> {
         @Inject
-        public TempManager(PluginMain main, ISerializer<TempValue> serializer, Injector injector) {
-            super(main, serializer, injector);
+        public TempManager(PluginMain main, ISerializer serializer, Injector injector) {
+            super(main, serializer, injector, TempValue.class);
         }
 
         @Override
@@ -534,6 +541,18 @@ public class AbstractManagerElementCachingTest {
 
             notifyObservers();
             return this;
+        }
+    }
+
+    static class TempValue2 extends CachedElement<UUID> {
+        @Inject
+        private TempManager manager;
+
+        public Object dummy;
+        private String str;
+
+        public TempValue2(UUID uuid) {
+            super(uuid);
         }
     }
 }

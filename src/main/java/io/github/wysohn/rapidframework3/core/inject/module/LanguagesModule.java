@@ -2,8 +2,8 @@ package io.github.wysohn.rapidframework3.core.inject.module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import io.github.wysohn.rapidframework3.core.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 
 import java.util.Arrays;
 import java.util.HashSet;
