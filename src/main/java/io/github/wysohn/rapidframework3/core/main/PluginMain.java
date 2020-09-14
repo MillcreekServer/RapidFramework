@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework3.core.main;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.command.ManagerCommand;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
@@ -24,6 +25,10 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class PluginMain implements PluginRuntime {
+    @Inject
+    @PluginPlatform
+    private Object platform;
+
     @Inject
     private Map<Class<? extends Manager>, Manager> managerMap;
     @Inject
@@ -53,6 +58,13 @@ public class PluginMain implements PluginRuntime {
     private ManagerLanguage lang;
 
     private final List<Manager> orderedManagers = new ArrayList<>();
+
+    PluginMain() {
+    }
+
+    public <T> T getPlatform() {
+        return (T) platform;
+    }
 
     public ManagerCommand comm() {
         return comm;
@@ -96,6 +108,14 @@ public class PluginMain implements PluginRuntime {
 
     public File getPluginDirectory() {
         return pluginDirectory;
+    }
+
+    public List<Manager> getOrderedManagers() {
+        return orderedManagers;
+    }
+
+    public Collection<Mediator> getMediators() {
+        return mediatorMap.values();
     }
 
     @Override

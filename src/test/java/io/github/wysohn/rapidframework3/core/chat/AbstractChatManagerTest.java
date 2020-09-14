@@ -4,14 +4,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
-import io.github.wysohn.rapidframework3.modules.MockKeyValueStorageModule;
 import io.github.wysohn.rapidframework3.modules.MockMainModule;
 import io.github.wysohn.rapidframework3.modules.MockPlaceholderModule;
 import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.modules.MockStorageFactoryModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class AbstractChatManagerTest {
         moduleList.add(new MockMainModule());
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockPlaceholderModule());
-        moduleList.add(new MockKeyValueStorageModule(mockStorage));
+        moduleList.add(new MockStorageFactoryModule(mockStorage));
     }
 
     @Test
@@ -84,10 +85,10 @@ public class AbstractChatManagerTest {
     public static class TempChatManager extends AbstractChatManager {
         @Inject
         public TempChatManager(PluginMain main,
-                               @PluginDirectory File pluginDirectory,
-                               IKeyValueStorage configStorage,
+                               @PluginDirectory File pluginDir,
+                               IStorageFactory storageFactory,
                                IPlaceholderSupport placeholderSupport) {
-            super(main, pluginDirectory, configStorage, placeholderSupport);
+            super(main, pluginDir, storageFactory, placeholderSupport);
         }
 
         @Override

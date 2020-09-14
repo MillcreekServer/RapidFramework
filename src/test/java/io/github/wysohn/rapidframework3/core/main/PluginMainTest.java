@@ -1,15 +1,19 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import com.google.inject.*;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
 import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
 import io.github.wysohn.rapidframework3.core.inject.module.*;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
+import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.modules.*;
+import io.github.wysohn.rapidframework3.utils.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,21 +56,18 @@ public class PluginMainTest {
                 Manager2.class,
                 Manager3.class));
         moduleList.add(new MediatorModule());
-        moduleList.add(new LanguagesModule());
-        moduleList.add(new ExternalAPIModule(
-                ExternalAPIModule.Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
+        moduleList.add(new LanguagesModule(fn -> {
+
+        }));
+        moduleList.add(new ExternalAPIModule(Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
         moduleList.add(new MainCommandsModule("test"));
+        moduleList.add(new PlatformModule(new Object()));
+        moduleList.add(new TaskSupervisorModule(mockTaskSupervisor));
         moduleList.add(new MockPluginDirectoryModule());
+        moduleList.add(new MockMessageSenderModule());
         moduleList.add(new MockFileIOModule(mockFileReader, mockFileWriter));
-        moduleList.add(new MockLanguageModule(langSessionFactory, broadcaster));
-        moduleList.add(new MockKeyValueStorageModule(mockStorage));
         moduleList.add(new MockGlobalPluginManager());
-        moduleList.add(new AbstractModule() {
-            @Provides
-            ITaskSupervisor getTaskSupervisor() {
-                return mockTaskSupervisor;
-            }
-        });
+        moduleList.add(new MockStorageFactoryModule(mockStorage));
     }
 
     @Test
@@ -87,6 +88,15 @@ public class PluginMainTest {
 
     @Test
     public void disable() {
+    }
+
+    private enum TempLangs implements ILang {
+        ;
+
+        @Override
+        public String[] getEngDefault() {
+            return new String[0];
+        }
     }
 
     @Singleton

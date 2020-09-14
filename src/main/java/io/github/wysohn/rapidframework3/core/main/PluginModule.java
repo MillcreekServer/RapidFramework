@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import io.github.wysohn.rapidframework2.tools.Validation;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
+import io.github.wysohn.rapidframework3.utils.Validation;
 
 import javax.inject.Singleton;
 

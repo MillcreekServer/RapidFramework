@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.player;
 
-import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
+import io.github.wysohn.rapidframework3.data.SimpleLocation;
 import io.github.wysohn.rapidframework3.interfaces.entity.IPlayer;
 
 import java.util.UUID;

@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.core.main;
 
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 
 import javax.inject.Inject;
@@ -22,17 +23,10 @@ public class ManagerConfig extends Manager {
     @Inject
     public ManagerConfig(PluginMain main,
                          @PluginDirectory File pluginDirectory,
-                         IKeyValueStorage storage) {
+                         IStorageFactory storageFactory) {
         super(main);
         this.pluginDirectory = pluginDirectory;
-        this.storage = storage;
-    }
-
-    private File safeGetConfigFile() {
-        if (!pluginDirectory.exists())
-            pluginDirectory.mkdirs();
-
-        return new File(pluginDirectory, "config.yml");
+        this.storage = storageFactory.create(pluginDirectory, "config.yml");
     }
 
     @Override
@@ -42,10 +36,7 @@ public class ManagerConfig extends Manager {
 
     @Override
     public void load() throws Exception {
-        File file = safeGetConfigFile();
-        if (!file.exists()) return;
-
-        storage.reload(file);
+        storage.reload();
     }
 
     @Override

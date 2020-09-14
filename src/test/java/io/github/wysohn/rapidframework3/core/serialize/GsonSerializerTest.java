@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.serialize;
 
-import io.github.wysohn.rapidframework2.core.objects.location.SimpleChunkLocation;
-import io.github.wysohn.rapidframework2.core.objects.location.SimpleLocation;
+import io.github.wysohn.rapidframework3.data.SimpleChunkLocation;
+import io.github.wysohn.rapidframework3.data.SimpleLocation;
 import org.junit.Test;
 
 import javax.inject.Inject;

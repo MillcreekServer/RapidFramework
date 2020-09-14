@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework3.core.main.Mediator;
 public class MediatorModule extends AbstractModule {
     private final Class<Mediator>[] classes;
 
+    @SafeVarargs
     public MediatorModule(Class<Mediator>... classes) {
         this.classes = classes;
     }

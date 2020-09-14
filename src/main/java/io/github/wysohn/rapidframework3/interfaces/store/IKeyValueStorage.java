@@ -6,7 +6,9 @@ import java.util.Set;
 
 public interface IKeyValueStorage {
 
-    void reload(File file) throws Exception;
+    void reload() throws Exception;
+
+    void save() throws Exception;
 
     /**
      * Get value relative to the root of this key/value storage.
@@ -71,4 +73,11 @@ public interface IKeyValueStorage {
      * @return true if it is a section; false otherwise
      */
     boolean isSection(Object obj);
+
+    static File safeGetFile(File directory, String fileName) {
+        if (!directory.exists())
+            directory.mkdirs();
+
+        return new File(directory, fileName);
+    }
 }

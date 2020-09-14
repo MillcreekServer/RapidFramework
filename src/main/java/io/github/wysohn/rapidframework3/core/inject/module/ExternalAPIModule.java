@@ -4,11 +4,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
 import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
+import io.github.wysohn.rapidframework3.utils.Pair;
 
 public class ExternalAPIModule extends AbstractModule {
-    private final Pair[] pairs;
+    private final Pair<String, Class<? extends ExternalAPI>>[] pairs;
 
-    public ExternalAPIModule(Pair... pairs) {
+    @SafeVarargs
+    public ExternalAPIModule(Pair<String, Class<? extends ExternalAPI>>... pairs) {
         this.pairs = pairs;
     }
 
@@ -20,22 +22,8 @@ public class ExternalAPIModule extends AbstractModule {
                 new TypeLiteral<Class<? extends ExternalAPI>>() {
                 });
 
-        for (Pair pair : pairs) {
-            mapBinder.addBinding(pair.pluginName).toInstance(pair.apiSupport);
-        }
-    }
-
-    public static class Pair {
-        final String pluginName;
-        final Class<? extends ExternalAPI> apiSupport;
-
-        private Pair(String pluginName, Class<? extends ExternalAPI> apiSupport) {
-            this.pluginName = pluginName;
-            this.apiSupport = apiSupport;
-        }
-
-        public static Pair of(String pluginName, Class<? extends ExternalAPI> apiSupport) {
-            return new Pair(pluginName, apiSupport);
+        for (Pair<String, Class<? extends ExternalAPI>> pair : pairs) {
+            mapBinder.addBinding(pair.key).toInstance(pair.value);
         }
     }
 }

@@ -1,13 +1,13 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
 import com.google.inject.Injector;
-import io.github.wysohn.rapidframework2.tools.Validation;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.IOException;
 import java.lang.ref.Reference;

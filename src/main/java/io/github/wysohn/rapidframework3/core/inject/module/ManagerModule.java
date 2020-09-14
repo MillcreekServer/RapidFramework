@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework3.core.main.Manager;
 public class ManagerModule extends AbstractModule {
     private final Class<? extends Manager>[] classes;
 
+    @SafeVarargs
     public ManagerModule(Class<? extends Manager>... classes) {
         this.classes = classes;
     }

@@ -1,9 +1,9 @@
 package io.github.wysohn.rapidframework3.core.command;
 
-import io.github.wysohn.rapidframework2.tools.StringUtil;
 import io.github.wysohn.rapidframework3.core.exceptions.InvalidArgumentException;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.interfaces.command.IArgumentMapper;
+import io.github.wysohn.rapidframework3.utils.StringUtil;
 
 public class ArgumentMappers {
     /**

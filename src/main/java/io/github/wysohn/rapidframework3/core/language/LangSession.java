@@ -4,7 +4,6 @@ import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSession;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 
-import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 public class LangSession implements ILangSession {
     private final IKeyValueStorage storage;
 
-    @Inject
     public LangSession(IKeyValueStorage storage) {
         this.storage = storage;
     }

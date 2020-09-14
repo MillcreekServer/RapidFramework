@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.chat;
 
-import io.github.wysohn.rapidframework2.tools.Validation;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
@@ -9,31 +9,25 @@ import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
 public abstract class AbstractChatManager extends Manager {
-    private final File pluginDirectory;
+    public static final String CHAT_YML = "chat.yml";
+
     private final IKeyValueStorage configStorage;
     private final IPlaceholderSupport placeholderSupport;
 
     public AbstractChatManager(PluginMain main,
-                               @PluginDirectory File pluginDirectory,
-                               IKeyValueStorage configStorage,
+                               @PluginDirectory File pluginDir,
+                               IStorageFactory storageFactory,
                                IPlaceholderSupport placeholderSupport) {
         super(main);
-        this.pluginDirectory = pluginDirectory;
-        this.configStorage = configStorage;
+        this.configStorage = storageFactory.create(pluginDir, "chat.yml");
         this.placeholderSupport = placeholderSupport;
-    }
-
-    private File safeGetChatFile() {
-        if (!pluginDirectory.exists())
-            pluginDirectory.mkdirs();
-
-        return new File(pluginDirectory, "chat.yml");
     }
 
     @Override
@@ -43,10 +37,7 @@ public abstract class AbstractChatManager extends Manager {
 
     @Override
     public void load() throws Exception {
-        File file = safeGetChatFile();
-        if (!file.exists()) return;
-
-        configStorage.reload(file);
+        configStorage.reload();
     }
 
     @Override

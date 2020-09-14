@@ -6,6 +6,7 @@ import io.github.wysohn.rapidframework3.core.inject.module.ExternalAPIModule;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.modules.MockGlobalPluginManager;
 import io.github.wysohn.rapidframework3.modules.MockMainModule;
+import io.github.wysohn.rapidframework3.utils.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,8 +20,7 @@ public class ManagerExternalAPITest {
     public void init() {
         moduleList.add(new MockMainModule());
         moduleList.add(new MockGlobalPluginManager());
-        moduleList.add(new ExternalAPIModule(
-                ExternalAPIModule.Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
+        moduleList.add(new ExternalAPIModule(Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
     }
 
     @Test
