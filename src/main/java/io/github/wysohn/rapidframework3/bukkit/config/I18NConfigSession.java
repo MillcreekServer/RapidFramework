@@ -1,7 +1,9 @@
 package io.github.wysohn.rapidframework3.bukkit.config;
 
+import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
+import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.File;
@@ -10,21 +12,24 @@ import java.util.Map;
 import java.util.Set;
 
 public class I18NConfigSession implements PluginRuntime {
-    public final BukkitKeyValueStorage DEFAULT;
+    public final IKeyValueStorage DEFAULT;
     private final IFileWriter writer;
-    private final Map<String, BukkitKeyValueStorage> sessionMap = new HashMap<>();
+    private final IStorageFactory storageFactory;
     private final File folder;
     private final String fileName;
 
-    public I18NConfigSession(IFileWriter writer, File folder, String fileName) {
+    private final Map<String, IKeyValueStorage> sessionMap = new HashMap<>();
+
+    public I18NConfigSession(IFileWriter writer, IStorageFactory storageFactory, File folder, String fileName) {
         Validation.assertNotNull(folder);
         Validation.assertNotNull(fileName);
         Validation.validate(fileName, name -> name.length() > 0, "Empty fileName.");
         Validation.validate(fileName, name -> name.indexOf('.') == -1, "do not include extension.");
 
         this.writer = writer;
+        this.storageFactory = storageFactory;
         this.folder = folder;
-        this.DEFAULT = new BukkitKeyValueStorage(writer, folder, fileName);
+        this.DEFAULT = storageFactory.create(folder, fileName);
         this.fileName = fileName;
     }
 
@@ -45,12 +50,12 @@ public class I18NConfigSession implements PluginRuntime {
                 if (split.length < 2)
                     continue;
 
-                sessionMap.put(split[1], new BukkitKeyValueStorage(writer, folder, name));
+                sessionMap.put(split[1], storageFactory.create(folder, name));
             }
         }
 
         DEFAULT.reload();
-        for (Map.Entry<String, BukkitKeyValueStorage> entry : sessionMap.entrySet()) {
+        for (Map.Entry<String, IKeyValueStorage> entry : sessionMap.entrySet()) {
             try {
                 entry.getValue().reload();
             } catch (Exception ex) {
@@ -68,8 +73,8 @@ public class I18NConfigSession implements PluginRuntime {
      * @param localeCode {@link java.util.Locale#getLanguage()}
      * @return
      */
-    public BukkitKeyValueStorage getSession(String localeCode) {
-        BukkitKeyValueStorage session;
+    public IKeyValueStorage getSession(String localeCode) {
+        IKeyValueStorage session;
         synchronized (sessionMap) {
             session = sessionMap.get(localeCode);
         }

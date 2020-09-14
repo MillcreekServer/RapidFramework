@@ -74,6 +74,11 @@ public interface IKeyValueStorage {
      */
     boolean isSection(Object obj);
 
+    /**
+     * Stop this storage and finish scheduled tasks.
+     */
+    void shutdown();
+
     static File safeGetFile(File directory, String fileName) {
         if (!directory.exists())
             directory.mkdirs();

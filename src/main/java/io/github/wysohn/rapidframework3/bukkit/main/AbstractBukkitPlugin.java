@@ -20,7 +20,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +54,23 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         return Class.forName("net.minecraft.server." + nmsVersion + "." + className);
     }
 
+    private boolean test;
     private PluginMain main;
+
+    public AbstractBukkitPlugin() {
+    }
+
+    /**
+     * @param loader
+     * @param description
+     * @param dataFolder
+     * @param file
+     * @deprecated for test only
+     */
+    AbstractBukkitPlugin(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
+        super(loader, description, dataFolder, file);
+        test = true;
+    }
 
     protected void copyConfigFiles(File dataFolder) throws IOException {
         JarUtil.copyFromJar(getClass(), "config.yml", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST);
@@ -70,13 +89,16 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         }
 
         PluginMainBuilder builder = PluginMainBuilder.prepare(new BukkitPluginInfoModule(getDescription()),
-                new BukkitMainCommandsModule(getDescription()),
+                test ? new MainCommandsModule("test") : new BukkitMainCommandsModule(getDescription()),
                 new LoggerModule(getLogger()),
                 new PluginDirectoryModule(getDataFolder()));
         builder.addModule(new PlatformModule(this));
         builder.addModule(new DefaultManagersModule());
+        builder.addModule(new MediatorModule());
+        builder.addModule(new FileIOModule());
         builder.addModule(new BukkitStorageFactoryModule());
-        builder.addModule(new BukkitPluginManagerModule());
+        if (!test)
+            builder.addModule(new BukkitPluginManagerModule());
         builder.addModule(new TaskSupervisorModule(new ITaskSupervisor() {
             @Override
             public <V> Future<V> sync(Callable<V> callable) {

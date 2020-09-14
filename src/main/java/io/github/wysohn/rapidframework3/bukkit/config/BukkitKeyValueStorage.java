@@ -26,9 +26,11 @@ public class BukkitKeyValueStorage implements IKeyValueStorage {
     @Inject
     public BukkitKeyValueStorage(IFileWriter writer,
                                  @Assisted File directory,
-                                 @Assisted String fileName) {
+                                 @Assisted String fileName) throws Exception {
         this.writer = writer;
         this.file = IKeyValueStorage.safeGetFile(directory, fileName);
+
+        reload();
     }
 
     @Override
@@ -108,9 +110,12 @@ public class BukkitKeyValueStorage implements IKeyValueStorage {
         return obj instanceof ConfigurationSection;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        exec.shutdown();
-        exec.awaitTermination(10, TimeUnit.SECONDS);
+    public void shutdown() {
+        try {
+            exec.shutdown();
+            exec.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

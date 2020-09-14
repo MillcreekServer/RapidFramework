@@ -7,7 +7,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 public class BukkitPluginInfoModule extends PluginInfoModule {
     public BukkitPluginInfoModule(PluginDescriptionFile descriptionFile) {
         super(descriptionFile.getName(),
-                descriptionFile.getDescription(),
+                descriptionFile.getFullName(),
                 descriptionFile.getPermissions()
                         .stream()
                         .findFirst()
