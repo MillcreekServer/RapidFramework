@@ -8,10 +8,7 @@ import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.modules.MockMainModule;
-import io.github.wysohn.rapidframework3.modules.MockMessageSenderModule;
-import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
-import io.github.wysohn.rapidframework3.modules.MockStorageFactoryModule;
+import io.github.wysohn.rapidframework3.modules.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,8 +37,8 @@ public class ManagerLanguageTest {
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockStorageFactoryModule());
         moduleList.add(new MockMessageSenderModule());
-        moduleList.add(new LanguagesModule(fn -> {
-        }, TempLang.values()));
+        moduleList.add(new LanguagesModule(TempLang.values()));
+        moduleList.add(new MockBroadcasterModule());
     }
 
     @Test

@@ -1,9 +1,8 @@
 package io.github.wysohn.rapidframework3.core.main;
 
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework3.utils.Validation;
-
-import javax.inject.Singleton;
 
 public abstract class PluginModule implements PluginRuntime {
     private final PluginMain main;
@@ -19,6 +18,6 @@ public abstract class PluginModule implements PluginRuntime {
     protected static void verifySingleton(Manager manager) {
         Validation.validate(manager,
                 m -> m.getClass().getAnnotation(Singleton.class) != null,
-                String.format("Manager %s is not annotated with javax.inject.Singleton!", manager.getClass()));
+                String.format("Manager %s is not annotated with com.google.inject.Singleton!", manager.getClass()));
     }
 }

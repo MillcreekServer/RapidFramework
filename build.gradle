@@ -20,7 +20,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '2.22.3'
+version = '3.0.0'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
@@ -60,7 +60,7 @@ task writePluginYml {
     String desc = project.ext.description
 
     map.put("name", id)
-    map.put("main", "io.github.wysohn.rapidframework2.bukkit.plugin.FakePlugin")
+    map.put("main", "io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin")
     map.put("version", project.ext.plugin_version)
     map.put("author", project.ext.author)
     map.put("authors", project.ext.authors)
@@ -203,6 +203,8 @@ shadowJar {
     include "io/github/wysohn/**"
     include "copy/**"
     include "com/google/inject/**"
+    include "javax/inject/**"
+    include "org/aopalliance/**"
     include "org/apache/commons/**"
     include "spark/**"
     include "**.txt"

@@ -1,11 +1,11 @@
 package io.github.wysohn.rapidframework3.core.api;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IGlobalPluginManager;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.util.*;
 

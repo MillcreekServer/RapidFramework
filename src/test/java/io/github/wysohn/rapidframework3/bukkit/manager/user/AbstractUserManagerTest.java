@@ -1,8 +1,6 @@
 package io.github.wysohn.rapidframework3.bukkit.manager.user;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitPlayer;
 import io.github.wysohn.rapidframework3.bukkit.testutils.manager.AbstractBukkitManagerTest;
 import io.github.wysohn.rapidframework3.core.database.Database;
@@ -14,8 +12,6 @@ import io.github.wysohn.rapidframework3.modules.MockSerializerModule;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;

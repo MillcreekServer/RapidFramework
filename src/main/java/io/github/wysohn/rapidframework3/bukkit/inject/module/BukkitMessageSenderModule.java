@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework3.bukkit.inject.module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitPlayer;
 import io.github.wysohn.rapidframework3.bukkit.manager.api.ProtocolLibAPI;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
@@ -9,7 +10,6 @@ import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 
-import javax.inject.Singleton;
 import java.util.Optional;
 
 public class BukkitMessageSenderModule extends AbstractModule {

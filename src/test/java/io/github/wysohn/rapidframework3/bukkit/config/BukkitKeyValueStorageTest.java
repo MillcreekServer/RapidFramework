@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework3.bukkit.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
@@ -14,7 +15,6 @@ import io.github.wysohn.rapidframework3.utils.FileUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;

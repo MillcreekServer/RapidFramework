@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.core.language;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
@@ -14,8 +16,6 @@ import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.*;

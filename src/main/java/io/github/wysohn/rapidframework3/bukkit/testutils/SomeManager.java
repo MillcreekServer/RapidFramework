@@ -1,10 +1,9 @@
 package io.github.wysohn.rapidframework3.bukkit.testutils;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class SomeManager extends Manager {

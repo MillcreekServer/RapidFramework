@@ -1,8 +1,6 @@
 package io.github.wysohn.rapidframework3.core.main;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
 import io.github.wysohn.rapidframework3.core.inject.module.*;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
@@ -17,8 +15,6 @@ import io.github.wysohn.rapidframework3.utils.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,9 +52,7 @@ public class PluginMainTest {
                 Manager2.class,
                 Manager3.class));
         moduleList.add(new MediatorModule());
-        moduleList.add(new LanguagesModule(fn -> {
-
-        }));
+        moduleList.add(new LanguagesModule());
         moduleList.add(new ExternalAPIModule(Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
         moduleList.add(new MainCommandsModule("test"));
         moduleList.add(new PlatformModule(new Object()));
@@ -68,6 +62,7 @@ public class PluginMainTest {
         moduleList.add(new MockFileIOModule(mockFileReader, mockFileWriter));
         moduleList.add(new MockGlobalPluginManager());
         moduleList.add(new MockStorageFactoryModule(mockStorage));
+        moduleList.add(new MockBroadcasterModule());
     }
 
     @Test

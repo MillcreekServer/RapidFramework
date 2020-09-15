@@ -61,14 +61,14 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
     }
 
     /**
-     * @param loader
-     * @param description
-     * @param dataFolder
-     * @param file
+     * @param mockLoader
      * @deprecated for test only
      */
-    AbstractBukkitPlugin(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
-        super(loader, description, dataFolder, file);
+    protected AbstractBukkitPlugin(@NotNull JavaPluginLoader mockLoader) {
+        super(mockLoader,
+                new PluginDescriptionFile("test", "test", "test"),
+                new File("build/tmp/tests/"),
+                new File("build/tmp/tests/other"));
         test = true;
     }
 
@@ -97,8 +97,8 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         builder.addModule(new MediatorModule());
         builder.addModule(new FileIOModule());
         builder.addModule(new BukkitStorageFactoryModule());
-        if (!test)
-            builder.addModule(new BukkitPluginManagerModule());
+        builder.addModule(new BukkitBroadcasterModule());
+        builder.addModule(test ? new GlobalPluginManagerModule(pluginName -> true) : new BukkitPluginManagerModule());
         builder.addModule(new TaskSupervisorModule(new ITaskSupervisor() {
             @Override
             public <V> Future<V> sync(Callable<V> callable) {

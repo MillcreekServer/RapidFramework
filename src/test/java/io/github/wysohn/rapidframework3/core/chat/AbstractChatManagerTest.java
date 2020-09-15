@@ -1,8 +1,6 @@
 package io.github.wysohn.rapidframework3.core.chat;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
@@ -16,8 +14,6 @@ import io.github.wysohn.rapidframework3.modules.MockStorageFactoryModule;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;

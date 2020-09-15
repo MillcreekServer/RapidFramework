@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.bukkit.plugin.manager;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitWrapper;
 import io.github.wysohn.rapidframework3.core.chat.AbstractChatManager;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
@@ -12,8 +14,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.util.stream.Collectors;
 

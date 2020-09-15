@@ -5,12 +5,14 @@ import io.github.wysohn.rapidframework3.bukkit.testutils.impl.CraftInventoryPlay
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -58,6 +60,9 @@ public class AbstractBukkitTest {
     private ItemFactory itemFactory;
     protected BukkitScheduler bukkitScheduler;
 
+    protected static Server mockServer;
+    protected static java.util.logging.Logger mockLogger;
+
     protected Location mockLocation;
     protected World mockWorld;
     protected String worldName = "world";
@@ -82,6 +87,10 @@ public class AbstractBukkitTest {
             log.info(PLAYER_NAME + " got message: " + Arrays.toString(msgs));
             return null;
         }).when(player).sendMessage(any(String[].class));
+
+        mockServer = mock(Server.class);
+        mockLogger = mock(java.util.logging.Logger.class);
+        when(mockServer.getLogger()).thenReturn(mockLogger);
 
         mockLocation = mock(Location.class);
         mockWorld = mock(World.class);
@@ -172,6 +181,7 @@ public class AbstractBukkitTest {
             return null;
         }).when(mockLogger).log(any(Level.class), anyString());
         Mockito.when(Bukkit.getLogger()).thenReturn(mockLogger);
+        Mockito.when(Bukkit.getServer()).thenReturn(mockServer);
     }
 
     public PluginManager getMockPluginManager() {
@@ -252,7 +262,11 @@ public class AbstractBukkitTest {
         };
     }
 
-    public interface ThrowingConsumer<T>{
+    protected static JavaPluginLoader mockPluginLoader() {
+        return new JavaPluginLoader(mockServer);
+    }
+
+    public interface ThrowingConsumer<T> {
         void accept(T t) throws Exception;
     }
 }

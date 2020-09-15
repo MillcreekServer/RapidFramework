@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.bukkit.config;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.github.wysohn.rapidframework3.bukkit.utils.Utf8YamlConfiguration;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
@@ -7,7 +8,6 @@ import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;

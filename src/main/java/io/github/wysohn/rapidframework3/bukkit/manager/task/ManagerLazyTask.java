@@ -1,10 +1,10 @@
 package io.github.wysohn.rapidframework3.bukkit.manager.task;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;

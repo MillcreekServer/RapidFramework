@@ -1,8 +1,6 @@
 package io.github.wysohn.rapidframework3.core.permission;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
@@ -19,8 +17,6 @@ import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;

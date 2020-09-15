@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.core.command;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginCommands;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.language.Pagination;
@@ -10,8 +12,6 @@ import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 

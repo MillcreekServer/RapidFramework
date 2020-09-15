@@ -1,10 +1,10 @@
 package io.github.wysohn.rapidframework3.core.serialize;
 
+import com.google.inject.Inject;
 import io.github.wysohn.rapidframework3.data.SimpleChunkLocation;
 import io.github.wysohn.rapidframework3.data.SimpleLocation;
 import org.junit.Test;
 
-import javax.inject.Inject;
 import java.util.UUID;
 
 import static org.junit.Assert.*;

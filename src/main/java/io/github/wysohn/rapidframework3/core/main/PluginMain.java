@@ -1,5 +1,8 @@
 package io.github.wysohn.rapidframework3.core.main;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.command.ManagerCommand;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
@@ -9,9 +12,6 @@ import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework3.utils.graph.DependencyGraph;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;

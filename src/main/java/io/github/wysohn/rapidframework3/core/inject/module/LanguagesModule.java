@@ -10,7 +10,6 @@ import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSession;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
-import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.utils.CollectionHelper;
 import io.github.wysohn.rapidframework3.utils.FileUtil;
@@ -20,12 +19,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class LanguagesModule extends AbstractModule {
-    private final IBroadcaster broadcaster;
     private final ILang[] otherLangs;
 
-    public LanguagesModule(IBroadcaster broadcaster,
-                           ILang... otherLangs) {
-        this.broadcaster = broadcaster;
+    public LanguagesModule(ILang... otherLangs) {
         this.otherLangs = otherLangs;
     }
 
@@ -65,10 +61,5 @@ public class LanguagesModule extends AbstractModule {
                 return new LangSession(storage);
             }
         };
-    }
-
-    @Provides
-    IBroadcaster getBroadcaster() {
-        return broadcaster;
     }
 }

@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.bukkit.plugin.manager;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.config.I18NConfigSession;
 import io.github.wysohn.rapidframework3.bukkit.manager.api.PlaceholderAPI;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
@@ -8,8 +10,6 @@ import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 
 @Singleton

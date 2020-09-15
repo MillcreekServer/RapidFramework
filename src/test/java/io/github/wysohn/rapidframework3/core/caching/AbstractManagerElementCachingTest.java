@@ -1,8 +1,6 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.inject.module.ElementCachingManagerModule;
@@ -17,8 +15,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.ExecutorService;

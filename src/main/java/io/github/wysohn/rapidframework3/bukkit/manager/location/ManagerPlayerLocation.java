@@ -16,6 +16,8 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework3.bukkit.manager.location;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.events.PlayerBlockLocationEvent;
 import io.github.wysohn.rapidframework3.bukkit.events.PlayerChunkLocationEvent;
 import io.github.wysohn.rapidframework3.core.main.Manager;
@@ -30,8 +32,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

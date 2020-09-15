@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.core.serialize;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import copy.com.google.gson.*;
 import copy.com.google.gson.internal.bind.TypeAdapters;
 import copy.com.google.gson.stream.JsonReader;
@@ -12,8 +14,6 @@ import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.utils.Pair;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.UUID;

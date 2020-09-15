@@ -1,11 +1,11 @@
 package io.github.wysohn.rapidframework3.core.main;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
