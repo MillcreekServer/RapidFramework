@@ -82,12 +82,12 @@ public class PluginMain implements PluginRuntime {
         return lang;
     }
 
-    public <M extends Manager> M getManager(Class<M> clazz) {
-        return (M) managerMap.get(clazz);
+    public <M extends Manager> Optional<M> getManager(Class<M> clazz) {
+        return Optional.ofNullable(managerMap.get(clazz)).map(clazz::cast);
     }
 
-    public <M extends Mediator> M getMediator(Class<M> clazz) {
-        return (M) mediatorMap.get(clazz);
+    public <M extends Mediator> Optional<M> getMediator(Class<M> clazz) {
+        return Optional.ofNullable(mediatorMap.get(clazz)).map(clazz::cast);
     }
 
     public String getPluginName() {
@@ -120,10 +120,14 @@ public class PluginMain implements PluginRuntime {
 
     @Override
     public void preload() throws Exception {
-        comm = Objects.requireNonNull(getManager(ManagerCommand.class));
-        api = Objects.requireNonNull(getManager(ManagerExternalAPI.class));
-        conf = Objects.requireNonNull(getManager(ManagerConfig.class));
-        lang = Objects.requireNonNull(getManager(ManagerLanguage.class));
+        comm = getManager(ManagerCommand.class).orElseThrow(() ->
+                new RuntimeException("ManagerCommand must exist."));
+        api = getManager(ManagerExternalAPI.class).orElseThrow(() ->
+                new RuntimeException("ManagerExternalAPI must exist."));
+        conf = getManager(ManagerConfig.class).orElseThrow(() ->
+                new RuntimeException("ManagerConfig must exist."));
+        lang = getManager(ManagerLanguage.class).orElseThrow(() ->
+                new RuntimeException("ManagerLanguage must exist."));
 
         try {
             logger.info("Resolving dependency of managers...");
