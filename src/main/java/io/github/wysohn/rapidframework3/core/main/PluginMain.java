@@ -5,9 +5,11 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.command.ManagerCommand;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginAsyncExecutor;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
 import io.github.wysohn.rapidframework3.utils.Validation;
@@ -15,6 +17,8 @@ import io.github.wysohn.rapidframework3.utils.graph.DependencyGraph;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -29,6 +33,13 @@ public class PluginMain implements PluginRuntime {
     @Inject
     @PluginPlatform
     private Object platform;
+
+    @Inject
+    @PluginAsyncExecutor
+    private ExecutorService executorService;
+
+    @Inject
+    private IShutdownHandle shutdownModule;
 
     @Inject
     private Map<Class<? extends Manager>, Manager> managerMap;
@@ -207,9 +218,12 @@ public class PluginMain implements PluginRuntime {
         for (Manager manager : orderedManagers) {
             manager.disable();
         }
+
+        executorService.shutdown();
+        executorService.awaitTermination(30, TimeUnit.SECONDS);
     }
 
     public void shutdown() {
-        //TODO
+        shutdownModule.shutdown();
     }
 }

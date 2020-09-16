@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import static org.mockito.Mockito.mock;
 
@@ -31,6 +32,7 @@ public class PluginMainTest {
     private IBroadcaster broadcaster;
 
     private IKeyValueStorage mockStorage;
+    private ExecutorService executorService;
 
     @Before
     public void init() {
@@ -48,6 +50,7 @@ public class PluginMainTest {
 
         moduleList.add(new PluginInfoModule("testPlugin", "desc", "root"));
         moduleList.add(new DefaultManagersModule());
+        moduleList.add(new ExecutorServiceModule());
         moduleList.add(new ManagerModule(Manager1.class,
                 Manager2.class,
                 Manager3.class));
@@ -63,6 +66,8 @@ public class PluginMainTest {
         moduleList.add(new MockGlobalPluginManager());
         moduleList.add(new MockStorageFactoryModule(mockStorage));
         moduleList.add(new MockBroadcasterModule());
+        moduleList.add(new MockShutdownModule(() -> {
+        }));
     }
 
     @Test

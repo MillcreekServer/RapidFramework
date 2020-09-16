@@ -2,10 +2,7 @@ package io.github.wysohn.rapidframework3.core.main;
 
 import com.google.inject.Guice;
 import com.google.inject.Module;
-import io.github.wysohn.rapidframework3.core.inject.module.LoggerModule;
-import io.github.wysohn.rapidframework3.core.inject.module.MainCommandsModule;
-import io.github.wysohn.rapidframework3.core.inject.module.PluginDirectoryModule;
-import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.inject.module.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +16,7 @@ public class PluginMainBuilder {
                                             LoggerModule loggerModule,
                                             PluginDirectoryModule directoryModule) {
         PluginMainBuilder builder = new PluginMainBuilder();
+        builder.moduleList.add(new ExecutorServiceModule());
         builder.moduleList.add(Objects.requireNonNull(infoModule));
         builder.moduleList.add(Objects.requireNonNull(commandModule));
         builder.moduleList.add(Objects.requireNonNull(loggerModule));
