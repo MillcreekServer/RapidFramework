@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.modules;
+package io.github.wysohn.rapidframework3.testmodules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
