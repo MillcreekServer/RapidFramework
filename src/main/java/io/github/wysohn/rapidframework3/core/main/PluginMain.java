@@ -10,6 +10,7 @@ import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
+import io.github.wysohn.rapidframework3.utils.Validation;
 import io.github.wysohn.rapidframework3.utils.graph.DependencyGraph;
 
 import java.io.File;
@@ -82,6 +83,10 @@ public class PluginMain implements PluginRuntime {
         return lang;
     }
 
+    public ITaskSupervisor task() {
+        return taskSupervisor;
+    }
+
     public <M extends Manager> Optional<M> getManager(Class<M> clazz) {
         return Optional.ofNullable(managerMap.get(clazz)).map(clazz::cast);
     }
@@ -128,6 +133,7 @@ public class PluginMain implements PluginRuntime {
                 new RuntimeException("ManagerConfig must exist."));
         lang = getManager(ManagerLanguage.class).orElseThrow(() ->
                 new RuntimeException("ManagerLanguage must exist."));
+        Validation.assertNotNull(taskSupervisor, "ITaskSupervisor must exist.");
 
         try {
             logger.info("Resolving dependency of managers...");
