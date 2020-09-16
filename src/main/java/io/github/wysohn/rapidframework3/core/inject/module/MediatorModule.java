@@ -6,10 +6,10 @@ import com.google.inject.multibindings.MapBinder;
 import io.github.wysohn.rapidframework3.core.main.Mediator;
 
 public class MediatorModule extends AbstractModule {
-    private final Class<Mediator>[] classes;
+    private final Class<? extends Mediator>[] classes;
 
     @SafeVarargs
-    public MediatorModule(Class<Mediator>... classes) {
+    public MediatorModule(Class<? extends Mediator>... classes) {
         this.classes = classes;
     }
 
@@ -20,7 +20,7 @@ public class MediatorModule extends AbstractModule {
                 },
                 new TypeLiteral<Mediator>() {
                 });
-        for (Class<Mediator> clazz : classes) {
+        for (Class<? extends Mediator> clazz : classes) {
             mapBinder.addBinding(clazz).to(clazz);
         }
     }
