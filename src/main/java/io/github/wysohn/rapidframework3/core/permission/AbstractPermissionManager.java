@@ -52,7 +52,7 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
                 .anyMatch(storage::contains)) {
             return true;
         } else {
-            return hasPermission(parentProvider.getHolder(main(), holder.getParentUuid()), permissions);
+            return hasPermission(parentProvider.getHolder(holder.getParentUuid()), permissions);
         }
     }
 
@@ -106,7 +106,7 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
     }
 
     public IPermissionHolder getHolderByUUID(UUID uuid) {
-        return parentProvider.getHolder(main(), uuid);
+        return parentProvider.getHolder(uuid);
     }
 
     /**
@@ -124,7 +124,7 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
 
         list.add(holder.getUuid());
         if (holder.getParentUuid() != null) {
-            list.addAll(getApplicablePermissionHolders(parentProvider.getHolder(main(), holder.getParentUuid())));
+            list.addAll(getApplicablePermissionHolders(parentProvider.getHolder(holder.getParentUuid())));
         }
 
         return list;

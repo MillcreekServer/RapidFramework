@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -74,8 +73,8 @@ public class AbstractPermissionManagerTest {
         manager.addPermission(mockParentParent, Perms.SomePerm3);
 
         IParentProvider mockProvider = parentProviderModule.getParentProvider();
-        when(mockProvider.getHolder(any(), eq(parentUuid))).thenReturn(mockParent);
-        when(mockProvider.getHolder(any(), eq(parentParentUuid))).thenReturn(mockParentParent);
+        when(mockProvider.getHolder(eq(parentUuid))).thenReturn(mockParent);
+        when(mockProvider.getHolder(eq(parentParentUuid))).thenReturn(mockParentParent);
 
         //holder
         assertTrue(manager.hasPermission(mockHolder, Perms.SomePerm));
@@ -87,9 +86,9 @@ public class AbstractPermissionManagerTest {
         assertTrue(manager.hasPermission(mockHolder, Perms.SomePerm3));
 
         verify(mockProvider, times(3))
-                .getHolder(mockMainModule.mockMain, mockHolder.getParentUuid());
+                .getHolder(mockHolder.getParentUuid());
         verify(mockProvider, times(2))
-                .getHolder(mockMainModule.mockMain, mockParent.getParentUuid());
+                .getHolder(mockParent.getParentUuid());
 
         //multiple permissions
         assertTrue(manager.hasPermission(mockHolder,
