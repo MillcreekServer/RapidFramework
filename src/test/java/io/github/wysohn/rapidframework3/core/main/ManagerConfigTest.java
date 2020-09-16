@@ -3,9 +3,9 @@ package io.github.wysohn.rapidframework3.core.main;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
-import io.github.wysohn.rapidframework3.modules.MockMainModule;
-import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
-import io.github.wysohn.rapidframework3.modules.MockStorageFactoryModule;
+import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.testmodules.MockStorageFactoryModule;
 import org.junit.Before;
 import org.junit.Test;
 

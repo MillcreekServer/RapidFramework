@@ -8,7 +8,7 @@ import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.modules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

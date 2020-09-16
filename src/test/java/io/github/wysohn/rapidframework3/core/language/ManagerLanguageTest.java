@@ -8,7 +8,7 @@ import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.modules.*;
+import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
 

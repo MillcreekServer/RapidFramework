@@ -11,9 +11,9 @@ import io.github.wysohn.rapidframework3.interfaces.permissin.IParentProvider;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermission;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermissionHolder;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.modules.MockMainModule;
-import io.github.wysohn.rapidframework3.modules.MockParentProviderModule;
-import io.github.wysohn.rapidframework3.modules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.MockParentProviderModule;
+import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
 import org.junit.Before;
 import org.junit.Test;
 

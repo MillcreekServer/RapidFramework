@@ -7,8 +7,8 @@ import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.modules.MockMainModule;
-import io.github.wysohn.rapidframework3.modules.MockSerializerModule;
+import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.MockSerializerModule;
 import org.junit.Before;
 import org.junit.Test;
 

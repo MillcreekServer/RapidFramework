@@ -6,7 +6,7 @@ import com.google.inject.Module;
 import io.github.wysohn.rapidframework3.core.inject.module.MainCommandsModule;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
-import io.github.wysohn.rapidframework3.modules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
 import org.junit.Before;
 import org.junit.Test;
 
