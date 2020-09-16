@@ -39,6 +39,7 @@ public class ManagerLanguageTest {
         moduleList.add(new MockMessageSenderModule());
         moduleList.add(new LanguagesModule(TempLang.values()));
         moduleList.add(new MockBroadcasterModule());
+        moduleList.add(new MockLoggerModule());
     }
 
     @Test

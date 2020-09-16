@@ -69,6 +69,7 @@ public class PluginMainTest {
         moduleList.add(new MockBroadcasterModule());
         moduleList.add(new MockShutdownModule(() -> {
         }));
+        moduleList.add(new MockLoggerModule());
     }
 
     @Test
@@ -104,8 +105,7 @@ public class PluginMainTest {
     private static class Manager1 extends Manager {
 
         @Inject
-        public Manager1(PluginMain main) {
-            super(main);
+        public Manager1() {
             dependsOn(Manager2.class);
             dependsOn(Manager3.class);
         }
@@ -130,8 +130,8 @@ public class PluginMainTest {
     private static class Manager2 extends Manager {
 
         @Inject
-        public Manager2(PluginMain main) {
-            super(main);
+        public Manager2() {
+            super();
         }
 
         @Override
@@ -154,8 +154,8 @@ public class PluginMainTest {
     private static class Manager3 extends Manager {
 
         @Inject
-        public Manager3(PluginMain main) {
-            super(main);
+        public Manager3() {
+            super();
             dependsOn(Manager2.class);
         }
 

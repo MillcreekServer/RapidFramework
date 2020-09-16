@@ -1,13 +1,16 @@
 package io.github.wysohn.rapidframework3.core.main;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.command.ManagerCommand;
+import io.github.wysohn.rapidframework3.core.command.SubCommand;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginAsyncExecutor;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
+import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
@@ -30,6 +33,9 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class PluginMain implements PluginRuntime {
+    @Inject
+    private Injector injector;
+
     @Inject
     @PluginPlatform
     private Object platform;
@@ -165,6 +171,21 @@ public class PluginMain implements PluginRuntime {
         for (Mediator mediator : mediatorMap.values()) {
             mediator.preload();
         }
+
+        comm.addCommand(new SubCommand.Builder("reload")
+                .withDescription(DefaultLangs.Command_Reload_Description)
+                .addUsage(DefaultLangs.Command_Reload_Usage)
+                .action(((sender, args) -> {
+                    try {
+                        load();
+                        lang.sendMessage(sender, DefaultLangs.Command_Reload_Done);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+                    return true;
+                }))
+                .create(injector));
     }
 
     private Collection<Manager> resolveDependencies() {

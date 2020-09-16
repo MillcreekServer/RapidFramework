@@ -1,8 +1,9 @@
 package io.github.wysohn.rapidframework3.core.command;
 
+import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.exceptions.InvalidArgumentException;
 import io.github.wysohn.rapidframework3.core.language.DynamicLang;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.command.CommandAction;
 import io.github.wysohn.rapidframework3.interfaces.command.IArgumentMapper;
@@ -10,16 +11,23 @@ import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangParser;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.function.Predicate;
 
+@Singleton
 public class SubCommand {
-    final PluginMain main;
+    @Inject
+    private ManagerLanguage lang;
+
+    @Inject
+    private String rootPermission;
+
     final String name;
     final int nArguments;
 
     String[] aliases = new String[0];
-    String permission;
     List<Predicate<ICommandSender>> predicates = new ArrayList<>();
     DynamicLang description;
     List<DynamicLang> usage = new ArrayList<>();
@@ -29,14 +37,13 @@ public class SubCommand {
     private List<IArgumentMapper> argumentMappers = new ArrayList<>();
     private List<ITabCompleter> tabCompleters = new ArrayList<>();
 
-    SubCommand(PluginMain main, String name, int nArguments) {
-        this.main = main;
+    SubCommand(String name, int nArguments) {
         this.name = name;
         this.nArguments = nArguments;
     }
 
-    SubCommand(PluginMain main, String name) {
-        this(main, name, -1);
+    SubCommand(String name) {
+        this(name, -1);
     }
 
     public boolean execute(ICommandSender sender, String commandLabel, String[] args) {
@@ -49,6 +56,10 @@ public class SubCommand {
             return action.execute(sender, argsObj);
         else
             return true;
+    }
+
+    public String getPermission() {
+        return rootPermission + "." + name;
     }
 
     public List<String> tabHint(int index) {
@@ -75,22 +86,16 @@ public class SubCommand {
     public static class Builder {
         private SubCommand command;
 
-        public Builder(PluginMain main, String cmd, int numArgs) {
-            command = new SubCommand(main, cmd, numArgs);
-            command.permission = main.getRootPermission() + "." + cmd;
+        public Builder(String cmd, int numArgs) {
+            command = new SubCommand(cmd, numArgs);
         }
 
-        public Builder(PluginMain main, String cmd) {
-            this(main, cmd, 0);
+        public Builder(String cmd) {
+            this(cmd, 0);
         }
 
         public Builder withAlias(String... alias) {
             command.aliases = alias;
-            return this;
-        }
-
-        public Builder withPermission(String permission) {
-            command.permission = permission;
             return this;
         }
 
@@ -196,7 +201,8 @@ public class SubCommand {
             return this;
         }
 
-        public SubCommand create() {
+        public SubCommand create(Injector injector) {
+            injector.injectMembers(command);
             return command;
         }
     }
@@ -238,8 +244,8 @@ public class SubCommand {
                 else
                     return Optional.of((T) ArgumentMappers.IDENTITY.apply(args[index]));
             } catch (InvalidArgumentException e) {
-                e.getDynamicLang().parser.onParse(sender, main.lang());
-                main.lang().sendMessage(sender, e.getDynamicLang().lang);
+                e.getDynamicLang().parser.onParse(sender, lang);
+                lang.sendMessage(sender, e.getDynamicLang().lang);
             }
 
             return Optional.empty();

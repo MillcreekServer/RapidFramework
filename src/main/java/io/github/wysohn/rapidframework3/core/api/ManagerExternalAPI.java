@@ -2,12 +2,14 @@ package io.github.wysohn.rapidframework3.core.api;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IGlobalPluginManager;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * This class allow plugins to be loaded while using the APIs of third party plugins.
@@ -21,12 +23,17 @@ public class ManagerExternalAPI extends Manager {
     private final Map<Class<? extends ExternalAPI>, ExternalAPI> externalAPIs = new HashMap<>();
 
     private final IGlobalPluginManager pluginManager;
+    private final Logger logger;
+    private final PluginMain main;
 
     @Inject
     public ManagerExternalAPI(PluginMain main,
+                              @PluginLogger Logger logger,
                               IGlobalPluginManager pluginManager,
                               Map<String, Class<? extends ExternalAPI>> apis) {
-        super(main);
+        super();
+        this.main = main;
+        this.logger = logger;
         this.pluginManager = pluginManager;
         apis.forEach((name, clazz) -> apiClasses.computeIfAbsent(name, (key) -> new HashSet<>()).add(clazz));
     }
@@ -43,15 +50,15 @@ public class ManagerExternalAPI extends Manager {
             clazzes.forEach(clazz -> {
                 try {
                     Constructor con = clazz.getConstructor(PluginMain.class, String.class);
-                    ExternalAPI api = (ExternalAPI) con.newInstance(main(), pluginName);
+                    ExternalAPI api = (ExternalAPI) con.newInstance(main, pluginName);
                     api.enable();
 
                     externalAPIs.put(clazz, api);
 
-                    main().getLogger().info("[" + clazz.getSimpleName() + "] Hooked to " + pluginName + ".");
+                    logger.info("[" + clazz.getSimpleName() + "] Hooked to " + pluginName + ".");
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    main().getLogger().severe("Failed to enable API support for [" + pluginName + "]");
+                    logger.severe("Failed to enable API support for [" + pluginName + "]");
                 }
             });
         }
@@ -66,10 +73,10 @@ public class ManagerExternalAPI extends Manager {
             try {
                 api.load();
 
-                main().getLogger().info("[" + clazz.getSimpleName() + "] load complete.");
+                logger.info("[" + clazz.getSimpleName() + "] load complete.");
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main().getLogger().severe("Failed to load API support for [" + clazz.getSimpleName() + "]");
+                logger.severe("Failed to load API support for [" + clazz.getSimpleName() + "]");
             }
         }
     }
@@ -83,10 +90,10 @@ public class ManagerExternalAPI extends Manager {
             try {
                 api.disable();
 
-                main().getLogger().info("[" + clazz.getSimpleName() + "] disabled.");
+                logger.info("[" + clazz.getSimpleName() + "] disabled.");
             } catch (Exception ex) {
                 ex.printStackTrace();
-                main().getLogger().severe("Failed to load API support for [" + clazz.getSimpleName() + "]");
+                logger.severe("Failed to load API support for [" + clazz.getSimpleName() + "]");
             }
         }
     }

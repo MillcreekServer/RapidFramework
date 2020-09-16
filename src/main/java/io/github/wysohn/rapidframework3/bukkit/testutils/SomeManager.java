@@ -3,7 +3,6 @@ package io.github.wysohn.rapidframework3.bukkit.testutils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 
 @Singleton
 public class SomeManager extends Manager {
@@ -12,8 +11,8 @@ public class SomeManager extends Manager {
     private boolean disable;
 
     @Inject
-    public SomeManager(PluginMain main) {
-        super(main);
+    public SomeManager() {
+        super();
     }
 
     @Override

@@ -1,26 +1,31 @@
 package io.github.wysohn.rapidframework3.core.permission;
 
 import com.google.inject.*;
+import com.google.inject.name.Named;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
+import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IParentProvider;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermission;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermissionHolder;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
-import io.github.wysohn.rapidframework3.testmodules.MockParentProviderModule;
-import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,13 +43,20 @@ public class AbstractPermissionManagerTest {
     @Before
     public void init() throws Exception {
         mockDatabase = mock(Database.class);
+
         parentProviderModule = new MockParentProviderModule();
         mockMainModule = new MockMainModule();
 
+        moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new GsonSerializerModule());
         moduleList.add(mockMainModule);
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(parentProviderModule);
+        moduleList.add(new MockStorageFactoryModule());
+        moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockConfigModule());
+        moduleList.add(new MockShutdownModule(() -> {
+        }));
     }
 
     @Test
@@ -165,11 +177,15 @@ public class AbstractPermissionManagerTest {
     @Singleton
     public static class TempPermissionManager extends AbstractPermissionManager {
         @Inject
-        public TempPermissionManager(PluginMain main,
+        public TempPermissionManager(@Named("pluginName") String pluginName,
+                                     @PluginLogger Logger logger,
+                                     ManagerConfig config,
+                                     @PluginDirectory File pluginDir,
+                                     IShutdownHandle shutdownHandle,
                                      ISerializer serializer,
                                      Injector injector,
                                      IParentProvider parentProvider) {
-            super(main, serializer, injector, parentProvider);
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, parentProvider);
         }
 
         @Override

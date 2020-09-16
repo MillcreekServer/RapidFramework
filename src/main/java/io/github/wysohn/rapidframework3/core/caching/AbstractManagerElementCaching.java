@@ -4,11 +4,13 @@ import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -17,6 +19,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends Manager {
@@ -32,6 +35,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      */
     private final Object cacheLock = new Object();
 
+    private final String pluginName;
+    private final Logger logger;
+    private final ManagerConfig config;
+    private final File pluginDir;
+    private final IShutdownHandle shutdownHandle;
     private final ISerializer serializer;
     private final Injector injector;
     private final Class<V> type;
@@ -51,19 +59,39 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     private final Map<K, String> keyToNameMap = new HashMap<>();
 
     /**
-     * @param main
+     * @param logger
      * @param serializer
      * @param injector
      * @param type       this is not injectable. Pass the type right away.
      */
-    public AbstractManagerElementCaching(PluginMain main,
+    public AbstractManagerElementCaching(String pluginName,
+                                         Logger logger,
+                                         ManagerConfig config,
+                                         File pluginDir,
+                                         IShutdownHandle shutdownHandle,
                                          ISerializer serializer,
                                          Injector injector,
                                          Class<V> type) {
-        super(main);
+        super();
+        this.pluginName = pluginName;
+        this.logger = logger;
+        this.config = config;
+        this.pluginDir = pluginDir;
+        this.shutdownHandle = shutdownHandle;
         this.serializer = serializer;
         this.injector = injector;
         this.type = type;
+
+        assertType(type);
+    }
+
+    private static <V> void assertType(Class<V> clazz) {
+        try {
+            clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(clazz + " does not have no-args constructor, so Gson will not be " +
+                    "able to properly serialize/deserialize it.");
+        }
     }
 
     /**
@@ -83,7 +111,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
-            db = dbFactory.getDatabase((String) main().conf().get("dbType").orElse("file"));
+            db = dbFactory.getDatabase((String) config.get("dbType").orElse("file"));
             Validation.assertNotNull(db);
 
             for (String keyStr : db.getKeys()) {
@@ -110,10 +138,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     @Override
     public void disable() throws Exception {
         synchronized (cacheLock) {
-            main().getLogger().info("Waiting for the save tasks to be done...");
+            logger.info("Waiting for the save tasks to be done...");
             saveTaskPool.shutdown();
             saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
-            main().getLogger().info("Save finished.");
+            logger.info("Save finished.");
         }
     }
 
@@ -129,11 +157,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     private void handleDBOperationFailure(String key, Throwable throwable) {
         throwable.printStackTrace();
 
-        main().getLogger().severe("Key: " + key);
-        main().getLogger().severe("Manager: " + getClass().getSimpleName());
+        logger.severe("Key: " + key);
+        logger.severe("Manager: " + getClass().getSimpleName());
 
         // At this point, irreversible data corruption can happen, so it's safer to turn off the plugin.
-        main().shutdown();
+        shutdownHandle.shutdown();
     }
 
     /**
@@ -323,7 +351,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param consumer
      */
     public void forEach(Consumer<? super V> consumer) {
-        this.forEach(consumer, ex -> main().getLogger().log(Level.FINE, "forEach()", ex));
+        this.forEach(consumer, ex -> logger.log(Level.FINE, "forEach()", ex));
     }
 
     /**
@@ -350,13 +378,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             try {
                 switch (dbType) {
                     case "mysql":
-                        return Databases.build((String) main().conf().get("db.address").orElse("127.0.0.1"),
-                                (String) main().conf().get("db.name").orElse(main().getPluginName()),
-                                (String) main().conf().get("db.tablename").orElse(tablename),
-                                (String) main().conf().get("db.username").orElse("root"),
-                                (String) main().conf().get("db.password").orElse("1234"));
+                        return Databases.build((String) config.get("db.address").orElse("127.0.0.1"),
+                                (String) config.get("db.name").orElse(pluginName),
+                                (String) config.get("db.tablename").orElse(tablename),
+                                (String) config.get("db.username").orElse("root"),
+                                (String) config.get("db.password").orElse("1234"));
                     default:
-                        return Databases.build(tablename, main().getPluginDirectory());
+                        return Databases.build(tablename, pluginDir);
                 }
             } catch (Exception e) {
                 handleDBOperationFailure(tablename, e);

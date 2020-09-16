@@ -17,13 +17,9 @@ public abstract class Manager extends PluginModule {
      * <p>
      * To manage the load order, you may use {@link #dependsOn(Class)} method to add another Manager
      * which has to load prior to this class.
-     *
-     * @param main The PluginMain
      */
-    public Manager(PluginMain main) {
-        super(main);
-
-        verifySingleton(this);
+    public Manager() {
+        super();
     }
 
     /**

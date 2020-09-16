@@ -3,23 +3,29 @@ package io.github.wysohn.rapidframework3.core.caching;
 import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
-import io.github.wysohn.rapidframework3.core.inject.module.ElementCachingManagerModule;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import javax.inject.Named;
+import java.io.File;
 import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -33,28 +39,27 @@ public class AbstractManagerElementCachingTest {
 
     private List<Module> moduleList = new LinkedList<>();
 
-    private TempManager manager;
-    private IObserver observer;
-
 
     @Before
     public void init() {
         mockDatabase = mock(Database.class);
         mockMainModule = new MockMainModule();
-        when(mockMainModule.mockConfig.get(eq("dbType"))).thenReturn(Optional.of("file"));
 
+        moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new GsonSerializerModule());
-        moduleList.add(new ElementCachingManagerModule<>(TempManager.class, TempValue.class));
+        moduleList.add(new MockConfigModule());
         moduleList.add(mockMainModule);
-
-        Injector injector = Guice.createInjector(moduleList);
-        manager = injector.getInstance(TempManager.class);
-
-        observer = manager.getObservers().stream().findFirst().orElse(null);
+        moduleList.add(new MockPluginDirectoryModule());
+        moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockShutdownModule(() -> {
+        }));
     }
 
     @Test
     public void testLoad() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         UUID[] uuids = new UUID[]{
                 UUID.randomUUID(),
                 UUID.randomUUID(),
@@ -99,6 +104,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void getCacheSize() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         when(mockDatabase.load(any())).thenReturn(null);
 
         //start manager
@@ -122,6 +130,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void getDecached() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = org.powermock.reflect.Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = org.powermock.reflect.Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -149,6 +160,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void valueNotExist() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -169,6 +183,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void getOrNew() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -194,6 +211,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void updateKeyString() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -243,6 +263,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void delete() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
         Map<UUID, String> keyToNameMap = (Map<UUID, String>) Whitebox.getInternalState(manager, "keyToNameMap");
@@ -275,6 +298,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void reset() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -311,6 +337,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test(expected = RuntimeException.class)
     public void resetInvalidCache() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -341,6 +370,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void forEach2() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<String, String> tempDb = new HashMap<>();
         for (int i = 0; i < 100; i++) {
             UUID uuid = UUID.randomUUID();
@@ -391,6 +423,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void forEachDeadLock() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<String, String> tempDb = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
             UUID uuid = UUID.randomUUID();
@@ -431,6 +466,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void forEach() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         //start manager
         manager.enable();
         manager.load();
@@ -452,6 +490,9 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void search() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+
         Map<UUID, TempValue> cachedElements = (Map<UUID, TempValue>) Whitebox.getInternalState(manager, "cachedElements");
         Map<String, UUID> nameMap = (Map<String, UUID>) Whitebox.getInternalState(manager, "nameToKeyMap");
 
@@ -460,6 +501,8 @@ public class AbstractManagerElementCachingTest {
         //start manager
         manager.enable();
         manager.load();
+
+        IObserver observer = manager.getObservers().stream().findFirst().orElse(null);
 
         //new
         TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
@@ -476,19 +519,28 @@ public class AbstractManagerElementCachingTest {
 
     @Test
     public void testTypeAssertion() {
-        new ElementCachingManagerModule<>(TempManager.class, TempValue.class);
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
     }
 
-    @Test(expected = AssertionError.class)
+    @Test(expected = ProvisionException.class)
     public void testTypeAssertionFail() {
-        new ElementCachingManagerModule<>(TempManager.class, TempValue2.class);
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager2 manager = injector.getInstance(TempManager2.class);
     }
 
     @Singleton
     static class TempManager extends AbstractManagerElementCaching<UUID, TempValue> {
+
         @Inject
-        public TempManager(PluginMain main, ISerializer serializer, Injector injector) {
-            super(main, serializer, injector, TempValue.class);
+        public TempManager(@Named("pluginName") String pluginName,
+                           @PluginLogger Logger logger,
+                           ManagerConfig config,
+                           @PluginDirectory File pluginDir,
+                           IShutdownHandle shutdownHandle,
+                           ISerializer serializer,
+                           Injector injector) {
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, TempValue.class);
         }
 
         @Override
@@ -537,6 +589,36 @@ public class AbstractManagerElementCachingTest {
 
             notifyObservers();
             return this;
+        }
+    }
+
+    @Singleton
+    static class TempManager2 extends AbstractManagerElementCaching<UUID, TempValue2> {
+
+        @Inject
+        public TempManager2(@Named("pluginName") String pluginName,
+                            @PluginLogger Logger logger,
+                            ManagerConfig config,
+                            @PluginDirectory File pluginDir,
+                            IShutdownHandle shutdownHandle,
+                            ISerializer serializer,
+                            Injector injector) {
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, TempValue2.class);
+        }
+
+        @Override
+        protected Databases.DatabaseFactory createDatabaseFactory() {
+            return (type) -> mockDatabase;
+        }
+
+        @Override
+        protected UUID fromString(String string) {
+            return UUID.fromString(string);
+        }
+
+        @Override
+        protected TempValue2 newInstance(UUID key) {
+            return new TempValue2(key);
         }
     }
 

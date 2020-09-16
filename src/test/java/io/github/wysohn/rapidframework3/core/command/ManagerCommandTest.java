@@ -3,10 +3,12 @@ package io.github.wysohn.rapidframework3.core.command;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
 import io.github.wysohn.rapidframework3.core.inject.module.MainCommandsModule;
+import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
-import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,8 +28,15 @@ public class ManagerCommandTest {
 
     @Before
     public void init() {
+        moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new MainCommandsModule("test"));
+        moduleList.add(new LanguagesModule());
         moduleList.add(new MockMainModule());
+        moduleList.add(new MockStorageFactoryModule());
+        moduleList.add(new MockPluginDirectoryModule());
+        moduleList.add(new MockBroadcasterModule());
+        moduleList.add(new MockMessageSenderModule());
+        moduleList.add(new MockLoggerModule());
     }
 
     @Test
@@ -45,8 +54,8 @@ public class ManagerCommandTest {
         Injector injector = Guice.createInjector(moduleList);
         ManagerCommand managerCommand = injector.getInstance(ManagerCommand.class);
 
-        SubCommand spyCommand = new SubCommand.Builder(managerCommand.main(), "somecmd")
-                .create();
+        SubCommand spyCommand = new SubCommand.Builder("somecmd")
+                .create(injector);
         managerCommand.enable();
         managerCommand.addCommand(spyCommand);
 
@@ -63,7 +72,7 @@ public class ManagerCommandTest {
         ManagerCommand managerCommand = injector.getInstance(ManagerCommand.class);
 
         managerCommand.enable();
-        managerCommand.addCommand(new SubCommand.Builder(managerCommand.main(), "somecmd")
+        managerCommand.addCommand(new SubCommand.Builder("somecmd")
                 .addTabCompleter(0, TabCompleters.EMPTY)
                 .addTabCompleter(1, TabCompleters.NULL)
                 .addTabCompleter(2, new ITabCompleter() {
@@ -78,9 +87,9 @@ public class ManagerCommandTest {
                     }
                 })
                 .addTabCompleter(3, TabCompleters.simple("ddeeff", "ggrr", "gger"))
-                .create());
-        managerCommand.addCommand(new SubCommand.Builder(managerCommand.main(), "othercmd")
-                .create());
+                .create(injector));
+        managerCommand.addCommand(new SubCommand.Builder("othercmd")
+                .create(injector));
 
         when(mockSender.hasPermission(anyVararg())).thenReturn(true);
 

@@ -2,8 +2,8 @@ package io.github.wysohn.rapidframework3.bukkit.manager.task;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * Simple class designed to do some repetitive tasks 'lazily.' This 'lazy'
@@ -30,10 +31,11 @@ public class ManagerLazyTask extends Manager {
     private final ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
 
     private final Map<String, ScheduledFuture<?>> tasks = new HashMap<>();
+    private final Logger logger;
 
     @Inject
-    public ManagerLazyTask(PluginMain main) {
-        super(main);
+    public ManagerLazyTask(@PluginLogger Logger logger) {
+        this.logger = logger;
     }
 
     @Override
@@ -48,9 +50,9 @@ public class ManagerLazyTask extends Manager {
 
     @Override
     public void disable() throws Exception {
-        main().getLogger().info("Waiting for lazy tasks to finish...");
+        logger.info("Waiting for lazy tasks to finish...");
         pool.shutdown();
-        main().getLogger().info("Done.");
+        logger.info("Done.");
     }
 
     /**

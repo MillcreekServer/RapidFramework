@@ -1,6 +1,5 @@
 package io.github.wysohn.rapidframework3.core.language;
 
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
@@ -17,24 +16,24 @@ public class Pagination<T> {
     public static String HOME = "&8[&aHome&8]";
     public static String RIGHT_ARROW = "&8[&a--->&8]";
 
-    private final PluginMain main;
+    private final ManagerLanguage lang;
     private final DataProvider<T> dataProvider;
     private final int max;
     private final String title;
 
     private final String cmd;
 
-    public Pagination(PluginMain main, DataProvider<T> dataProvider, int max, String title, String cmd) {
-        this.main = main;
+    public Pagination(ManagerLanguage lang, DataProvider<T> dataProvider, int max, String title, String cmd) {
+        this.lang = lang;
         this.dataProvider = dataProvider;
         this.max = max;
         this.title = title;
         this.cmd = cmd;
     }
 
-    public static <T> Pagination<T> list(PluginMain main, List<T> list, int max, String title, String cmd) {
+    public static <T> Pagination<T> list(ManagerLanguage lang, List<T> list, int max, String title, String cmd) {
         DataProvider<T> provider = new ListWrapper<>(list);
-        return new Pagination<>(main, provider, max, title, cmd);
+        return new Pagination<>(lang, provider, max, title, cmd);
     }
 
     /**
@@ -43,10 +42,10 @@ public class Pagination<T> {
      * @param messageFn
      */
     public void show(ICommandSender sender, int page, MessageConverter<T> messageFn) {
-        main.lang().sendMessage(sender, DefaultLangs.General_Line);
-        main.lang().sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) ->
+        lang.sendMessage(sender, DefaultLangs.General_Line);
+        lang.sendMessage(sender, DefaultLangs.General_Header, ((sen, langman) ->
                 langman.addString(title)));
-        main.lang().sendRawMessage(sender, MessageBuilder.forMessage("").build());
+        lang.sendRawMessage(sender, MessageBuilder.forMessage("").build());
 
         exec.submit(() -> dataProvider.sync(() -> {
             int remainder = dataProvider.size() % max;
@@ -66,12 +65,12 @@ public class Pagination<T> {
                     continue;
                 }
 
-                main.lang().sendRawMessage(sender, messageFn.convert(sender, val, index));
+                lang.sendRawMessage(sender, messageFn.convert(sender, val, index));
             }
 
-            main.lang().sendMessage(sender, DefaultLangs.General_Line);
+            lang.sendMessage(sender, DefaultLangs.General_Line);
 
-            if (main.lang().isJsonEnabled()) {
+            if (lang.isJsonEnabled()) {
                 final String cmdPrev = this.cmd + " " + p;
                 final String cmdHome = this.cmd;
                 final String cmdNext = this.cmd + " " + (p + 2);
@@ -89,14 +88,14 @@ public class Pagination<T> {
                         .withClickRunCommand(cmdNext)
                         .build();
 
-                main.lang().sendRawMessage(sender, btns);
+                lang.sendRawMessage(sender, btns);
             } else {
-                main.lang().sendMessage(sender, DefaultLangs.Command_Help_TypeHelpToSeeMore, ((sen, langman) ->
+                lang.sendMessage(sender, DefaultLangs.Command_Help_TypeHelpToSeeMore, ((sen, langman) ->
                         langman.addString(this.cmd + " <page>")));
             }
 
             final int pageCopy = p + 1;
-            main.lang().sendMessage(sender, DefaultLangs.Command_Help_PageDescription, ((sen, langman) ->
+            lang.sendMessage(sender, DefaultLangs.Command_Help_PageDescription, ((sen, langman) ->
                     langman.addInteger(pageCopy).addInteger(outof)));
             sender.sendMessageRaw("");
         }));

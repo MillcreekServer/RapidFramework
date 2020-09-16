@@ -2,26 +2,33 @@ package io.github.wysohn.rapidframework3.core.permission;
 
 import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IParentProvider;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermission;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermissionHolder;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 
+import java.io.File;
 import java.lang.ref.Reference;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public abstract class AbstractPermissionManager extends AbstractManagerElementCaching<UUID, PermissionStorage> {
     private final IParentProvider parentProvider;
 
-    public AbstractPermissionManager(PluginMain main,
+    public AbstractPermissionManager(String pluginName,
+                                     Logger logger,
+                                     ManagerConfig config,
+                                     File pluginDir,
+                                     IShutdownHandle shutdownHandle,
                                      ISerializer serializer,
                                      Injector injector,
                                      IParentProvider parentProvider) {
-        super(main, serializer, injector, PermissionStorage.class);
+        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, PermissionStorage.class);
         this.parentProvider = parentProvider;
     }
 

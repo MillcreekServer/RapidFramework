@@ -1,23 +1,23 @@
 package io.github.wysohn.rapidframework3.core.command;
 
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
+import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 public class SubCommandTest {
     PluginMain mockMain;
     ManagerLanguage mockLang;
     TempSender mockSender;
+    private List<Module> moduleList;
 
     @Before
     public void init() {
@@ -26,13 +26,24 @@ public class SubCommandTest {
         mockSender = Mockito.mock(TempSender.class);
 
         Mockito.when(mockMain.lang()).thenReturn(mockLang);
+
+        moduleList = new LinkedList<>();
+        moduleList.add(new MockMainModule());
+        moduleList.add(new AbstractModule() {
+            @Provides
+            ManagerLanguage managerLanguage() {
+                return mockLang;
+            }
+        });
     }
 
     @Test
     public void execute() {
+        Injector injector = Guice.createInjector(moduleList);
+
         List<Object> values = new ArrayList<>();
 
-        SubCommand cmd = new SubCommand.Builder(mockMain, "testcmd", 3)
+        SubCommand cmd = new SubCommand.Builder("testcmd", 3)
                 .withAlias("testalias")
                 .withDescription(TempLang.Description, (sen, langman) -> {
 
@@ -52,7 +63,7 @@ public class SubCommandTest {
                     values.add(args.get(2).orElse(-1.0));
                     return true;
                 }))
-                .create();
+                .create(injector);
 
         Assert.assertTrue(cmd.execute(mockSender, "testcmd", new String[]{"abc", "243", "356.55"}));
 

@@ -21,7 +21,6 @@ import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.events.PlayerBlockLocationEvent;
 import io.github.wysohn.rapidframework3.bukkit.events.PlayerChunkLocationEvent;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.data.SimpleChunkLocation;
 import io.github.wysohn.rapidframework3.data.SimpleLocation;
 import org.bukkit.Bukkit;
@@ -42,8 +41,7 @@ public class ManagerPlayerLocation extends Manager {
     private static PlayerTracker TRACKER;
 
     @Inject
-    public ManagerPlayerLocation(PluginMain main) {
-        super(main);
+    public ManagerPlayerLocation() {
     }
 
     public static SimpleLocation getCurrentBlockLocation(UUID uuid) {

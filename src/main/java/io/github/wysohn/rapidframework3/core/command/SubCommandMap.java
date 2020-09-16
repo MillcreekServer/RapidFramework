@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.command;
 
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.utils.DoubleChecker;
@@ -10,17 +10,20 @@ import java.util.*;
 import java.util.function.Predicate;
 
 class SubCommandMap {
+    private final String rootPermission;
     private final Map<String, SubCommand> commandList = new LinkedHashMap<>();
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
     private final Map<UUID, String> checking = new HashMap<>();
     private final DoubleChecker doubleChecker;
 
-    public SubCommandMap() {
+    public SubCommandMap(String rootPermission) {
+        this.rootPermission = rootPermission;
         doubleChecker = new DoubleChecker();
     }
 
-    public SubCommandMap(DoubleChecker doubleChecker) {
+    public SubCommandMap(String rootPermission, DoubleChecker doubleChecker) {
+        this.rootPermission = rootPermission;
         this.doubleChecker = doubleChecker;
     }
 
@@ -30,13 +33,13 @@ class SubCommandMap {
     }
 
     /**
-     * @param main
+     * @param lang
      * @param sender
      * @param label
      * @param arg1
      * @return false if arg1 was 0 length String; true otherwise
      */
-    public boolean dispatch(PluginMain main, ICommandSender sender, String label, String arg1) {
+    public boolean dispatch(ManagerLanguage lang, ICommandSender sender, String label, String arg1) {
         String[] split = arg1.split(" ");
 
         final String cmd;
@@ -52,9 +55,9 @@ class SubCommandMap {
         SubCommand command = commandList.get(cmd);
 
         if (command != null) {
-            if (command.permission != null
-                    && !sender.hasPermission(main.getRootPermission(), command.permission)) {
-                main.lang().sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
+            if (command.getPermission() != null
+                    && !sender.hasPermission(rootPermission, command.getPermission())) {
+                lang.sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
                 return true;
             }
 
@@ -68,7 +71,7 @@ class SubCommandMap {
             }
 
             if (command.nArguments != -1 && command.nArguments != args.length) {
-                sendCommandDetails(main, sender, label, command);
+                sendCommandDetails(lang, sender, label, command);
                 return true;
             }
 
@@ -85,20 +88,20 @@ class SubCommandMap {
                     doubleChecker.init(sender.getUuid(), () -> {
                         checking.remove(sender.getUuid());
                         if (!command.execute(sender, label, args)) {
-                            sendCommandDetails(main, sender, label, command);
+                            sendCommandDetails(lang, sender, label, command);
                         }
                     }, () -> {
                         checking.remove(sender.getUuid());
-                        main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Timeout, ((sen, langman) ->
+                        lang.sendMessage(sender, DefaultLangs.Command_DoubleCheck_Timeout, ((sen, langman) ->
                                 langman.addString(command.name)));
                     });
 
-                    main.lang().sendMessage(sender, DefaultLangs.Command_DoubleCheck_Init);
+                    lang.sendMessage(sender, DefaultLangs.Command_DoubleCheck_Init);
                     return true;
                 }
             } else {
                 if (!command.execute(sender, label, args)) {
-                    sendCommandDetails(main, sender, label, command);
+                    sendCommandDetails(lang, sender, label, command);
                 }
             }
 
@@ -106,18 +109,18 @@ class SubCommandMap {
         } else if (cmd.equals("") || cmd.equals("help")) {
             return false;
         } else {
-            main.lang().sendMessage(sender, DefaultLangs.General_NoSuchCommand, ((sen, langman) -> {
+            lang.sendMessage(sender, DefaultLangs.General_NoSuchCommand, ((sen, langman) -> {
                 langman.addString(cmd);
             }));
             return true;
         }
     }
 
-    private void sendCommandDetails(PluginMain main, ICommandSender sender, String label, SubCommand command) {
-        main.lang().sendRawMessage(sender, MessageBuilder.empty());
-        main.lang().sendRawMessage(sender, ManagerCommand.buildCommandDetail(main, label, sender, command));
-        ManagerCommand.buildSpecifications(main, label, sender, command).forEach(message ->
-                main.lang().sendRawMessage(sender, message));
+    private void sendCommandDetails(ManagerLanguage lang, ICommandSender sender, String label, SubCommand command) {
+        lang.sendRawMessage(sender, MessageBuilder.empty());
+        lang.sendRawMessage(sender, ManagerCommand.buildCommandDetail(lang, label, sender, command));
+        ManagerCommand.buildSpecifications(lang, label, sender, command).forEach(message ->
+                lang.sendRawMessage(sender, message));
     }
 
     public List<String> tabComplete(ICommandSender sender, String subCommand, int index, String partial) {

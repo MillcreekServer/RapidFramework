@@ -3,7 +3,8 @@ package io.github.wysohn.rapidframework3.bukkit.manager.user;
 import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitPlayer;
 import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,16 +12,25 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.io.File;
 import java.lang.ref.Reference;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public abstract class AbstractUserManager<V extends BukkitPlayer>
         extends AbstractManagerElementCaching<UUID, V>
         implements Listener {
 
-    public AbstractUserManager(PluginMain main, ISerializer serializer, Injector injector, Class<V> type) {
-        super(main, serializer, injector, type);
+    public AbstractUserManager(String pluginName,
+                               Logger logger,
+                               ManagerConfig config,
+                               File pluginDir,
+                               IShutdownHandle shutdownHandle,
+                               ISerializer serializer,
+                               Injector injector,
+                               Class<V> type) {
+        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, type);
     }
 
     @Override

@@ -7,7 +7,6 @@ import io.github.wysohn.rapidframework3.core.command.SubCommand;
 import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
 import io.github.wysohn.rapidframework3.core.inject.module.ManagerModule;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.main.PluginMainBuilder;
 import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
@@ -101,8 +100,8 @@ public class AbstractBukkitPluginTest extends AbstractBukkitTest {
     private static class Manager1 extends Manager {
 
         @Inject
-        public Manager1(PluginMain main) {
-            super(main);
+        public Manager1() {
+            super();
         }
 
         @Override

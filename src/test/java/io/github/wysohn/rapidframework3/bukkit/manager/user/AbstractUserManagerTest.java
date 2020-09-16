@@ -5,17 +5,23 @@ import io.github.wysohn.rapidframework3.bukkit.data.BukkitPlayer;
 import io.github.wysohn.rapidframework3.bukkit.testutils.manager.AbstractBukkitManagerTest;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
+import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
-import io.github.wysohn.rapidframework3.testmodules.MockSerializerModule;
+import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.inject.Named;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
@@ -36,8 +42,15 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
 
         when(mockDatabase.load(anyString())).thenReturn("{\"key\": \"" + PLAYER_UUID + "\"}");
 
+        moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new MockMainModule());
+        moduleList.add(new MockConfigModule());
         moduleList.add(new MockSerializerModule(mockSerializer));
+        moduleList.add(new MockStorageFactoryModule());
+        moduleList.add(new MockPluginDirectoryModule());
+        moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockShutdownModule(() -> {
+        }));
     }
 
     @Test
@@ -64,6 +77,9 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
     }
 
     private static class User extends BukkitPlayer {
+        public User() {
+            super(null);
+        }
 
         protected User(UUID key) {
             super(key);
@@ -73,8 +89,14 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
     @Singleton
     private static class Temp extends AbstractUserManager<User> {
         @Inject
-        public Temp(PluginMain main, ISerializer serializer, Injector injector) {
-            super(main, serializer, injector, User.class);
+        public Temp(@Named("pluginName") String pluginName,
+                    @PluginLogger Logger logger,
+                    ManagerConfig config,
+                    @PluginDirectory File pluginDir,
+                    IShutdownHandle shutdownHandle,
+                    ISerializer serializer,
+                    Injector injector) {
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, User.class);
         }
 
         @Override

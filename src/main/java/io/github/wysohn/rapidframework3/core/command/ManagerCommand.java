@@ -1,17 +1,21 @@
 package io.github.wysohn.rapidframework3.core.command;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginCommands;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.language.Pagination;
 import io.github.wysohn.rapidframework3.core.main.Manager;
+import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
+import javax.inject.Named;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,6 +24,10 @@ public final class ManagerCommand extends Manager {
     private final String[] mainCommands;
     private final String defaultCommand = "help";
     private final Map<String, SubCommandMap> commandMaps = new HashMap<>();
+    private final ManagerLanguage lang;
+    private final ManagerConfig config;
+    private final String pluginName;
+    private final Injector injector;
 
     /**
      * Construct command manager.
@@ -28,36 +36,31 @@ public final class ManagerCommand extends Manager {
      */
     @Inject
     public ManagerCommand(PluginMain main,
-                          @PluginCommands String[] mainCommands) {
-        super(main);
+                          ManagerLanguage lang,
+                          ManagerConfig config,
+                          @Named("pluginName") String pluginName,
+                          @Named("rootPermission") String rootPermission,
+                          @PluginCommands String[] mainCommands,
+                          Injector injector) {
         Validation.validate(mainCommands.length, val -> val > 0, "Must provide at least one command.");
 
+        this.lang = lang;
+        this.config = config;
+        this.pluginName = pluginName;
         this.mainCommands = mainCommands;
         for (String mainCommand : mainCommands) {
-            commandMaps.put(mainCommand, new SubCommandMap());
+            commandMaps.put(mainCommand, new SubCommandMap(rootPermission));
         }
+        this.injector = injector;
     }
 
     @Override
     public void enable() throws Exception {
-        initDefaultCommands();
+
     }
 
     private void initDefaultCommands() {
-        addCommand(new SubCommand.Builder(main(), "reload")
-                .withDescription(DefaultLangs.Command_Reload_Description)
-                .addUsage(DefaultLangs.Command_Reload_Usage)
-                .action(((sender, args) -> {
-                    try {
-                        main().load();
-                        main().lang().sendMessage(sender, DefaultLangs.Command_Reload_Done);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
 
-                    return true;
-                }))
-                .create());
     }
 
     @Override
@@ -138,13 +141,13 @@ public final class ManagerCommand extends Manager {
             cmdLine.append(' ');
         }
 
-        if (!commandMap.dispatch(main(), sender, label, cmdLine.toString())) {
+        if (!commandMap.dispatch(lang, sender, label, cmdLine.toString())) {
             int page = 0;
             if (args.length > 1) {
                 try {
                     page = Integer.parseInt(args[1]);
                 } catch (NumberFormatException ex) {
-                    main().lang().sendMessage(sender, DefaultLangs.General_NotInteger, ((sen, langman) ->
+                    lang.sendMessage(sender, DefaultLangs.General_NotInteger, ((sen, langman) ->
                             langman.addString(args[1])));
                     return true;
                 }
@@ -158,7 +161,7 @@ public final class ManagerCommand extends Manager {
         return true;
     }
 
-    static List<Message[]> buildSpecifications(PluginMain main, String label, ICommandSender sender, SubCommand c) {
+    static List<Message[]> buildSpecifications(ManagerLanguage lang, String label, ICommandSender sender, SubCommand c) {
         List<Message[]> messages = new ArrayList<>();
 
         if (c.specifications != null) {
@@ -172,8 +175,8 @@ public final class ManagerCommand extends Manager {
                 builder.withClickSuggestCommand(combined);
                 builder.append(" &f");
 
-                dlang.parser.onParse(sender, main.lang());
-                String descValue = main.lang().parseFirst(sender, dlang.lang);
+                dlang.parser.onParse(sender, lang);
+                String descValue = lang.parseFirst(sender, dlang.lang);
                 if (descValue.length() < 10) {
                     builder.append(descValue);
                 } else {
@@ -188,15 +191,15 @@ public final class ManagerCommand extends Manager {
         return messages;
     }
 
-    static Message[] buildCommandDetail(PluginMain main, String label, ICommandSender sender, SubCommand c) {
+    static Message[] buildCommandDetail(ManagerLanguage lang, String label, ICommandSender sender, SubCommand c) {
         if (c.description == null) {
             return MessageBuilder.empty();
         } else {
             // description
-            c.description.parser.onParse(sender, main.lang());
-            String descValue = main.lang().parseFirst(sender, c.description.lang);
+            c.description.parser.onParse(sender, lang);
+            String descValue = lang.parseFirst(sender, c.description.lang);
 
-            MessageBuilder messageBuilder = MessageBuilder.forMessage(main.lang().parseFirst(sender,
+            MessageBuilder messageBuilder = MessageBuilder.forMessage(lang.parseFirst(sender,
                     DefaultLangs.Command_Format_Description, ((sen, langman) -> {
                         langman.addString(label);
                         langman.addString(c.name);
@@ -204,13 +207,13 @@ public final class ManagerCommand extends Manager {
                     })))
                     .withClickSuggestCommand("/" + label + " " + c.name);
 
-            String aliasAndUsage = buildAliasAndUsageString(main, sender, c);
+            String aliasAndUsage = buildAliasAndUsageString(lang, sender, c);
 
             return messageBuilder.withHoverShowText(aliasAndUsage).build();
         }
     }
 
-    static String buildAliasAndUsageString(PluginMain main, ICommandSender sender, SubCommand c) {
+    static String buildAliasAndUsageString(ManagerLanguage lang, ICommandSender sender, SubCommand c) {
         StringBuilder builder = new StringBuilder();
 
         // aliases
@@ -221,7 +224,7 @@ public final class ManagerCommand extends Manager {
         }
 
         if (builderAliases.length() > 0) {
-            builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
+            builder.append(lang.parseFirst(sender, DefaultLangs.Command_Format_Aliases, ((sen, langman) -> {
                 langman.addString(builderAliases.toString());
             })));
             builder.append('\n');
@@ -229,11 +232,11 @@ public final class ManagerCommand extends Manager {
 
         // usages
         c.usage.forEach(dynamicLang -> {
-            dynamicLang.parser.onParse(sender, main.lang());
-            String[] usageVals = main.lang().parse(sender, dynamicLang.lang);
+            dynamicLang.parser.onParse(sender, lang);
+            String[] usageVals = lang.parse(sender, dynamicLang.lang);
 
             for (String usage : usageVals) {
-                builder.append(main.lang().parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) ->
+                builder.append(lang.parseFirst(sender, DefaultLangs.Command_Format_Usage, ((sen, langman) ->
                         langman.addString(usage))));
                 builder.append('\n');
             }
@@ -253,19 +256,19 @@ public final class ManagerCommand extends Manager {
 
         List<SubCommand> list = commandMap.entrySet().stream()
                 .map(Map.Entry::getValue)
-                .filter(cmd -> sender.hasPermission(cmd.permission))
+                .filter(cmd -> sender.hasPermission(cmd.getPermission()))
                 .sorted((Comparator.comparing(cmd -> cmd.name)))
                 .collect(Collectors.toList());
 
-        main().lang().sendRawMessage(sender, MessageBuilder.forMessage("").build());
+        lang.sendRawMessage(sender, MessageBuilder.forMessage("").build());
 
-        int max = main().conf().get("command.help.sentenceperpage")
+        int max = config.get("command.help.sentenceperpage")
                 .map(Object::toString)
                 .map(Integer::parseInt)
                 .orElse(6);
 
-        Pagination.list(main(), list, max, main().getPluginName(), "/" + mainCommand + " help")
-                .show(sender, page, (s, c, i) -> buildCommandDetail(main(), label, s, c));
+        Pagination.list(lang, list, max, pluginName, "/" + mainCommand + " help")
+                .show(sender, page, (s, c, i) -> buildCommandDetail(lang, label, s, c));
     }
 
     /**
@@ -294,7 +297,7 @@ public final class ManagerCommand extends Manager {
                     .map(Map.Entry::getValue)
                     .filter(cmd -> args_in.length == 1)
                     .filter(cmd -> args_in[args_in.length - 1].length() > 0)
-                    .filter(cmd -> sender.hasPermission(cmd.permission))
+                    .filter(cmd -> sender.hasPermission(cmd.getPermission()))
                     .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
                     .filter(cmd -> cmd.name.startsWith(args_in[args_in.length - 1]))
                     .sorted((Comparator.comparing(cmd -> cmd.name)))

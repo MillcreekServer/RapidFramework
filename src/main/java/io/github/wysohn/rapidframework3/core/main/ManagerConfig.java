@@ -17,15 +17,12 @@ import java.util.concurrent.TimeUnit;
 public class ManagerConfig extends Manager {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final File pluginDirectory;
     private final IKeyValueStorage storage;
 
     @Inject
-    public ManagerConfig(PluginMain main,
-                         @PluginDirectory File pluginDirectory,
+    public ManagerConfig(@PluginDirectory File pluginDirectory,
                          IStorageFactory storageFactory) {
-        super(main);
-        this.pluginDirectory = pluginDirectory;
+        super();
         this.storage = storageFactory.create(pluginDirectory, "config.yml");
     }
 

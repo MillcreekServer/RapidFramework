@@ -2,8 +2,9 @@ package io.github.wysohn.rapidframework3.core.language;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
@@ -16,9 +17,11 @@ import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -86,6 +89,8 @@ public class ManagerLanguage extends Manager {
     private final Queue<Boolean> bool = new LinkedList<>();
     private final Queue<Date> date = new LinkedList<>();
     private final Map<String, Integer> dateStyleMap = new HashMap<>();
+    private final File pluginDir;
+    private final Logger logger;
 
     {
         dateStyleMap.put("default", DateFormat.DEFAULT);
@@ -96,14 +101,16 @@ public class ManagerLanguage extends Manager {
     }
 
     @Inject
-    public ManagerLanguage(PluginMain main,
+    public ManagerLanguage(@PluginDirectory File pluginDir,
+                           @PluginLogger Logger logger,
                            Set<ILang> languages,
                            ILangSessionFactory langSessionFactory,
                            IMessageSender messageSender,
                            IBroadcaster broadcaster,
                            DecimalFormat decimalFormat,
                            Locale defaultLang) {
-        super(main);
+        this.pluginDir = pluginDir;
+        this.logger = logger;
         this.languages = languages;
         this.langSessionFactory = langSessionFactory;
         this.messageSender = messageSender;
@@ -123,7 +130,7 @@ public class ManagerLanguage extends Manager {
 
     @Override
     public void load() throws Exception {
-        JarUtil.copyFromJar("lang/*", main().getPluginDirectory(), JarUtil.CopyOption.COPY_IF_NOT_EXIST);
+        JarUtil.copyFromJar("lang/*", pluginDir, JarUtil.CopyOption.COPY_IF_NOT_EXIST);
 
         languageSessions.clear();
 
@@ -285,13 +292,13 @@ public class ManagerLanguage extends Manager {
         Validation.assertNotNull(handle);
 
         if (!languages.contains(lang)) {
-            main().getLogger().severe("Lang " + lang + " is not registered.");
+            logger.severe("Lang " + lang + " is not registered.");
             return new String[0];
         }
 
         ILangSession session = languageSessions.getOrDefault(locale, languageSessions.get(defaultLang));
         if (session == null) {
-            main().getLogger().severe("No language session is loaded. Using temporary session.");
+            logger.severe("No language session is loaded. Using temporary session.");
             session = new ILangSession() {
                 @Override
                 public List<String> translate(ILang lang) {
@@ -310,7 +317,7 @@ public class ManagerLanguage extends Manager {
         if (values == null || values.isEmpty()) {
             values = Stream.of(lang.getEngDefault()).collect(Collectors.toList());
 
-            main().getLogger().fine("Using default value for " + lang);
+            logger.fine("Using default value for " + lang);
         }
 
         handle.onParse(sender, this);

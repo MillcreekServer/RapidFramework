@@ -10,13 +10,9 @@ public abstract class Mediator extends PluginModule {
      * all the registered Managers will be available when the Mediator is instantiated.
      * <p>
      * Each child class, just like Manager, is expected to be 'injectable' and 'singleton'. Refer to
-     * the {@link Manager#Manager(PluginMain)} for the details
-     *
-     * @param main
+     * the {@link Manager#Manager()} for the details
      */
-    public Mediator(PluginMain main) {
-        super(main);
-
-        verifySingleton(this);
+    public Mediator() {
+        super();
     }
 }

@@ -2,8 +2,8 @@ package io.github.wysohn.rapidframework3.core.chat;
 
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.main.Manager;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
@@ -20,12 +20,13 @@ public abstract class AbstractChatManager extends Manager {
 
     private final IKeyValueStorage configStorage;
     private final IPlaceholderSupport placeholderSupport;
+    private final ManagerLanguage lang;
 
-    public AbstractChatManager(PluginMain main,
+    public AbstractChatManager(ManagerLanguage lang,
                                @PluginDirectory File pluginDir,
                                IStorageFactory storageFactory,
                                IPlaceholderSupport placeholderSupport) {
-        super(main);
+        this.lang = lang;
         this.configStorage = storageFactory.create(pluginDir, "chat.yml");
         this.placeholderSupport = placeholderSupport;
     }
@@ -71,7 +72,7 @@ public abstract class AbstractChatManager extends Manager {
                 .build();
 
         recipients.forEach(recipient ->
-                main().lang().sendRawMessage(recipient, Message.concat(formattedPrefixes, formattedName, text)));
+                lang.sendRawMessage(recipient, Message.concat(formattedPrefixes, formattedName, text)));
     }
 
     private void buildMessage(ICommandSender sender, MessageBuilder<?> builder, Object section) {

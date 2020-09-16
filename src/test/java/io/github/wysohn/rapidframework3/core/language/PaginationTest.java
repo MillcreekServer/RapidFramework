@@ -38,7 +38,7 @@ public class PaginationTest {
         }
 
         String cmd = "/some command";
-        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
@@ -73,7 +73,7 @@ public class PaginationTest {
         }
 
         String cmd = "/some command";
-        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
         pagination.show(mockSender, 1, (sender, message, i) -> MessageBuilder.forMessage(message).build());
@@ -108,7 +108,7 @@ public class PaginationTest {
         }
 
         String cmd = "/some command";
-        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
         pagination.show(mockSender, 3, (sender, message, i) -> MessageBuilder.forMessage(message).build());
@@ -143,7 +143,7 @@ public class PaginationTest {
         }
 
         String cmd = "/some command";
-        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
@@ -178,7 +178,7 @@ public class PaginationTest {
         }
 
         String cmd = "/some command";
-        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 10,
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 10,
                 "title", cmd);
 
         pagination.show(mockSender, 8, (sender, message, i) -> MessageBuilder.forMessage(message).build());
@@ -213,7 +213,7 @@ public class PaginationTest {
         }
 
         String cmd = "/some command";
-        Pagination<String> pagination = new Pagination<>(mockMain, ListWrapper.wrap(messages), 6,
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
                 "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
