@@ -16,5 +16,7 @@ public abstract class Mediator extends PluginModule {
      */
     public Mediator(PluginMain main) {
         super(main);
+
+        verifySingleton(this);
     }
 }
