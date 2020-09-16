@@ -39,7 +39,7 @@ public class PluginMain implements PluginRuntime {
     private ExecutorService executorService;
 
     @Inject
-    private IShutdownHandle shutdownModule;
+    private IShutdownHandle shutdownHandle;
 
     @Inject
     private Map<Class<? extends Manager>, Manager> managerMap;
@@ -224,6 +224,6 @@ public class PluginMain implements PluginRuntime {
     }
 
     public void shutdown() {
-        shutdownModule.shutdown();
+        shutdownHandle.shutdown();
     }
 }
