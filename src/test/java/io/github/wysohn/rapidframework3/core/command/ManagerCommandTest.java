@@ -1,14 +1,12 @@
 package io.github.wysohn.rapidframework3.core.command;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
+import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.inject.module.MainCommandsModule;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
-import io.github.wysohn.rapidframework3.testmodules.*;
+import io.github.wysohn.rapidframework3.testmodules.MockConfigModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,15 +26,15 @@ public class ManagerCommandTest {
 
     @Before
     public void init() {
+        moduleList.add(new AbstractModule() {
+            @Provides
+            ManagerLanguage language() {
+                return mock(ManagerLanguage.class);
+            }
+        });
+        moduleList.add(new MockConfigModule());
         moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new MainCommandsModule("test"));
-        moduleList.add(new LanguagesModule());
-        moduleList.add(new MockMainModule());
-        moduleList.add(new MockStorageFactoryModule());
-        moduleList.add(new MockPluginDirectoryModule());
-        moduleList.add(new MockBroadcasterModule());
-        moduleList.add(new MockMessageSenderModule());
-        moduleList.add(new MockLoggerModule());
     }
 
     @Test

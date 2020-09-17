@@ -43,14 +43,12 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
         when(mockDatabase.load(anyString())).thenReturn("{\"key\": \"" + PLAYER_UUID + "\"}");
 
         moduleList.add(new PluginInfoModule("test", "test", "test"));
-        moduleList.add(new MockMainModule());
-        moduleList.add(new MockConfigModule());
-        moduleList.add(new MockSerializerModule(mockSerializer));
-        moduleList.add(new MockStorageFactoryModule());
-        moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockConfigModule());
+        moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockShutdownModule(() -> {
         }));
+        moduleList.add(new MockSerializerModule(mockSerializer));
     }
 
     @Test

@@ -33,13 +33,13 @@ public class ManagerLanguageTest {
         langSessionFactory = mock(ILangSessionFactory.class);
         broadcaster = mock(IBroadcaster.class);
 
-        moduleList.add(new MockMainModule());
         moduleList.add(new MockPluginDirectoryModule());
+        moduleList.add(new MockLoggerModule());
+        moduleList.add(new LanguagesModule(TempLang.values()));
         moduleList.add(new MockStorageFactoryModule());
         moduleList.add(new MockMessageSenderModule());
-        moduleList.add(new LanguagesModule(TempLang.values()));
         moduleList.add(new MockBroadcasterModule());
-        moduleList.add(new MockLoggerModule());
+
     }
 
     @Test

@@ -38,25 +38,22 @@ public class AbstractPermissionManagerTest {
 
     private List<Module> moduleList = new LinkedList<>();
     private MockParentProviderModule parentProviderModule;
-    private MockMainModule mockMainModule;
 
     @Before
     public void init() throws Exception {
         mockDatabase = mock(Database.class);
 
         parentProviderModule = new MockParentProviderModule();
-        mockMainModule = new MockMainModule();
 
         moduleList.add(new PluginInfoModule("test", "test", "test"));
-        moduleList.add(new GsonSerializerModule());
-        moduleList.add(mockMainModule);
-        moduleList.add(new MockPluginDirectoryModule());
-        moduleList.add(parentProviderModule);
-        moduleList.add(new MockStorageFactoryModule());
         moduleList.add(new MockLoggerModule());
         moduleList.add(new MockConfigModule());
+        moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockShutdownModule(() -> {
         }));
+        moduleList.add(new GsonSerializerModule());
+        moduleList.add(parentProviderModule);
+
     }
 
     @Test

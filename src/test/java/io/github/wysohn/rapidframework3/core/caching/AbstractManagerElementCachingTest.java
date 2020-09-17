@@ -11,7 +11,10 @@ import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
-import io.github.wysohn.rapidframework3.testmodules.*;
+import io.github.wysohn.rapidframework3.testmodules.MockConfigModule;
+import io.github.wysohn.rapidframework3.testmodules.MockLoggerModule;
+import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.testmodules.MockShutdownModule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,24 +38,20 @@ import static org.mockito.Mockito.*;
 public class AbstractManagerElementCachingTest {
     private static Database mockDatabase;
 
-    private MockMainModule mockMainModule;
-
     private List<Module> moduleList = new LinkedList<>();
 
 
     @Before
     public void init() {
         mockDatabase = mock(Database.class);
-        mockMainModule = new MockMainModule();
 
         moduleList.add(new PluginInfoModule("test", "test", "test"));
-        moduleList.add(new GsonSerializerModule());
-        moduleList.add(new MockConfigModule());
-        moduleList.add(mockMainModule);
-        moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockConfigModule());
+        moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockShutdownModule(() -> {
         }));
+        moduleList.add(new GsonSerializerModule());
     }
 
     @Test

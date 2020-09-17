@@ -3,12 +3,13 @@ package io.github.wysohn.rapidframework3.core.chat;
 import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
-import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
-import io.github.wysohn.rapidframework3.testmodules.*;
+import io.github.wysohn.rapidframework3.testmodules.MockPlaceholderModule;
+import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework3.testmodules.MockStorageFactoryModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,15 +31,17 @@ public class AbstractChatManagerTest {
     @Before
     public void init() {
         mockStorage = mock(IKeyValueStorage.class);
+        ManagerLanguage lang = mock(ManagerLanguage.class);
 
-        moduleList.add(new LanguagesModule());
-        moduleList.add(new MockMainModule());
+        moduleList.add(new AbstractModule() {
+            @Provides
+            ManagerLanguage language() {
+                return lang;
+            }
+        });
         moduleList.add(new MockPluginDirectoryModule());
-        moduleList.add(new MockPlaceholderModule());
         moduleList.add(new MockStorageFactoryModule(mockStorage));
-        moduleList.add(new MockBroadcasterModule());
-        moduleList.add(new MockMessageSenderModule());
-        moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockPlaceholderModule());
     }
 
     @Test

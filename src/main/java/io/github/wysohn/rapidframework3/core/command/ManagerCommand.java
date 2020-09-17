@@ -9,7 +9,6 @@ import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.language.Pagination;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
@@ -35,8 +34,7 @@ public final class ManagerCommand extends Manager {
      * @param mainCommands commands (used after /). If more than one is provided, first command is served as 'main'
      */
     @Inject
-    public ManagerCommand(PluginMain main,
-                          ManagerLanguage lang,
+    public ManagerCommand(ManagerLanguage lang,
                           ManagerConfig config,
                           @Named("pluginName") String pluginName,
                           @Named("rootPermission") String rootPermission,

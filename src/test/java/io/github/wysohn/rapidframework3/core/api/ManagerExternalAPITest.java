@@ -20,8 +20,8 @@ public class ManagerExternalAPITest {
     @Before
     public void init() {
         moduleList.add(new MockMainModule());
-        moduleList.add(new MockGlobalPluginManager());
         moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockGlobalPluginManager());
         moduleList.add(new ExternalAPIModule(Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));
     }
 
