@@ -86,7 +86,7 @@ public class AbstractBukkitPluginTest extends AbstractBukkitTest {
         }
 
         @Override
-        protected void registerCommands(List<SubCommand> commands) {
+        protected void registerCommands(List<SubCommand.Builder> commands) {
 
         }
 

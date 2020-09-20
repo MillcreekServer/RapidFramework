@@ -52,8 +52,7 @@ public class ManagerCommandTest {
         Injector injector = Guice.createInjector(moduleList);
         ManagerCommand managerCommand = injector.getInstance(ManagerCommand.class);
 
-        SubCommand spyCommand = new SubCommand.Builder("somecmd")
-                .create(injector);
+        SubCommand.Builder spyCommand = new SubCommand.Builder("somecmd");
         managerCommand.enable();
         managerCommand.addCommand(spyCommand);
 
@@ -84,10 +83,8 @@ public class ManagerCommandTest {
                         return TabCompleters.list("hint");
                     }
                 })
-                .addTabCompleter(3, TabCompleters.simple("ddeeff", "ggrr", "gger"))
-                .create(injector));
-        managerCommand.addCommand(new SubCommand.Builder("othercmd")
-                .create(injector));
+                .addTabCompleter(3, TabCompleters.simple("ddeeff", "ggrr", "gger")));
+        managerCommand.addCommand(new SubCommand.Builder("othercmd"));
 
         when(mockSender.hasPermission(anyVararg())).thenReturn(true);
 

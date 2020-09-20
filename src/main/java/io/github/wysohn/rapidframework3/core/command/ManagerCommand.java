@@ -75,15 +75,15 @@ public final class ManagerCommand extends Manager {
         return mainCommands[0];
     }
 
-    public void addCommand(String mainCommand, SubCommand cmd) {
+    public void addCommand(String mainCommand, SubCommand.Builder cmd) {
         if (!commandMaps.containsKey(mainCommand))
             throw new RuntimeException(mainCommand + " is not a valid command.");
 
-        commandMaps.get(mainCommand).register(cmd);
+        commandMaps.get(mainCommand).register(cmd.create(injector));
         injector.injectMembers(cmd);
     }
 
-    public void addCommand(SubCommand cmd) {
+    public void addCommand(SubCommand.Builder cmd) {
         addCommand(mainCommands[0], cmd);
     }
 

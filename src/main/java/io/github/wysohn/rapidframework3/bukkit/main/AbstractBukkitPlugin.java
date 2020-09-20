@@ -120,7 +120,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
 
     protected abstract void init(PluginMainBuilder builder);
 
-    protected abstract void registerCommands(List<SubCommand> commands);
+    protected abstract void registerCommands(List<SubCommand.Builder> commands);
 
     @Override
     public void onEnable() {
@@ -147,8 +147,11 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             this.main.load();
 
 
-            List<SubCommand> commands = new ArrayList<>();
+            List<SubCommand.Builder> commands = new ArrayList<>();
             registerCommands(commands);
+            for (SubCommand.Builder command : commands) {
+                main.comm().addCommand(command);
+            }
             commands.forEach(main.comm()::addCommand);
         } catch (Exception ex) {
             ex.printStackTrace();

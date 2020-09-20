@@ -184,8 +184,7 @@ public class PluginMain implements PluginRuntime {
                     }
 
                     return true;
-                }))
-                .create(injector));
+                })));
     }
 
     private Collection<Manager> resolveDependencies() {

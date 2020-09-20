@@ -52,7 +52,7 @@ public class FakePlugin extends AbstractBukkitPlugin {
     }
 
     @Override
-    protected void registerCommands(List<SubCommand> commands) {
+    protected void registerCommands(List<SubCommand.Builder> commands) {
 
     }
 
