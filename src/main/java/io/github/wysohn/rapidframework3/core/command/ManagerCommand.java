@@ -80,6 +80,7 @@ public final class ManagerCommand extends Manager {
             throw new RuntimeException(mainCommand + " is not a valid command.");
 
         commandMaps.get(mainCommand).register(cmd);
+        injector.injectMembers(cmd);
     }
 
     public void addCommand(SubCommand cmd) {
