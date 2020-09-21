@@ -13,6 +13,7 @@ import org.bukkit.conversations.Prompt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public class SimplePrompt implements Prompt {
@@ -58,8 +59,9 @@ public class SimplePrompt implements Prompt {
         ICommandSender sender = BukkitWrapper.sender((CommandSender) conversable);
 
         return Optional.ofNullable(promptText)
-                .map(text -> main.lang().parseFirst(sender, text.lang, text.parser))
-                .map(text -> ChatColor.translateAlternateColorCodes('&', text))
+                .map(text -> main.lang().parse(sender, text.lang, text.parser))
+                .map(texts -> ChatColor.translateAlternateColorCodes('&', Arrays.stream(texts)
+                        .reduce("", (a, b) -> a + "\n" + b)))
                 .orElse("");
     }
 
