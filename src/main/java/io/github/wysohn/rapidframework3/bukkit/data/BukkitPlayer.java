@@ -5,7 +5,9 @@ import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.data.SimpleChunkLocation;
 import io.github.wysohn.rapidframework3.data.SimpleLocation;
 import io.github.wysohn.rapidframework3.data.Vector;
+import io.github.wysohn.rapidframework3.interfaces.IMemento;
 import io.github.wysohn.rapidframework3.interfaces.entity.IPlayer;
+import io.github.wysohn.rapidframework3.utils.Validation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -308,5 +310,38 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
                         pitch))
                 .ifPresent(location -> Optional.ofNullable(sender)
                         .ifPresent(p -> p.teleport(location)));
+    }
+
+    @Override
+    public IMemento saveState() {
+        return new Memento(this);
+    }
+
+    @Override
+    public void restoreState(IMemento savedState) {
+        Memento mem = (Memento) savedState;
+
+        sender.getInventory().setContents(mem.contents);
+    }
+
+    private static class Memento implements IMemento {
+        final ItemStack[] contents;
+
+        public Memento(BukkitPlayer player) {
+            Validation.assertNotNull(player.sender);
+
+            contents = contentDeepCopy(player.sender.getInventory().getContents());
+        }
+    }
+
+    private static ItemStack[] contentDeepCopy(ItemStack[] original) {
+        ItemStack[] copied = new ItemStack[original.length];
+        for (int i = 0; i < original.length; i++) {
+            if (original[i] == null)
+                continue;
+
+            copied[i] = original[i].clone();
+        }
+        return copied;
     }
 }
