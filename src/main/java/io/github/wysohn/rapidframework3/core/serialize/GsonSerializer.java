@@ -1,6 +1,5 @@
 package io.github.wysohn.rapidframework3.core.serialize;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import copy.com.google.gson.*;
 import copy.com.google.gson.internal.bind.TypeAdapters;
@@ -128,7 +127,8 @@ public class GsonSerializer implements ISerializer {
             .setExclusionStrategies(new ExclusionStrategy() {
                 @Override
                 public boolean shouldSkipField(FieldAttributes f) {
-                    return f.getAnnotation(Inject.class) != null
+                    return f.getAnnotation(javax.inject.Inject.class) != null
+                            || f.getAnnotation(com.google.inject.Inject.class) != null
                             || f.hasModifier(Modifier.TRANSIENT | Modifier.STATIC);
                 }
 
