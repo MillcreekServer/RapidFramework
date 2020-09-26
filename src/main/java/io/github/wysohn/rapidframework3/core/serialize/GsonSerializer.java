@@ -153,7 +153,7 @@ public class GsonSerializer implements ISerializer {
     public GsonSerializer(Pair<Class<?>, CustomAdapter<?>>... adapters) {
 
         for (Pair<Class<?>, CustomAdapter<?>> adapter : adapters) {
-            builder.registerTypeAdapter(adapter.key, adapter.value);
+            builder.registerTypeHierarchyAdapter(adapter.key, adapter.value);
         }
 
         gson = builder.create();
