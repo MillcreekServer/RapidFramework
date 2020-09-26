@@ -128,7 +128,8 @@ public class GsonSerializer implements ISerializer {
             .setExclusionStrategies(new ExclusionStrategy() {
                 @Override
                 public boolean shouldSkipField(FieldAttributes f) {
-                    return f.getAnnotation(Inject.class) != null || f.hasModifier(Modifier.STATIC);
+                    return f.getAnnotation(Inject.class) != null
+                            || f.hasModifier(Modifier.TRANSIENT | Modifier.STATIC);
                 }
 
                 @Override
@@ -153,7 +154,7 @@ public class GsonSerializer implements ISerializer {
     public GsonSerializer(Pair<Class<?>, CustomAdapter<?>>... adapters) {
 
         for (Pair<Class<?>, CustomAdapter<?>> adapter : adapters) {
-            builder.registerTypeHierarchyAdapter(adapter.key, adapter.value);
+            builder.registerTypeAdapter(adapter.key, adapter.value);
         }
 
         gson = builder.create();
