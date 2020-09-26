@@ -202,6 +202,7 @@ public class PluginMain implements PluginRuntime {
             unorderedInst.get(i).dependsOn.stream()
                     .map(managerMap::get)
                     .map(indexMap::get)
+                    .filter(Objects::nonNull)
                     .forEach(edgeIndex -> graph.addEdge(nodeIndex, edgeIndex));
         }
         return graph.resolveDependency();
