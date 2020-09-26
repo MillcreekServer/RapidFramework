@@ -199,10 +199,18 @@ public class PluginMain implements PluginRuntime {
         DependencyGraph graph = new DependencyGraph(unorderedInst);
         for (int i = 0; i < unorderedInst.size(); i++) {
             int nodeIndex = i;
-            unorderedInst.get(i).dependsOn.stream()
-                    .map(managerMap::get)
+            Manager current = unorderedInst.get(i);
+            current.dependsOn.stream()
+                    .map(clazz -> {
+                        if (!managerMap.containsKey(clazz))
+                            throw new RuntimeException(Optional.of(current)
+                                    .map(Object::getClass)
+                                    .map(Class::getSimpleName)
+                                    .orElse(null) + " depends on " + clazz.getSimpleName() + ", but it's not registered!");
+
+                        return managerMap.get(clazz);
+                    })
                     .map(indexMap::get)
-                    .filter(Objects::nonNull)
                     .forEach(edgeIndex -> graph.addEdge(nodeIndex, edgeIndex));
         }
         return graph.resolveDependency();
