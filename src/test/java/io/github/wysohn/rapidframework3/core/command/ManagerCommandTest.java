@@ -5,6 +5,7 @@ import io.github.wysohn.rapidframework3.core.inject.module.MainCommandsModule;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.command.CommandAction;
 import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
 import io.github.wysohn.rapidframework3.testmodules.MockConfigModule;
 import org.junit.Before;
@@ -17,8 +18,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ManagerCommandTest {
 
@@ -34,7 +34,7 @@ public class ManagerCommandTest {
         });
         moduleList.add(new MockConfigModule());
         moduleList.add(new PluginInfoModule("test", "test", "test"));
-        moduleList.add(new MainCommandsModule("test"));
+        moduleList.add(new MainCommandsModule("test", "other"));
     }
 
     @Test
@@ -59,6 +59,44 @@ public class ManagerCommandTest {
         assertTrue(managerCommand.onCommand(mockSender, "nottest", "nottest", new String[]{
                 "nottest"
         }));
+    }
+
+    @Test
+    public void onCommand() throws Exception {
+        ICommandSender mockSender = mock(ICommandSender.class);
+        CommandAction action = mock(CommandAction.class);
+
+        Injector injector = Guice.createInjector(moduleList);
+        ManagerCommand managerCommand = injector.getInstance(ManagerCommand.class);
+
+        managerCommand.enable();
+        managerCommand.addCommand(new SubCommand.Builder("somecmd")
+                .addTabCompleter(0, TabCompleters.EMPTY)
+                .addTabCompleter(1, TabCompleters.NULL)
+                .addTabCompleter(2, new ITabCompleter() {
+                    @Override
+                    public List<String> getCandidates(String part) {
+                        return TabCompleters.list("abc", "opq", "bddb");
+                    }
+
+                    @Override
+                    public List<String> getHint() {
+                        return TabCompleters.list("hint");
+                    }
+                })
+                .addTabCompleter(3, TabCompleters.simple("ddeeff", "ggrr", "gger"))
+                .action(action));
+        managerCommand.addCommand(new SubCommand.Builder("othercmd"));
+        managerCommand.linkMainCommand("other", "test", "somecmd");
+
+        when(mockSender.hasPermission(anyVararg())).thenReturn(true);
+
+        managerCommand.onCommand(mockSender, "test", "test", new String[]{
+                "somecmd",
+        });
+        managerCommand.onCommand(mockSender, "other", "other", new String[]{});
+
+        verify(action, times(2)).execute(eq(mockSender), anyVararg());
     }
 
     @Test
@@ -137,6 +175,36 @@ public class ManagerCommandTest {
                 new String[]{"somecmd", "arg1", "arg2", "arg3", "ggr"}));
         assertEquals(TabCompleters.list("gger"), managerCommand.onTabComplete(mockSender, "test", "",
                 new String[]{"somecmd", "arg1", "arg2", "arg3", "gge"}));
+    }
+
+    @Test
+    public void linkMainCommand() throws Exception {
+        ICommandSender mockSender = mock(ICommandSender.class);
+
+        Injector injector = Guice.createInjector(moduleList);
+        ManagerCommand managerCommand = injector.getInstance(ManagerCommand.class);
+
+        managerCommand.enable();
+        managerCommand.addCommand(new SubCommand.Builder("somecmd")
+                .addTabCompleter(0, TabCompleters.EMPTY)
+                .addTabCompleter(1, TabCompleters.NULL)
+                .addTabCompleter(2, new ITabCompleter() {
+                    @Override
+                    public List<String> getCandidates(String part) {
+                        return TabCompleters.list("abc", "opq", "bddb");
+                    }
+
+                    @Override
+                    public List<String> getHint() {
+                        return TabCompleters.list("hint");
+                    }
+                })
+                .addTabCompleter(3, TabCompleters.simple("ddeeff", "ggrr", "gger")));
+        managerCommand.linkMainCommand("other", "test", "somecmd");
+
+        // hint of simple
+        assertEquals(TabCompleters.list("ddeeff", "ggrr", "gger"),
+                managerCommand.onTabComplete(mockSender, "other", "", new String[]{"arg1", "arg2", "arg3", ""}));
     }
 
     class TempSender implements ICommandSender {

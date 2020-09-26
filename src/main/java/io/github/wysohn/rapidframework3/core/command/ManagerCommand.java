@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.utils.Pair;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
 import javax.inject.Named;
@@ -22,11 +23,13 @@ import java.util.stream.Collectors;
 public final class ManagerCommand extends Manager {
     private final String[] mainCommands;
     private final String defaultCommand = "help";
-    private final Map<String, SubCommandMap> commandMaps = new HashMap<>();
     private final ManagerLanguage lang;
     private final ManagerConfig config;
     private final String pluginName;
     private final Injector injector;
+
+    private final Map<String, SubCommandMap> commandMaps = new HashMap<>();
+    private final Map<String, String[]> linkedCommands = new HashMap<>();
 
     /**
      * Construct command manager.
@@ -46,10 +49,11 @@ public final class ManagerCommand extends Manager {
         this.config = config;
         this.pluginName = pluginName;
         this.mainCommands = mainCommands;
+        this.injector = injector;
+
         for (String mainCommand : mainCommands) {
             commandMaps.put(mainCommand, new SubCommandMap(rootPermission));
         }
-        this.injector = injector;
     }
 
     @Override
@@ -73,6 +77,27 @@ public final class ManagerCommand extends Manager {
 
     public String getMainCommand() {
         return mainCommands[0];
+    }
+
+    /**
+     * Link some mainCommand (which is specified in plugin.yml) to some other registered command.
+     * Ex) if invoked linkMainCommand("someOtherCommand", "thisCommand", "tt"), then when a player
+     * enters command "/someOtherCommand," it is equivalent as typing "/thisCommand tt". This is very
+     * simple implementation, so it does not check if the target command is valid.
+     *
+     * @param mainCommand the mainCommand to hook.
+     * @param target      target command to be executed when the provided mainCommand is executed.
+     * @return true if linked; false if already linked.
+     * @throws RuntimeException if 1. length of target is 0, 2. one or more element of target is null, or
+     *                          3. the command (first element of target) is already linked.
+     */
+    public boolean linkMainCommand(String mainCommand, String... target) {
+        Validation.validate(target, v -> v.length > 0, "At least one target must be provided.");
+        Validation.assertArrayNotNull(target);
+        Validation.validate(target[0], key -> !linkedCommands.containsKey(key),
+                "Cannot link to the command that's already linked.");
+
+        return linkedCommands.put(mainCommand, target) == null;
     }
 
     public void addCommand(String mainCommand, SubCommand.Builder cmd) {
@@ -123,9 +148,13 @@ public final class ManagerCommand extends Manager {
      * @return always true since we have our own way to show error messages.
      */
     public boolean onCommand(ICommandSender sender, String command, String label, String[] args_in) {
-        SubCommandMap commandMap = commandMaps.get(command);
-        if (commandMap == null)
+        Pair<SubCommandMap, String[]> commandMapPair = getSubCommandMap(command, args_in);
+
+        if (commandMapPair == null)
             return true;
+
+        SubCommandMap commandMap = commandMapPair.key;
+        args_in = commandMapPair.value;
 
         final String[] args;
         if (args_in.length == 0) {
@@ -287,18 +316,23 @@ public final class ManagerCommand extends Manager {
      * @param args_in the arguments next to the command. Ex) /mainCommand args[0] args[1] ...
      */
     public List<String> onTabComplete(ICommandSender sender, String command, String alias, String[] args_in) {
-        SubCommandMap commandMap = commandMaps.get(command);
-        if (commandMap == null)
+        Pair<SubCommandMap, String[]> commandMapPair = getSubCommandMap(command, args_in);
+
+        if (commandMapPair == null)
             return new ArrayList<>();
 
+        SubCommandMap commandMap = commandMapPair.key;
+        args_in = commandMapPair.value;
+
         if (args_in.length < 2) {
+            String[] fArgs_in = args_in;
             List<String> result = commandMap.entrySet().stream()
                     .map(Map.Entry::getValue)
-                    .filter(cmd -> args_in.length == 1)
-                    .filter(cmd -> args_in[args_in.length - 1].length() > 0)
+                    .filter(cmd -> fArgs_in.length == 1)
+                    .filter(cmd -> fArgs_in[fArgs_in.length - 1].length() > 0)
                     .filter(cmd -> sender.hasPermission(cmd.getPermission()))
                     .filter(cmd -> cmd.predicates.stream().allMatch(pred -> pred.test(sender)))
-                    .filter(cmd -> cmd.name.startsWith(args_in[args_in.length - 1]))
+                    .filter(cmd -> cmd.name.startsWith(fArgs_in[fArgs_in.length - 1]))
                     .sorted((Comparator.comparing(cmd -> cmd.name)))
                     .map(cmd -> cmd.name)
                     .collect(Collectors.toList());
@@ -311,5 +345,38 @@ public final class ManagerCommand extends Manager {
             // /cmd subcmd i0 i1 ...
             return commandMap.tabComplete(sender, args_in[0], args_in.length - 2, args_in[args_in.length - 1]);
         }
+    }
+
+    /**
+     * Get SubCommandMap based on given command. It first search for 'linked command,' and if it exists,
+     * command will be replaced accordance to value specified in {@link #linkMainCommand(String, String...)}
+     *
+     * @param command command that user enters
+     * @param args_in arg that user enders
+     * @return Pair of SubCommandMap and String[] (args). null if no such command is found.
+     */
+    private Pair<SubCommandMap, String[]> getSubCommandMap(String command, String[] args_in) {
+        SubCommandMap commandMap = null;
+        String[] linkedCommand = linkedCommands.get(command);
+        // find linked command
+        if (linkedCommand != null && linkedCommand.length > 0 && commandMaps.containsKey(linkedCommand[0])) {
+            // replace with the linked command
+            commandMap = commandMaps.get(linkedCommand[0]);
+
+            // merge arguments (linkedCommand[1:] + args_in[0:])
+            String[] temp_args_in = new String[linkedCommand.length - 1 + args_in.length];
+            if (linkedCommand.length > 1)
+                System.arraycopy(linkedCommand, 1, temp_args_in, 0, linkedCommand.length - 1);
+            System.arraycopy(args_in, 0, temp_args_in, linkedCommand.length - 1, args_in.length);
+            args_in = temp_args_in;
+        }
+
+        if (commandMap == null)
+            commandMap = commandMaps.get(command);
+
+        if (commandMap == null)
+            return null;
+
+        return Pair.of(commandMap, args_in);
     }
 }

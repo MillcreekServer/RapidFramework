@@ -12,6 +12,12 @@ public class Validation {
         assertNotNull(obj, "Cannot be null here.");
     }
 
+    public static void assertArrayNotNull(Object[] objs) {
+        for (Object obj : objs) {
+            assertNotNull(obj);
+        }
+    }
+
     public static <T> void validate(T val, Predicate<T> pred, String message) {
         if (pred.negate().test(val))
             throw new RuntimeException(message);
