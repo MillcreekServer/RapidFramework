@@ -14,7 +14,7 @@ public class Databases {
                 "json",
                 FileUtil::readFromFile,
                 FileUtil::writeToFile,
-                folder);
+                FileUtil.join(folder, name));
     }
 
     public static Database build(String address,
