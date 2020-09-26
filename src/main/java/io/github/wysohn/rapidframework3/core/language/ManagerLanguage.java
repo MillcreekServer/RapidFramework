@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.IPluginObject;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangParser;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSession;
@@ -15,6 +16,7 @@ import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
 import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
+import io.github.wysohn.rapidframework3.utils.StringUtil;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.File;
@@ -417,6 +419,35 @@ public class ManagerLanguage extends Manager {
 
     public void sendRawMessage(ICommandSender sender, Message[] message, boolean conversation) {
         messageSender.send(sender, message, conversation);
+    }
+
+    public void sendProperty(ICommandSender sender, IPluginObject object) {
+        sendProperty(sender, object, false);
+    }
+
+    public void sendProperty(ICommandSender sender, IPluginObject object, boolean conversation) {
+        sendProperty(sender, object.properties(), conversation, 0);
+    }
+
+    private void sendProperty(ICommandSender sender, Map<ILang, Object> property, boolean conv, int depth) {
+        property.forEach((iLang, o) -> {
+            String keyParsed = parseFirst(sender, iLang);
+            Message[] key = MessageBuilder.forMessage("&9")
+                    .append(StringUtil.spaces(2 * depth) + keyParsed)
+                    .append("&8: &f")
+                    .build();
+
+            if (o instanceof Message[]) {
+                sendRawMessage(sender, Message.concat(key, (Message[]) o), conv);
+            } else if (o instanceof Map) {
+                sendRawMessage(sender, key, conv);
+                sendProperty(sender, (Map<ILang, Object>) o, conv, depth + 1);
+            } else {
+                Message[] value = MessageBuilder.forMessage(String.valueOf(o))
+                        .build();
+                sendRawMessage(sender, Message.concat(key, value), conv);
+            }
+        });
     }
 
     private static String getLastColors(String str) {

@@ -4,7 +4,10 @@ import com.google.inject.Guice;
 import com.google.inject.Module;
 import io.github.wysohn.rapidframework3.core.inject.module.DecimalFormatModule;
 import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
+import io.github.wysohn.rapidframework3.core.message.Message;
+import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.IPluginObject;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
@@ -12,10 +15,7 @@ import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -301,7 +301,62 @@ public class ManagerLanguageTest {
         assertEquals("value2=null,null,null,&atrue&f,null", parsed[1]);
     }
 
+    @Test
+    public void sendProperty() {
+        ManagerLanguage managerLanguage = Guice.createInjector(moduleList)
+                .getInstance(ManagerLanguage.class);
+
+        ICommandSender mockSender = mock(ICommandSender.class);
+        IPluginObject object = mock(IPluginObject.class);
+        Message[] message = MessageBuilder.empty();
+
+        Map<ILang, Object> properties = new LinkedHashMap<>();
+        properties.put(TempLang.PropertyStr, "abc");
+        properties.put(TempLang.PropertyNumber, 15235);
+        properties.put(TempLang.PropertyBoolean, true);
+        properties.put(TempLang.PropertyMessage, message);
+
+        Map<ILang, Object> subproperties = new LinkedHashMap<>();
+        subproperties.put(TempLang.PropertyStr, "eerrws");
+        subproperties.put(TempLang.PropertyNumber, 1035.112);
+        subproperties.put(TempLang.PropertyBoolean, false);
+        properties.put(TempLang.Sub, subproperties);
+
+        Map<ILang, Object> subsub = new LinkedHashMap<>();
+        subsub.put(TempLang.PropertyStr, "weryewry");
+        subsub.put(TempLang.PropertyNumber, 13150.2278);
+        subsub.put(TempLang.PropertyBoolean, false);
+        subproperties.put(TempLang.Sub, subsub);
+
+        Map<ILang, Object> subproperties2 = new LinkedHashMap<>();
+        subproperties2.put(TempLang.PropertyStr, "zvzsdfsdf");
+        subproperties2.put(TempLang.PropertyNumber, 45065460.123);
+        subproperties2.put(TempLang.PropertyBoolean, true);
+        properties.put(TempLang.Sub2, subproperties2);
+
+        when(mockSender.getLocale()).thenReturn(Locale.KOREAN);
+        when(object.properties()).thenReturn(properties);
+
+        doAnswer(invocation -> {
+            String msg = (String) invocation.getArguments()[1];
+            System.out.println(msg);
+            return null;
+        }).when(mockSender).sendMessageRaw(anyBoolean(), anyVararg());
+
+        managerLanguage.sendProperty(mockSender, object);
+
+        verify(mockSender, times(6 + 4 + 3 + 3))
+                .sendMessageRaw(eq(false), anyVararg());
+    }
+
     private enum TempLang implements ILang {
+        PropertyStr("StrVal"),
+        PropertyNumber("NumVal"),
+        PropertyBoolean("BoolVal"),
+        PropertyMessage("Message"),
+        Sub("Detail"),
+        Sub2("Detail2"),
+
         SomeLang("This is message."),
         DecimalLang("Number is ${double}."),
 
