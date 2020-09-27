@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework3.interfaces.serialize.CustomAdapter;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.utils.Pair;
 import io.github.wysohn.rapidframework3.utils.Validation;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -144,9 +145,9 @@ public class GsonSerializer implements ISerializer {
             .registerTypeAdapterFactory(TypeAdapters.newFactory(float.class, Float.class, NULL_ADOPTER_FLOAT))
             .registerTypeAdapterFactory(TypeAdapters.newFactory(double.class, Double.class, NULL_ADOPTER_NUMBER))
             .registerTypeAdapter(UUID.class, new UUIDSerializer())
-//            .registerTypeAdapter(AbstractManagerElementCaching.ObservableElement.class, new DefaultSerializer<AbstractManagerElementCaching.ObservableElement>())
             .registerTypeAdapter(SimpleLocation.class, new DefaultSerializer<SimpleLocation>())
-            .registerTypeAdapter(SimpleChunkLocation.class, new DefaultSerializer<SimpleChunkLocation>());
+            .registerTypeAdapter(SimpleChunkLocation.class, new DefaultSerializer<SimpleChunkLocation>())
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitConfigurationSerializer());
 
     protected final Gson gson;
 
