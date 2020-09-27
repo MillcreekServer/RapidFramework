@@ -126,6 +126,14 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
     public void onEnable() {
         try {
             this.main.enable();
+            this.main.load();
+
+            List<SubCommand.Builder> commands = new ArrayList<>();
+            registerCommands(commands);
+            for (SubCommand.Builder command : commands) {
+                main.comm().addCommand(command);
+            }
+            commands.forEach(main.comm()::addCommand);
 
             getDescription().getCommands().keySet().stream()
                     .map(this::getCommand)
@@ -135,24 +143,14 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             main.getOrderedManagers().stream()
                     .filter(Listener.class::isInstance)
                     .map(Listener.class::cast)
-                    .forEach(manager -> Optional.of(Bukkit.getPluginManager())
+                    .forEach(manager -> Optional.ofNullable(Bukkit.getPluginManager())
                             .ifPresent(pluginManager -> pluginManager.registerEvents(manager, this)));
 
             main.getMediators().stream()
                     .filter(Listener.class::isInstance)
                     .map(Listener.class::cast)
-                    .forEach(mediator -> Optional.of(Bukkit.getPluginManager())
+                    .forEach(mediator -> Optional.ofNullable(Bukkit.getPluginManager())
                             .ifPresent(pluginManager -> pluginManager.registerEvents(mediator, this)));
-
-            this.main.load();
-
-
-            List<SubCommand.Builder> commands = new ArrayList<>();
-            registerCommands(commands);
-            for (SubCommand.Builder command : commands) {
-                main.comm().addCommand(command);
-            }
-            commands.forEach(main.comm()::addCommand);
         } catch (Exception ex) {
             ex.printStackTrace();
             setEnabled(false);
