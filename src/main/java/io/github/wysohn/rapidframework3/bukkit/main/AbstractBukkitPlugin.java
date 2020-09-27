@@ -93,7 +93,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         builder.addModule(new FileIOModule());
         builder.addModule(new BukkitStorageFactoryModule());
         builder.addModule(new BukkitBroadcasterModule());
-        builder.addModule(test ? new GlobalPluginManagerModule(pluginName -> true) : new BukkitPluginManagerModule());
+        builder.addModule(test ? new GlobalPluginManagerModule(pluginName -> false) : new BukkitPluginManagerModule());
         builder.addModule(new BukkitTaskSupervisorModule());
         builder.addModule(new ExternalAPIModule(
                 Pair.of("ProtocolLib", ProtocolLibAPI.class),
