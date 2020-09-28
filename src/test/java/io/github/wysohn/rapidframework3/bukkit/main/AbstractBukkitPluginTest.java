@@ -76,7 +76,7 @@ public class AbstractBukkitPluginTest extends AbstractBukkitTest {
 
     public static class TempPlugin extends AbstractBukkitPlugin {
         public TempPlugin() {
-            super(mockPluginLoader());
+            super(mockServer);
         }
 
         @Override

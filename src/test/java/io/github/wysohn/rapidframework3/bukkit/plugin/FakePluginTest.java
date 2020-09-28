@@ -7,20 +7,20 @@ public class FakePluginTest extends AbstractBukkitTest {
 
     @Test
     public void onLoad() {
-        FakePlugin fakePlugin = new FakePlugin(mockPluginLoader());
+        FakePlugin fakePlugin = new FakePlugin(mockServer);
         fakePlugin.onLoad();
     }
 
     @Test
     public void onEnable() {
-        FakePlugin fakePlugin = new FakePlugin(mockPluginLoader());
+        FakePlugin fakePlugin = new FakePlugin(mockServer);
         fakePlugin.onLoad();
         fakePlugin.onEnable();
     }
 
     @Test
     public void onDiable() {
-        FakePlugin fakePlugin = new FakePlugin(mockPluginLoader());
+        FakePlugin fakePlugin = new FakePlugin(mockServer);
         fakePlugin.onLoad();
         fakePlugin.onEnable();
         fakePlugin.onDisable();

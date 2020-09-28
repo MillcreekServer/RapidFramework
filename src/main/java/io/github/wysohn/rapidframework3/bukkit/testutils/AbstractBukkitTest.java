@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -260,10 +259,6 @@ public class AbstractBukkitTest {
                 e.printStackTrace();
             }
         };
-    }
-
-    protected static JavaPluginLoader mockPluginLoader() {
-        return new JavaPluginLoader(mockServer);
     }
 
     public interface ThrowingConsumer<T> {

@@ -17,6 +17,7 @@ import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Pair;
 import io.github.wysohn.rapidframework3.utils.Validation;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -49,21 +50,25 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         return Class.forName("net.minecraft.server." + nmsVersion + "." + className);
     }
 
+    private final Server server;
+
     private boolean test;
     private PluginMain main;
 
     public AbstractBukkitPlugin() {
+        server = Bukkit.getServer();
     }
 
     /**
-     * @param mockLoader
+     * @param mockServer
      * @deprecated for test only
      */
-    protected AbstractBukkitPlugin(@NotNull JavaPluginLoader mockLoader) {
-        super(mockLoader,
+    protected AbstractBukkitPlugin(@NotNull Server mockServer) {
+        super(new JavaPluginLoader(mockServer),
                 new PluginDescriptionFile("test", "test", "test"),
                 new File("build/tmp/tests/"),
                 new File("build/tmp/tests/other"));
+        server = mockServer;
         test = true;
     }
 
@@ -143,13 +148,13 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             main.getOrderedManagers().stream()
                     .filter(Listener.class::isInstance)
                     .map(Listener.class::cast)
-                    .forEach(manager -> Optional.ofNullable(Bukkit.getPluginManager())
+                    .forEach(manager -> Optional.ofNullable(server.getPluginManager())
                             .ifPresent(pluginManager -> pluginManager.registerEvents(manager, this)));
 
             main.getMediators().stream()
                     .filter(Listener.class::isInstance)
                     .map(Listener.class::cast)
-                    .forEach(mediator -> Optional.ofNullable(Bukkit.getPluginManager())
+                    .forEach(mediator -> Optional.ofNullable(server.getPluginManager())
                             .ifPresent(pluginManager -> pluginManager.registerEvents(mediator, this)));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -198,7 +203,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
     }
 
     public void forEachSender(Consumer<ICommandSender> consumer) {
-        Bukkit.getOnlinePlayers().stream()
+        server.getOnlinePlayers().stream()
                 .map(BukkitWrapper::player)
                 .forEach(consumer);
     }

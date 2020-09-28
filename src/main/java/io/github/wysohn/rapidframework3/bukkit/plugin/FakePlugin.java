@@ -17,11 +17,11 @@ import io.github.wysohn.rapidframework3.core.inject.module.ManagerModule;
 import io.github.wysohn.rapidframework3.core.main.PluginMainBuilder;
 import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -32,8 +32,8 @@ public class FakePlugin extends AbstractBukkitPlugin {
     public FakePlugin() {
     }
 
-    FakePlugin(@NotNull JavaPluginLoader mockLoader) {
-        super(mockLoader);
+    FakePlugin(@NotNull Server mockServer) {
+        super(mockServer);
     }
 
     @Override
