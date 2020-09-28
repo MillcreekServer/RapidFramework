@@ -1,28 +1,19 @@
 package io.github.wysohn.rapidframework3.bukkit.plugin;
 
 import io.github.wysohn.rapidframework3.bukkit.testutils.AbstractBukkitTest;
+import io.github.wysohn.rapidframework3.bukkit.testutils.SimpleBukkitPluginMainTest;
+import org.bukkit.Server;
 import org.junit.Test;
 
 public class FakePluginTest extends AbstractBukkitTest {
 
     @Test
-    public void onLoad() {
-        FakePlugin fakePlugin = new FakePlugin(mockServer);
-        fakePlugin.onLoad();
-    }
-
-    @Test
-    public void onEnable() {
-        FakePlugin fakePlugin = new FakePlugin(mockServer);
-        fakePlugin.onLoad();
-        fakePlugin.onEnable();
-    }
-
-    @Test
-    public void onDiable() {
-        FakePlugin fakePlugin = new FakePlugin(mockServer);
-        fakePlugin.onLoad();
-        fakePlugin.onEnable();
-        fakePlugin.onDisable();
+    public void test() {
+        new SimpleBukkitPluginMainTest<FakePlugin>() {
+            @Override
+            public FakePlugin instantiate(Server server) {
+                return new FakePlugin(server);
+            }
+        }.enable();
     }
 }
