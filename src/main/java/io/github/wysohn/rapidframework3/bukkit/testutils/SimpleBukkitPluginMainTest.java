@@ -35,7 +35,7 @@ public abstract class SimpleBukkitPluginMainTest<T extends AbstractBukkitPlugin>
     }
 
     public Server enable() {
-        Logger logger = mock(Logger.class);
+        Logger logger = Logger.getGlobal();
         return enable(logger);
     }
 }

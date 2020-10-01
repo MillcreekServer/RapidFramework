@@ -19,3 +19,4 @@
 /.idea/.gitignore
 /.idea/
 /*.patch
+.settings/org.eclipse.jdt.core.prefs
