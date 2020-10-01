@@ -16,6 +16,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -182,9 +183,9 @@ dependencies {
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
 
     // https://mvnrepository.com/artifact/com.google.inject/guice
-    implementation group: 'com.google.inject', name: 'guice', version: '4.2.3'
+    api group: 'com.google.inject', name: 'guice', version: '4.2.3'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
-    implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
+    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-core:1.9.5'
