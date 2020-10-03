@@ -20,3 +20,4 @@
 /.idea/
 /*.patch
 .settings/org.eclipse.jdt.core.prefs
+/.vscode/settings.json

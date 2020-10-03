@@ -81,17 +81,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         this.serializer = serializer;
         this.injector = injector;
         this.type = type;
-
-        assertType(type);
-    }
-
-    private static <V> void assertType(Class<V> clazz) {
-        try {
-            clazz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(clazz + " does not have no-args constructor, so Gson will not be " +
-                    "able to properly serialize/deserialize it.");
-        }
     }
 
     /**
