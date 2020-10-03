@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.File;
@@ -70,6 +71,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                          File pluginDir,
                                          IShutdownHandle shutdownHandle,
                                          ISerializer serializer,
+                                         ITypeAsserter asserter,
                                          Injector injector,
                                          Class<V> type) {
         super();
@@ -81,6 +83,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         this.serializer = serializer;
         this.injector = injector;
         this.type = type;
+
+        asserter.assertClass(type);
     }
 
     /**

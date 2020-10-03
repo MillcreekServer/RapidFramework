@@ -8,9 +8,11 @@ import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.inject.module.TypeAsserterModule;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +51,7 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
         moduleList.add(new MockShutdownModule(() -> {
         }));
         moduleList.add(new MockSerializerModule(mockSerializer));
+        moduleList.add(new TypeAsserterModule());
     }
 
     @Test
@@ -93,8 +96,9 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
                     @PluginDirectory File pluginDir,
                     IShutdownHandle shutdownHandle,
                     ISerializer serializer,
+                    ITypeAsserter asserter,
                     Injector injector) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, User.class);
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, User.class);
         }
 
         @Override

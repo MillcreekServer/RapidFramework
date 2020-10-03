@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework3.interfaces.permissin.IPermission;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermissionHolder;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 
 import java.io.File;
 import java.lang.ref.Reference;
@@ -26,9 +27,10 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
                                      File pluginDir,
                                      IShutdownHandle shutdownHandle,
                                      ISerializer serializer,
+                                     ITypeAsserter asserter,
                                      Injector injector,
                                      IParentProvider parentProvider) {
-        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, PermissionStorage.class);
+        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, PermissionStorage.class);
         this.parentProvider = parentProvider;
     }
 

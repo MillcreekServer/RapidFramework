@@ -8,6 +8,7 @@ import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.inject.module.TypeAsserterModule;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.language.ILang;
@@ -16,6 +17,7 @@ import io.github.wysohn.rapidframework3.interfaces.permissin.IPermission;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermissionHolder;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 import io.github.wysohn.rapidframework3.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +54,7 @@ public class AbstractPermissionManagerTest {
         moduleList.add(new MockShutdownModule(() -> {
         }));
         moduleList.add(new GsonSerializerModule());
+        moduleList.add(new TypeAsserterModule());
         moduleList.add(parentProviderModule);
 
     }
@@ -181,8 +184,9 @@ public class AbstractPermissionManagerTest {
                                      IShutdownHandle shutdownHandle,
                                      ISerializer serializer,
                                      Injector injector,
+                                     ITypeAsserter asserter,
                                      IParentProvider parentProvider) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, parentProvider);
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, parentProvider);
         }
 
         @Override

@@ -7,10 +7,12 @@ import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework3.core.inject.module.TypeAsserterModule;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 import io.github.wysohn.rapidframework3.testmodules.MockConfigModule;
 import io.github.wysohn.rapidframework3.testmodules.MockLoggerModule;
 import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
@@ -52,6 +54,7 @@ public class AbstractManagerElementCachingTest {
         moduleList.add(new MockShutdownModule(() -> {
         }));
         moduleList.add(new GsonSerializerModule());
+        moduleList.add(new TypeAsserterModule());
     }
 
     @Test
@@ -538,8 +541,9 @@ public class AbstractManagerElementCachingTest {
                            @PluginDirectory File pluginDir,
                            IShutdownHandle shutdownHandle,
                            ISerializer serializer,
+                           ITypeAsserter asserter,
                            Injector injector) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, TempValue.class);
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, TempValue.class);
         }
 
         @Override
@@ -601,8 +605,9 @@ public class AbstractManagerElementCachingTest {
                             @PluginDirectory File pluginDir,
                             IShutdownHandle shutdownHandle,
                             ISerializer serializer,
+                            ITypeAsserter asserter,
                             Injector injector) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, TempValue2.class);
+            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, TempValue2.class);
         }
 
         @Override

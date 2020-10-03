@@ -6,6 +6,7 @@ import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCachi
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -28,9 +29,8 @@ public abstract class AbstractUserManager<V extends BukkitPlayer>
                                File pluginDir,
                                IShutdownHandle shutdownHandle,
                                ISerializer serializer,
-                               Injector injector,
-                               Class<V> type) {
-        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, injector, type);
+                               ITypeAsserter asserter, Injector injector, Class<V> type) {
+        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, type);
     }
 
     @Override
