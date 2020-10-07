@@ -10,6 +10,10 @@ public class TypeAsserterModule extends AbstractModule {
     @Singleton
     ITypeAsserter getAsserter() {
         return (type) -> {
+            //ignore interface.
+            if (type.isInterface())
+                return;
+
             try {
                 type.getDeclaredConstructor();
             } catch (NoSuchMethodException e) {
