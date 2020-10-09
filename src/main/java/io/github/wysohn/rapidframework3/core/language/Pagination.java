@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework3.core.language;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.language.DataProvider;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -104,20 +105,6 @@ public class Pagination<T> {
     public void shutdown() throws InterruptedException {
         exec.shutdownNow().forEach(Runnable::run);
         exec.awaitTermination(10, TimeUnit.SECONDS);
-    }
-
-    public interface DataProvider<T> {
-        int size();
-
-        T get(int index);
-
-        default void sync(Runnable run) {
-            run.run();
-        }
-
-        default boolean omit(T val) {
-            return false;
-        }
     }
 
     @FunctionalInterface

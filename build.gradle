@@ -21,7 +21,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '3.5.18'
+version = '3.6.0'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
