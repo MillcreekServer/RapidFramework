@@ -1,5 +1,5 @@
 author: wysohn
-name: RapidFramework
+name: rapidframework
 main: io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin
 softdepend:
 - ProtocolLib
