@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.main.PluginMainBuilder;
 import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.io.IPluginResourceProvider;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Pair;
@@ -110,6 +111,12 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             @Singleton
             IShutdownHandle shutdownModule() {
                 return () -> setEnabled(false);
+            }
+
+            @Provides
+            @Singleton
+            IPluginResourceProvider resourceProvider() {
+                return filename -> getResource(filename);
             }
         });
         init(builder);
