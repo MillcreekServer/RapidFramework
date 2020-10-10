@@ -23,13 +23,23 @@ public class SQLSession {
         connection = DriverManager.getConnection(url);
     }
 
-    public void execute(String sql, Consumer<Integer> fn) {
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            fn.accept(stmt.executeUpdate());
+    public void execute(String sql, Consumer<PreparedStatement> fn, Consumer<Long> fnResult) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            fn.accept(stmt);
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next())
+                    fnResult.accept(rs.getLong(1));
+                else
+                    fnResult.accept(-1L);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } catch (SQLException ex) {
             try {
                 reconnect();
-                execute(sql, fn);
+                execute(sql, fn, fnResult);
             } catch (SQLException ex2) {
                 ex2.printStackTrace();
             }
@@ -37,18 +47,25 @@ public class SQLSession {
     }
 
     public void execute(String sql) throws SQLException {
-        execute(sql, i -> {
+        execute(sql, pstmt -> {
+        }, id -> {
         });
     }
 
-    public void query(String sql, Consumer<ResultSet> fn) {
+    public void query(String sql, Consumer<PreparedStatement> fn, Consumer<ResultSet> fnResult) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            fn.accept(stmt.executeQuery());
+            fn.accept(stmt);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                fnResult.accept(rs);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
             try {
                 reconnect();
-                query(sql, fn);
+                query(sql, fn, fnResult);
             } catch (SQLException ex2) {
                 ex2.printStackTrace();
             }

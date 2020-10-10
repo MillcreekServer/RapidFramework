@@ -26,9 +26,19 @@ public class SQLiteSession extends SQLSession {
             }
         });
 
-        session.execute("INSERT INTO abc VALUES(\"hoho\", 12345);");
+        session.execute("INSERT INTO abc VALUES(?, ?);", pstmt -> {
+            try {
+                pstmt.setString(1, "hoho");
+                pstmt.setInt(2, 12345);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }, index -> {
 
-        session.query("SELECT * FROM abc", resultSet -> {
+        });
+
+        session.query("SELECT * FROM abc", pstmt -> {
+        }, resultSet -> {
             try {
                 while (resultSet.next()) {
                     System.out.print(resultSet.getString("value"));
