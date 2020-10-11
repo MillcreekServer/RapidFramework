@@ -78,6 +78,30 @@ public class SQLSession {
         });
     }
 
+    public void commit() throws SQLException {
+        if (!autoCommit)
+            connection.commit();
+    }
+
+    public void rollback() throws SQLException {
+        if (!autoCommit)
+            connection.rollback();
+    }
+
+    public Savepoint saveState() throws SQLException {
+        if (autoCommit)
+            throw new RuntimeException("autoCommit is on");
+
+        return connection.setSavepoint();
+    }
+
+    public void restoreState(Savepoint state) throws SQLException {
+        if (autoCommit)
+            throw new RuntimeException("autoCommit is on");
+
+        connection.rollback(state);
+    }
+
     public void query(String sql, Consumer<PreparedStatement> fn, Consumer<ResultSet> fnResult) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             fn.accept(stmt);
@@ -167,8 +191,8 @@ public class SQLSession {
             return this;
         }
 
-        public Builder autoCommit(boolean bool) {
-            this.autoCommit = bool;
+        public Builder autoCommit() {
+            this.autoCommit = true;
             return this;
         }
 

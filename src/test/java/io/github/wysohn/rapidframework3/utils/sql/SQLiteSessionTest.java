@@ -45,6 +45,8 @@ public class SQLiteSessionTest {
                 }
             });
 
+            session.commit();
+
             session.execute("DELETE FROM abc WHERE id = ?", pstmt -> {
                 try {
                     pstmt.setInt(1, 55);
@@ -61,10 +63,14 @@ public class SQLiteSessionTest {
                 }
             }, System.out::println);
 
+            session.rollback();
+
             session.query("SELECT * FROM abc", pstmt -> {
             }, resultSet -> {
                 try {
                     while (resultSet.next()) {
+                        System.out.print(resultSet.getString("id"));
+                        System.out.print(",");
                         System.out.print(resultSet.getString("value"));
                         System.out.print(",");
                         System.out.print(resultSet.getInt("other"));
