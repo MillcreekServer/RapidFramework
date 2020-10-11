@@ -16,6 +16,7 @@ public class SQLSession {
     private final String url;
     private final Properties properties;
     private Connection connection;
+    private boolean autoCommit;
 
     private SQLSession(String url, Properties properties) throws SQLException {
         this.url = url;
@@ -25,6 +26,7 @@ public class SQLSession {
 
     private void reconnect() throws SQLException {
         connection = DriverManager.getConnection(url, properties);
+        connection.setAutoCommit(autoCommit);
     }
 
     public void execute(String sql, Consumer<PreparedStatement> fn, Consumer<Long> fnResult) {
@@ -113,6 +115,8 @@ public class SQLSession {
         private final Function<Attribute, String> converter;
         private final List<TableInitializer> tableInitializers = new LinkedList<>();
 
+        private boolean autoCommit = false;
+
         private Builder(String url,
                         Function<Attribute, String> converter) {
             this.url = url;
@@ -163,6 +167,11 @@ public class SQLSession {
             return this;
         }
 
+        public Builder autoCommit(boolean bool) {
+            this.autoCommit = bool;
+            return this;
+        }
+
         public Builder createTable(String tableName, Consumer<TableInitializer> consumer) {
             TableInitializer initializer = new TableInitializer(tableName);
             consumer.accept(initializer);
@@ -172,6 +181,7 @@ public class SQLSession {
 
         public SQLSession build() throws SQLException {
             SQLSession sqlSession = new SQLSession(url, properties);
+            sqlSession.autoCommit = autoCommit;
             tableInitializers.forEach(initializer -> initializer.execute(sqlSession.connection));
             return sqlSession;
         }
