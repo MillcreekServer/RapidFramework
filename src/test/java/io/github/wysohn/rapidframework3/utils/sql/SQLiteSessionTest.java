@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework3.utils.sql;
 import org.junit.Test;
 
 import java.io.File;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLiteSessionTest {
@@ -29,21 +30,19 @@ public class SQLiteSessionTest {
                 }
             }, System.out::println);
 
-            session.query("SELECT * FROM abc", pstmt -> {
-            }, resultSet -> {
-                try {
-                    while (resultSet.next()) {
-                        System.out.print(resultSet.getString("id"));
-                        System.out.print(",");
-                        System.out.print(resultSet.getString("value"));
-                        System.out.print(",");
-                        System.out.print(resultSet.getInt("other"));
-                        System.out.println();
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
+            try (ResultSet resultSet = session.query("SELECT * FROM abc", pstmt -> {
+            })) {
+                while (resultSet.next()) {
+                    System.out.print(resultSet.getString("id"));
+                    System.out.print(",");
+                    System.out.print(resultSet.getString("value"));
+                    System.out.print(",");
+                    System.out.print(resultSet.getInt("other"));
+                    System.out.println();
                 }
-            });
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
 
             session.commit();
 
@@ -65,21 +64,19 @@ public class SQLiteSessionTest {
 
             session.rollback();
 
-            session.query("SELECT * FROM abc", pstmt -> {
-            }, resultSet -> {
-                try {
-                    while (resultSet.next()) {
-                        System.out.print(resultSet.getString("id"));
-                        System.out.print(",");
-                        System.out.print(resultSet.getString("value"));
-                        System.out.print(",");
-                        System.out.print(resultSet.getInt("other"));
-                        System.out.println();
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
+            try (ResultSet resultSet = session.query("SELECT * FROM abc", pstmt -> {
+            })) {
+                while (resultSet.next()) {
+                    System.out.print(resultSet.getString("id"));
+                    System.out.print(",");
+                    System.out.print(resultSet.getString("value"));
+                    System.out.print(",");
+                    System.out.print(resultSet.getInt("other"));
+                    System.out.println();
                 }
-            });
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             file.delete();
         }

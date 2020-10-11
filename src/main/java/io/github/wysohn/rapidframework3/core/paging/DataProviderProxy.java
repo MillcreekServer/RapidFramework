@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class DataProviderProxy<T> implements DataProvider<T> {
-    private final Map<Range, Page<T>> pages = new LFUCache<>(16);
+    private final Map<Range, Page<T>> pages = new LRUCache<>(16);
     private final Function<Range, List<T>> updater;
     private final Supplier<Integer> sizeSupplier;
     private final long QUERY_DELAY;

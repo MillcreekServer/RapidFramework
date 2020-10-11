@@ -102,24 +102,33 @@ public class SQLSession {
         connection.rollback(state);
     }
 
-    public void query(String sql, Consumer<PreparedStatement> fn, Consumer<ResultSet> fnResult) {
+    public ResultSet query(String sql, Consumer<PreparedStatement> fn) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             fn.accept(stmt);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                fnResult.accept(rs);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            return stmt.executeQuery();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            if (ex.getSQLState() == null) {
+                ex.printStackTrace();
+                return null;
+            }
+
             try {
-                reconnect();
-                query(sql, fn, fnResult);
+                switch (ex.getSQLState()) {
+                    case "08003":
+                    case "08006":
+                        reconnect();
+                        return query(sql, fn);
+                    default:
+                        ex.printStackTrace();
+                        break;
+                }
             } catch (SQLException ex2) {
                 ex2.printStackTrace();
             }
         }
+
+        return null;
     }
 
     public static class Builder {
