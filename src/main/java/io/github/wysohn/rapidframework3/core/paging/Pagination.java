@@ -1,9 +1,11 @@
-package io.github.wysohn.rapidframework3.core.language;
+package io.github.wysohn.rapidframework3.core.paging;
 
+import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.interfaces.language.DataProvider;
+import io.github.wysohn.rapidframework3.interfaces.paging.DataProvider;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -49,24 +51,26 @@ public class Pagination<T> {
         lang.sendRawMessage(sender, MessageBuilder.forMessage("").build());
 
         exec.submit(() -> dataProvider.sync(() -> {
-            int remainder = dataProvider.size() % max;
-            int divided = dataProvider.size() / max;
+            int total = dataProvider.size();
+
+            int remainder = total % max;
+            int divided = total / max;
             int outof = remainder == 0 ? divided : divided + 1;
 
             int p = Math.max(page, 0);
             p = Math.min(p, outof - 1);
 
-            int index;
-            for (index = p * max; index >= 0 && index < (p + 1) * max; index++) {
-                if (index >= dataProvider.size())
+            List<T> vals = dataProvider.get(p * max, max);
+            for (int rel_index = 0; rel_index < vals.size(); rel_index++) {
+                int absolute_index = p * max + rel_index;
+                if (absolute_index >= total)
                     break;
 
-                T val = dataProvider.get(index);
-                if (dataProvider.omit(val)) {
+                if (dataProvider.omit(vals.get(rel_index))) {
                     continue;
                 }
 
-                lang.sendRawMessage(sender, messageFn.convert(sender, val, index));
+                lang.sendRawMessage(sender, messageFn.convert(sender, vals.get(rel_index), absolute_index));
             }
 
             lang.sendMessage(sender, DefaultLangs.General_Line);

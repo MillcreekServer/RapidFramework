@@ -1,5 +1,6 @@
-package io.github.wysohn.rapidframework3.core.language;
+package io.github.wysohn.rapidframework3.core.paging;
 
+import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
@@ -25,7 +26,6 @@ public class PaginationTest {
         mockSender = mock(ICommandSender.class);
 
         when(mockMain.lang()).thenReturn(mockLang);
-
     }
 
     @Test

@@ -1,6 +1,6 @@
-package io.github.wysohn.rapidframework3.core.language;
+package io.github.wysohn.rapidframework3.core.paging;
 
-import io.github.wysohn.rapidframework3.interfaces.language.DataProvider;
+import io.github.wysohn.rapidframework3.interfaces.paging.DataProvider;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class ListWrapper<T> implements DataProvider<T> {
     }
 
     @Override
-    public T get(int index) {
-        return list.get(index);
+    public List<T> get(int index, int max) {
+        return list.subList(index, Math.min(list.size(), index + max));
     }
 }
