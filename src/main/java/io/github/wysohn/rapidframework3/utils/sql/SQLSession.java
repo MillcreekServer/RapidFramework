@@ -138,6 +138,8 @@ public class SQLSession {
                     return "NOT NULL";
                 case PRIMARY_KEY:
                     return "PRIMARY KEY";
+                case KEY:
+                    return "KEY";
                 default:
                     throw new RuntimeException("Undefined attribute " + attribute);
             }
@@ -267,6 +269,6 @@ public class SQLSession {
     }
 
     public enum Attribute {
-        AUTO_INCREMENT, NOT_NULL, PRIMARY_KEY
+        AUTO_INCREMENT, NOT_NULL, PRIMARY_KEY, KEY
     }
 }
