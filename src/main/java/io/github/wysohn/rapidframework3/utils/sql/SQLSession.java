@@ -134,6 +134,10 @@ public class SQLSession {
         return null;
     }
 
+    public void close() throws SQLException {
+        this.connection.close();
+    }
+
     public static class Builder {
         private static final Function<Attribute, String> commonConverter = attribute -> {
             switch (attribute) {
