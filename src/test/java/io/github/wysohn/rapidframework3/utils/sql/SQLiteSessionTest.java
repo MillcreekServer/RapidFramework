@@ -30,19 +30,16 @@ public class SQLiteSessionTest {
                 }
             }, System.out::println);
 
-            try (ResultSet resultSet = session.query("SELECT * FROM abc", pstmt -> {
-            })) {
-                while (resultSet.next()) {
-                    System.out.print(resultSet.getString("id"));
-                    System.out.print(",");
-                    System.out.print(resultSet.getString("value"));
-                    System.out.print(",");
-                    System.out.print(resultSet.getInt("other"));
-                    System.out.println();
+            // before commit
+            session.query("SELECT * FROM abc", pstmt -> {
+            }, resultSet -> {
+                try {
+                    return Data.read(resultSet);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return null;
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            }).forEach(System.out::println);
 
             session.commit();
 
@@ -62,23 +59,51 @@ public class SQLiteSessionTest {
                 }
             }, System.out::println);
 
+            // rollback to last commit
             session.rollback();
 
-            try (ResultSet resultSet = session.query("SELECT * FROM abc", pstmt -> {
-            })) {
-                while (resultSet.next()) {
-                    System.out.print(resultSet.getString("id"));
-                    System.out.print(",");
-                    System.out.print(resultSet.getString("value"));
-                    System.out.print(",");
-                    System.out.print(resultSet.getInt("other"));
-                    System.out.println();
+            session.query("SELECT * FROM abc", pstmt -> {
+            }, resultSet -> {
+                try {
+                    return Data.read(resultSet);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return null;
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            }).forEach(System.out::println);
         } finally {
             file.delete();
         }
+    }
+
+    private static class Data {
+        private final int id;
+        private final String value;
+        private final int other;
+
+        private Data(int id, String value, int other) {
+            this.id = id;
+            this.value = value;
+            this.other = other;
+        }
+
+        @Override
+        public String toString() {
+            return "Data{" +
+                    "id=" + id +
+                    ", value='" + value + '\'' +
+                    ", other=" + other +
+                    '}';
+        }
+
+        public static Data read(ResultSet rs) throws SQLException {
+            int id = rs.getInt("id");
+            String value = rs.getString("value");
+            int other = rs.getInt("other");
+
+            return new Data(id, value, other);
+        }
+
+
     }
 }

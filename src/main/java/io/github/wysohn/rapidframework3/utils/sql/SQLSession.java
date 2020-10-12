@@ -4,10 +4,7 @@ import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.File;
 import java.sql.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -102,11 +99,17 @@ public class SQLSession {
         connection.rollback(state);
     }
 
-    public ResultSet query(String sql, Consumer<PreparedStatement> fn) {
+    public <T> List<T> query(String sql, Consumer<PreparedStatement> fn, Function<ResultSet, T> evalFn) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             fn.accept(stmt);
 
-            return stmt.executeQuery();
+            List<T> list = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(evalFn.apply(rs));
+            }
+
+            return list;
         } catch (SQLException ex) {
             if (ex.getSQLState() == null) {
                 ex.printStackTrace();
@@ -118,7 +121,7 @@ public class SQLSession {
                     case "08003":
                     case "08006":
                         reconnect();
-                        return query(sql, fn);
+                        return query(sql, fn, evalFn);
                     default:
                         ex.printStackTrace();
                         break;
