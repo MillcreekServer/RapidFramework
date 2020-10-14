@@ -11,7 +11,7 @@
 // Please contact the author if you need another license.
 // This module is provided "as is", without warranties of any kind.
 
-package io.github.wysohn.rapidframework3.core.database;
+package io.github.wysohn.rapidframework3.utils;
 
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;

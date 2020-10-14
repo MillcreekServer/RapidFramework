@@ -17,6 +17,8 @@
 package io.github.wysohn.rapidframework3.core.database;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import io.github.wysohn.rapidframework3.utils.MiniConnectionPoolManager;
+import io.github.wysohn.rapidframework3.utils.sql.SQLSession;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -51,7 +53,7 @@ public class DatabaseMysql extends Database {
         super(tablename);
         this.tablename = tablename;
 
-        ds = createDataSource(address, dbName, userName, password);
+        ds = SQLSession.createDataSource(address, dbName, userName, password);
         pool = new MiniConnectionPoolManager(ds, 2, 0.5);
 
         Connection conn = pool.getConnection();
@@ -60,22 +62,6 @@ public class DatabaseMysql extends Database {
     }
 
     private final String SELECTKEY = "" + "SELECT " + VALUE + " FROM %s WHERE " + KEY + " = ?";
-
-    public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
-                                                                 String password) {
-        MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-        ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
-        ds.setUser(userName);
-        ds.setPassword(password);
-        ds.setCharacterEncoding("UTF-8");
-        ds.setUseUnicode(true);
-        ds.setAutoReconnectForPools(true);
-        ds.setAutoReconnect(true);
-        ds.setAutoReconnectForConnectionPools(true);
-        ds.setUseSSL(false);
-
-        return ds;
-    }
 
     private void initTable(Connection conn) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement(String.format(CREATETABLEQUARY, tablename));

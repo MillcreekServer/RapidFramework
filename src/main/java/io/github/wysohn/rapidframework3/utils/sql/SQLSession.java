@@ -1,28 +1,33 @@
 package io.github.wysohn.rapidframework3.utils.sql;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import io.github.wysohn.rapidframework3.utils.MiniConnectionPoolManager;
 import io.github.wysohn.rapidframework3.utils.Validation;
+import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
+import javax.sql.ConnectionPoolDataSource;
 import java.io.File;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SQLSession {
-    private final String url;
-    private final Properties properties;
+    private final MiniConnectionPoolManager pool;
     private Connection connection;
     private boolean autoCommit;
 
-    private SQLSession(String url, Properties properties) throws SQLException {
-        this.url = url;
-        this.properties = properties;
+    private SQLSession(ConnectionPoolDataSource ds) throws SQLException {
+        this.pool = new MiniConnectionPoolManager(ds, 4);
         reconnect();
     }
 
     private void reconnect() throws SQLException {
-        connection = DriverManager.getConnection(url, properties);
+        connection = pool.getConnection();
         connection.setAutoCommit(autoCommit);
     }
 
@@ -152,16 +157,15 @@ public class SQLSession {
             }
         };
 
-        private final String url;
-        private final Properties properties = new Properties();
+        private final ConnectionPoolDataSource ds;
         private final Function<Attribute, String> converter;
         private final List<TableInitializer> tableInitializers = new LinkedList<>();
 
         private boolean autoCommit = false;
 
-        private Builder(String url,
+        private Builder(ConnectionPoolDataSource ds,
                         Function<Attribute, String> converter) {
-            this.url = url;
+            this.ds = ds;
             this.converter = converter;
         }
 
@@ -172,7 +176,7 @@ public class SQLSession {
                 e.printStackTrace();
             }
 
-            return new Builder(String.format("jdbc:sqlite:%s", dbFile.getAbsolutePath()), attribute -> {
+            return new Builder(createDataSource(dbFile), attribute -> {
                 switch (attribute) {
                     case AUTO_INCREMENT:
                         return "AUTOINCREMENT";
@@ -182,14 +186,14 @@ public class SQLSession {
             });
         }
 
-        public static Builder mysql(String host, String databaseName) {
+        public static Builder mysql(String host, String databaseName, String user, String password) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
-            return new Builder(String.format("jdbc:mysql://%s/%s", host, databaseName), attribute -> {
+            return new Builder(createDataSource(host, databaseName, user, password), attribute -> {
                 switch (attribute) {
                     case AUTO_INCREMENT:
                         return "AUTO_INCREMENT";
@@ -197,16 +201,6 @@ public class SQLSession {
                         return commonConverter.apply(attribute);
                 }
             });
-        }
-
-        public Builder user(String userName) {
-            properties.put("user", userName);
-            return this;
-        }
-
-        public Builder password(String password) {
-            properties.put("password", password);
-            return this;
         }
 
         public Builder autoCommit() {
@@ -222,7 +216,7 @@ public class SQLSession {
         }
 
         public SQLSession build() throws SQLException {
-            SQLSession sqlSession = new SQLSession(url, properties);
+            SQLSession sqlSession = new SQLSession(ds);
             sqlSession.autoCommit = autoCommit;
             tableInitializers.forEach(initializer -> initializer.execute(sqlSession.connection));
             return sqlSession;
@@ -232,7 +226,7 @@ public class SQLSession {
             private final String tableName;
 
             private boolean ifNotExist;
-            private List<String> fields = new LinkedList<>();
+            private final List<String> fields = new LinkedList<>();
 
             public TableInitializer(String tableName) {
                 this.tableName = tableName;
@@ -277,5 +271,28 @@ public class SQLSession {
 
     public enum Attribute {
         AUTO_INCREMENT, NOT_NULL, PRIMARY_KEY, KEY
+    }
+
+    public static SQLiteConnectionPoolDataSource createDataSource(File dbFile) {
+        SQLiteConnectionPoolDataSource ds = new SQLiteConnectionPoolDataSource();
+        ds.setUrl(String.format("jdbc:sqlite:%s", dbFile.getAbsolutePath()));
+        ds.setEncoding("UTF-8");
+        return ds;
+    }
+
+    public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
+                                                                 String password) {
+        MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+        ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
+        ds.setUser(userName);
+        ds.setPassword(password);
+        ds.setCharacterEncoding("UTF-8");
+        ds.setUseUnicode(true);
+        ds.setAutoReconnectForPools(true);
+        ds.setAutoReconnect(true);
+        ds.setAutoReconnectForConnectionPools(true);
+        ds.setUseSSL(false);
+
+        return ds;
     }
 }
