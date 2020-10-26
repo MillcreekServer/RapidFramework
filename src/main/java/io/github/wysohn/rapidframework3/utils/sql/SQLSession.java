@@ -111,7 +111,9 @@ public class SQLSession {
             List<T> list = new ArrayList<>();
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                list.add(evalFn.apply(rs));
+                T val = evalFn.apply(rs);
+                if (val != null)
+                    list.add(val);
             }
 
             return list;
