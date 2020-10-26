@@ -110,16 +110,11 @@ public class SQLSession {
 
             List<T> list = new ArrayList<>();
             ResultSet rs = stmt.executeQuery();
-
-            if (!rs.first()) {
-                return list; // empty set
-            }
-
-            do {
+            while (rs.next()) {
                 T val = evalFn.apply(rs);
                 if (val != null)
                     list.add(val);
-            } while (rs.next());
+            }
 
             return list;
         } catch (SQLException ex) {
