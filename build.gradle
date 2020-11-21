@@ -237,8 +237,8 @@ compileTestJava {
 publishing {
     repositories {
         maven {
-            name = "RapidFramework"
-            url = uri("https://maven.pkg.github.com/wysohn/RapidFramework")
+            name = "rapidframework"
+            url = uri("https://maven.pkg.github.com/MillcreekServer/rapidframework")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
