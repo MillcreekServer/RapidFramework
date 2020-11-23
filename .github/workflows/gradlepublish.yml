@@ -28,6 +28,7 @@ jobs:
     # the publishing section of your build.gradle
     - name: Publish to GitHub Packages
       run: gradle publish
+      continue-on-error: true
       env:
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
