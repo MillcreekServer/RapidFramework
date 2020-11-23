@@ -34,12 +34,12 @@ jobs:
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.1
-      if: ${{ steps.build.conclusion == "success" }}
+      if: ${{ steps.build.conclusion == 'success' }}
       with:
         path: 'build/libs/*.jar'
     - name: Invoke deployment hook
       uses: distributhor/workflow-webhook@v1
-      if: ${{ steps.build.conclusion == "success" }}
+      if: ${{ steps.build.conclusion == 'success' }}
       env:
         webhook_url: ${{ secrets.WEB_HOOK }}
         webhook_secret: ${{ secrets.WEB_HOOK_SECRET }}
