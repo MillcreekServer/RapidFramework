@@ -25,6 +25,8 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
     private IKeyValueStorage storage;
     private Future<Void> messageConsumerFuture;
 
+    private boolean running = false;
+
     @Inject
     public QueuedMessageManager(@PluginDirectory File pluginDir,
                                 IStorageFactory storageFactory,
@@ -39,6 +41,7 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
     @Override
     public void enable() throws Exception {
         storage = storageFactory.create(pluginDir, "queuedMessages.yml");
+        running = true;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
             messageConsumerFuture.cancel(true);
         messageConsumerFuture = taskSupervisor.async(() -> {
             try{
-                while(true){
+                while(running){
                     tick();
                     Thread.sleep(1000L);
                 }
@@ -63,7 +66,7 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
 
     @Override
     public void disable() throws Exception {
-
+        running = false;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
         storage.put(sender.getUuid().toString(), messages);
     }
 
-    private void tick() {
+    void tick() {
         storage.getKeys(false).stream()
                 .map(UUID::fromString)
                 .forEach(uuid -> Optional.of(uuid)
@@ -100,5 +103,11 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
                                 storage.put(uuid.toString(), null);
                             }
                         }));
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        running = false;
+        super.finalize();
     }
 }
