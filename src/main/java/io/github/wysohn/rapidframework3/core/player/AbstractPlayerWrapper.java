@@ -11,11 +11,11 @@ public abstract class AbstractPlayerWrapper extends CachedElement<UUID> implemen
         super(key);
     }
 
-    protected abstract boolean isOnline();
+    public abstract boolean isOnline();
 
-    protected abstract void teleport(SimpleLocation sloc);
+    public abstract void teleport(SimpleLocation sloc);
 
-    protected abstract void teleport(String world, double x, double y, double z);
+    public abstract void teleport(String world, double x, double y, double z);
 
-    protected abstract void teleport(String world, double x, double y, double z, float pitch, float yaw);
+    public abstract void teleport(String world, double x, double y, double z, float pitch, float yaw);
 }
