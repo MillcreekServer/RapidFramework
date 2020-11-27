@@ -9,19 +9,26 @@ import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
+import io.github.wysohn.rapidframework3.interfaces.message.IQueuedMessageConsumer;
 
 import java.util.Optional;
 
 public class BukkitMessageSenderModule extends AbstractModule {
     @Provides
     @Singleton
-    IMessageSender getMessageSender(ManagerExternalAPI api) {
+    IMessageSender getMessageSender(ManagerExternalAPI api,
+                                    IQueuedMessageConsumer queuedMessageConsumer) {
         return new IMessageSender() {
             private boolean failure = false;
 
             @Override
             public boolean isJsonEnabled() {
                 return api.getAPI(ProtocolLibAPI.class).isPresent();
+            }
+
+            @Override
+            public void enqueueMessage(ICommandSender sender, String[] parsed) {
+                queuedMessageConsumer.accept(sender, parsed);
             }
 
             @Override

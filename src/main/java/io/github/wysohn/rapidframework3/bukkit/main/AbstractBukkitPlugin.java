@@ -6,6 +6,7 @@ import io.github.wysohn.rapidframework3.bukkit.data.BukkitWrapper;
 import io.github.wysohn.rapidframework3.bukkit.inject.module.*;
 import io.github.wysohn.rapidframework3.bukkit.manager.api.PlaceholderAPI;
 import io.github.wysohn.rapidframework3.bukkit.manager.api.ProtocolLibAPI;
+import io.github.wysohn.rapidframework3.bukkit.manager.message.QueuedMessageManager;
 import io.github.wysohn.rapidframework3.core.command.SubCommand;
 import io.github.wysohn.rapidframework3.core.inject.module.*;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
@@ -13,6 +14,7 @@ import io.github.wysohn.rapidframework3.core.main.PluginMainBuilder;
 import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.io.IPluginResourceProvider;
+import io.github.wysohn.rapidframework3.interfaces.message.IQueuedMessageConsumer;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Pair;
@@ -95,6 +97,9 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
                 new PluginDirectoryModule(getDataFolder()));
         builder.addModule(new PlatformModule(this));
         builder.addModule(new DefaultManagersModule());
+        builder.addModule(new ManagerModule(
+           QueuedMessageManager.class
+        ));
         builder.addModule(new MediatorModule());
         builder.addModule(new FileIOModule());
         builder.addModule(new BukkitStorageFactoryModule());
@@ -117,6 +122,18 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             @Singleton
             IPluginResourceProvider resourceProvider() {
                 return filename -> getResource(filename);
+            }
+
+            @Provides
+            @Singleton
+            IPlayerWrapper playerWrapper(){
+                return uuid -> getPlayerWrapper(uuid).orElse(null);
+            }
+
+            @Provides
+            @Singleton
+            IQueuedMessageConsumer queuedMessageConsumer(QueuedMessageManager manager){
+                return manager;
             }
         });
         init(builder);
@@ -222,4 +239,8 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
     }
 
     protected abstract Optional<? extends AbstractPlayerWrapper> getPlayerWrapper(UUID uuid);
+
+    public interface IPlayerWrapper{
+        AbstractPlayerWrapper wrap(UUID uuid);
+    }
 }

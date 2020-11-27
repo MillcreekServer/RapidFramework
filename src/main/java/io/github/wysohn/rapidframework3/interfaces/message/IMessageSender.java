@@ -53,4 +53,6 @@ public interface IMessageSender {
     }
 
     boolean isJsonEnabled();
+
+    void enqueueMessage(ICommandSender sender, String[] parsed);
 }
