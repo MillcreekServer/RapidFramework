@@ -10,6 +10,7 @@ import io.github.wysohn.rapidframework3.core.message.Message;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.interfaces.message.IQueuedMessageConsumer;
+import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.util.Optional;
 
@@ -33,6 +34,10 @@ public class BukkitMessageSenderModule extends AbstractModule {
 
             @Override
             public void send(ICommandSender sender, Message[] message, boolean conversation) {
+                Validation.assertNotNull(sender);
+                if(message == null)
+                    return;
+
                 Optional<ProtocolLibAPI> optApi = api.getAPI(ProtocolLibAPI.class);
                 if (failure || !optApi.isPresent()) {
                     IMessageSender.super.send(sender, message, conversation);
