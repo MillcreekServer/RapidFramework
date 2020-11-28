@@ -1,10 +1,11 @@
 package io.github.wysohn.rapidframework3.bukkit.manager.message;
 
 import io.github.wysohn.rapidframework3.bukkit.main.AbstractBukkitPlugin;
-import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.main.Manager;
+import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.interfaces.message.IQueuedMessageConsumer;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
@@ -21,22 +22,27 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
     private final IStorageFactory storageFactory;
     private final AbstractBukkitPlugin.IPlayerWrapper wrapper;
     private final ITaskSupervisor taskSupervisor;
+    private final IMessageSender messageSender;
 
     private IKeyValueStorage storage;
     private Future<Void> messageConsumerFuture;
 
     private boolean running = false;
 
-    @Inject
-    public QueuedMessageManager(@PluginDirectory File pluginDir,
+    public QueuedMessageManager(File pluginDir,
                                 IStorageFactory storageFactory,
                                 AbstractBukkitPlugin.IPlayerWrapper wrapper,
-                                ITaskSupervisor taskSupervisor) {
+                                ITaskSupervisor taskSupervisor,
+                                IMessageSender messageSender) {
         this.pluginDir = pluginDir;
         this.storageFactory = storageFactory;
         this.wrapper = wrapper;
         this.taskSupervisor = taskSupervisor;
+        this.messageSender = messageSender;
     }
+
+    @Inject
+
 
     @Override
     public void enable() throws Exception {
@@ -96,7 +102,13 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
                             if(messages == null)
                                 return;
 
-                            taskSupervisor.sync(() -> player.sendMessageRaw(messages.get(0).toArray(new String[0])));
+                            taskSupervisor.sync(() -> {
+                                List<String> currentMessage = messages.get(0);
+                                currentMessage.stream()
+                                    .map(MessageBuilder::forMessage)
+                                    .map(MessageBuilder::build)
+                                .forEach(rawMessage -> messageSender.send(player, rawMessage));
+                            });
                             if(messages.size() > 1){
                                 storage.put(uuid.toString(), messages.subList(1, messages.size()));
                             } else {
