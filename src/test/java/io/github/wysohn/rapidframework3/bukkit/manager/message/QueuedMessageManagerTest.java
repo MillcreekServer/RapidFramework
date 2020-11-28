@@ -4,7 +4,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Provides;
 import io.github.wysohn.rapidframework3.bukkit.main.AbstractBukkitPlugin;
+import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
 import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
+import io.github.wysohn.rapidframework3.interfaces.message.IMessageSender;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
@@ -27,6 +29,7 @@ public class QueuedMessageManagerTest {
     private IKeyValueStorage storage;
     private UUID uuid;
     private AbstractBukkitPlugin.IPlayerWrapper playerWrapper;
+    private IMessageSender messageSender;
 
     @Before
     public void init(){
@@ -34,6 +37,7 @@ public class QueuedMessageManagerTest {
         uuid = UUID.randomUUID();
         playerWrapper = mock(AbstractBukkitPlugin.IPlayerWrapper.class);
         storage = mock(IKeyValueStorage.class);
+        messageSender = mock(IMessageSender.class);
 
         when(player.getUuid()).thenReturn(uuid);
         when(playerWrapper.wrap(eq(uuid))).thenReturn(player);
@@ -44,6 +48,11 @@ public class QueuedMessageManagerTest {
             @Provides
             AbstractBukkitPlugin.IPlayerWrapper wrapper(){
                 return playerWrapper;
+            }
+
+            @Provides
+            IMessageSender messageSender(){
+                return messageSender;
             }
 
             @Provides
@@ -164,14 +173,23 @@ public class QueuedMessageManagerTest {
 
         verify(player, atLeast(1)).isOnline();
 
-        verify(player).sendMessageRaw("message11",
-                "message12",
-                "message13");
-        verify(player).sendMessageRaw("message21",
-                "message22",
-                "message23");
-        verify(player).sendMessageRaw("message31",
-                "message32",
-                "message33");
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message11")
+                .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message12")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message13")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message21")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message22")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message23")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message31")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message32")
+                                                          .build()));
+        verify(messageSender).send(eq(player), eq(MessageBuilder.forMessage("message33")
+                                                          .build()));
     }
 }

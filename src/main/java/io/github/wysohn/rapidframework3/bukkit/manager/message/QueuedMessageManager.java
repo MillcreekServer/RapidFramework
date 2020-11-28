@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.bukkit.manager.message;
 
 import io.github.wysohn.rapidframework3.bukkit.main.AbstractBukkitPlugin;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
@@ -29,7 +30,8 @@ public class QueuedMessageManager extends Manager implements IQueuedMessageConsu
 
     private boolean running = false;
 
-    public QueuedMessageManager(File pluginDir,
+    @Inject
+    public QueuedMessageManager(@PluginDirectory File pluginDir,
                                 IStorageFactory storageFactory,
                                 AbstractBukkitPlugin.IPlayerWrapper wrapper,
                                 ITaskSupervisor taskSupervisor,
