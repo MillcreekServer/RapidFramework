@@ -229,12 +229,12 @@ public final class ManagerCommand extends Manager {
             String aliasAndUsage = buildAliasAndUsageString(lang, sender, c);
 
             return MessageBuilder
-                    .forMessage("&6"+label)
+                    .forMessage("&6/"+label)
                     .append(" &5[")
-                    .append(c.name)
+                    .append("&5"+c.name)
                     .withClickSuggestCommand("/" + label + " " + c.name)
                     .withHoverShowText(aliasAndUsage)
-                    .append("]&f &8>> &7")
+                    .append("&5]&f &8>> &7")
                     .append(descValue).build();
         }
     }
