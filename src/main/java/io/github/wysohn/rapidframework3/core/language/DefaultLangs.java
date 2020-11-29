@@ -60,8 +60,8 @@ public enum DefaultLangs implements ILang {
     Command_DoubleCheck_Timeout("&7Command &6${string} &7is automatically cancelled."),
 
     Command_Format_Description("&6/${string} ${string} &5- &7${string}"),
-    Command_Format_Aliases("&8&m &f &5Aliases&7: &a${string}"),
-    Command_Format_Usage("&8&m &f &7${string}"),
+    Command_Format_Aliases("&5Aliases&7: &a${string}"),
+    Command_Format_Usage("&8>> &7${string}"),
 
     Command_Help_PageDescription("&6Page &7${integer}/${integer}"),
     Command_Help_TypeHelpToSeeMore("&7Type &d${string} &7to see other pages."),
