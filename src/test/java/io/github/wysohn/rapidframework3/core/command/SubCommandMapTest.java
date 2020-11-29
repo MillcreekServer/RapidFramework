@@ -31,7 +31,7 @@ public class SubCommandMapTest {
     @Before
     public void init() {
         doubleChecker = Mockito.spy(new DoubleChecker());
-        subCommandMap = new SubCommandMap("test", doubleChecker);
+        subCommandMap = new SubCommandMap("cmd", "test", doubleChecker);
 
         mockMain = Mockito.mock(PluginMain.class);
         mockLang = Mockito.mock(ManagerLanguage.class);
@@ -210,7 +210,7 @@ public class SubCommandMapTest {
         Injector injector = Guice.createInjector(moduleList);
 
         doubleChecker = Mockito.spy(new DoubleChecker(0));
-        subCommandMap = new SubCommandMap("test", doubleChecker);
+        subCommandMap = new SubCommandMap("cmd", "test", doubleChecker);
         Map<UUID, String> checking = Mockito.spy(new HashMap<>());
         Whitebox.setInternalState(subCommandMap, "checking", checking);
 

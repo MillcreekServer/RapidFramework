@@ -52,7 +52,7 @@ public final class ManagerCommand extends Manager {
         this.injector = injector;
 
         for (String mainCommand : mainCommands) {
-            commandMaps.put(mainCommand, new SubCommandMap(rootPermission));
+            commandMaps.put(mainCommand, new SubCommandMap(mainCommand, rootPermission));
         }
     }
 
