@@ -226,18 +226,16 @@ public final class ManagerCommand extends Manager {
             // description
             c.description.parser.onParse(sender, lang);
             String descValue = lang.parseFirst(sender, c.description.lang);
-
-            MessageBuilder messageBuilder = MessageBuilder.forMessage(lang.parseFirst(sender,
-                    DefaultLangs.Command_Format_Description, ((sen, langman) -> {
-                        langman.addString(label);
-                        langman.addString(c.name);
-                        langman.addString(descValue);
-                    })))
-                    .withClickSuggestCommand("/" + label + " " + c.name);
-
             String aliasAndUsage = buildAliasAndUsageString(lang, sender, c);
 
-            return messageBuilder.withHoverShowText(aliasAndUsage).build();
+            return MessageBuilder
+                    .forMessage("&6"+label)
+                    .append(" &5[")
+                    .append(c.name)
+                    .withClickSuggestCommand("/" + label + " " + c.name)
+                    .withHoverShowText(aliasAndUsage)
+                    .append("]&f &8>> &7")
+                    .append(descValue).build();
         }
     }
 
