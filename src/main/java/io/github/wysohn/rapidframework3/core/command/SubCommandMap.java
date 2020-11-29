@@ -122,6 +122,9 @@ class SubCommandMap {
     private void sendCommandDetails(ManagerLanguage lang, ICommandSender sender, String label, SubCommand command) {
         lang.sendRawMessage(sender, MessageBuilder.empty());
         lang.sendRawMessage(sender, ManagerCommand.buildCommandDetail(lang, mainCommand, sender, command));
+        if(lang.isJsonEnabled())
+            lang.sendMessage(sender, DefaultLangs.Command_Help_MoveCursorForDetails, ((sen, langman) ->
+                    langman.addString(command.name)));
         ManagerCommand.buildSpecifications(lang, mainCommand, sender, command).forEach(message ->
                 lang.sendRawMessage(sender, message));
     }

@@ -67,6 +67,7 @@ public enum DefaultLangs implements ILang {
     Command_Help_TypeHelpToSeeMore("&7Type &d${string} &7to see other pages."),
     Command_Help_Description("Show all commands and its desriptions of this plugin."),
     Command_Help_Usage("<page> for page to see."),
+    Command_Help_MoveCursorForDetails("&6Hover your cursor on &5[${string}] &6for more information."),
 
     Command_Reload_Description("reload config"),
     Command_Reload_Usage("&6/... reload &8- &7reload config"),
