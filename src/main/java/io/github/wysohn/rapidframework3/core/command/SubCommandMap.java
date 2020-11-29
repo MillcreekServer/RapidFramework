@@ -116,15 +116,11 @@ class SubCommandMap {
         }
     }
 
-    private void sendCommandDetails(ManagerLanguage lang,
-                                    ICommandSender sender,
-                                    String label,
-                                    SubCommand command) {
+    private void sendCommandDetails(ManagerLanguage lang, ICommandSender sender, String label, SubCommand command) {
         lang.sendRawMessage(sender, MessageBuilder.empty());
-        lang.sendRawMessage(sender,
-                            ManagerCommand.buildCommandDetail(lang, label, sender, command));
-        ManagerCommand.buildSpecifications(lang, label, sender, command)
-                .forEach(message -> lang.sendRawMessage(sender, message));
+        lang.sendRawMessage(sender, ManagerCommand.buildCommandDetail(lang, label, sender, command));
+        ManagerCommand.buildSpecifications(lang, label, sender, command).forEach(message ->
+                lang.sendRawMessage(sender, message));
     }
 
     public List<String> tabComplete(ICommandSender sender, String subCommand, int index, String partial) {

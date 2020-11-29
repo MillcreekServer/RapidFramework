@@ -220,15 +220,6 @@ public final class ManagerCommand extends Manager {
     }
 
     static Message[] buildCommandDetail(ManagerLanguage lang, String label, ICommandSender sender, SubCommand c) {
-        return buildCommandDetail(lang, label, label, sender, c, true);
-    }
-
-    static Message[] buildCommandDetail(ManagerLanguage lang,
-                                        String mainCommand,
-                                        String label,
-                                        ICommandSender sender,
-                                        SubCommand c,
-                                        boolean useLabel) {
         if (c.description == null) {
             return MessageBuilder.empty();
         } else {
@@ -236,7 +227,6 @@ public final class ManagerCommand extends Manager {
             c.description.parser.onParse(sender, lang);
             String descValue = lang.parseFirst(sender, c.description.lang);
             String aliasAndUsage = buildAliasAndUsageString(lang, sender, c);
-            String commandLabel = useLabel ? label : mainCommand;
 
             return MessageBuilder
                     .forMessage("&6/"+label)
@@ -304,7 +294,7 @@ public final class ManagerCommand extends Manager {
                 .orElse(6);
 
         Pagination.list(lang, list, max, pluginName, "/" + mainCommand + " help")
-                .show(sender, page, (s, c, i) -> buildCommandDetail(lang, mainCommand, label, s, c, false));
+                .show(sender, page, (s, c, i) -> buildCommandDetail(lang, label, s, c));
     }
 
     /**
