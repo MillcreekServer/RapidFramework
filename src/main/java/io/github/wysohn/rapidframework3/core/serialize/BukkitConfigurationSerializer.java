@@ -30,12 +30,13 @@ public class BukkitConfigurationSerializer implements CustomAdapter<Configuratio
                 JsonElement value = entry.getValue();
 
                 if (value instanceof JsonObject) {
-                    ConfigurationSerializable sub = deserialize(value, typeOfT, context);
-                    if (sub == null) { // just a Map if JsonObject and is not serialized value
-                        subs.put(key, context.deserialize(value, Map.class));
-                    } else {
-                        subs.put(key, sub);
-                    }
+//                    ConfigurationSerializable sub = deserialize(value, typeOfT, context);
+//                    if (sub == null) { // just a Map if JsonObject and is not serialized value
+//                        subs.put(key, context.deserialize(value, Map.class));
+//                    } else {
+//                        subs.put(key, sub);
+//                    }
+                    subs.put(key, context.deserialize(value, Map.class));
                 } else {
                     subs.put(key, context.deserialize(value, Object.class));
                 }
