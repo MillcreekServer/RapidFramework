@@ -23,6 +23,8 @@ import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Player;
@@ -77,16 +79,31 @@ public class FakePlugin extends AbstractBukkitPlugin {
                 ItemStack itemStack0 = player.getInventory().getItem(0);
                 ItemStack itemStack1 = player.getInventory().getItem(1);
                 sender.sendMessage("Similar: "+itemStack0.isSimilar(itemStack1));
+                sender.sendMessage("item0: "+itemStack0);
+                sender.sendMessage("item1: "+itemStack1);
+
+                return true;
             }
 
             if(args.length > 1 && "serialize".equalsIgnoreCase(args[1])){
                 Player player = (Player) sender;
                 ItemStack itemStack = player.getInventory().getItemInMainHand();
                 // reconstruct item on hand using serialization
-                String ser = gson.toJson(itemStack, ItemStack.class);
-                ItemStack reconstructed = gson.fromJson(ser, ItemStack.class);
+                // String ser = gson.toJson(itemStack, ItemStack.class);
+                getConfig().set("test", itemStack);
+                String ser = getConfig().saveToString();
+                YamlConfiguration temp = new YamlConfiguration();
+                try {
+                    temp.loadFromString(ser);
+                } catch (InvalidConfigurationException e) {
+                    e.printStackTrace();
+                }
+                // ItemStack reconstructed = gson.fromJson(ser, ItemStack.class);
+                ItemStack reconstructed = temp.getItemStack("test");
                 player.getInventory().setItemInMainHand(reconstructed);
                 sender.sendMessage("Reconstructed on hand");
+
+                return true;
             }
 
             if (args.length > 1 && "jsonitem".equalsIgnoreCase(args[1])) {
