@@ -2,6 +2,8 @@ package io.github.wysohn.rapidframework3.bukkit.plugin;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import copy.com.google.gson.Gson;
+import copy.com.google.gson.GsonBuilder;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitPlayer;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitWrapper;
 import io.github.wysohn.rapidframework3.bukkit.main.AbstractBukkitPlugin;
@@ -16,12 +18,15 @@ import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
 import io.github.wysohn.rapidframework3.core.inject.module.ManagerModule;
 import io.github.wysohn.rapidframework3.core.main.PluginMainBuilder;
 import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
+import io.github.wysohn.rapidframework3.core.serialize.BukkitConfigurationSerializer;
 import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,6 +34,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class FakePlugin extends AbstractBukkitPlugin {
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitConfigurationSerializer())
+            .create();
+
     public FakePlugin() {
     }
 
@@ -63,6 +72,23 @@ public class FakePlugin extends AbstractBukkitPlugin {
             return true;
 
         if (args.length > 0 && "test".equalsIgnoreCase(args[0])) {
+            if(args.length > 1 && "similar".equalsIgnoreCase(args[1])){
+                Player player = (Player) sender;
+                ItemStack itemStack0 = player.getInventory().getItem(0);
+                ItemStack itemStack1 = player.getInventory().getItem(1);
+                sender.sendMessage("Similar: "+itemStack0.isSimilar(itemStack1));
+            }
+
+            if(args.length > 1 && "serialize".equalsIgnoreCase(args[1])){
+                Player player = (Player) sender;
+                ItemStack itemStack = player.getInventory().getItemInMainHand();
+                // reconstruct item on hand using serialization
+                String ser = gson.toJson(itemStack, ItemStack.class);
+                ItemStack reconstructed = gson.fromJson(ser, ItemStack.class);
+                player.getInventory().setItemInMainHand(reconstructed);
+                sender.sendMessage("Reconstructed on hand");
+            }
+
             if (args.length > 1 && "jsonitem".equalsIgnoreCase(args[1])) {
                 BukkitPlayer player = (BukkitPlayer) BukkitWrapper.player((Player) sender);
                 getMain().lang().sendRawMessage(player, BukkitMessageBuilder.forBukkitMessage("test item:")
