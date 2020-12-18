@@ -11,6 +11,7 @@ import io.github.wysohn.rapidframework3.bukkit.manager.api.PlaceholderAPI;
 import io.github.wysohn.rapidframework3.bukkit.manager.common.message.BukkitMessageBuilder;
 import io.github.wysohn.rapidframework3.bukkit.plugin.manager.ManagerChat;
 import io.github.wysohn.rapidframework3.bukkit.plugin.manager.TranslateManager;
+import io.github.wysohn.rapidframework3.bukkit.utils.InventoryUtil;
 import io.github.wysohn.rapidframework3.bukkit.utils.conversation.ConversationBuilder;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
 import io.github.wysohn.rapidframework3.core.command.SubCommand;
@@ -78,7 +79,7 @@ public class FakePlugin extends AbstractBukkitPlugin {
                 Player player = (Player) sender;
                 ItemStack itemStack0 = player.getInventory().getItem(0);
                 ItemStack itemStack1 = player.getInventory().getItem(1);
-                sender.sendMessage("Similar: "+itemStack0.isSimilar(itemStack1));
+                sender.sendMessage("Similar: "+ InventoryUtil.areSimilar(itemStack0, itemStack1));
                 sender.sendMessage("item0: "+itemStack0);
                 sender.sendMessage("item1: "+itemStack1);
 

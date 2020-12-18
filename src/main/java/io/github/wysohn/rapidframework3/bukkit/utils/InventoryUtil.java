@@ -114,4 +114,70 @@ public class InventoryUtil {
         parseToItemLores(langman, sender, lang, ((sen, langman1) -> {
         }), itemStack, false);
     }
+
+    /**
+     * Temporary method to be used while the {@link ItemStack#isSimilar(ItemStack)} method
+     * is fixed. The method have hard time comparing the display name and lores,
+     * so until it's fixed, manually compare them as String.
+     * @param item1
+     * @param item2
+     * @return
+     */
+    public static boolean areSimilar(ItemStack item1, ItemStack item2){
+        if(item1 == null && item2 == null)
+            return true;
+
+        if(item1 == null || item2 == null)
+            return false;
+
+        return areEqual(item1.getItemMeta(), item2.getItemMeta());
+    }
+
+    public static boolean loreEqual(List<String> lore1, List<String> lore2){
+        if(lore1 == null && lore2 == null)
+            return true;
+
+        if(lore1 == null || lore2 == null)
+            return false;
+
+        if(lore1.size() != lore2.size())
+            return false;
+
+        for (int i = 0; i < lore1.size(); i++) {
+            if(!Objects.equals(lore1.get(i), lore2.get(i)))
+                return false;
+        }
+
+        return true;
+    }
+
+    public static boolean areEqual(ItemMeta meta1, ItemMeta meta2){
+        if(meta1 == null && meta2 == null)
+            return true;
+
+        if(meta1 == null || meta2 == null)
+            return false;
+
+        if(meta1.getClass() != meta2.getClass())
+            return false;
+
+        // basic comparison
+        if(!Objects.equals(meta1.getDisplayName(), meta2.getDisplayName()))
+            return false;
+
+        if(!loreEqual(meta1.getLore(), meta2.getLore()))
+            return false;
+
+        // make copy of meta and remove display name and lores
+        // TODO: this is not required once the isSimilar method is fixed
+        meta1 = meta1.clone();
+        meta1.setDisplayName(null);
+        meta1.setLore(null);
+
+        meta2 = meta2.clone();
+        meta2.setDisplayName(null);
+        meta2.setLore(null);
+
+        return Bukkit.getItemFactory().equals(meta1, meta2);
+    }
 }
