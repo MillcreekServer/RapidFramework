@@ -53,6 +53,16 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         return Class.forName("net.minecraft.server." + nmsVersion + "." + className);
     }
 
+    /**
+     * @param className CraftBukkit class name with/without packages. For example, CraftItemStack can be
+     *                  retrieved with "inventory.CraftItemStack"
+     * @return CraftBukkit class corresspond to the currnet server's version
+     */
+    public static Class<?> getCraftBukkitClass(String className) throws ClassNotFoundException {
+        Validation.assertNotNull(className);
+        return Class.forName("org.bukkit.craftbukkit." + nmsVersion + "." + className);
+    }
+
     private final Server server;
 
     private boolean test;

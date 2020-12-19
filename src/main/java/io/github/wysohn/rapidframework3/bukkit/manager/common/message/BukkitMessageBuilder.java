@@ -22,7 +22,7 @@ public class BukkitMessageBuilder extends MessageBuilder<ItemStack> {
             Class<?> NBTCompoundClass = AbstractBukkitPlugin.getNMSClass("NBTTagCompound");
             Object NBTCompound = NBTCompoundClass.newInstance();
 
-            NMSWrapper.target(AbstractBukkitPlugin.getNMSClass("inventory.CraftItemStack"))
+            NMSWrapper.target(AbstractBukkitPlugin.getCraftBukkitClass("inventory.CraftItemStack"))
                     .prepare("asNMSCopy", ItemStack.class)
                     .invoke(value) // NMS ItemStack
                     .prepare("save", NBTCompoundClass)
