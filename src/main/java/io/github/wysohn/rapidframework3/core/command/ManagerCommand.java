@@ -52,7 +52,7 @@ public final class ManagerCommand extends Manager {
         this.injector = injector;
 
         for (String mainCommand : mainCommands) {
-            commandMaps.put(mainCommand, new SubCommandMap(rootPermission));
+            commandMaps.put(mainCommand, new SubCommandMap(mainCommand, rootPermission));
         }
     }
 
@@ -226,18 +226,16 @@ public final class ManagerCommand extends Manager {
             // description
             c.description.parser.onParse(sender, lang);
             String descValue = lang.parseFirst(sender, c.description.lang);
-
-            MessageBuilder messageBuilder = MessageBuilder.forMessage(lang.parseFirst(sender,
-                    DefaultLangs.Command_Format_Description, ((sen, langman) -> {
-                        langman.addString(label);
-                        langman.addString(c.name);
-                        langman.addString(descValue);
-                    })))
-                    .withClickSuggestCommand("/" + label + " " + c.name);
-
             String aliasAndUsage = buildAliasAndUsageString(lang, sender, c);
 
-            return messageBuilder.withHoverShowText(aliasAndUsage).build();
+            return MessageBuilder
+                    .forMessage("&6/" + label)
+                    .append(" &5[")
+                    .append("&5" + c.name)
+                    .withClickSuggestCommand("/" + label + " " + c.name)
+                    .withHoverShowText(aliasAndUsage)
+                    .append("&5]&f &8>> &7")
+                    .append(descValue).build();
         }
     }
 

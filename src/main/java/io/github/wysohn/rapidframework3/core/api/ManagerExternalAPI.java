@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.core.api;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.main.Manager;
@@ -25,16 +26,19 @@ public class ManagerExternalAPI extends Manager {
     private final IGlobalPluginManager pluginManager;
     private final Logger logger;
     private final PluginMain main;
+    private final Injector injector;
 
     @Inject
     public ManagerExternalAPI(PluginMain main,
                               @PluginLogger Logger logger,
                               IGlobalPluginManager pluginManager,
+                              Injector injector,
                               Map<String, Class<? extends ExternalAPI>> apis) {
         super();
         this.main = main;
         this.logger = logger;
         this.pluginManager = pluginManager;
+        this.injector = injector;
         apis.forEach((name, clazz) -> apiClasses.computeIfAbsent(name, (key) -> new HashSet<>()).add(clazz));
     }
 
@@ -51,6 +55,8 @@ public class ManagerExternalAPI extends Manager {
                 try {
                     Constructor con = clazz.getConstructor(PluginMain.class, String.class);
                     ExternalAPI api = (ExternalAPI) con.newInstance(main, pluginName);
+                    injector.injectMembers(api);
+
                     api.enable();
 
                     externalAPIs.put(clazz, api);

@@ -387,6 +387,12 @@ public class ManagerLanguage extends Manager {
         sendMessage(commandSender, lang, handle, false);
     }
 
+    public void enqueueMessage(ICommandSender commandSender, ILang lang, ILangParser handle) {
+        String[] parsed = parse(commandSender, lang, handle);
+
+        messageSender.enqueueMessage(commandSender, parsed);
+    }
+
     public void sendMessage(ICommandSender commandSender, ILang lang, ILangParser handle, boolean conversation) {
         String[] parsed = parse(commandSender, lang, handle);
 
@@ -397,6 +403,12 @@ public class ManagerLanguage extends Manager {
 
     public void sendMessage(ICommandSender commandSender, ILang lang) {
         sendMessage(commandSender, lang, false);
+    }
+
+    public void enqueueMessage(ICommandSender commandSender, ILang lang) {
+        enqueueMessage(commandSender, lang, (s, man) -> {
+
+        });
     }
 
     public void sendMessage(ICommandSender commandSender, ILang lang, boolean conversation) {

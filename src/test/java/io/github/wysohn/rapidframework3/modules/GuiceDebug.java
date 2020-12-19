@@ -18,7 +18,7 @@ public class GuiceDebug {
                         record.getMessage());
             }
         });
-        HANDLER.setLevel(Level.ALL);
+        HANDLER.setLevel(Level.WARNING);
     }
 
     private GuiceDebug() {

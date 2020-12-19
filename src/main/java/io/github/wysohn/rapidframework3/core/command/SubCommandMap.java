@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 class SubCommandMap {
+    private final String mainCommand;
     private final String rootPermission;
     private final Map<String, SubCommand> commandList = new LinkedHashMap<>();
     private final Map<String, String> aliasMap = new HashMap<String, String>();
@@ -17,12 +18,14 @@ class SubCommandMap {
     private final Map<UUID, String> checking = new HashMap<>();
     private final DoubleChecker doubleChecker;
 
-    public SubCommandMap(String rootPermission) {
+    public SubCommandMap(String mainCommand, String rootPermission) {
+        this.mainCommand = mainCommand;
         this.rootPermission = rootPermission;
         doubleChecker = new DoubleChecker();
     }
 
-    public SubCommandMap(String rootPermission, DoubleChecker doubleChecker) {
+    public SubCommandMap(String mainCommand, String rootPermission, DoubleChecker doubleChecker) {
+        this.mainCommand = mainCommand;
         this.rootPermission = rootPermission;
         this.doubleChecker = doubleChecker;
     }
@@ -118,8 +121,11 @@ class SubCommandMap {
 
     private void sendCommandDetails(ManagerLanguage lang, ICommandSender sender, String label, SubCommand command) {
         lang.sendRawMessage(sender, MessageBuilder.empty());
-        lang.sendRawMessage(sender, ManagerCommand.buildCommandDetail(lang, label, sender, command));
-        ManagerCommand.buildSpecifications(lang, label, sender, command).forEach(message ->
+        lang.sendRawMessage(sender, ManagerCommand.buildCommandDetail(lang, mainCommand, sender, command));
+        if (lang.isJsonEnabled())
+            lang.sendMessage(sender, DefaultLangs.Command_Help_MoveCursorForDetails, ((sen, langman) ->
+                    langman.addString(command.name)));
+        ManagerCommand.buildSpecifications(lang, mainCommand, sender, command).forEach(message ->
                 lang.sendRawMessage(sender, message));
     }
 

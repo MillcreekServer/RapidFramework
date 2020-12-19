@@ -64,12 +64,6 @@ public class BukkitConfigurationSerializer implements CustomAdapter<Configuratio
 
     @Override
     public JsonElement serialize(ConfigurationSerializable src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject ser = new JsonObject();
-        ser.addProperty(SER_KEY, ConfigurationSerializable.class.getName());
-        ser.add(SER_VALUE, context.serialize(flatConfiguration(src)));
-        return ser;
+        return context.serialize(flatConfiguration(src));
     }
-
-    private static final String SER_KEY = "$serkey";
-    private static final String SER_VALUE = "$serval";
 }

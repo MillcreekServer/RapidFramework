@@ -10,6 +10,9 @@ import java.util.stream.Stream;
 
 public interface IMessageSender {
     default void send(ICommandSender sender, Message[] message, boolean conversation) {
+        if (message == null)
+            return;
+
         Arrays.stream(message)
                 .map(Message::getString)
                 .filter(Objects::nonNull)
@@ -53,4 +56,6 @@ public interface IMessageSender {
     }
 
     boolean isJsonEnabled();
+
+    void enqueueMessage(ICommandSender sender, String[] parsed);
 }
