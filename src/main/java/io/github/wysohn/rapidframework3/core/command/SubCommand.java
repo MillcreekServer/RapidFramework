@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework3.interfaces.language.ILang;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangParser;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.function.Predicate;
@@ -22,6 +23,7 @@ public class SubCommand {
     private ManagerLanguage lang;
 
     @Inject
+    @Named("rootPermission")
     private String rootPermission;
 
     final String name;
