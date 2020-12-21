@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.inject.Named;
 import java.util.*;
 
 public class SubCommandTest {
@@ -33,6 +34,12 @@ public class SubCommandTest {
             @Provides
             ManagerLanguage managerLanguage() {
                 return mockLang;
+            }
+
+            @Provides
+            @Named("rootPermission")
+            String rootPermission() {
+                return "testPerm";
             }
         });
     }

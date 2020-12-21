@@ -15,6 +15,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
+import javax.inject.Named;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -45,6 +46,12 @@ public class SubCommandMapTest {
             @Provides
             ManagerLanguage managerLanguage() {
                 return mockLang;
+            }
+
+            @Provides
+            @Named("rootPermission")
+            String rootPermission() {
+                return "testPerm";
             }
         });
     }
