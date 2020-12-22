@@ -1,6 +1,6 @@
 api-version: '1.13'
 depend: [
-]
+  ]
 author: wysohn
 permissions:
   rapidframework:
@@ -11,8 +11,8 @@ softdepend:
   - ProtocolLib
   - Vault
   - PlaceholderAPI
-- ProtocolLib
-- WorldGuard
+  - ProtocolLib
+  - WorldGuard
 version: 3.14.0
 commands:
   rapidframework:
