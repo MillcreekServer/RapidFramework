@@ -277,7 +277,7 @@ public class SQLSession {
                 sql += " " + tableName + "(";
                 sql += String.join(",", fields);
                 if (keys.size() > 0)
-                    sql += "PRIMARY KEY(" + String.join(",", keys) + ")";
+                    sql += ",PRIMARY KEY(" + String.join(",", keys) + ")";
                 sql += ");";
 
                 try (PreparedStatement newTableStmt = conn.prepareStatement(sql)) {
