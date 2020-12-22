@@ -178,6 +178,8 @@ public class SQLSession {
 
             return new Builder(createDataSource(dbFile), attribute -> {
                 switch (attribute) {
+                    case PRIMARY_KEY:
+                        return "PRIMARY KEY";
                     case AUTO_INCREMENT:
                         return "AUTOINCREMENT";
                     default:
@@ -243,7 +245,13 @@ public class SQLSession {
                 List<String> modifiers = new ArrayList<>();
                 for (Attribute attribute : others) {
                     if (attribute == Attribute.KEY || attribute == Attribute.PRIMARY_KEY) {
-                        key = true;
+                        String converted = converter.apply(attribute);
+                        if (converted.length() > 0) {
+                            // sqlite require PRIMARY KEY before AUTO INCREMENT
+                            modifiers.add(converted);
+                        } else {
+                            key = true;
+                        }
                     } else {
                         modifiers.add(converter.apply(attribute));
                     }

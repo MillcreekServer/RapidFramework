@@ -48,7 +48,7 @@ public class DoubleCheckerTest {
         Runnable mockRunnable = mock(Runnable.class);
         Runnable mockRunnableTimeout = mock(Runnable.class);
 
-        doubleChecker.init(uuid, mockRunnable, mockRunnableTimeout);
+        assertTrue(doubleChecker.init(uuid, mockRunnable, mockRunnableTimeout));
         doubleChecker.close();
 
         verify(mockRunnable, never()).run();

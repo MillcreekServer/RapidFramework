@@ -1,23 +1,23 @@
-author: wysohn
-name: rapidframework
-main: io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin
-softdepend:
-- ProtocolLib
-- Vault
-- PlaceholderAPI
-- ProtocolLib
-- WorldGuard
-version: 3.13.4
-commands:
-  rapidframework:
-    aliases:
-    - rap
-    description: description
-authors: [
-  ]
+api-version: '1.13'
 depend: [
-  ]
+]
+author: wysohn
 permissions:
   rapidframework:
     description: Grant admin permission
-api-version: '1.13'
+name: rapidframework
+main: io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin
+softdepend:
+  - ProtocolLib
+  - Vault
+  - PlaceholderAPI
+- ProtocolLib
+- WorldGuard
+version: 3.14.0
+commands:
+  rapidframework:
+    aliases:
+      - rap
+    description: description
+authors: [
+]
