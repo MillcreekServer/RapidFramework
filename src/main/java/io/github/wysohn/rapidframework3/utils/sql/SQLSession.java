@@ -230,6 +230,7 @@ public class SQLSession {
             private boolean ifNotExist;
             private final List<String> fields = new LinkedList<>();
             private final List<String> keys = new LinkedList<>();
+            private final List<String> uniques = new LinkedList<>();
 
             public TableInitializer(String tableName) {
                 this.tableName = tableName;
@@ -242,6 +243,8 @@ public class SQLSession {
 
             public TableInitializer field(String fieldName, String type, Attribute... others) {
                 boolean key = false;
+                boolean unique = false;
+
                 List<String> modifiers = new ArrayList<>();
                 for (Attribute attribute : others) {
                     if (attribute == Attribute.KEY || attribute == Attribute.PRIMARY_KEY) {
@@ -252,6 +255,8 @@ public class SQLSession {
                         } else {
                             key = true;
                         }
+                    } else if (attribute == Attribute.UNIQUE) {
+                        unique = true;
                     } else {
                         modifiers.add(converter.apply(attribute));
                     }
@@ -260,6 +265,8 @@ public class SQLSession {
                 field(fieldName + " " + type + " " + String.join(" ", modifiers));
                 if (key)
                     keys.add(fieldName);
+                if (unique)
+                    uniques.add(fieldName);
                 return this;
             }
 
@@ -278,6 +285,8 @@ public class SQLSession {
                 sql += String.join(",", fields);
                 if (keys.size() > 0)
                     sql += ",PRIMARY KEY(" + String.join(",", keys) + ")";
+                if (uniques.size() > 0)
+                    sql += ",UNIQUE(" + String.join(",", uniques) + ")";
                 sql += ");";
 
                 try (PreparedStatement newTableStmt = conn.prepareStatement(sql)) {
@@ -291,7 +300,7 @@ public class SQLSession {
     }
 
     public enum Attribute {
-        AUTO_INCREMENT, NOT_NULL, PRIMARY_KEY, KEY
+        AUTO_INCREMENT, NOT_NULL, PRIMARY_KEY, KEY, UNIQUE
     }
 
     public static SQLiteConnectionPoolDataSource createDataSource(File dbFile) {

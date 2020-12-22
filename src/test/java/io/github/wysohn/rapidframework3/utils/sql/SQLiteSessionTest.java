@@ -17,8 +17,8 @@ public class SQLiteSessionTest {
                     .createTable("abc", tableInitializer -> tableInitializer.ifNotExist()
                             .field("id", "integer",
                                     SQLSession.Attribute.PRIMARY_KEY, SQLSession.Attribute.AUTO_INCREMENT)
-                            .field("value", "char(256)")
-                            .field("other", "integer"))
+                            .field("value", "char(256)", SQLSession.Attribute.NOT_NULL)
+                            .field("other", "integer", SQLSession.Attribute.UNIQUE))
                     .build();
 
             session.execute("INSERT INTO abc(value, other) VALUES(?, ?);", pstmt -> {
