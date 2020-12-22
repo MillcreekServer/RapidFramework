@@ -9,12 +9,10 @@ import javax.sql.ConnectionPoolDataSource;
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class SQLSession {
     private final MiniConnectionPoolManager pool;
@@ -147,14 +145,13 @@ public class SQLSession {
     }
 
     public static class Builder {
-        private static final Function<Attribute, String> commonConverter = attribute -> {
+        private static final Function<Attribute, String> COMMON_CONVERTER = attribute -> {
             switch (attribute) {
                 case NOT_NULL:
                     return "NOT NULL";
                 case PRIMARY_KEY:
-                    return "PRIMARY KEY";
                 case KEY:
-                    return "KEY";
+                    return ""; // set this in constraint
                 default:
                     throw new RuntimeException("Undefined attribute " + attribute);
             }
@@ -184,7 +181,7 @@ public class SQLSession {
                     case AUTO_INCREMENT:
                         return "AUTOINCREMENT";
                     default:
-                        return commonConverter.apply(attribute);
+                        return COMMON_CONVERTER.apply(attribute);
                 }
             });
         }
@@ -201,7 +198,7 @@ public class SQLSession {
                     case AUTO_INCREMENT:
                         return "AUTO_INCREMENT";
                     default:
-                        return commonConverter.apply(attribute);
+                        return COMMON_CONVERTER.apply(attribute);
                 }
             });
         }
@@ -230,6 +227,7 @@ public class SQLSession {
 
             private boolean ifNotExist;
             private final List<String> fields = new LinkedList<>();
+            private final List<String> keys = new LinkedList<>();
 
             public TableInitializer(String tableName) {
                 this.tableName = tableName;
@@ -241,9 +239,19 @@ public class SQLSession {
             }
 
             public TableInitializer field(String fieldName, String type, Attribute... others) {
-                fields.add(fieldName + " " + type + " " + Arrays.stream(others)
-                        .map(converter)
-                        .collect(Collectors.joining(" ")));
+                boolean key = false;
+                List<String> modifiers = new ArrayList<>();
+                for (Attribute attribute : others) {
+                    if (attribute == Attribute.KEY || attribute == Attribute.PRIMARY_KEY) {
+                        key = true;
+                    } else {
+                        modifiers.add(converter.apply(attribute));
+                    }
+                }
+
+                field(fieldName + " " + type + " " + String.join(" ", modifiers));
+                if (key)
+                    keys.add(fieldName);
                 return this;
             }
 
@@ -260,6 +268,8 @@ public class SQLSession {
                     sql += " IF NOT EXISTS";
                 sql += " " + tableName + "(";
                 sql += String.join(",", fields);
+                if (keys.size() > 0)
+                    sql += "PRIMARY KEY(" + String.join(",", keys) + ")";
                 sql += ");";
 
                 try (PreparedStatement newTableStmt = conn.prepareStatement(sql)) {
