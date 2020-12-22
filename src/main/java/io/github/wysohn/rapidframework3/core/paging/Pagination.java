@@ -52,25 +52,28 @@ public class Pagination<T> {
 
         exec.submit(() -> dataProvider.sync(() -> {
             int total = dataProvider.size();
+            int p = 0, outof = 0;
 
-            int remainder = total % max;
-            int divided = total / max;
-            int outof = remainder == 0 ? divided : divided + 1;
+            if (total > 0) {
+                int remainder = total % max;
+                int divided = total / max;
+                outof = remainder == 0 ? divided : divided + 1;
 
-            int p = Math.max(page, 0);
-            p = Math.min(p, outof - 1);
+                p = Math.max(page, 0);
+                p = Math.min(p, outof - 1);
 
-            List<T> vals = dataProvider.get(p * max, max);
-            for (int rel_index = 0; rel_index < vals.size(); rel_index++) {
-                int absolute_index = p * max + rel_index;
-                if (absolute_index >= total)
-                    break;
+                List<T> vals = dataProvider.get(p * max, max);
+                for (int rel_index = 0; rel_index < vals.size(); rel_index++) {
+                    int absolute_index = p * max + rel_index;
+                    if (absolute_index >= total)
+                        break;
 
-                if (dataProvider.omit(vals.get(rel_index))) {
-                    continue;
+                    if (dataProvider.omit(vals.get(rel_index))) {
+                        continue;
+                    }
+
+                    lang.sendRawMessage(sender, messageFn.convert(sender, vals.get(rel_index), absolute_index));
                 }
-
-                lang.sendRawMessage(sender, messageFn.convert(sender, vals.get(rel_index), absolute_index));
             }
 
             lang.sendMessage(sender, DefaultLangs.General_Line);
@@ -99,9 +102,9 @@ public class Pagination<T> {
                         langman.addString(this.cmd + " <page>")));
             }
 
-            final int pageCopy = p + 1;
+            final int pageCopy = p + 1, outofCopy = outof;
             lang.sendMessage(sender, DefaultLangs.Command_Help_PageDescription, ((sen, langman) ->
-                    langman.addInteger(pageCopy).addInteger(outof)));
+                    langman.addInteger(pageCopy).addInteger(outofCopy)));
             sender.sendMessageRaw("");
         }));
     }

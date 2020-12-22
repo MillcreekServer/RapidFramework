@@ -223,6 +223,35 @@ public class PaginationTest {
         verify(mockLang, times(3)).sendMessage(eq(mockSender), any(), any());
     }
 
+    @Test
+    public void showWithJsonEmpty() throws InterruptedException {
+        when(mockLang.isJsonEnabled()).thenReturn(true);
+
+        List<String> messages = new ArrayList<>();
+
+        String cmd = "/some command";
+        Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
+                "title", cmd);
+
+        pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
+        pagination.shutdown();
+
+        // pad
+        verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.empty()));
+        // buttons
+        verify(mockLang).sendRawMessage(eq(mockSender), eq(MessageBuilder.forMessage("")
+                .append(Pagination.LEFT_ARROW)
+                .withHoverShowText(cmd + " 0")
+                .withClickRunCommand(cmd + " 0")
+                .append(Pagination.HOME)
+                .withHoverShowText(cmd)
+                .withClickRunCommand(cmd)
+                .append(Pagination.RIGHT_ARROW)
+                .withHoverShowText(cmd + " 2")
+                .withClickRunCommand(cmd + " 2")
+                .build()));
+    }
+
     class TempSender implements ICommandSender {
         @Override
         public void sendMessageRaw(boolean conversation, String... msg) {
