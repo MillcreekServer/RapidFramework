@@ -20,6 +20,17 @@ public class I18NConfigSession implements PluginRuntime {
 
     private final Map<String, IKeyValueStorage> sessionMap = new HashMap<>();
 
+    /**
+     * Create bundle of config sessions that can be differenciated depending on the locale.
+     * you may use {@link #getSession(String)} to get the appropriate {@link IKeyValueStorage}
+     * which is linked specifically to the locale you provided.
+     *
+     * @param writer         writer instance
+     * @param storageFactory storage factory instance
+     * @param folder         folder to save all of the yml files.
+     * @param fileName       name of the file 'without' the extension. '.yml' will be automatically appended
+     *                       by this class, so providing extension will result a duplicated extensions.
+     */
     public I18NConfigSession(IFileWriter writer, IStorageFactory storageFactory, File folder, String fileName) {
         Validation.assertNotNull(folder);
         Validation.assertNotNull(fileName);
@@ -29,7 +40,7 @@ public class I18NConfigSession implements PluginRuntime {
         this.writer = writer;
         this.storageFactory = storageFactory;
         this.folder = folder;
-        this.DEFAULT = storageFactory.create(folder, fileName);
+        this.DEFAULT = storageFactory.create(folder, fileName + ".yml");
         this.fileName = fileName;
     }
 
@@ -50,7 +61,7 @@ public class I18NConfigSession implements PluginRuntime {
                 if (split.length < 2)
                     continue;
 
-                sessionMap.put(split[1], storageFactory.create(folder, name));
+                sessionMap.put(split[1], storageFactory.create(folder, name + ".yml"));
             }
         }
 

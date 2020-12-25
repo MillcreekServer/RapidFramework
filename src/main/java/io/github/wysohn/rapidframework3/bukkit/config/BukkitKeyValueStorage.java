@@ -118,4 +118,9 @@ public class BukkitKeyValueStorage implements IKeyValueStorage {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String toString() {
+        return file.toString();
+    }
 }
