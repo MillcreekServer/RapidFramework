@@ -61,8 +61,8 @@ public abstract class AbstractChatManager extends Manager {
                 .map(sections -> {
                     MessageBuilder<?> builder = MessageBuilder.forMessage("");
                     configStorage.getKeys(sections, false).forEach(key -> {
-                        Object section = configStorage.get(key);
-                        buildMessage(sender, builder, section);
+                        configStorage.get(key).ifPresent(section ->
+                                buildMessage(sender, builder, section));
                     });
                     return builder.build();
                 }).orElse(MessageBuilder.empty());
