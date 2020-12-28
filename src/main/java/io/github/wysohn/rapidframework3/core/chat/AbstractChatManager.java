@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.core.chat;
 
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.main.Manager;
@@ -14,6 +15,7 @@ import io.github.wysohn.rapidframework3.utils.Validation;
 import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public abstract class AbstractChatManager extends Manager {
     public static final String CHAT_YML = "chat.yml";
@@ -21,12 +23,15 @@ public abstract class AbstractChatManager extends Manager {
     private final IKeyValueStorage configStorage;
     private final IPlaceholderSupport placeholderSupport;
     private final ManagerLanguage lang;
+    private final Logger logger;
 
     public AbstractChatManager(ManagerLanguage lang,
                                @PluginDirectory File pluginDir,
+                               @PluginLogger Logger logger,
                                IStorageFactory storageFactory,
                                IPlaceholderSupport placeholderSupport) {
         this.lang = lang;
+        this.logger = logger;
         this.configStorage = storageFactory.create(pluginDir, "chat.yml");
         this.placeholderSupport = placeholderSupport;
     }
@@ -73,6 +78,8 @@ public abstract class AbstractChatManager extends Manager {
 
         recipients.forEach(recipient ->
                 lang.sendRawMessage(recipient, Message.concat(formattedPrefixes, formattedName, text)));
+
+        logger.info(String.format("[%s] %s", sender.getDisplayName(), message));
     }
 
     private void buildMessage(ICommandSender sender, MessageBuilder<?> builder, Object section) {
