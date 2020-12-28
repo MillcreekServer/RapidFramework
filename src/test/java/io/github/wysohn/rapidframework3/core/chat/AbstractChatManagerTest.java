@@ -2,11 +2,13 @@ package io.github.wysohn.rapidframework3.core.chat;
 
 import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework3.testmodules.MockLoggerModule;
 import io.github.wysohn.rapidframework3.testmodules.MockPlaceholderModule;
 import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
 import io.github.wysohn.rapidframework3.testmodules.MockStorageFactoryModule;
@@ -19,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -39,6 +42,7 @@ public class AbstractChatManagerTest {
                 return lang;
             }
         });
+        moduleList.add(new MockLoggerModule());
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockStorageFactoryModule(mockStorage));
         moduleList.add(new MockPlaceholderModule());
@@ -87,9 +91,10 @@ public class AbstractChatManagerTest {
         @Inject
         public TempChatManager(ManagerLanguage lang,
                                @PluginDirectory File pluginDir,
+                               @PluginLogger Logger logger,
                                IStorageFactory storageFactory,
                                IPlaceholderSupport placeholderSupport) {
-            super(lang, pluginDir, storageFactory, placeholderSupport);
+            super(lang, pluginDir, logger, storageFactory, placeholderSupport);
         }
 
         @Override
