@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.data.BukkitWrapper;
 import io.github.wysohn.rapidframework3.core.chat.AbstractChatManager;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
@@ -16,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.io.File;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -26,10 +28,11 @@ public class ManagerChat extends AbstractChatManager implements Listener {
     @Inject
     public ManagerChat(ManagerLanguage lang,
                        @PluginDirectory File pluginDir,
-                       ManagerConfig config,
+                       @PluginLogger Logger logger,
                        IStorageFactory storageFactory,
-                       IPlaceholderSupport placeholderSupport) {
-        super(lang, pluginDir, storageFactory, placeholderSupport);
+                       IPlaceholderSupport placeholderSupport,
+                       ManagerConfig config) {
+        super(lang, pluginDir, logger, storageFactory, placeholderSupport);
         this.pluginDir = pluginDir;
         this.config = config;
     }
