@@ -19,6 +19,7 @@ package io.github.wysohn.rapidframework3.utils;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class FileUtil {
     /**
@@ -90,12 +91,21 @@ public class FileUtil {
      */
     public static void delete(File file) {
         if (file.isFile()) {
-            file.delete();
+            try {
+                Files.delete(file.toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             for (File f : file.listFiles()) {
                 delete(f);
             }
-            file.delete();
+
+            try {
+                Files.delete(file.toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
