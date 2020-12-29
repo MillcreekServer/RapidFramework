@@ -28,6 +28,9 @@ public class FileUtil {
      * @throws IOException
      */
     public static void writeToFile(File file, String str) throws IOException {
+        Validation.assertNotNull(file);
+        Validation.assertNotNull(str);
+
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
