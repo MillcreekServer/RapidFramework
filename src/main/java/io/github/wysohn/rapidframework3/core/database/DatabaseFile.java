@@ -62,7 +62,11 @@ public class DatabaseFile extends Database {
         if (!file.exists())
             file.createNewFile();
 
-        fileWriter.accept(file, serialized);
+        if (serialized == null) {
+            FileUtil.delete(file);
+        } else {
+            fileWriter.accept(file, serialized);
+        }
     }
 
     @Override
