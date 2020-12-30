@@ -131,6 +131,9 @@ public class InventoryUtil {
         if (item1 == null || item2 == null)
             return false;
 
+        if (item1.getType() != item2.getType())
+            return false;
+
         return areEqual(item1.getItemMeta(), item2.getItemMeta());
     }
 
