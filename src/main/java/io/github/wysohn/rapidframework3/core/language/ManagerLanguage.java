@@ -121,6 +121,10 @@ public class ManagerLanguage extends Manager {
         this.defaultLang = defaultLang;
     }
 
+    public boolean registerLangauge(ILang lang) {
+        return languages.add(lang);
+    }
+
     public Locale getDefaultLang() {
         return defaultLang;
     }
