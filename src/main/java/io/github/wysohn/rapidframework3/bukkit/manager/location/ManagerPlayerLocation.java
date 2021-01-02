@@ -21,6 +21,7 @@ import com.google.inject.Singleton;
 import io.github.wysohn.rapidframework3.bukkit.events.PlayerBlockLocationEvent;
 import io.github.wysohn.rapidframework3.bukkit.events.PlayerChunkLocationEvent;
 import io.github.wysohn.rapidframework3.core.main.Manager;
+import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.data.SimpleChunkLocation;
 import io.github.wysohn.rapidframework3.data.SimpleLocation;
 import org.bukkit.Bukkit;
@@ -40,8 +41,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ManagerPlayerLocation extends Manager {
     private static PlayerTracker TRACKER;
 
+    private final PluginMain main;
+
     @Inject
-    public ManagerPlayerLocation() {
+    public ManagerPlayerLocation(PluginMain main) {
+        this.main = main;
     }
 
     public static SimpleLocation getCurrentBlockLocation(UUID uuid) {
@@ -52,6 +56,7 @@ public class ManagerPlayerLocation extends Manager {
     public void enable() throws Exception {
         if (TRACKER == null) {
             TRACKER = new PlayerTracker();
+            Bukkit.getPluginManager().registerEvents(TRACKER, main.getPlatform());
         }
     }
 
@@ -65,8 +70,8 @@ public class ManagerPlayerLocation extends Manager {
 
     }
 
-    private static final class PlayerTracker implements Listener {
-        private transient Map<UUID, SimpleLocation> locations = new ConcurrentHashMap<>();
+    public static final class PlayerTracker implements Listener {
+        private final transient Map<UUID, SimpleLocation> locations = new ConcurrentHashMap<>();
 
         /**
          * get location of player
