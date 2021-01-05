@@ -310,32 +310,33 @@ public class ManagerLanguageTest {
         IPluginObject object = mock(IPluginObject.class);
         Message[] message = MessageBuilder.empty();
 
-        Map<ILang, Object> properties = new LinkedHashMap<>();
+        Map<Object, Object> properties = new LinkedHashMap<>();
         properties.put(TempLang.PropertyStr, "abc");
         properties.put(TempLang.PropertyNumber, 15235);
         properties.put(TempLang.PropertyBoolean, true);
         properties.put(TempLang.PropertyMessage, message);
 
-        Map<ILang, Object> subproperties = new LinkedHashMap<>();
+        Map<Object, Object> subproperties = new LinkedHashMap<>();
         subproperties.put(TempLang.PropertyStr, "eerrws");
         subproperties.put(TempLang.PropertyNumber, 1035.112);
         subproperties.put(TempLang.PropertyBoolean, false);
         properties.put(TempLang.Sub, subproperties);
 
-        Map<ILang, Object> subsub = new LinkedHashMap<>();
+        Map<Object, Object> subsub = new LinkedHashMap<>();
         subsub.put(TempLang.PropertyStr, "weryewry");
         subsub.put(TempLang.PropertyNumber, 13150.2278);
         subsub.put(TempLang.PropertyBoolean, false);
         subproperties.put(TempLang.Sub, subsub);
 
-        Map<ILang, Object> subproperties2 = new LinkedHashMap<>();
+        Map<Object, Object> subproperties2 = new LinkedHashMap<>();
         subproperties2.put(TempLang.PropertyStr, "zvzsdfsdf");
         subproperties2.put(TempLang.PropertyNumber, 45065460.123);
         subproperties2.put(TempLang.PropertyBoolean, true);
+        subproperties2.put("RandomKey", 123);
         properties.put(TempLang.Sub2, subproperties2);
 
         when(mockSender.getLocale()).thenReturn(Locale.KOREAN);
-        when(object.properties()).thenReturn(properties);
+        when(object.properties(managerLanguage, mockSender)).thenReturn(properties);
 
         doAnswer(invocation -> {
             String msg = (String) invocation.getArguments()[1];
@@ -345,7 +346,7 @@ public class ManagerLanguageTest {
 
         managerLanguage.sendProperty(mockSender, object);
 
-        verify(mockSender, times(6 + 4 + 3 + 3))
+        verify(mockSender, times(6 + 4 + 3 + 4))
                 .sendMessageRaw(eq(false), anyVararg());
     }
 

@@ -442,28 +442,33 @@ public class ManagerLanguage extends Manager {
     }
 
     public void sendProperty(ICommandSender sender, IPluginObject object, boolean conversation) {
-        sendProperty(sender, object.properties(), conversation, 0);
+        sendProperty(sender, object.properties(this, sender), conversation, 0);
     }
 
-    private void sendProperty(ICommandSender sender, Map<ILang, Object> property, boolean conv, int depth) {
-        property.forEach((iLang, o) -> {
-            String keyParsed = parseFirst(sender, iLang);
-            Message[] key = MessageBuilder.forMessage("&9")
-                    .append(StringUtil.spaces(2 * depth) + keyParsed)
-                    .append("&8: &f")
-                    .build();
+    private void sendProperty(ICommandSender sender, Map<Object, Object> property, boolean conv, int depth) {
+        property.forEach((rawKey, o) -> {
+            Message[] key = parseLangObject(rawKey, sender);
+            key = Message.concat(MessageBuilder.forMessage(StringUtil.spaces(2 * depth)).build(), key);
 
-            if (o instanceof Message[]) {
-                sendRawMessage(sender, Message.concat(key, (Message[]) o), conv);
-            } else if (o instanceof Map) {
+            if (o instanceof Map) {
                 sendRawMessage(sender, key, conv);
-                sendProperty(sender, (Map<ILang, Object>) o, conv, depth + 1);
+                sendProperty(sender, (Map<Object, Object>) o, conv, depth + 1);
             } else {
-                Message[] value = MessageBuilder.forMessage(String.valueOf(o))
-                        .build();
+                Message[] value = parseLangObject(o, sender);
                 sendRawMessage(sender, Message.concat(key, value), conv);
             }
         });
+    }
+
+    private Message[] parseLangObject(Object o, ICommandSender sender) {
+        if (o instanceof Message[]) {
+            return (Message[]) o;
+        } else if (o instanceof ILang) {
+            String message = parseFirst(sender, (ILang) o);
+            return MessageBuilder.forMessage(message).build();
+        } else {
+            return MessageBuilder.forMessage(String.valueOf(o)).build();
+        }
     }
 
     private static String getLastColors(String str) {

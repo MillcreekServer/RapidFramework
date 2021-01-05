@@ -166,6 +166,15 @@ public class GsonSerializerTest {
         private double testDouble = -3.0;
         private boolean testBool = true;
 
+        @Inject
+        private String shouldIgnore = "ignore";
+        @javax.inject.Inject
+        private String shouldIgnore2 = "ignore2";
+        @Inject
+        private static String shouldIgnore3 = "ignore3";
+        @Inject
+        private transient String shouldIgnore4 = "ignore4";
+
         public String getStringKey() {
             return stringKey;
         }
