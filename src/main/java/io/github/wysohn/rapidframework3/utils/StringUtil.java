@@ -56,6 +56,7 @@ public class StringUtil {
             e.printStackTrace();
         }
 
+        System.out.println(repeats("s", 5));
     }
 
     public static boolean isEnglish(String str) {
@@ -70,26 +71,31 @@ public class StringUtil {
         return str.matches("[\\w ]+");
     }
 
-    public static String spaces(int length){
-        if(length < 1)
+    public static String spaces(int length) {
+        return repeats(" ", length);
+    }
+
+    public static String repeats(String s, int length) {
+        if (length < 1)
             return "";
 
         StringBuilder builder = new StringBuilder();
-        for(int i = 0; i < length; i++){
-            builder.append(' ');
+        for (int i = 0; i < length; i++) {
+            builder.append(s);
         }
         return builder.toString();
     }
 
     /**
      * Generate concatenated String of the Enum 'e'
-     * @param e the Enum class
+     *
+     * @param e    the Enum class
      * @param join String to be inserted between each enum elements
-     * @param map Function to be applied to each element before concatenated
-     * @param <E> Enum type
+     * @param map  Function to be applied to each element before concatenated
+     * @param <E>  Enum type
      * @return concatenated String
      */
-    public static <E extends Enum> String enumsToString(Class<E> e, String join, Function<String, String> map){
+    public static <E extends Enum> String enumsToString(Class<E> e, String join, Function<String, String> map) {
         return String.join("&8, ", Arrays.stream(e.getEnumConstants())
                 .map(Enum::name)
                 .map(map)
