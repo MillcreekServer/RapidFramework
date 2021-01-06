@@ -35,7 +35,9 @@ public class BukkitKeyValueStorage implements IKeyValueStorage {
 
     @Override
     public void reload() throws Exception {
-        config = Utf8YamlConfiguration.loadConfiguration(file);
+        exec.submit(() -> {
+            config = Utf8YamlConfiguration.loadConfiguration(file);
+        }).get();
     }
 
     @Override

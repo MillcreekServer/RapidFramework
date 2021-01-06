@@ -83,6 +83,38 @@ public class BukkitKeyValueStorageTest {
     }
 
     @Test
+    public void reload() throws Exception {
+        File mockDirectory = new File("build/tmp/tests/");
+        String name = "test3.yml";
+        mockDirectory.delete();
+
+        Guice.createInjector(moduleList).injectMembers(this);
+        IKeyValueStorage storage = storageFactory.create(mockDirectory, name);
+
+        when(mockReader.apply(any())).then(invocation -> {
+            File file = (File) invocation.getArguments()[0];
+            return FileUtil.readFromFile(file);
+        });
+        doAnswer(invocation -> {
+            File file = (File) invocation.getArguments()[0];
+            String str = (String) invocation.getArguments()[1];
+            FileUtil.writeToFile(file, str);
+            return null;
+        }).when(mockWriter).accept(any(), anyString());
+
+        // check write after read. reload() must wait until save tasks are done
+        for (int i = 0; i < 300; i++) {
+            storage.put(String.valueOf(i), i);
+        }
+        storage.reload();
+        for (int i = 0; i < 300; i++) {
+            assertEquals(i, storage.get(String.valueOf(i)).orElseThrow(RuntimeException::new));
+        }
+
+        verify(mockWriter, times(300)).accept(any(), any());
+    }
+
+    @Test
     public void getKeys() throws IOException {
         File mockDirectory = new File("build/tmp/tests/");
         String name = "test2.yml";
