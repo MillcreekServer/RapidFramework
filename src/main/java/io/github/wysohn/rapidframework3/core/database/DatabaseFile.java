@@ -16,8 +16,10 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework3.core.database;
 
+import io.github.wysohn.rapidframework3.core.caching.CachedElement;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.utils.FileUtil;
 
 import java.io.File;
@@ -27,18 +29,18 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class DatabaseFile extends Database {
+public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
     private final String extensionName;
     private final IFileReader fileReader;
     private final IFileWriter fileWriter;
     private final File folder;
 
-    public DatabaseFile(String tableName,
+    public DatabaseFile(ISerializer serializer,
+                        String tableName,
+                        Class<T> type,
                         String extensionName,
-                        IFileReader fileReader,
-                        IFileWriter fileWriter,
-                        File folder) {
-        super(tableName);
+                        IFileReader fileReader, IFileWriter fileWriter, File folder) {
+        super(serializer, tableName, type);
         this.extensionName = extensionName;
         this.fileReader = fileReader;
         this.fileWriter = fileWriter;
@@ -48,24 +50,33 @@ public class DatabaseFile extends Database {
     }
 
     @Override
-    public String load(String key) throws IOException {
+    public T load(String key) throws IOException {
         File file = new File(folder, key + "." + extensionName);
         if (!file.exists())
             return null;
 
-        return fileReader.apply(file);
+        String json = fileReader.apply(file);
+        if (json == null)
+            return null;
+
+        try {
+            return serializer.deserializeFromString(type, json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void save(String key, String serialized) throws IOException {
+    public void save(String key, T obj) throws IOException {
         File file = new File(folder, key + "." + extensionName);
         if (!file.exists())
             file.createNewFile();
 
-        if (serialized == null) {
+        if (obj == null) {
             FileUtil.delete(file);
         } else {
-            fileWriter.accept(file, serialized);
+            fileWriter.accept(file, serializer.serializeToString(type, obj));
         }
     }
 

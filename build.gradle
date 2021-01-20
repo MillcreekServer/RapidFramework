@@ -186,6 +186,7 @@ dependencies {
     api group: 'com.google.inject', name: 'guice', version: '4.2.3'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
     api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
+    api group: 'org.hibernate', name: 'hibernate-core', version: '5.4.27.Final'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-core:1.9.5'

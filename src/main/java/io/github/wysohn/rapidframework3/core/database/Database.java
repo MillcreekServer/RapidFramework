@@ -16,24 +16,30 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework3.core.database;
 
+import io.github.wysohn.rapidframework3.core.caching.CachedElement;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
+
 import java.io.IOException;
 import java.util.Set;
 
-public abstract class Database {
+public abstract class Database<T extends CachedElement<?>> {
+    protected final ISerializer serializer;
     protected final String tableName;
+    protected final Class<T> type;
 
-    public Database(String tableName) {
-        super();
+    public Database(ISerializer serializer, String tableName, Class<T> type) {
+        this.serializer = serializer;
         this.tableName = tableName;
+        this.type = type;
     }
 
     public String getTableName() {
         return tableName;
     }
 
-    public abstract String load(String key) throws IOException;
+    public abstract T load(String key) throws IOException;
 
-    public abstract void save(String key, String json) throws IOException;
+    public abstract void save(String key, T obj) throws IOException;
 
     /**
      * Check if the key exists in the database

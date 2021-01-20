@@ -19,8 +19,15 @@ public class TypeAsserterModule extends AbstractModule {
             try {
                 type.getDeclaredConstructor();
             } catch (NoSuchMethodException e) {
-                throw new AssertionError(type + " does not have no-args constructor, so Gson will not be " +
-                        "able to properly serialize/deserialize it.");
+                throw new AssertionError(type + " does not have no-args constructor." +
+                        " Deserialization is not possible without it.");
+            }
+
+            try {
+                type.getDeclaredConstructor(type);
+            } catch (NoSuchMethodException e) {
+                throw new AssertionError(type + " does not have copy constructor." +
+                        " Serialization is not possible without it.");
             }
         };
     }

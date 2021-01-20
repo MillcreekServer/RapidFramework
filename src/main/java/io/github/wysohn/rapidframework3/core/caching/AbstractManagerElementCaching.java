@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -45,8 +47,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     private final Injector injector;
     private final Class<V> type;
 
-    private Databases.DatabaseFactory dbFactory;
-    private Database db;
+    private Databases.DatabaseFactory<V> dbFactory;
+    private Database<V> db;
 
     private final List<IObserver> observers = new ArrayList<IObserver>() {
         {
@@ -92,7 +94,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      *
      * @return
      */
-    protected abstract Databases.DatabaseFactory createDatabaseFactory();
+    protected abstract Databases.DatabaseFactory<V> createDatabaseFactory();
 
     protected abstract K fromString(String string);
 
@@ -104,15 +106,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
-            db = dbFactory.getDatabase((String) config.get("dbType").orElse("file"));
+            db = dbFactory.createDatabase(serializer,
+                    type,
+                    (String) config.get("dbType").orElse("file"));
             Validation.assertNotNull(db);
 
             for (String keyStr : db.getKeys()) {
-                String json = db.load(keyStr);
-                if (json == null)
-                    continue;
-
-                V value = serializer.deserializeFromString(type, json);
+                V value = db.load(keyStr);
                 if (value == null)
                     continue;
 
@@ -193,11 +193,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             try {
                 saveTaskPool.submit((Callable<Void>) () -> {
                     Validation.assertNotNull(db, "Key was " + key);
-                    String json = db.load(key.toString());
-                    if (json == null)
-                        return null;
+                    V loaded = db.load(key.toString());
 
-                    V loaded = serializer.deserializeFromString(type, json);
                     if (loaded != null) {
                         AbstractManagerElementCaching.this.cache(key, loaded);
                     }
@@ -367,7 +364,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     }
 
     protected Databases.DatabaseFactory getDatabaseFactory(String tablename) {
-        return (dbType -> {
+        return ((serializer, objType, dbType) -> {
             try {
                 switch (dbType) {
                     case "mysql":
@@ -409,14 +406,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             synchronized (cacheLock) {
                 cache(value.getKey(), value);
 
-                // Serialize the object while blocking to ensure thread safety of the individual objects.
-                String json = serializer.serializeToString(type, value);
-
                 saveTaskPool.submit(() -> {
                     try {
                         // at this point, as Object is already a plain Json text, there will be no concern about
                         // thread safety
-                        db.save(value.getKey().toString(), json);
+                        db.save(value.getKey().toString(), value.copy());
                     } catch (Exception e) {
                         handleDBOperationFailure(value.getKey().toString(), e);
                     }
@@ -427,9 +421,16 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     public abstract static class ObservableElement {
         private transient final List<IObserver> observers;
+        private transient Constructor<? extends ObservableElement> con;
 
         public ObservableElement() {
             observers = new LinkedList<>();
+            try {
+                con = getClass().getDeclaredConstructor(getClass());
+                con.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
         }
 
         void addObserver(IObserver observer) {
@@ -444,6 +445,25 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         void removeObserver(IObserver observer) {
             if (observer != null) {
                 observers.remove(observer);
+            }
+        }
+
+        /**
+         * copy current state. Internally, it just calls copy constructor.
+         *
+         * @param <T> whatever the type you are copying
+         * @return the copied object
+         */
+        public <T extends ObservableElement> T copy() {
+            if (con == null) {
+                throw new RuntimeException("Copy constructor not initialized.");
+            }
+
+            try {
+                return (T) con.newInstance(this);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                return null;
             }
         }
 
