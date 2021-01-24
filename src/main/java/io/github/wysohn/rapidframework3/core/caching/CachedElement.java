@@ -1,5 +1,9 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 /**
  * For Gson to serialize/deserialize this object, the child class must have no-args
  * constructor which will call the parent constructor. Gson always use the no-args constructor of the
@@ -10,8 +14,13 @@ package io.github.wysohn.rapidframework3.core.caching;
  * This is also an child of 'Observable' class, thus if any change happens in this class's instance,
  * it has to invoke {@link AbstractManagerElementCaching.ObservableElement#notifyObservers()}.
  */
+@Entity
+@Table
 public abstract class CachedElement<K> extends AbstractManagerElementCaching.ObservableElement {
+    @Column
     private final K key;
+
+    @Column
     private String stringKey;
 
     public CachedElement(K key) {

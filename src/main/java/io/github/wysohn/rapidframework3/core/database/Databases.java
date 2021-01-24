@@ -15,7 +15,7 @@ public class Databases {
         if (!folder.exists())
             folder.mkdirs();
 
-        return new DatabaseFile<T>(
+        return new DatabaseFile<>(
                 serializer,
                 name,
                 type,
@@ -30,7 +30,8 @@ public class Databases {
                                                                  String tablename,
                                                                  String username,
                                                                  String password) throws SQLException {
-        return new DatabaseMysql(address, dbName, tablename, username, password);
+        //return new DatabaseMysql(address, dbName, tablename, username, password);
+        throw new RuntimeException(); //TODO
     }
 
     @FunctionalInterface

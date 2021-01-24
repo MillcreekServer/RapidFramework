@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -374,7 +374,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                 (String) config.get("db.username").orElse("root"),
                                 (String) config.get("db.password").orElse("1234"));
                     default:
-                        return Databases.build(tablename, pluginDir);
+                        //return Databases.build(tablename, pluginDir);
+                        throw new RuntimeException(); //TODO
                 }
             } catch (Exception e) {
                 handleDBOperationFailure(tablename, e);
@@ -422,6 +423,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public abstract static class ObservableElement {
         private transient final List<IObserver> observers;
         private transient Constructor<? extends ObservableElement> con;
+        private final transient ReentrantReadWriteLock lock;
 
         public ObservableElement() {
             observers = new LinkedList<>();
@@ -431,6 +433,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
+            lock = new ReentrantReadWriteLock();
         }
 
         void addObserver(IObserver observer) {
@@ -459,21 +462,29 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 throw new RuntimeException("Copy constructor not initialized.");
             }
 
+            lock.readLock().lock();
             try {
                 return (T) con.newInstance(this);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return null;
+            } finally {
+                lock.readLock().unlock();
             }
         }
 
         protected void notifyObservers() {
-            if (observers.size() < 1) {
-                throw new RuntimeException("An ObservableElement invoked notifyObservers() method, yet no observers" +
-                        " are found. Probably this instance was unregistered when delete() method was used. Do not" +
-                        " use the instance that was deleted. Always retrieve the latest instance by get() method.");
+            lock.writeLock().lock();
+            try {
+                if (observers.size() < 1) {
+                    throw new RuntimeException("An ObservableElement invoked notifyObservers() method, yet no observers" +
+                            " are found. Probably this instance was unregistered when delete() method was used. Do not" +
+                            " use the instance that was deleted. Always retrieve the latest instance by get() method.");
+                }
+                observers.forEach(iObserver -> iObserver.update(this));
+            } finally {
+                lock.writeLock().unlock();
             }
-            observers.forEach(iObserver -> iObserver.update(this));
         }
     }
 }
