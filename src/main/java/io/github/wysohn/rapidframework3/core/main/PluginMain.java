@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -173,18 +174,36 @@ public class PluginMain implements PluginRuntime {
         }
 
         comm.addCommand(new SubCommand.Builder("reload")
-                .withDescription(DefaultLangs.Command_Reload_Description)
-                .addUsage(DefaultLangs.Command_Reload_Usage)
-                .action(((sender, args) -> {
-                    try {
-                        load();
-                        lang.sendMessage(sender, DefaultLangs.Command_Reload_Done);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                                .withDescription(DefaultLangs.Command_Reload_Description)
+                                .addUsage(DefaultLangs.Command_Reload_Usage)
+                                .action(((sender, args) -> {
+                                    try {
+                                        load();
+                                        lang.sendMessage(sender, DefaultLangs.Command_Reload_Done);
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
 
-                    return true;
-                })));
+                                    return true;
+                                })));
+
+        comm.addCommand(new SubCommand.Builder("debug")
+                                .withDescription(DefaultLangs.Command_Debug_Description)
+                                .addUsage(DefaultLangs.Command_Debug_Usage)
+                                .action(((sender, args) -> {
+                                    Level currentLevel = logger.getLevel();
+                                    if(currentLevel == null || currentLevel.intValue() >= Level.INFO.intValue()) {
+                                        logger.setLevel(Level.FINE);
+                                        lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
+                                                man.addString("&atrue"));
+                                    }else{
+                                        logger.setLevel(null);
+                                        lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
+                                                man.addString("&7false"));
+                                    }
+
+                                    return true;
+                                })));
     }
 
     private Collection<Manager> resolveDependencies() {
