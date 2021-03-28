@@ -36,6 +36,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 public abstract class AbstractBukkitPlugin extends JavaPlugin {
     private static String nmsVersion;
@@ -100,6 +103,26 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        getLogger().addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                if (record.getLevel() == Level.FINE) {
+                    String loggerName = record.getLoggerName();
+                    System.out.println(record.getMessage());
+                }
+            }
+
+            @Override
+            public void flush() {
+
+            }
+
+            @Override
+            public void close() throws SecurityException {
+
+            }
+        });
 
         PluginMainBuilder builder = PluginMainBuilder.prepare(new BukkitPluginInfoModule(getDescription()),
                 test ? new MainCommandsModule("test") : new BukkitMainCommandsModule(getDescription()),
