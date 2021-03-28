@@ -13,7 +13,7 @@ softdepend:
 - PlaceholderAPI
 - ProtocolLib
 - WorldGuard
-version: 3.17.1
+version: 3.17.2
 commands:
   rapidframework:
     aliases:

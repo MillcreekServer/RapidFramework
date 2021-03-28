@@ -263,8 +263,8 @@ public class PluginMain implements PluginRuntime {
             mediator.disable();
         }
 
-        for (Manager manager : orderedManagers) {
-            manager.disable();
+        for (int i = orderedManagers.size() - 1; i >= 0; i--) {
+            orderedManagers.get(i).disable();
         }
 
         executorService.shutdown();
