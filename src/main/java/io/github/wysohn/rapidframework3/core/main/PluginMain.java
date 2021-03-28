@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IDebugStateHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
@@ -22,7 +23,6 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -55,6 +55,9 @@ public class PluginMain implements PluginRuntime {
 
     @Inject
     private ITaskSupervisor taskSupervisor;
+
+    @Inject
+    private IDebugStateHandle debugStateHandle;
 
     @Inject
     @Named("pluginName")
@@ -103,6 +106,14 @@ public class PluginMain implements PluginRuntime {
 
     public ITaskSupervisor task() {
         return taskSupervisor;
+    }
+
+    public boolean isDebugging() {
+        return debugStateHandle.isDebugging();
+    }
+
+    public void setDebugging(boolean state) {
+        debugStateHandle.setDebugging(state);
     }
 
     public <M extends Manager> Optional<M> getManager(Class<M> clazz) {
@@ -191,17 +202,16 @@ public class PluginMain implements PluginRuntime {
                                 .withDescription(DefaultLangs.Command_Debug_Description)
                                 .addUsage(DefaultLangs.Command_Debug_Usage)
                                 .action(((sender, args) -> {
-                                    Level currentLevel = logger.getLevel();
-                                    if(currentLevel == null || currentLevel.intValue() >= Level.INFO.intValue()) {
-                                        logger.setLevel(Level.FINE);
-                                        lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
-                                                man.addString("&atrue"));
-                                    }else{
-                                        logger.setLevel(null);
+                                    if (debugStateHandle.isDebugging()) {
+                                        debugStateHandle.setDebugging(false);
                                         lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
                                                 man.addString("&7false"));
-                                    }
 
+                                    } else {
+                                        debugStateHandle.setDebugging(true);
+                                        lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
+                                                man.addString("&atrue"));
+                                    }
                                     return true;
                                 })));
     }

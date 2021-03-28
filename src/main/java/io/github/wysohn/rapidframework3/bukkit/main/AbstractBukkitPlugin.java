@@ -15,6 +15,7 @@ import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.io.IPluginResourceProvider;
 import io.github.wysohn.rapidframework3.interfaces.message.IQueuedMessageConsumer;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IDebugStateHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Pair;
@@ -36,9 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 public abstract class AbstractBukkitPlugin extends JavaPlugin {
     private static String nmsVersion;
@@ -70,6 +68,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
 
     private boolean test;
     private PluginMain main;
+    private boolean debugging;
 
     public AbstractBukkitPlugin() {
         server = Bukkit.getServer();
@@ -103,26 +102,6 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        getLogger().addHandler(new Handler() {
-            @Override
-            public void publish(LogRecord record) {
-                if (record.getLevel() == Level.FINE) {
-                    String loggerName = record.getLoggerName();
-                    System.out.println(record.getMessage());
-                }
-            }
-
-            @Override
-            public void flush() {
-
-            }
-
-            @Override
-            public void close() throws SecurityException {
-
-            }
-        });
 
         PluginMainBuilder builder = PluginMainBuilder.prepare(new BukkitPluginInfoModule(getDescription()),
                 test ? new MainCommandsModule("test") : new BukkitMainCommandsModule(getDescription()),
@@ -167,6 +146,22 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             @Singleton
             IQueuedMessageConsumer queuedMessageConsumer(QueuedMessageManager manager) {
                 return manager;
+            }
+
+            @Provides
+            @Singleton
+            IDebugStateHandle debugStateHandle() {
+                return new IDebugStateHandle() {
+                    @Override
+                    public boolean isDebugging() {
+                        return debugging;
+                    }
+
+                    @Override
+                    public void setDebugging(boolean state) {
+                        debugging = state;
+                    }
+                };
             }
         });
         init(builder);
