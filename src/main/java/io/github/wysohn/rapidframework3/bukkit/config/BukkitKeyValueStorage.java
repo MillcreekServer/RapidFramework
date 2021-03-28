@@ -17,10 +17,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class BukkitKeyValueStorage implements IKeyValueStorage {
-    private final ExecutorService exec = Executors.newSingleThreadExecutor();
     private final IFileWriter writer;
     private final File file;
 
+    private ExecutorService exec = Executors.newSingleThreadExecutor();
     private FileConfiguration config = new Utf8YamlConfiguration();
 
     @Inject
@@ -35,6 +35,10 @@ public class BukkitKeyValueStorage implements IKeyValueStorage {
 
     @Override
     public void reload() throws Exception {
+        exec.shutdown();
+        exec.awaitTermination(30, TimeUnit.SECONDS);
+
+        exec = Executors.newSingleThreadExecutor();
         config = Utf8YamlConfiguration.loadConfiguration(file);
     }
 
