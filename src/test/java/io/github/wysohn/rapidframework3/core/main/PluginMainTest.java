@@ -70,6 +70,7 @@ public class PluginMainTest {
         moduleList.add(new MockShutdownModule(() -> {
         }));
         moduleList.add(new MockLoggerModule());
+        moduleList.add(new MockDebugStateHandleModule());
     }
 
     @Test
