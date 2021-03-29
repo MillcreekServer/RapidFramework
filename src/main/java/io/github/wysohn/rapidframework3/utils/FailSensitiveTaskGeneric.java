@@ -82,6 +82,7 @@ public class FailSensitiveTaskGeneric<Task extends FailSensitiveTaskGeneric<?, ?
                     savedStates.put(key, Objects.requireNonNull(supplier.get())));
         } catch (Exception ex) {
             Optional.ofNullable(exceptionHandle).ifPresent(handle -> handle.accept(ex));
+            Optional.ofNullable(onFail).ifPresent(Runnable::run);
             return null;
         }
 
