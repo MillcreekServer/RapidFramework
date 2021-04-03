@@ -62,7 +62,7 @@ public class ManagerExternalAPI extends Manager {
                     externalAPIs.put(clazz, api);
 
                     logger.info("[" + clazz.getSimpleName() + "] Hooked to " + pluginName + ".");
-                } catch (Exception ex) {
+                } catch (Exception | Error ex) {
                     ex.printStackTrace();
                     logger.severe("Failed to enable API support for [" + pluginName + "]");
                 }
