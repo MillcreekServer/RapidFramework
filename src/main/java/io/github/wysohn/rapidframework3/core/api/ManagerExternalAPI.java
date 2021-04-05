@@ -51,7 +51,7 @@ public class ManagerExternalAPI extends Manager {
             if (!pluginManager.isEnabled(pluginName))
                 continue;
 
-            clazzes.forEach(clazz -> {
+            for (Class<? extends ExternalAPI> clazz : clazzes) {
                 try {
                     Constructor con = clazz.getConstructor(PluginMain.class, String.class);
                     ExternalAPI api = (ExternalAPI) con.newInstance(main, pluginName);
@@ -66,7 +66,7 @@ public class ManagerExternalAPI extends Manager {
                     ex.printStackTrace();
                     logger.severe("Failed to enable API support for [" + pluginName + "]");
                 }
-            });
+            }
         }
     }
 
