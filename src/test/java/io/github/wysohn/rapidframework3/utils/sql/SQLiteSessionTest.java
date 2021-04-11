@@ -11,14 +11,23 @@ public class SQLiteSessionTest {
     public void test() throws SQLException {
         File file = new File("build/tmp/sqltest/somedb.db");
         file.getParentFile().mkdirs();
+        file.delete();
 
         try {
             SQLSession session = SQLSession.Builder.sqlite(file)
                     .createTable("abc", tableInitializer -> tableInitializer.ifNotExist()
                             .field("id", "integer",
                                     SQLSession.Attribute.PRIMARY_KEY, SQLSession.Attribute.AUTO_INCREMENT)
+                            .field("value", "char(256)", SQLSession.Attribute.NOT_NULL))
+                    .build();
+            session.close();
+
+            session = SQLSession.Builder.sqlite(file)
+                    .createTable("abc", tableInitializer -> tableInitializer.ifNotExist()
+                            .field("id", "integer",
+                                    SQLSession.Attribute.PRIMARY_KEY, SQLSession.Attribute.AUTO_INCREMENT)
                             .field("value", "char(256)", SQLSession.Attribute.NOT_NULL)
-                            .field("other", "integer", SQLSession.Attribute.UNIQUE))
+                            .field("other", "integer"))
                     .build();
 
             session.execute("INSERT INTO abc(value, other) VALUES(?, ?);", pstmt -> {

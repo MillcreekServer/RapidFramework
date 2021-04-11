@@ -205,11 +205,33 @@ public class SQLSession {
             });
         }
 
+        /**
+         * Enable auto commit for this session
+         *
+         * @return
+         */
         public Builder autoCommit() {
             this.autoCommit = true;
             return this;
         }
 
+        /**
+         * Create a new table.
+         * <p>
+         * If the table already exist, missing columns will be scanned, and the table will be
+         * altered to add new fields. To remove the column, it must be done manually.
+         * <p>
+         * The information provided in the TableInitializer consumer will also be used
+         * to create a newly added field if the field doesn't exist. However, if newly added
+         * field has constraints, such as UNIQUE, depending on the using database, it may not work.
+         * <p>
+         * For example, SQLite doesn't allow ALTER TABLE ? ADD to add constraint. It is allowed only
+         * when the table is newly created.
+         *
+         * @param tableName
+         * @param consumer
+         * @return
+         */
         public Builder createTable(String tableName, Consumer<TableInitializer> consumer) {
             TableInitializer initializer = new TableInitializer(tableName);
             consumer.accept(initializer);
@@ -220,7 +242,10 @@ public class SQLSession {
         public SQLSession build() throws SQLException {
             SQLSession sqlSession = new SQLSession(ds);
             sqlSession.autoCommit = autoCommit;
-            tableInitializers.forEach(initializer -> initializer.execute(sqlSession.connection));
+            tableInitializers.forEach(initializer -> {
+                initializer.createTable(sqlSession.connection);
+                initializer.addMissingFields(sqlSession.connection);
+            });
             return sqlSession;
         }
 
@@ -275,7 +300,7 @@ public class SQLSession {
                 return this;
             }
 
-            private void execute(Connection conn) {
+            private void createTable(Connection conn) {
                 Validation.validate(fields.size(), val -> val > 0, "at least one field is required.");
 
                 String sql = "CREATE TABLE";
@@ -293,7 +318,25 @@ public class SQLSession {
                     newTableStmt.executeUpdate();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
+                }
+            }
 
+            private void addMissingFields(Connection conn) {
+                try {
+                    DatabaseMetaData metaData = conn.getMetaData();
+
+                    for (String field : fields) {
+                        String fieldName = field.split(" ")[0];
+                        ResultSet rs = metaData.getColumns(null, null, tableName, fieldName);
+                        if (rs.next())
+                            continue;
+
+                        PreparedStatement pstmt = conn.prepareStatement(String.format("ALTER TABLE %s ADD ", field));
+                        pstmt.execute();
+                    }
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
             }
         }
