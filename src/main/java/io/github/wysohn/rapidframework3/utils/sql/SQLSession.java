@@ -331,7 +331,9 @@ public class SQLSession {
                         if (rs.next())
                             continue;
 
-                        PreparedStatement pstmt = conn.prepareStatement(String.format("ALTER TABLE %s ADD ", field));
+                        PreparedStatement pstmt = conn.prepareStatement(String.format("ALTER TABLE %s ADD %s",
+                                tableName,
+                                field));
                         pstmt.execute();
                     }
 

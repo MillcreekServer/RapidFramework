@@ -20,6 +20,15 @@ public class SQLiteSessionTest {
                                     SQLSession.Attribute.PRIMARY_KEY, SQLSession.Attribute.AUTO_INCREMENT)
                             .field("value", "char(256)", SQLSession.Attribute.NOT_NULL))
                     .build();
+            session.execute("INSERT INTO abc(value, num) VALUES(?, ?);", pstmt -> {
+                try {
+                    pstmt.setString(1, "hoho");
+                    pstmt.setInt(2, 12345);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }, System.out::println);
+            session.commit();
             session.close();
 
             session = SQLSession.Builder.sqlite(file)
@@ -27,10 +36,10 @@ public class SQLiteSessionTest {
                             .field("id", "integer",
                                     SQLSession.Attribute.PRIMARY_KEY, SQLSession.Attribute.AUTO_INCREMENT)
                             .field("value", "char(256)", SQLSession.Attribute.NOT_NULL)
-                            .field("other", "integer"))
+                            .field("num", "integer"))
                     .build();
 
-            session.execute("INSERT INTO abc(value, other) VALUES(?, ?);", pstmt -> {
+            session.execute("INSERT INTO abc(value, num) VALUES(?, ?);", pstmt -> {
                 try {
                     pstmt.setString(1, "hoho");
                     pstmt.setInt(2, 12345);
@@ -88,12 +97,12 @@ public class SQLiteSessionTest {
     private static class Data {
         private final int id;
         private final String value;
-        private final int other;
+        private final int num;
 
-        private Data(int id, String value, int other) {
+        private Data(int id, String value, int num) {
             this.id = id;
             this.value = value;
-            this.other = other;
+            this.num = num;
         }
 
         @Override
@@ -101,14 +110,14 @@ public class SQLiteSessionTest {
             return "Data{" +
                     "id=" + id +
                     ", value='" + value + '\'' +
-                    ", other=" + other +
+                    ", num=" + num +
                     '}';
         }
 
         public static Data read(ResultSet rs) throws SQLException {
             int id = rs.getInt("id");
             String value = rs.getString("value");
-            int other = rs.getInt("other");
+            int other = rs.getInt("num");
 
             return new Data(id, value, other);
         }
