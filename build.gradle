@@ -151,7 +151,7 @@ repositories {
         url "https://hub.spigotmc.org/nexus/content/repositories/public/"
     }
     maven {
-        url "http://nexus.hc.to/content/repositories/pub_releases/"
+        url "https://nexus.hc.to/content/repositories/pub_releases/"
     }
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
