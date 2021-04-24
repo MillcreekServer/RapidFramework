@@ -21,7 +21,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '3.17.15'
+version = '3.17.16'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
@@ -183,9 +183,9 @@ dependencies {
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.32.3.2'
 
     // https://mvnrepository.com/artifact/com.google.inject/guice
-    api group: 'com.google.inject', name: 'guice', version: '5.0.1'
+    api group: 'com.google.inject', name: 'guice', version: '4.2.3'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
-    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
+    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
 
     testImplementation 'junit:junit:4.11'
     testImplementation 'org.mockito:mockito-core:1.9.5'
