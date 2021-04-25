@@ -189,12 +189,6 @@ public class SQLSession {
         }
 
         public static Builder mysql(String host, String databaseName, String user, String password) {
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
             return new Builder(createDataSource(host, databaseName, user, password), attribute -> {
                 switch (attribute) {
                     case AUTO_INCREMENT:
