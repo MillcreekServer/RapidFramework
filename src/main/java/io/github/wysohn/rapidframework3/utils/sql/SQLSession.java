@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.utils.sql;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import io.github.wysohn.rapidframework3.utils.MiniConnectionPoolManager;
 import io.github.wysohn.rapidframework3.utils.Validation;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
@@ -188,7 +188,8 @@ public class SQLSession {
             });
         }
 
-        public static Builder mysql(String host, String databaseName, String user, String password) {
+        public static Builder mysql(String host, String databaseName, String user, String password)
+                throws SQLException {
             return new Builder(createDataSource(host, databaseName, user, password), attribute -> {
                 switch (attribute) {
                     case AUTO_INCREMENT:
@@ -350,16 +351,14 @@ public class SQLSession {
     }
 
     public static MysqlConnectionPoolDataSource createDataSource(String address, String dbName, String userName,
-                                                                 String password) {
+                                                                 String password) throws SQLException {
         MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
         ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true");
         ds.setUser(userName);
         ds.setPassword(password);
         ds.setCharacterEncoding("UTF-8");
-        ds.setUseUnicode(true);
         ds.setAutoReconnectForPools(true);
         ds.setAutoReconnect(true);
-        ds.setAutoReconnectForConnectionPools(true);
         ds.setUseSSL(false);
 
         return ds;

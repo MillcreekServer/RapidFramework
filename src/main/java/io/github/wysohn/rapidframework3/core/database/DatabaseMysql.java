@@ -16,7 +16,7 @@
  *******************************************************************************/
 package io.github.wysohn.rapidframework3.core.database;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import io.github.wysohn.rapidframework3.utils.MiniConnectionPoolManager;
 import io.github.wysohn.rapidframework3.utils.sql.SQLSession;
 
