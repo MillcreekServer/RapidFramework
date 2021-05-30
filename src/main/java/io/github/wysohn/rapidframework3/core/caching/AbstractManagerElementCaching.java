@@ -317,6 +317,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     }
 
+    public Set<String> stringKeySet(){
+        synchronized (){
+            return new HashSet<>(nameToKeyMap.keySet());
+        }
+    }
+
     /**
      * Work on each element. This is the snapshot copied at the moment, so it may not
      * accurately reflect every element when it is executed.
