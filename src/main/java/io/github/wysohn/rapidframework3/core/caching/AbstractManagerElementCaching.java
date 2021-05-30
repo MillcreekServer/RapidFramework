@@ -318,7 +318,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     }
 
     public Set<String> stringKeySet(){
-        synchronized (){
+        synchronized (cacheLock) {
             return new HashSet<>(nameToKeyMap.keySet());
         }
     }
