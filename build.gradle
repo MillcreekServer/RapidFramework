@@ -21,7 +21,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '3.17.19'
+version = '3.17.20'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
@@ -185,9 +185,9 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.24'
 
     // https://mvnrepository.com/artifact/com.google.inject/guice
-    api group: 'com.google.inject', name: 'guice', version: '4.2.3'
+    api group: 'com.google.inject', name: 'guice', version: '5.0.1'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
-    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
+    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
 
     testImplementation 'junit:junit:4.11'
     testImplementation 'org.mockito:mockito-core:1.9.5'
