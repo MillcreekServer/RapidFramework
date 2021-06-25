@@ -123,6 +123,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
                 Pair.of("PlaceholderAPI", PlaceholderAPI.class)
         ));
         builder.addModule(new BukkitMessageSenderModule());
+        builder.addModule(new TypeAsserterModule());
         builder.addModule(new AbstractModule() {
             @Provides
             @Singleton
