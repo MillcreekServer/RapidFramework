@@ -2,7 +2,7 @@ package io.github.wysohn.rapidframework3.core.inject.module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
-import com.google.inject.multibindings.MapBinder;
+import com.google.inject.multibindings.Multibinder;
 import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
 import io.github.wysohn.rapidframework3.utils.Pair;
 
@@ -16,14 +16,11 @@ public class ExternalAPIModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        MapBinder<String, Class<? extends ExternalAPI>> mapBinder = MapBinder.newMapBinder(binder(),
-                new TypeLiteral<String>() {
-                },
-                new TypeLiteral<Class<? extends ExternalAPI>>() {
-                });
+        Multibinder<Pair<String, Class<? extends ExternalAPI>>> multibinder
+                = Multibinder.newSetBinder(binder(), new TypeLiteral<Pair<String, Class<? extends ExternalAPI>>>() {});
 
         for (Pair<String, Class<? extends ExternalAPI>> pair : pairs) {
-            mapBinder.addBinding(pair.key).toInstance(pair.value);
+            multibinder.addBinding().toInstance(pair);
         }
     }
 }

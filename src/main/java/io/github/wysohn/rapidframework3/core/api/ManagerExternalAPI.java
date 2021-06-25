@@ -7,6 +7,7 @@ import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.PluginMain;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IGlobalPluginManager;
+import io.github.wysohn.rapidframework3.utils.Pair;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -33,13 +34,13 @@ public class ManagerExternalAPI extends Manager {
                               @PluginLogger Logger logger,
                               IGlobalPluginManager pluginManager,
                               Injector injector,
-                              Map<String, Class<? extends ExternalAPI>> apis) {
+                              Set<Pair<String, Class<? extends ExternalAPI>>> apis) {
         super();
         this.main = main;
         this.logger = logger;
         this.pluginManager = pluginManager;
         this.injector = injector;
-        apis.forEach((name, clazz) -> apiClasses.computeIfAbsent(name, (key) -> new HashSet<>()).add(clazz));
+        apis.forEach(pair -> apiClasses.computeIfAbsent(pair.key, (key) -> new HashSet<>()).add(pair.value));
     }
 
     @Override
