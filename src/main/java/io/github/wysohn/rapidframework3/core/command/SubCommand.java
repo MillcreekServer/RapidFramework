@@ -29,6 +29,7 @@ public class SubCommand {
     final String name;
     final int nArguments;
 
+    DynamicLang customPermissionDeniedMessage;
     String[] aliases = new String[0];
     List<Predicate<ICommandSender>> predicates = new ArrayList<>();
     DynamicLang description;
@@ -113,6 +114,17 @@ public class SubCommand {
 
         public Builder withDescription(ILang description, ILangParser handle) {
             command.description = new DynamicLang(description, handle);
+            return this;
+        }
+
+        public Builder withCustomPermissionMessage(ILang description) {
+            command.customPermissionDeniedMessage = new DynamicLang(description, (sen, man) -> {
+            });
+            return this;
+        }
+
+        public Builder withCustomPermissionMessage(ILang description, ILangParser handle) {
+            command.customPermissionDeniedMessage = new DynamicLang(description, handle);
             return this;
         }
 
