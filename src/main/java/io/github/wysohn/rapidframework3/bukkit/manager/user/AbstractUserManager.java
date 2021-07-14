@@ -29,8 +29,18 @@ public abstract class AbstractUserManager<V extends BukkitPlayer>
                                File pluginDir,
                                IShutdownHandle shutdownHandle,
                                ISerializer serializer,
-                               ITypeAsserter asserter, Injector injector, Class<V> type) {
-        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, type);
+                               ITypeAsserter asserter,
+                               Injector injector,
+                               Class<V> type) {
+        super(pluginName,
+              logger,
+              config,
+              pluginDir,
+              shutdownHandle,
+              serializer,
+              asserter,
+              injector,
+              type);
     }
 
     @Override
