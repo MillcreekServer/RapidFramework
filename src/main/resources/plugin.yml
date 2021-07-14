@@ -8,16 +8,16 @@ permissions:
 name: RapidFramework
 main: io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin
 softdepend:
-  - ProtocolLib
-  - Vault
-  - PlaceholderAPI
-  - ProtocolLib
-  - WorldGuard
+- ProtocolLib
+- Vault
+- PlaceholderAPI
+- ProtocolLib
+- WorldGuard
 version: 3.16.2
 commands:
   rapidframework:
     aliases:
-      - rap
+    - rap
     description: description
 authors: [
-]
+  ]

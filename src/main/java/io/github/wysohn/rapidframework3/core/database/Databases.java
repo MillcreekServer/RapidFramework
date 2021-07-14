@@ -36,8 +36,8 @@ public class Databases {
 
     @FunctionalInterface
     public interface DatabaseFactory<V extends CachedElement<?>> {
-        Database<V> createDatabase(ISerializer serializer,
-                                   Class<V> objType,
-                                   String dbType);
+        Database<V> createDatabase(Class<V> objType,
+                                   String dbType,
+                                   Object... others);
     }
 }

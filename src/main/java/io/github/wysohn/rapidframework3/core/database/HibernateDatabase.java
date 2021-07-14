@@ -1,7 +1,6 @@
 package io.github.wysohn.rapidframework3.core.database;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
-import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -22,10 +21,9 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
     private final Properties properties;
     private final SessionFactory factory;
 
-    public HibernateDatabase(ISerializer serializer,
-                             Class<T> type,
+    public HibernateDatabase(Class<T> type,
                              Properties properties) {
-        super(serializer, type.getSimpleName(), type);
+        super(type.getSimpleName(), type);
         this.properties = properties;
 
         // create session factory
@@ -35,9 +33,8 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
                 .buildSessionFactory();
     }
 
-    public HibernateDatabase(ISerializer serializer,
-                             Class<T> type) {
-        this(serializer, type, new Properties());
+    public HibernateDatabase(Class<T> type) {
+        this(type, new Properties());
     }
 
     @Override

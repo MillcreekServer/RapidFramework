@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
+    private final ISerializer serializer;
     private final String extensionName;
     private final IFileReader fileReader;
     private final IFileWriter fileWriter;
@@ -40,7 +41,8 @@ public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
                         Class<T> type,
                         String extensionName,
                         IFileReader fileReader, IFileWriter fileWriter, File folder) {
-        super(serializer, tableName, type);
+        super(tableName, type);
+        this.serializer = serializer;
         this.extensionName = extensionName;
         this.fileReader = fileReader;
         this.fileWriter = fileWriter;

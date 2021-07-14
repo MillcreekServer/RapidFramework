@@ -17,18 +17,15 @@
 package io.github.wysohn.rapidframework3.core.database;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
-import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 
 import java.io.IOException;
 import java.util.Set;
 
 public abstract class Database<T extends CachedElement<?>> {
-    protected final ISerializer serializer;
     protected final String tableName;
     protected final Class<T> type;
 
-    public Database(ISerializer serializer, String tableName, Class<T> type) {
-        this.serializer = serializer;
+    public Database(String tableName, Class<T> type) {
         this.tableName = tableName;
         this.type = type;
     }

@@ -146,7 +146,7 @@ public class AbstractManagerElementCachingTest {
         TempValue value = new TempValue(uuid);
 
         //get (will load from db as it's not loaded yet)
-        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn("{\"key\": \"" + uuid.toString() + "\"}");
+        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn(value);
         assertEquals(value.getKey(), manager.get(uuid)
                 .map(Reference::get)
                 .map(CachedElement::getKey)
@@ -202,7 +202,7 @@ public class AbstractManagerElementCachingTest {
         assertEquals(value, cachedElements.get(uuid));
 
         //get
-        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn("{\"key\": \"" + uuid.toString() + "\"}");
+        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn(value);
         assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
 
         //end the db life-cycle
@@ -295,7 +295,7 @@ public class AbstractManagerElementCachingTest {
         manager.disable();
         Mockito.verify(mockDatabase).getKeys();
         Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
-        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), isNull(String.class));
+        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), isNull(TempValue.class));
     }
 
     @Test
@@ -334,7 +334,7 @@ public class AbstractManagerElementCachingTest {
         manager.disable();
         //2 for setStr() and 1 for delete()
         Mockito.verify(mockDatabase, Mockito.times(3))
-                .save(Mockito.eq(uuid.toString()), Mockito.anyString());
+                .save(Mockito.eq(uuid.toString()), Mockito.any());
     }
 
     @Test(expected = RuntimeException.class)
@@ -386,7 +386,7 @@ public class AbstractManagerElementCachingTest {
             String value = (String) invocation.getArguments()[1];
             tempDb.put(key, value);
             return null;
-        }).when(mockDatabase).save(anyString(), anyString());
+        }).when(mockDatabase).save(anyString(), any());
         doAnswer(invocation -> {
             String key = (String) invocation.getArguments()[0];
             return tempDb.get(key);
@@ -439,7 +439,7 @@ public class AbstractManagerElementCachingTest {
             String value = (String) invocation.getArguments()[1];
             tempDb.put(key, value);
             return null;
-        }).when(mockDatabase).save(anyString(), anyString());
+        }).when(mockDatabase).save(anyString(), any());
         doAnswer(invocation -> {
             String key = (String) invocation.getArguments()[0];
             return tempDb.get(key);
@@ -547,8 +547,8 @@ public class AbstractManagerElementCachingTest {
         }
 
         @Override
-        protected Databases.DatabaseFactory createDatabaseFactory() {
-            return (type) -> mockDatabase;
+        protected Databases.DatabaseFactory<TempValue> createDatabaseFactory() {
+            return (clazz, type, others) -> mockDatabase;
         }
 
         @Override
@@ -611,8 +611,8 @@ public class AbstractManagerElementCachingTest {
         }
 
         @Override
-        protected Databases.DatabaseFactory createDatabaseFactory() {
-            return (type) -> mockDatabase;
+        protected Databases.DatabaseFactory<TempValue2> createDatabaseFactory() {
+            return (clazz, type, others) -> mockDatabase;
         }
 
         @Override

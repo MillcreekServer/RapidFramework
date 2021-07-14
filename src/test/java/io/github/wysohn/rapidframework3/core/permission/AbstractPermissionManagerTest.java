@@ -190,8 +190,8 @@ public class AbstractPermissionManagerTest {
         }
 
         @Override
-        protected Databases.DatabaseFactory createDatabaseFactory() {
-            return (type) -> mockDatabase;
+        protected Databases.DatabaseFactory<PermissionStorage> createDatabaseFactory() {
+            return (clazz, type, others) -> mockDatabase;
         }
 
         @Override

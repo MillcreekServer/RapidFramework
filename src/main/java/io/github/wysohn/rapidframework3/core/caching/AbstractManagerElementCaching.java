@@ -18,7 +18,9 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -40,6 +42,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * Use locking only in public method to avoid confusion
      */
     private final Object cacheLock = new Object();
+    private final Object dbLock = new Object();
 
     private final String pluginName;
     private final Logger logger;
@@ -65,10 +68,17 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     private final Map<K, String> keyToNameMap = new HashMap<>();
 
     /**
+     *
+     * @param pluginName
      * @param logger
+     * @param config
+     * @param pluginDir
+     * @param shutdownHandle
      * @param serializer
+     * @param asserter
      * @param injector
-     * @param type       this is not injectable. Pass the type right away.
+     * @param type not injectable. Must provided manually
+     * @param cacheSize not injectable. Must provided manually
      */
     public AbstractManagerElementCaching(String pluginName,
                                          Logger logger,
@@ -134,9 +144,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
-            db = dbFactory.createDatabase(serializer,
-                    type,
-                    (String) config.get("dbType").orElse("file"));
+            db = dbFactory.createDatabase(type,
+                                          (String) config.get("dbType").orElse("file"),
+                                          serializer);
             Validation.assertNotNull(db);
 
             Set<String> keys = db.getKeys();
@@ -145,11 +155,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 if(--i < 0)
                     break;
 
-                String json = db.load(keyStr);
-                if (json == null)
-                    continue;
-
-                V value = serializer.deserializeFromString(type, json);
+                V value = db.load(keyStr);
                 if (value == null)
                     continue;
 
@@ -169,8 +175,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public void disable() throws Exception {
         synchronized (cacheLock) {
             logger.info("Waiting for the save tasks to be done...");
-            saveTaskPool.shutdown();
-            saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
+            synchronized (dbLock){
+                saveTaskPool.shutdown();
+                saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
+            }
             logger.info("Save finished.");
         }
     }
@@ -228,20 +236,16 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         synchronized (cacheLock) {
             //try load cache from db if cache is empty
             try {
-                saveTaskPool.submit((Callable<Void>) () -> {
+                synchronized (dbLock){
                     Validation.assertNotNull(db, "Key was " + key);
                     V loaded = db.load(key.toString());
 
                     if (loaded != null) {
                         AbstractManagerElementCaching.this.cache(key, loaded);
                     }
-
-                    return null;
-                }).get();
-            } catch (ExecutionException e) {
+                }
+            }  catch (Exception e) {
                 handleDBOperationFailure(key.toString(), e);
-            } catch (InterruptedException e) {
-                // ignore
             }
 
             value = cachedElements.get(key);
@@ -303,10 +307,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             boolean result = deCache(key);
 
             saveTaskPool.submit(() -> {
-                try {
-                    db.save(key.toString(), null);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                synchronized (dbLock){
+                    try {
+                        db.save(key.toString(), null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
@@ -406,8 +412,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         return Collections.unmodifiableList(observers);
     }
 
-    protected Databases.DatabaseFactory getDatabaseFactory(String tablename) {
-        return ((serializer, objType, dbType) -> {
+    protected Databases.DatabaseFactory<V> getDatabaseFactory(String tablename) {
+        return ((objType, dbType, others) -> {
             try {
                 switch (dbType) {
                     case "mysql":
@@ -417,8 +423,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                 (String) config.get("db.username").orElse("root"),
                                 (String) config.get("db.password").orElse("1234"));
                     default:
-                        //return Databases.build(tablename, pluginDir);
-                        throw new RuntimeException(); //TODO
+                        return Databases.build(tablename,
+                                               pluginDir,
+                                               (ISerializer) others[0],
+                                               objType);
                 }
             } catch (Exception e) {
                 handleDBOperationFailure(tablename, e);
@@ -445,28 +453,39 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
          */
         @Override
         public void update(ObservableElement observable) {
+            // write-lock
             V value = (V) observable;
 
             synchronized (cacheLock) {
+                // write-lock -> cache-lock
                 cache(value.getKey(), value);
 
                 saveTaskPool.submit(() -> {
-                    try {
-                        // at this point, as Object is already a plain Json text, there will be no concern about
-                        // thread safety
-                        db.save(value.getKey().toString(), value.copy());
-                    } catch (Exception e) {
-                        handleDBOperationFailure(value.getKey().toString(), e);
+                    // read-lock
+                    V copied = value.copy();
+                    // X
+                    synchronized (dbLock){
+                        // db-lock
+                        try {
+                            db.save(value.getKey().toString(), copied);
+                        } catch (Exception e) {
+                            handleDBOperationFailure(value.getKey().toString(), e);
+                        }
+                        // X
                     }
                 });
+
+                // write-lock
             }
+
+            // X
         }
     }
 
     public abstract static class ObservableElement {
         private transient final List<IObserver> observers;
-        private transient Constructor<? extends ObservableElement> con;
-        private final transient ReentrantReadWriteLock lock;
+        private transient final ReentrantReadWriteLock lock;
+        private transient final Constructor<? extends ObservableElement> con;
 
         public ObservableElement() {
             observers = new LinkedList<>();
@@ -474,7 +493,8 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 con = getClass().getDeclaredConstructor(getClass());
                 con.setAccessible(true);
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                throw new RuntimeException(getClass()+" does not implement copy constructor. Also, " +
+                                                   "make sure it's not an inner-class.", e);
             }
             lock = new ReentrantReadWriteLock();
         }
@@ -495,7 +515,18 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
 
         /**
-         * copy current state. Internally, it just calls copy constructor.
+         * Copy current state. Internally, it just calls copy constructor.
+         * This operation is thread-safe, therefore, it is free from any race conditions.
+         * <p>
+         * <p>
+         * Previous implementation had significant flaw because when Gson (or any other
+         * serialization framework) is reading
+         * the object to serialize, the other thread still can access the object and
+         * change the object's state, so this caused a race condition.
+         * This method and {@link #notifyObservers()} now blocks each other,
+         * so if the write operation (notifyObservers) is invoked while serialization is
+         * still undergoing, it will be blocked until the read operation
+         * (this method) is done, and vice versa.
          *
          * @param <T> whatever the type you are copying
          * @return the copied object
@@ -516,6 +547,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             }
         }
 
+        /**
+         * Warning) this call acquire the write-lock.
+         */
         protected void notifyObservers() {
             lock.writeLock().lock();
             try {

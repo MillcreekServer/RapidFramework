@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
-    private static Database mockDatabase;
+    private static Database<User> mockDatabase;
 
     private ISerializer mockSerializer;
 
@@ -40,9 +40,10 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
     @Before
     public void init() throws IOException {
         mockDatabase = mock(Database.class);
-        mockSerializer = mock(ISerializer.class);
+        User user = mock(User.class);
+        when(user.getKey()).thenReturn(PLAYER_UUID);
 
-        when(mockDatabase.load(anyString())).thenReturn("{\"key\": \"" + PLAYER_UUID + "\"}");
+        when(mockDatabase.load(anyString())).thenReturn(user);
 
         moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new MockLoggerModule());
@@ -102,8 +103,8 @@ public class AbstractUserManagerTest extends AbstractBukkitManagerTest {
         }
 
         @Override
-        protected Databases.DatabaseFactory createDatabaseFactory() {
-            return (name) -> mockDatabase;
+        protected Databases.DatabaseFactory<User> createDatabaseFactory() {
+            return (clazz, db, others) -> mockDatabase;
         }
 
         @Override
