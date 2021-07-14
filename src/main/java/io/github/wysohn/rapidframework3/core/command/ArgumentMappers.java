@@ -22,10 +22,16 @@ public class ArgumentMappers {
         return arg;
     };
     /**
-     * map input to integer if possible
+     * map input to integer if possible. Notice that the input can be '*'
+     * to allow the user to ask for "all" instead of specifying the amount.
+     * <p>
+     * If '*' is provided, then the value will be mapped to -1.
      */
     public static final IArgumentMapper<Integer> INTEGER = arg -> {
         try {
+            if ("*".equals(arg))
+                return -1;
+
             return Integer.parseInt(arg);
         } catch (NumberFormatException ex) {
             throw new InvalidArgumentException(DefaultLangs.General_NotInteger, ((sen, langman) ->

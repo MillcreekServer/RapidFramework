@@ -116,7 +116,7 @@ public class InventoryUtil {
     }
 
     /**
-     * Temporary method to be used while the {@link ItemStack#isSimilar(ItemStack)} method
+     * Temporary method to be used until the {@link ItemStack#isSimilar(ItemStack)} method
      * is fixed. The method have hard time comparing the display name and lores,
      * so until it's fixed, manually compare them as String.
      *

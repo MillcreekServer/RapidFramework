@@ -12,6 +12,7 @@ import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
 import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
 import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IDebugStateHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
 import io.github.wysohn.rapidframework3.interfaces.plugin.PluginRuntime;
@@ -54,6 +55,9 @@ public class PluginMain implements PluginRuntime {
 
     @Inject
     private ITaskSupervisor taskSupervisor;
+
+    @Inject
+    private IDebugStateHandle debugStateHandle;
 
     @Inject
     @Named("pluginName")
@@ -102,6 +106,14 @@ public class PluginMain implements PluginRuntime {
 
     public ITaskSupervisor task() {
         return taskSupervisor;
+    }
+
+    public boolean isDebugging() {
+        return debugStateHandle.isDebugging();
+    }
+
+    public void setDebugging(boolean state) {
+        debugStateHandle.setDebugging(state);
     }
 
     public <M extends Manager> Optional<M> getManager(Class<M> clazz) {
@@ -173,18 +185,35 @@ public class PluginMain implements PluginRuntime {
         }
 
         comm.addCommand(new SubCommand.Builder("reload")
-                .withDescription(DefaultLangs.Command_Reload_Description)
-                .addUsage(DefaultLangs.Command_Reload_Usage)
-                .action(((sender, args) -> {
-                    try {
-                        load();
-                        lang.sendMessage(sender, DefaultLangs.Command_Reload_Done);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                                .withDescription(DefaultLangs.Command_Reload_Description)
+                                .addUsage(DefaultLangs.Command_Reload_Usage)
+                                .action(((sender, args) -> {
+                                    try {
+                                        load();
+                                        lang.sendMessage(sender, DefaultLangs.Command_Reload_Done);
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
 
-                    return true;
-                })));
+                                    return true;
+                                })));
+
+        comm.addCommand(new SubCommand.Builder("debug")
+                                .withDescription(DefaultLangs.Command_Debug_Description)
+                                .addUsage(DefaultLangs.Command_Debug_Usage)
+                                .action(((sender, args) -> {
+                                    if (debugStateHandle.isDebugging()) {
+                                        debugStateHandle.setDebugging(false);
+                                        lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
+                                                man.addString("&7false"));
+
+                                    } else {
+                                        debugStateHandle.setDebugging(true);
+                                        lang.sendMessage(sender, DefaultLangs.Command_Debug_State, (sen, man) ->
+                                                man.addString("&atrue"));
+                                    }
+                                    return true;
+                                })));
     }
 
     private Collection<Manager> resolveDependencies() {
@@ -244,8 +273,8 @@ public class PluginMain implements PluginRuntime {
             mediator.disable();
         }
 
-        for (Manager manager : orderedManagers) {
-            manager.disable();
+        for (int i = orderedManagers.size() - 1; i >= 0; i--) {
+            orderedManagers.get(i).disable();
         }
 
         executorService.shutdown();

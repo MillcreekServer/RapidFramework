@@ -60,7 +60,13 @@ class SubCommandMap {
         if (command != null) {
             if (command.getPermission() != null
                     && !sender.hasPermission(rootPermission, command.getPermission())) {
-                lang.sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
+                if(command.customPermissionDeniedMessage != null){
+                    lang.sendMessage(sender,
+                                     command.customPermissionDeniedMessage.lang,
+                                     command.customPermissionDeniedMessage.parser);
+                }else{
+                    lang.sendMessage(sender, DefaultLangs.General_NotEnoughPermission);
+                }
                 return true;
             }
 

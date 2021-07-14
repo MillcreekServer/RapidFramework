@@ -21,7 +21,7 @@ public class Page<T> {
     }
 
     public void setList(List<T> list) {
-        this.list = list;
+        this.list = new ArrayList<>(list);
     }
 
     public long getLastUpdate() {

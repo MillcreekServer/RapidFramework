@@ -151,7 +151,7 @@ repositories {
         url "https://hub.spigotmc.org/nexus/content/repositories/public/"
     }
     maven {
-        url "http://nexus.hc.to/content/repositories/pub_releases/"
+        url "https://nexus.hc.to/content/repositories/pub_releases/"
     }
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
@@ -181,20 +181,22 @@ dependencies {
     implementation "com.sparkjava:spark-core:${spark_version}"
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.32.3.2'
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.24'
 
     // https://mvnrepository.com/artifact/com.google.inject/guice
-    api group: 'com.google.inject', name: 'guice', version: '4.2.3'
+    api group: 'com.google.inject', name: 'guice', version: '5.0.1'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
-    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.3'
+    api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
     api group: 'org.hibernate', name: 'hibernate-core', version: '5.4.27.Final'
 
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile 'org.powermock:powermock:1.5.6'
-    testCompile 'org.powermock:powermock-module-junit4:1.5.6'
-    testCompile 'org.powermock:powermock-api-mockito:1.5.6'
-    testCompile 'org.javassist:javassist:3.20.0-GA'
-    testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.0'
+    testImplementation 'junit:junit:4.11'
+    testImplementation 'org.mockito:mockito-core:1.9.5'
+    testImplementation 'org.powermock:powermock:1.5.6'
+    testImplementation 'org.powermock:powermock-module-junit4:1.5.6'
+    testImplementation 'org.powermock:powermock-api-mockito:1.5.6'
+    testImplementation 'org.javassist:javassist:3.20.0-GA'
+    testImplementation group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.0'
 }
 
 test {
@@ -238,7 +240,7 @@ compileTestJava {
 publishing {
     repositories {
         maven {
-            url = uri("https://maven.pkg.github.com/MillcreekServer/rapidframework")
+            url = uri("https://maven.pkg.github.com/MillcreekServer/RapidFramework")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")

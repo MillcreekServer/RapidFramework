@@ -5,6 +5,7 @@ import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
+import io.github.wysohn.rapidframework3.core.paging.LRUCache;
 import io.github.wysohn.rapidframework3.interfaces.caching.IObserver;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
@@ -26,6 +27,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K>> extends Manager {
+    private static final int DEFAULT_CACHE_SIZE = 1000;
+
     private final ExecutorService saveTaskPool = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.NORM_PRIORITY - 1);
@@ -56,7 +59,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     };
 
-    private final Map<K, V> cachedElements = new HashMap<>();
+    private final Map<K, V> cachedElements;
 
     private final Map<String, K> nameToKeyMap = new HashMap<>();
     private final Map<K, String> keyToNameMap = new HashMap<>();
@@ -75,8 +78,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                          ISerializer serializer,
                                          ITypeAsserter asserter,
                                          Injector injector,
-                                         Class<V> type) {
+                                         Class<V> type,
+                                         int cacheSize) {
         super();
+        Validation.validate(cacheSize, v -> v > 0, "cache size must be > 0");
+        this.cachedElements = new LRUCache<>(cacheSize);
+
         this.pluginName = pluginName;
         this.logger = logger;
         this.config = config;
@@ -87,6 +94,27 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         this.type = type;
 
         asserter.assertClass(type);
+    }
+
+    public AbstractManagerElementCaching(String pluginName,
+                                         Logger logger,
+                                         ManagerConfig config,
+                                         File pluginDir,
+                                         IShutdownHandle shutdownHandle,
+                                         ISerializer serializer,
+                                         ITypeAsserter asserter,
+                                         Injector injector,
+                                         Class<V> type) {
+        this(pluginName,
+             logger,
+             config,
+             pluginDir,
+             shutdownHandle,
+             serializer,
+             asserter,
+             injector,
+             type,
+             DEFAULT_CACHE_SIZE);
     }
 
     /**
@@ -111,8 +139,17 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     (String) config.get("dbType").orElse("file"));
             Validation.assertNotNull(db);
 
-            for (String keyStr : db.getKeys()) {
-                V value = db.load(keyStr);
+            Set<String> keys = db.getKeys();
+            int i = Math.min(100, keys.size());
+            for (String keyStr : keys) {
+                if(--i < 0)
+                    break;
+
+                String json = db.load(keyStr);
+                if (json == null)
+                    continue;
+
+                V value = serializer.deserializeFromString(type, json);
                 if (value == null)
                     continue;
 
@@ -311,6 +348,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     public Set<K> keySet() {
         synchronized (cacheLock) {
             return new HashSet<>(cachedElements.keySet());
+        }
+    }
+
+    public Set<String> stringKeySet(){
+        synchronized (cacheLock) {
+            return new HashSet<>(nameToKeyMap.keySet());
         }
     }
 

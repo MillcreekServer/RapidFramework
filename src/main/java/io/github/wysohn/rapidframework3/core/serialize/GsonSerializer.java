@@ -147,7 +147,7 @@ public class GsonSerializer implements ISerializer {
             .registerTypeAdapter(UUID.class, new UUIDSerializer())
             .registerTypeAdapter(SimpleLocation.class, new DefaultSerializer<SimpleLocation>())
             .registerTypeAdapter(SimpleChunkLocation.class, new DefaultSerializer<SimpleChunkLocation>())
-            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitConfigurationSerializer());
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitConfigurationSerializer()); //TODO move this to bukkit project
 
     protected final Gson gson;
 

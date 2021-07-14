@@ -15,6 +15,7 @@ import io.github.wysohn.rapidframework3.core.player.AbstractPlayerWrapper;
 import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
 import io.github.wysohn.rapidframework3.interfaces.io.IPluginResourceProvider;
 import io.github.wysohn.rapidframework3.interfaces.message.IQueuedMessageConsumer;
+import io.github.wysohn.rapidframework3.interfaces.plugin.IDebugStateHandle;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.utils.JarUtil;
 import io.github.wysohn.rapidframework3.utils.Pair;
@@ -67,6 +68,7 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
 
     private boolean test;
     private PluginMain main;
+    private boolean debugging;
 
     public AbstractBukkitPlugin() {
         server = Bukkit.getServer();
@@ -144,6 +146,22 @@ public abstract class AbstractBukkitPlugin extends JavaPlugin {
             @Singleton
             IQueuedMessageConsumer queuedMessageConsumer(QueuedMessageManager manager) {
                 return manager;
+            }
+
+            @Provides
+            @Singleton
+            IDebugStateHandle debugStateHandle() {
+                return new IDebugStateHandle() {
+                    @Override
+                    public boolean isDebugging() {
+                        return debugging;
+                    }
+
+                    @Override
+                    public void setDebugging(boolean state) {
+                        debugging = state;
+                    }
+                };
             }
         });
         init(builder);
