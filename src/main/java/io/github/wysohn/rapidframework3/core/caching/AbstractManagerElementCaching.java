@@ -152,13 +152,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                           serializer);
             Validation.assertNotNull(db);
 
-            Set<String> keys = db.getKeys();
-            int i = Math.min(100, keys.size());
-            for (String keyStr : keys) {
-                if(--i < 0)
-                    break;
+            for (String keyStr : db.getKeys()) {
+                String json = db.load(keyStr);
+                if (json == null)
+                    continue;
 
-                V value = db.load(keyStr);
+                V value = serializer.deserializeFromString(type, json);
                 if (value == null)
                     continue;
 
