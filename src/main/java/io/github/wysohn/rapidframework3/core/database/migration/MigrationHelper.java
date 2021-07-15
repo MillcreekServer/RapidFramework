@@ -24,6 +24,17 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
 
     private ExecutorService currentPool;
 
+    /**
+     * Build a migration helper
+     *
+     * @param logger
+     * @param fromDatabase
+     * @param toDatabase
+     * @param stringToKey
+     * @param instanceSupplier this should get instance directly from
+     *                         {@link io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching}
+     * @param steps
+     */
     public MigrationHelper(Logger logger,
                            Database<FROM> fromDatabase,
                            Database<TO> toDatabase,

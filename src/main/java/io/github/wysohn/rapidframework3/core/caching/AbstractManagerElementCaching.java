@@ -3,6 +3,9 @@ package io.github.wysohn.rapidframework3.core.caching;
 import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.core.database.Databases;
+import io.github.wysohn.rapidframework3.core.database.migration.FieldToFieldMappingStep;
+import io.github.wysohn.rapidframework3.core.database.migration.MigrationHelper;
+import io.github.wysohn.rapidframework3.core.database.migration.MigrationSteps;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.core.paging.LRUCache;
@@ -181,6 +184,25 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             }
             logger.info("Save finished.");
         }
+    }
+
+    protected MigrationHelper<K, V, V> migrateFrom(String dbType, MigrationSteps<K, V, V> steps) {
+        Database<V> from = dbFactory.createDatabase(type, dbType, serializer);
+        if (from == null)
+            return null;
+
+        if (from.getClass() == db.getClass())
+            return null;
+
+        return new MigrationHelper<>(logger,
+                                     from,
+                                     db,
+                                     this::fromString,
+                                     key -> getOrNew(key).map(Reference::get)
+                                             .orElseThrow(RuntimeException::new),
+                                     MigrationSteps.Builder.<K, V, V>begin()
+                                             .step(new FieldToFieldMappingStep<>(type))
+                                             .build());
     }
 
     /**
