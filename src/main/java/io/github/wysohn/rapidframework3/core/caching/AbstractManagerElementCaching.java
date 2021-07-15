@@ -135,12 +135,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             db = dbFactory.getDatabase((String) config.get("dbType").orElse("file"));
             Validation.assertNotNull(db);
 
-            Set<String> keys = db.getKeys();
-            int i = Math.min(100, keys.size());
-            for (String keyStr : keys) {
-                if(--i < 0)
-                    break;
-
+            for (String keyStr : db.getKeys()) {
                 String json = db.load(keyStr);
                 if (json == null)
                     continue;
