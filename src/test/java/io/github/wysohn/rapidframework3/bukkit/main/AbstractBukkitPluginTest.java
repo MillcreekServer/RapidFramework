@@ -14,6 +14,7 @@ import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
 import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
 import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
 import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
+import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.modules.GuiceDebug;
 import org.junit.Before;
@@ -37,12 +38,14 @@ public class AbstractBukkitPluginTest extends AbstractBukkitTest {
 
     private static IKeyValueStorage mockStorage;
     private static ITaskSupervisor mockTaskSupervisor;
+    private static ISerializer mockSerializer;
 
     @Before
     public void init() {
         GuiceDebug.enable();
 
         mockTaskSupervisor = mock(ITaskSupervisor.class);
+        mockSerializer = mock(ISerializer.class);
 
         mockFileReader = mock(IFileReader.class);
         mockFileWriter = mock(IFileWriter.class);

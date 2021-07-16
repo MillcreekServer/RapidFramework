@@ -207,9 +207,13 @@ public class SimpleInstanceProviderTest {
 
     }
 
-    private class Value extends CachedElement<UUID> implements Interface1, Interface2, Interface3 {
+    private static class Value extends CachedElement<UUID> implements Interface1, Interface2, Interface3 {
         private Value() {
-            super(null);
+            super((UUID) null);
+        }
+
+        private Value(Value copy){
+            super(copy.getKey());
         }
 
         public Value(UUID key) {
@@ -222,9 +226,13 @@ public class SimpleInstanceProviderTest {
         }
     }
 
-    private class Value2 extends CachedElement<UUID> implements Interface2, Interface3 {
+    private static class Value2 extends CachedElement<UUID> implements Interface2, Interface3 {
         private Value2() {
-            super(null);
+            super((UUID) null);
+        }
+
+        private Value2(Value2 copy){
+            super(copy.getKey());
         }
 
         public Value2(UUID key) {
@@ -237,9 +245,13 @@ public class SimpleInstanceProviderTest {
         }
     }
 
-    private class Value3 extends CachedElement<UUID> implements Interface3 {
+    private static class Value3 extends CachedElement<UUID> implements Interface3 {
         private Value3() {
-            super(null);
+            super((UUID) null);
+        }
+
+        private Value3(Value3 copy){
+            super(copy.getKey());
         }
 
         public Value3(UUID key) {

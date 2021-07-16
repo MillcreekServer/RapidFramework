@@ -29,7 +29,13 @@ public class BukkitPlayer extends AbstractPlayerWrapper implements IPlayer {
     private String lastKnownName;
 
     private BukkitPlayer() {
-        this(null);
+        super(null);
+    }
+
+    private BukkitPlayer(BukkitPlayer copy){
+        super(copy.getKey());
+        sender = copy.sender;
+        lastKnownName = copy.lastKnownName;
     }
 
     protected BukkitPlayer(UUID key) {

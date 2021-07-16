@@ -2,9 +2,11 @@ package io.github.wysohn.rapidframework3.core.caching;
 
 import com.google.inject.*;
 import io.github.wysohn.rapidframework3.core.database.Database;
-import io.github.wysohn.rapidframework3.core.database.Databases;
+import io.github.wysohn.rapidframework3.core.database.IDatabase;
+import io.github.wysohn.rapidframework3.core.database.IDatabaseFactory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
+import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
 import io.github.wysohn.rapidframework3.core.inject.module.TypeAsserterModule;
@@ -25,11 +27,11 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import javax.inject.Named;
 import java.io.File;
-import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -55,6 +57,19 @@ public class AbstractManagerElementCachingTest {
         }));
         moduleList.add(new GsonSerializerModule());
         moduleList.add(new TypeAsserterModule());
+        moduleList.add(new AbstractModule() {
+            @Provides
+            public IDatabaseFactoryCreator creator(){
+                return typeName -> new IDatabaseFactory() {
+                    @Override
+                    public <K, V extends CachedElement<K>> IDatabase<K, V> create(String tableName,
+                                                                                  Class<V> type,
+                                                                                  Function<String, K> fn) {
+                        return mockDatabase;
+                    }
+                };
+            }
+        });
     }
 
     @Test
@@ -78,7 +93,9 @@ public class AbstractManagerElementCachingTest {
 
             for (int i = 0; i < uuids.length; i++) {
                 if (key.equals(uuids[i].toString())) {
-                    return "{\"str\":\"value" + i + "\"}";
+                    TempValue tempValue = new TempValue(uuids[i]);
+                    tempValue.str = "value"+i;
+                    return tempValue;
                 }
             }
 
@@ -148,7 +165,6 @@ public class AbstractManagerElementCachingTest {
         //get (will load from db as it's not loaded yet)
         when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn(value);
         assertEquals(value.getKey(), manager.get(uuid)
-                .map(Reference::get)
                 .map(CachedElement::getKey)
                 .orElse(null));
 
@@ -198,12 +214,12 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //get (new)
-        TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        TempValue value = manager.getOrNew(uuid).orElse(null);
         assertEquals(value, cachedElements.get(uuid));
 
         //get
         when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn(value);
-        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
+        assertEquals(value, manager.get(uuid).orElse(null));
 
         //end the db life-cycle
         manager.disable();
@@ -226,36 +242,36 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //get (new)
-        TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        TempValue value = manager.getOrNew(uuid).orElse(null);
         assertEquals(value, cachedElements.get(uuid));
 
         //update
         value.setStringKey("NewKey");
 
         //get
-        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
-        assertEquals(value, manager.get("NewKey").map(Reference::get).orElse(null));
+        assertEquals(value, manager.get(uuid).orElse(null));
+        assertEquals(value, manager.get("NewKey").orElse(null));
 
         //update2
         value.setStringKey("NewKey2");
 
         //get2
-        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
-        assertEquals(value, manager.get("NewKey2").map(Reference::get).orElse(null));
+        assertEquals(value, manager.get(uuid).orElse(null));
+        assertEquals(value, manager.get("NewKey2").orElse(null));
 
         //update3
         value.setStringKey("");
 
         //get3
-        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
-        assertNull(manager.get("").map(Reference::get).orElse(null));
+        assertEquals(value, manager.get(uuid).orElse(null));
+        assertNull(manager.get("").orElse(null));
 
         //update4
         value.setStringKey(null);
 
         //get4
-        assertEquals(value, manager.get(uuid).map(Reference::get).orElse(null));
-        assertNull(manager.get("NewKey2").map(Reference::get).orElse(null));
+        assertEquals(value, manager.get(uuid).orElse(null));
+        assertNull(manager.get("NewKey2").orElse(null));
 
         //end the db life-cycle
         manager.disable();
@@ -279,7 +295,7 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //new
-        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        TempValue mockValue = manager.getOrNew(uuid).orElse(null);
         mockValue.setStringKey("SomeName");
 
         assertEquals(mockValue, cachedElements.get(uuid));
@@ -313,7 +329,7 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //new
-        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        TempValue mockValue = manager.getOrNew(uuid).orElse(null);
         mockValue.setStr("Initial value");
 
         Assert.assertEquals(mockValue, cachedElements.get(uuid));
@@ -326,7 +342,7 @@ public class AbstractManagerElementCachingTest {
         manager.reset(mockValue);
 
         //get current data after reset
-        TempValue newMockValue = manager.get(uuid).map(Reference::get).orElse(null);
+        TempValue newMockValue = manager.get(uuid).orElse(null);
         Assert.assertNotNull(cachedElements.get(uuid));
         Assert.assertNotNull(newMockValue);
 
@@ -352,7 +368,7 @@ public class AbstractManagerElementCachingTest {
         manager.load();
 
         //new
-        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        TempValue mockValue = manager.getOrNew(uuid).orElse(null);
         mockValue.setStringKey("Initial value");
 
         Assert.assertEquals(mockValue, cachedElements.get(uuid));
@@ -375,15 +391,17 @@ public class AbstractManagerElementCachingTest {
         Injector injector = Guice.createInjector(moduleList);
         TempManager manager = injector.getInstance(TempManager.class);
 
-        Map<String, String> tempDb = new HashMap<>();
+        Map<String, TempValue> tempDb = new HashMap<>();
         for (int i = 0; i < 100; i++) {
             UUID uuid = UUID.randomUUID();
-            tempDb.put(uuid.toString(), "{\"key\": \"" + uuid + "\", \"str\": \"Value Changed\"}");
+            TempValue value = new TempValue(uuid);
+            value.str = "Value Changed";
+            tempDb.put(uuid.toString(), value);
         }
 
         doAnswer(invocation -> {
             String key = (String) invocation.getArguments()[0];
-            String value = (String) invocation.getArguments()[1];
+            TempValue value = (TempValue) invocation.getArguments()[1];
             tempDb.put(key, value);
             return null;
         }).when(mockDatabase).save(anyString(), any());
@@ -410,7 +428,7 @@ public class AbstractManagerElementCachingTest {
             exec.execute(() -> {
                 try {
                     Assert.assertEquals("Value Changed", manager.get(UUID.fromString(uuid))
-                            .map(Reference::get)
+                            
                             .map(val -> val.str)
                             .orElse(null));
                 } catch (Exception e) {
@@ -428,15 +446,17 @@ public class AbstractManagerElementCachingTest {
         Injector injector = Guice.createInjector(moduleList);
         TempManager manager = injector.getInstance(TempManager.class);
 
-        Map<String, String> tempDb = new HashMap<>();
+        Map<String, TempValue> tempDb = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
             UUID uuid = UUID.randomUUID();
-            tempDb.put(uuid.toString(), "{\"key\": \"" + uuid + "\", \"str\": \"Value Changed\"}");
+            TempValue value = new TempValue(uuid);
+            value.str = "Value Changed";
+            tempDb.put(uuid.toString(), value);
         }
 
         doAnswer(invocation -> {
             String key = (String) invocation.getArguments()[0];
-            String value = (String) invocation.getArguments()[1];
+            TempValue value = (TempValue) invocation.getArguments()[1];
             tempDb.put(key, value);
             return null;
         }).when(mockDatabase).save(anyString(), any());
@@ -457,7 +477,7 @@ public class AbstractManagerElementCachingTest {
         thread2.start();
         thread3.start();
         tempDb.forEach((uuid, v) -> manager.get(uuid)
-                .map(Reference::get)
+                
                 .ifPresent(val -> val.setStringKey("Other4")));
 
         manager.disable();
@@ -478,7 +498,7 @@ public class AbstractManagerElementCachingTest {
         //get (new)
         for (int i = 0; i < 100; i++) {
             UUID uuid = UUID.randomUUID();
-            TempValue value = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+            TempValue value = manager.getOrNew(uuid).orElse(null);
             value.setStr("SomeName" + i);
         }
 
@@ -507,7 +527,7 @@ public class AbstractManagerElementCachingTest {
         IObserver observer = manager.getObservers().stream().findFirst().orElse(null);
 
         //new
-        TempValue mockValue = manager.getOrNew(uuid).map(Reference::get).orElse(null);
+        TempValue mockValue = manager.getOrNew(uuid).orElse(null);
         mockValue.addObserver(observer);
         mockValue.setStr("Initial value");
 
@@ -542,13 +562,19 @@ public class AbstractManagerElementCachingTest {
                            IShutdownHandle shutdownHandle,
                            ISerializer serializer,
                            ITypeAsserter asserter,
+                           IDatabaseFactoryCreator factoryCreator,
                            Injector injector) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, TempValue.class);
-        }
-
-        @Override
-        protected Databases.DatabaseFactory<TempValue> createDatabaseFactory() {
-            return (clazz, type, others) -> mockDatabase;
+            super(pluginName,
+                  logger,
+                  config,
+                  pluginDir,
+                  shutdownHandle,
+                  serializer,
+                  asserter,
+                  factoryCreator,
+                  injector,
+                  "TempValue",
+                  TempValue.class);
         }
 
         @Override
@@ -570,7 +596,14 @@ public class AbstractManagerElementCachingTest {
         private String str;
 
         public TempValue() {
-            super(null);
+            super((UUID) null);
+        }
+
+        public TempValue(TempValue copy){
+            super(copy.getKey());
+            manager = copy.manager;
+            dummy = copy.dummy;
+            str = copy.str;
         }
 
         public TempValue(UUID uuid) {
@@ -588,9 +621,7 @@ public class AbstractManagerElementCachingTest {
         }
 
         public TempValue setStr(String str) {
-            this.str = str;
-
-            notifyObservers();
+            mutate(() -> this.str = str);
             return this;
         }
     }
@@ -606,13 +637,19 @@ public class AbstractManagerElementCachingTest {
                             IShutdownHandle shutdownHandle,
                             ISerializer serializer,
                             ITypeAsserter asserter,
+                            IDatabaseFactoryCreator factoryCreator,
                             Injector injector) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, TempValue2.class);
-        }
-
-        @Override
-        protected Databases.DatabaseFactory<TempValue2> createDatabaseFactory() {
-            return (clazz, type, others) -> mockDatabase;
+            super(pluginName,
+                  logger,
+                  config,
+                  pluginDir,
+                  shutdownHandle,
+                  serializer,
+                  asserter,
+                  factoryCreator,
+                  injector,
+                  "TempValue2",
+                  TempValue2.class);
         }
 
         @Override

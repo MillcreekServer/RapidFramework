@@ -2,10 +2,13 @@ package io.github.wysohn.rapidframework3.core.permission;
 
 import com.google.inject.*;
 import com.google.inject.name.Named;
+import io.github.wysohn.rapidframework3.core.caching.CachedElement;
 import io.github.wysohn.rapidframework3.core.database.Database;
-import io.github.wysohn.rapidframework3.core.database.Databases;
+import io.github.wysohn.rapidframework3.core.database.IDatabase;
+import io.github.wysohn.rapidframework3.core.database.IDatabaseFactory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
+import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
 import io.github.wysohn.rapidframework3.core.inject.module.GsonSerializerModule;
 import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
 import io.github.wysohn.rapidframework3.core.inject.module.TypeAsserterModule;
@@ -27,6 +30,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertFalse;
@@ -56,7 +60,19 @@ public class AbstractPermissionManagerTest {
         moduleList.add(new GsonSerializerModule());
         moduleList.add(new TypeAsserterModule());
         moduleList.add(parentProviderModule);
-
+        moduleList.add(new AbstractModule() {
+            @Provides
+            public IDatabaseFactoryCreator creator(){
+                return typeName -> new IDatabaseFactory() {
+                    @Override
+                    public <K, V extends CachedElement<K>> IDatabase<K, V> create(String tableName,
+                                                                                  Class<V> type,
+                                                                                  Function<String, K> fn) {
+                        return mockDatabase;
+                    }
+                };
+            }
+        });
     }
 
     @Test
@@ -185,13 +201,19 @@ public class AbstractPermissionManagerTest {
                                      ISerializer serializer,
                                      Injector injector,
                                      ITypeAsserter asserter,
+                                     IDatabaseFactoryCreator factoryCreator,
                                      IParentProvider parentProvider) {
-            super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, parentProvider);
-        }
-
-        @Override
-        protected Databases.DatabaseFactory<PermissionStorage> createDatabaseFactory() {
-            return (clazz, type, others) -> mockDatabase;
+            super(pluginName,
+                  logger,
+                  config,
+                  pluginDir,
+                  shutdownHandle,
+                  serializer,
+                  asserter,
+                  factoryCreator,
+                  injector,
+                  "Permissions",
+                  parentProvider);
         }
 
         @Override

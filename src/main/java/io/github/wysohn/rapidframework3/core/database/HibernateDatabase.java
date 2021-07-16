@@ -15,16 +15,20 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-public abstract class HibernateDatabase<T extends CachedElement<?>> extends Database<T> {
+public abstract class HibernateDatabase<K, T extends CachedElement<K>> extends Database<K, T> {
     public static final String KEY = "key";
 
     private final Properties properties;
     private final SessionFactory factory;
 
-    public HibernateDatabase(Class<T> type,
+    public HibernateDatabase(String tableName,
+                             Class<T> type,
                              Properties properties) {
-        super(type.getSimpleName(), type);
+        super(tableName, type);
         this.properties = properties;
+
+        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.show_sql", "true");
 
         // create session factory
         factory = new Configuration()
@@ -33,12 +37,17 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
                 .buildSessionFactory();
     }
 
+    public HibernateDatabase(Class<T> type,
+                             Properties properties) {
+        this(type.getSimpleName(), type, properties);
+    }
+
     public HibernateDatabase(Class<T> type) {
         this(type, new Properties());
     }
 
     @Override
-    public T load(String key) throws IOException {
+    public T load(K key) throws IOException {
         Transaction tx = null;
         T result = null;
 
@@ -59,7 +68,7 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
     }
 
     @Override
-    public void save(String key, T obj) throws IOException {
+    public void save(K key, T obj) throws IOException {
         Transaction tx = null;
         try (Session session = factory.openSession()) {
             tx = session.beginTransaction();
@@ -85,7 +94,7 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
     }
 
     @Override
-    public boolean has(String key) {
+    public boolean has(K key) {
         try {
             return load(key) != null;
         } catch (IOException e) {
@@ -95,8 +104,8 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
     }
 
     @Override
-    public Set<String> getKeys() {
-        Set<String> keys = new HashSet<>();
+    public Set<K> getKeys() {
+        Set<K> keys = new HashSet<>();
 
         Transaction tx = null;
         try (Session session = factory.openSession()) {
@@ -105,7 +114,7 @@ public abstract class HibernateDatabase<T extends CachedElement<?>> extends Data
             Query query = session.createQuery("SELECT " + KEY + " FROM " + tableName);
             query.getResultList().stream()
                     .map(Object::toString)
-                    .forEach(str -> keys.add((String) str));
+                    .forEach(k -> keys.add((K) k));
 
             tx.commit();
         } catch (Exception ex) {

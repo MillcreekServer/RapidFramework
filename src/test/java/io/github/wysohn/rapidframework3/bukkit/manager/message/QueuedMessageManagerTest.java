@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 public class QueuedMessageManagerTest {
 
-    private final ExecutorService async = Executors.newSingleThreadExecutor();
+    private ExecutorService async;
 
     private List<AbstractModule> moduleList = new LinkedList<>();
     private AbstractPlayerWrapper player;
@@ -33,6 +33,8 @@ public class QueuedMessageManagerTest {
 
     @Before
     public void init() {
+        async = Executors.newSingleThreadExecutor();
+
         player = mock(AbstractPlayerWrapper.class);
         uuid = UUID.randomUUID();
         playerWrapper = mock(AbstractBukkitPlugin.IPlayerWrapper.class);
@@ -118,6 +120,11 @@ public class QueuedMessageManagerTest {
 
         assertEquals(3, list.size());
 
+        manager.disable();
+        for (int i = 0; i < 9; i++) {
+            manager.tick();
+        }
+
         async.shutdown();
         async.awaitTermination(10, TimeUnit.SECONDS);
         verify(player, atLeast(1)).isOnline();
@@ -167,6 +174,11 @@ public class QueuedMessageManagerTest {
         assertEquals(3, list.size());
 
         when(player.isOnline()).thenReturn(true);
+
+        manager.disable();
+        for (int i = 0; i < 9; i++) {
+            manager.tick();
+        }
 
         async.shutdown();
         async.awaitTermination(10, TimeUnit.SECONDS);

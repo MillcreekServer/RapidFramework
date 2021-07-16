@@ -10,7 +10,14 @@ public class PermissionStorage extends CachedElement<UUID> {
     private final Set<UUID> permissions;
 
     private PermissionStorage() {
-        this(null);
+        super((UUID) null);
+        permissions = new HashSet<>();
+    }
+
+    private PermissionStorage(PermissionStorage copy){
+        super(copy.getKey());
+        permissions = new HashSet<>();
+        permissions.addAll(copy.permissions);
     }
 
     public PermissionStorage(UUID key) {
@@ -27,28 +34,14 @@ public class PermissionStorage extends CachedElement<UUID> {
     }
 
     public boolean add(UUID uuid) {
-        if (permissions.add(uuid)) {
-            notifyObservers();
-
-            return true;
-        } else {
-            return false;
-        }
+        return mutate(() -> permissions.add(uuid));
     }
 
     public boolean remove(UUID o) {
-        if (permissions.remove(o)) {
-            notifyObservers();
-
-            return true;
-        } else {
-            return false;
-        }
+        return mutate(() -> permissions.remove(o));
     }
 
     public void clear() {
-        permissions.clear();
-
-        notifyObservers();
+        mutate(permissions::clear);
     }
 }

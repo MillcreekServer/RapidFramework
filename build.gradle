@@ -167,6 +167,7 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
 
     implementation fileTree(dir: "libs", includes: ['*.jar'])
     implementation "org.spigotmc:spigot-api:${bukkit_version}"

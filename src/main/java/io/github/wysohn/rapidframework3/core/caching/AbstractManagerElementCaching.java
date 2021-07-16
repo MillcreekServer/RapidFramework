@@ -1,11 +1,12 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
 import com.google.inject.Injector;
-import io.github.wysohn.rapidframework3.core.database.Database;
-import io.github.wysohn.rapidframework3.core.database.Databases;
+import io.github.wysohn.rapidframework3.core.database.IDatabase;
+import io.github.wysohn.rapidframework3.core.database.IDatabaseFactory;
 import io.github.wysohn.rapidframework3.core.database.migration.FieldToFieldMappingStep;
 import io.github.wysohn.rapidframework3.core.database.migration.MigrationHelper;
 import io.github.wysohn.rapidframework3.core.database.migration.MigrationSteps;
+import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
 import io.github.wysohn.rapidframework3.core.main.Manager;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.core.paging.LRUCache;
@@ -17,8 +18,6 @@ import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -53,11 +53,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
     private final File pluginDir;
     private final IShutdownHandle shutdownHandle;
     private final ISerializer serializer;
+    private final IDatabaseFactoryCreator factoryCreator;
     private final Injector injector;
+    private final String tableName;
     private final Class<V> type;
 
-    private Databases.DatabaseFactory<V> dbFactory;
-    private Database<V> db;
+    private IDatabaseFactory dbFactory;
+    private IDatabase<K, V> db;
 
     private final List<IObserver> observers = new ArrayList<IObserver>() {
         {
@@ -80,8 +82,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param serializer
      * @param asserter
      * @param injector
-     * @param type not injectable. Must provided manually
-     * @param cacheSize not injectable. Must provided manually
+     * @param type not injectable. Must be provided manually
+     * @param tableName not injectable. Must be provided manually
+     * @param cacheSize not injectable. Must be provided manually
      */
     public AbstractManagerElementCaching(String pluginName,
                                          Logger logger,
@@ -90,7 +93,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                          IShutdownHandle shutdownHandle,
                                          ISerializer serializer,
                                          ITypeAsserter asserter,
+                                         IDatabaseFactoryCreator factoryCreator,
                                          Injector injector,
+                                         String tableName,
                                          Class<V> type,
                                          int cacheSize) {
         super();
@@ -103,9 +108,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         this.pluginDir = pluginDir;
         this.shutdownHandle = shutdownHandle;
         this.serializer = serializer;
+        this.factoryCreator = factoryCreator;
         this.injector = injector;
+        this.tableName = tableName;
         this.type = type;
 
+        Validation.assertNotNull(tableName);
+        Validation.validate(tableName, s -> !s.isEmpty(), "table name is empty");
         asserter.assertClass(type);
     }
 
@@ -116,7 +125,9 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                          IShutdownHandle shutdownHandle,
                                          ISerializer serializer,
                                          ITypeAsserter asserter,
+                                         IDatabaseFactoryCreator factoryCreator,
                                          Injector injector,
+                                         String tableName,
                                          Class<V> type) {
         this(pluginName,
              logger,
@@ -125,17 +136,12 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
              shutdownHandle,
              serializer,
              asserter,
+             factoryCreator,
              injector,
+             tableName,
              type,
              DEFAULT_CACHE_SIZE);
     }
-
-    /**
-     * Create DataFactory which will be used by this manager.
-     *
-     * @return
-     */
-    protected abstract Databases.DatabaseFactory<V> createDatabaseFactory();
 
     protected abstract K fromString(String string);
 
@@ -143,25 +149,17 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     @Override
     public void enable() throws Exception {
-        dbFactory = createDatabaseFactory();
+        dbFactory = factoryCreator.create((String) config.get("dbType").orElse("file"));
 
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
-            db = dbFactory.createDatabase(type,
-                                          (String) config.get("dbType").orElse("file"),
-                                          serializer);
+            db = dbFactory.create(tableName, type, this::fromString);
             Validation.assertNotNull(db);
 
-            for (String keyStr : db.getKeys()) {
-                String json = db.load(keyStr);
-                if (json == null)
-                    continue;
-
-                V value = serializer.deserializeFromString(type, json);
+            for (K key : db.getKeys()) {
+                V value = db.load(key);
                 if (value == null)
                     continue;
-
-                K key = fromString(keyStr);
 
                 cache(key, value);
             }
@@ -179,14 +177,14 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             logger.info("Waiting for the save tasks to be done...");
             synchronized (dbLock){
                 saveTaskPool.shutdown();
-                saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
             }
+            saveTaskPool.awaitTermination(30, TimeUnit.SECONDS);  // wait for running tasks to finish
             logger.info("Save finished.");
         }
     }
 
     protected MigrationHelper<K, V, V> migrateFrom(String dbType, MigrationSteps<K, V, V> steps) {
-        Database<V> from = dbFactory.createDatabase(type, dbType, serializer);
+        IDatabase<K, V> from = dbFactory.create(tableName, type, this::fromString);
         if (from == null)
             return null;
 
@@ -197,8 +195,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                                      from,
                                      db,
                                      this::fromString,
-                                     key -> getOrNew(key).map(Reference::get)
-                                             .orElseThrow(RuntimeException::new),
+                                     key -> getOrNew(key).orElseThrow(RuntimeException::new),
                                      MigrationSteps.Builder.<K, V, V>begin()
                                              .step(new FieldToFieldMappingStep<>(type))
                                              .build());
@@ -231,7 +228,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param name displayName to search for
      * @return The Optional of value. Optional.empty() if couldn't find it.
      */
-    public Optional<WeakReference<V>> get(String name) {
+    public Optional<V> get(String name){
         synchronized (cacheLock) {
             return get(nameToKeyMap.get(name));
         }
@@ -243,13 +240,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param key the key
      * @return The Optional of value. Optional.empty() if couldn't find it.
      */
-    public Optional<WeakReference<V>> get(K key) {
+    public Optional<V> get(K key) {
         if (key == null)
             return Optional.empty();
 
         synchronized (cacheLock) {
             if (cachedElements.containsKey(key)) {
-                return Optional.of(new WeakReference<>(cachedElements.get(key)));
+                return Optional.of(cachedElements.get(key));
             }
         }
 
@@ -259,10 +256,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             try {
                 synchronized (dbLock){
                     Validation.assertNotNull(db, "Key was " + key);
-                    V loaded = db.load(key.toString());
+                    V loaded = db.load(key);
 
                     if (loaded != null) {
-                        AbstractManagerElementCaching.this.cache(key, loaded);
+                        cache(key, loaded);
                     }
                 }
             }  catch (Exception e) {
@@ -272,7 +269,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             value = cachedElements.get(key);
         }
 
-        return Optional.ofNullable(value).map(WeakReference::new);
+        return Optional.ofNullable(value);
     }
 
     /**
@@ -281,11 +278,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
      * @param key the key
      * @return the existing value or newly created one
      */
-    public Optional<WeakReference<V>> getOrNew(K key) {
+    public Optional<V> getOrNew(K key) {
         Validation.assertNotNull(key);
 
         V value = get(key)
-                .map(Reference::get)
                 .orElse(null);
 
         if (value == null) {
@@ -330,7 +326,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             saveTaskPool.submit(() -> {
                 synchronized (dbLock){
                     try {
-                        db.save(key.toString(), null);
+                        db.save(key, null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -395,7 +391,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 .map(this::get)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .map(Reference::get)
                 .forEach(v -> {
                     try {
                         consumer.accept(v);
@@ -433,29 +428,6 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         return Collections.unmodifiableList(observers);
     }
 
-    protected Databases.DatabaseFactory<V> getDatabaseFactory(String tablename) {
-        return ((objType, dbType, others) -> {
-            try {
-                switch (dbType) {
-                    case "mysql":
-                        return Databases.build((String) config.get("db.address").orElse("127.0.0.1"),
-                                (String) config.get("db.name").orElse(pluginName),
-                                (String) config.get("db.tablename").orElse(tablename),
-                                (String) config.get("db.username").orElse("root"),
-                                (String) config.get("db.password").orElse("1234"));
-                    default:
-                        return Databases.build(tablename,
-                                               pluginDir,
-                                               (ISerializer) others[0],
-                                               objType);
-                }
-            } catch (Exception e) {
-                handleDBOperationFailure(tablename, e);
-                return null;
-            }
-        });
-    }
-
     public interface IConstructionHandle<K, V extends CachedElement<K>> {
         /**
          * Called after the object is created. It can be useful if some data has to be filled
@@ -468,9 +440,11 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     private class CachedElementObserver implements IObserver {
         /**
-         * Should be called only by Observable instances.
+         * Should be called only by Observable instances. This method is invoked by the
+         * {@link ObservableElement#notifyObservers()}, and while doing so, it acquires
+         * write-lock specific to this instance.
          *
-         * @param observable
+         * @param observable the caller
          */
         @Override
         public void update(ObservableElement observable) {
@@ -478,7 +452,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             V value = (V) observable;
 
             synchronized (cacheLock) {
-                // write-lock -> cache-lock
+                // write-lock ; cache-lock
+                if (cachedElements.get(value.getKey()) != value) {
+                    throw new RuntimeException("Obsolete cache trying to update. There should be only one cache" +
+                                                       " instance at a time. Do not keep any ObservableElement: "+
+                            value.getKey() + ";" + value);
+                }
+
                 cache(value.getKey(), value);
 
                 saveTaskPool.submit(() -> {
@@ -488,7 +468,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                     synchronized (dbLock){
                         // db-lock
                         try {
-                            db.save(value.getKey().toString(), copied);
+                            db.save(value.getKey(), copied);
                         } catch (Exception e) {
                             handleDBOperationFailure(value.getKey().toString(), e);
                         }
@@ -569,20 +549,65 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
 
         /**
-         * Warning) this call acquire the write-lock.
+         * Acquire read lock and execute the read operation.
+         * DO NOT change the state of the object. Use {@link #mutate(Runnable)} in such a case.
+         * @param run
          */
-        protected void notifyObservers() {
+        protected <T> T read(Supplier<T> run){
+            lock.readLock().lock();
+            try{
+                return run.get();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        /**
+         * Acquire read lock and execute the read operation.
+         * DO NOT change the state of the object. Use {@link #mutate(Runnable)} in such a case.
+         * @param run
+         */
+        protected void read(Runnable run){
+            read(() -> {
+                run.run();
+                return null;
+            });
+        }
+
+        /**
+         * Acquire write lock and execute the write operation.
+         * @param run
+         */
+        protected <T> T mutate(Supplier<T> run){
             lock.writeLock().lock();
-            try {
-                if (observers.size() < 1) {
-                    throw new RuntimeException("An ObservableElement invoked notifyObservers() method, yet no observers" +
-                            " are found. Probably this instance was unregistered when delete() method was used. Do not" +
-                            " use the instance that was deleted. Always retrieve the latest instance by get() method.");
-                }
-                observers.forEach(iObserver -> iObserver.update(this));
+            try{
+                T t = run.get();
+                notifyObservers();
+                return t;
             } finally {
                 lock.writeLock().unlock();
             }
+        }
+
+        /**
+         * Acquire write lock and execute the write operation.
+         * Also, automatically persist the changed state
+         * @param run
+         */
+        protected void mutate(Runnable run){
+            mutate(() -> {
+                run.run();
+                return null;
+            });
+        }
+
+        private void notifyObservers() {
+            if (observers.size() < 1) {
+                throw new RuntimeException("An ObservableElement invoked notifyObservers() method, yet no observers" +
+                                                   " are found. Probably this instance was unregistered when delete() method was used. Do not" +
+                                                   " use the instance that was deleted. Always retrieve the latest instance by get() method.");
+            }
+            observers.forEach(iObserver -> iObserver.update(this));
         }
     }
 }

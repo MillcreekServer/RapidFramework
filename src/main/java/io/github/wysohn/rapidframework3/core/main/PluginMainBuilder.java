@@ -17,6 +17,7 @@ public class PluginMainBuilder {
                                             PluginDirectoryModule directoryModule) {
         PluginMainBuilder builder = new PluginMainBuilder();
         builder.moduleList.add(new ExecutorServiceModule());
+        builder.moduleList.add(new DatabaseFactoryModule());
         builder.moduleList.add(Objects.requireNonNull(infoModule));
         builder.moduleList.add(Objects.requireNonNull(commandModule));
         builder.moduleList.add(Objects.requireNonNull(loggerModule));

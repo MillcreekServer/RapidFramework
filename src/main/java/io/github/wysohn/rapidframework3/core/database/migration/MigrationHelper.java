@@ -1,7 +1,7 @@
 package io.github.wysohn.rapidframework3.core.database.migration;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
-import io.github.wysohn.rapidframework3.core.database.Database;
+import io.github.wysohn.rapidframework3.core.database.IDatabase;
 import io.github.wysohn.rapidframework3.utils.Validation;
 
 import java.util.LinkedList;
@@ -16,8 +16,8 @@ import java.util.logging.Logger;
 
 public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends CachedElement<K>> {
     private final Logger logger;
-    private final Database<FROM> fromDatabase;
-    private final Database<TO> toDatabase;
+    private final IDatabase<K, FROM> fromDatabase;
+    private final IDatabase<K, TO> toDatabase;
     private final Function<String, K> stringToKey;
     private final Function<K, TO> instanceSupplier;
     private final MigrationSteps<K, FROM, TO> steps;
@@ -36,8 +36,8 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
      * @param steps
      */
     public MigrationHelper(Logger logger,
-                           Database<FROM> fromDatabase,
-                           Database<TO> toDatabase,
+                           IDatabase<K, FROM> fromDatabase,
+                           IDatabase<K, TO> toDatabase,
                            Function<String, K> stringToKey,
                            Function<K, TO> instanceSupplier,
                            MigrationSteps<K, FROM, TO> steps) {
@@ -56,7 +56,7 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
         int numThreads = 4;
         currentPool = Executors.newFixedThreadPool(numThreads);
 
-        Queue<String> queue = new LinkedList<>(fromDatabase.getKeys());
+        Queue<K> queue = new LinkedList<>(fromDatabase.getKeys());
         int size = queue.size();
         for (int i = 0; i < size; i++) {
             currentPool.submit(new MigrationRunnable(queue, size));
@@ -83,12 +83,12 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
     }
 
     private class MigrationRunnable implements Runnable{
-        private final Queue<String> keys;
+        private final Queue<K> keys;
         private final int size;
 
         private int processed = 0;
 
-        public MigrationRunnable(Queue<String> keys, int size) {
+        public MigrationRunnable(Queue<K> keys, int size) {
             this.keys = keys;
             this.size = size;
         }
@@ -96,25 +96,23 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
         @Override
         public void run() {
             while(true){
-                String strKey;
+                K key;
                 synchronized (keys){
-                    strKey = keys.poll();
+                    key = keys.poll();
                 }
 
-                if(strKey == null)
+                if(key == null)
                     return;
 
                 try {
-                    K key = stringToKey.apply(strKey);
-
-                    FROM from = fromDatabase.load(strKey);
+                    FROM from = fromDatabase.load(key);
                     TO to = instanceSupplier.apply(key);
 
                     Validation.validate(from, v -> Objects.equals(v.getKey(), key), "from key mismatch.");
                     Validation.validate(to, v -> Objects.equals(v.getKey(), key), "to key mismatch.");
 
                     steps.migrate(from, to);
-                    toDatabase.save(strKey, to);
+                    toDatabase.save(key, to);
 
                     int now;
                     synchronized (keys) {

@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework3.core.permission;
 
 import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IParentProvider;
 import io.github.wysohn.rapidframework3.interfaces.permissin.IPermission;
@@ -11,7 +12,6 @@ import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ITypeAsserter;
 
 import java.io.File;
-import java.lang.ref.Reference;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,9 +28,21 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
                                      IShutdownHandle shutdownHandle,
                                      ISerializer serializer,
                                      ITypeAsserter asserter,
+                                     IDatabaseFactoryCreator factoryCreator,
                                      Injector injector,
+                                     String tableName,
                                      IParentProvider parentProvider) {
-        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, PermissionStorage.class);
+        super(pluginName,
+              logger,
+              config,
+              pluginDir,
+              shutdownHandle,
+              serializer,
+              asserter,
+              factoryCreator,
+              injector,
+              tableName,
+              PermissionStorage.class);
         this.parentProvider = parentProvider;
     }
 
@@ -53,7 +65,6 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
             return false;
 
         PermissionStorage storage = getOrNew(holder.getUuid())
-                .map(Reference::get)
                 .orElse(null);
 
         if (Arrays.stream(permissions)
@@ -74,7 +85,6 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      */
     public boolean addPermission(IPermissionHolder holder, IPermission permission) {
         PermissionStorage storage = getOrNew(holder.getUuid())
-                .map(Reference::get)
                 .orElse(null);
 
         if (storage.contains(permission.getUuid()))
@@ -94,7 +104,6 @@ public abstract class AbstractPermissionManager extends AbstractManagerElementCa
      */
     public boolean removePermission(IPermissionHolder holder, IPermission permission) {
         PermissionStorage storage = getOrNew(holder.getUuid())
-                .map(Reference::get)
                 .orElse(null);
 
         if (!storage.contains(permission.getUuid()))

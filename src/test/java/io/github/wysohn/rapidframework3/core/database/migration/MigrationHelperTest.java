@@ -28,14 +28,13 @@ public class MigrationHelperTest {
         }
 
         Logger logger = mock(Logger.class);
-        Database<Data1> from = mock(Database.class);
-        Database<Data2> to = mock(Database.class);
+        Database<UUID, Data1> from = mock(Database.class);
+        Database<UUID, Data2> to = mock(Database.class);
 
         when(from.getKeys()).thenReturn(fromDatabase.stream()
                                                 .map(pair -> pair.key)
-                                                .map(UUID::toString)
                                                 .collect(Collectors.toSet()));
-        when(from.load(anyString())).then(invocation -> {
+        when(from.load(any())).then(invocation -> {
             String strKey = (String) invocation.getArguments()[0];
             for (Pair<UUID, Data1> pair : fromDatabase) {
                 if(pair.key.toString().equals(strKey))
@@ -61,7 +60,7 @@ public class MigrationHelperTest {
 
         for (int i = 0; i < 4; i++) {
             UUID key = fromDatabase.get(i).key;
-            verify(to).save(key.toString(), new Data2(key, String.valueOf(i)));
+            verify(to).save(key, new Data2(key, String.valueOf(i)));
         }
     }
 
@@ -72,7 +71,7 @@ public class MigrationHelperTest {
         }
 
         public Data1(Data1 copy) {
-            super(null);
+            super((UUID) null);
             this.data = copy.data;
         }
     }
@@ -89,7 +88,7 @@ public class MigrationHelperTest {
         }
 
         public Data2(Data2 copy) {
-            super(null);
+            super((UUID) null);
             this.data = copy.data;
         }
 

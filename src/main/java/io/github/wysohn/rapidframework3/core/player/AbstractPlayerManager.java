@@ -2,6 +2,7 @@ package io.github.wysohn.rapidframework3.core.player;
 
 import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.plugin.IShutdownHandle;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
@@ -19,8 +20,21 @@ public abstract class AbstractPlayerManager<V extends AbstractPlayerWrapper> ext
                                  IShutdownHandle shutdownHandle,
                                  ISerializer serializer,
                                  ITypeAsserter asserter,
-                                 Injector injector, Class<V> type) {
-        super(pluginName, logger, config, pluginDir, shutdownHandle, serializer, asserter, injector, type);
+                                 IDatabaseFactoryCreator factoryCreator,
+                                 Injector injector,
+                                 String tableName,
+                                 Class<V> type) {
+        super(pluginName,
+              logger,
+              config,
+              pluginDir,
+              shutdownHandle,
+              serializer,
+              asserter,
+              factoryCreator,
+              injector,
+              tableName,
+              type);
     }
 
     @Override

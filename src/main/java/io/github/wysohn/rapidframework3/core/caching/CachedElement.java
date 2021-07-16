@@ -1,8 +1,6 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * For Gson to serialize/deserialize this object, the child class must have no-args
@@ -14,9 +12,13 @@ import javax.persistence.Table;
  * This is also an child of 'Observable' class, thus if any change happens in this class's instance,
  * it has to invoke {@link AbstractManagerElementCaching.ObservableElement#notifyObservers()}.
  */
-@Entity
-@Table
+@MappedSuperclass
+@Access(AccessType.FIELD)
 public abstract class CachedElement<K> extends AbstractManagerElementCaching.ObservableElement {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long surrogateKey;
+
     @Column
     private final K key;
 
@@ -29,6 +31,14 @@ public abstract class CachedElement<K> extends AbstractManagerElementCaching.Obs
         this.key = key;
     }
 
+    protected CachedElement(CachedElement<K> copy){
+        super();
+
+        surrogateKey = copy.surrogateKey;
+        key = copy.key;
+        stringKey = copy.stringKey;
+    }
+
     /**
      * Key to be used when saved to database. It will be translated to String using toString() method.
      *
@@ -38,8 +48,8 @@ public abstract class CachedElement<K> extends AbstractManagerElementCaching.Obs
         return key;
     }
 
-    public final String getStringKey() {
-        return stringKey;
+    public String getStringKey() {
+        return read(() -> stringKey);
     }
 
     /**
@@ -49,9 +59,7 @@ public abstract class CachedElement<K> extends AbstractManagerElementCaching.Obs
      * @param stringKey the new key to update. Providing null or empty String will just delete
      *                  the stringKey mapping.
      */
-    public final void setStringKey(String stringKey) {
-        this.stringKey = stringKey;
-
-        notifyObservers();
+    public void setStringKey(String stringKey) {
+        mutate(() -> this.stringKey = stringKey);
     }
 }

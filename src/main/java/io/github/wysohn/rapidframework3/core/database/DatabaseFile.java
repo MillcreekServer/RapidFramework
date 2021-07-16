@@ -28,31 +28,37 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
-public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
+public class DatabaseFile<K, T extends CachedElement<K>> extends Database<K, T> {
     private final ISerializer serializer;
     private final String extensionName;
     private final IFileReader fileReader;
     private final IFileWriter fileWriter;
     private final File folder;
+    private final Function<String, K> strToKey;
 
     public DatabaseFile(ISerializer serializer,
                         String tableName,
                         Class<T> type,
                         String extensionName,
-                        IFileReader fileReader, IFileWriter fileWriter, File folder) {
+                        IFileReader fileReader,
+                        IFileWriter fileWriter,
+                        File folder,
+                        Function<String, K> strToKey) {
         super(tableName, type);
         this.serializer = serializer;
         this.extensionName = extensionName;
         this.fileReader = fileReader;
         this.fileWriter = fileWriter;
         this.folder = folder;
+        this.strToKey = strToKey;
 
         folder.mkdirs();
     }
 
     @Override
-    public T load(String key) throws IOException {
+    public T load(K key) throws IOException {
         File file = new File(folder, key + "." + extensionName);
         if (!file.exists())
             return null;
@@ -70,7 +76,7 @@ public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
     }
 
     @Override
-    public void save(String key, T obj) throws IOException {
+    public void save(K key, T obj) throws IOException {
         File file = new File(folder, key + "." + extensionName);
         if (!file.exists())
             file.createNewFile();
@@ -83,8 +89,8 @@ public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
     }
 
     @Override
-    public synchronized Set<String> getKeys() {
-        Set<String> keys = new HashSet<String>();
+    public synchronized Set<K> getKeys() {
+        Set<K> keys = new HashSet<>();
 
         Optional.ofNullable(folder.listFiles())
                 .map(Arrays::stream)
@@ -92,19 +98,20 @@ public class DatabaseFile<T extends CachedElement<?>> extends Database<T> {
                         .filter(file -> file.getName().endsWith(".json"))
                         .map(File::getName)
                         .map(fileName -> fileName.substring(0, fileName.lastIndexOf('.')))
+                        .map(strToKey)
                         .forEach(keys::add));
 
         return keys;
     }
 
     @Override
-    public synchronized boolean has(String key) {
+    public synchronized boolean has(K key) {
         String[] files = folder.list();
         if (files == null || files.length < 1)
             return false;
 
         for (String fileName : files) {
-            if (fileName.equalsIgnoreCase(key))
+            if (fileName.equalsIgnoreCase(String.valueOf(key)))
                 return true;
         }
 

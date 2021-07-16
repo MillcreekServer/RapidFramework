@@ -24,9 +24,7 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     }
 
     public void setOwnerUuid(UUID ownerUuid) {
-        this.ownerUuid = ownerUuid;
-
-        notifyObservers();
+        mutate(() -> this.ownerUuid = ownerUuid);
     }
 
     public int childrenSize() {
@@ -38,25 +36,15 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     }
 
     public boolean addChild(UUID uuid) {
-        if (children.add(uuid)) {
-            notifyObservers();
-
-            return true;
-        } else return false;
+        return mutate(() -> children.add(uuid));
     }
 
     public boolean removeChild(UUID o) {
-        if (children.remove(o)) {
-            notifyObservers();
-
-            return true;
-        } else return false;
+        return mutate(() -> children.remove(o));
     }
 
     public void clearChildren() {
-        children.clear();
-
-        notifyObservers();
+        mutate(children::clear);
     }
 
     public Collection<UUID> getChildList() {
@@ -72,27 +60,19 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     }
 
     public Object metaPut(String s, Object o) {
-        Object put = metaData.put(s, o);
-        notifyObservers();
-        return put;
+        return mutate(() ->  metaData.put(s, o));
     }
 
     public Object metaRemove(String o) {
-        Object remove = metaData.remove(o);
-        notifyObservers();
-        return remove;
+        return mutate(() -> metaData.remove(o));
     }
 
     public void metaClear() {
-        metaData.clear();
-
-        notifyObservers();
+        mutate(metaData::clear);
     }
 
     public void setParentUuid(UUID parentUuid) {
-        this.parentUuid = parentUuid;
-
-        notifyObservers();
+        mutate(() -> this.parentUuid = parentUuid);
     }
 
     public String getDisplayName() {
@@ -100,8 +80,10 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     }
 
     public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-        this.setStringKey(displayName);
+        mutate(() -> {
+            this.displayName = displayName;
+            this.setStringKey(displayName);
+        });
     }
 
     public String getMark() {
@@ -109,9 +91,7 @@ public class Group extends CachedElement<UUID> implements IPermissionHolder, IPl
     }
 
     public void setMark(String mark) {
-        this.mark = mark;
-
-        notifyObservers();
+        mutate(() -> this.mark = mark);
     }
 
     @Override
