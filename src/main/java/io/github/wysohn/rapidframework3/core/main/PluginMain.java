@@ -249,15 +249,21 @@ public class PluginMain implements PluginRuntime {
 
                                     sender.sendMessageRaw("Migration scheduled (" + from + " -> " + to + ")");
                                     migrationProcess = new MigrationProcess(logger,
-                                                                            managerMap.values().stream()
-                                                                                    .filter(AbstractManagerElementCaching.class::isInstance)
-                                                                                    .map(AbstractManagerElementCaching.class::cast)
-                                                                                    .collect(Collectors.toList()),
+                                                                            getAllCachedManagers(),
                                                                             from);
                                     migrationProcess.start();
 
                                     return true;
                                 }));
+    }
+
+    private List<AbstractManagerElementCaching<?, ?>> getAllCachedManagers() {
+        List<AbstractManagerElementCaching<?,?>> list = new LinkedList<>();
+        for (Manager value : managerMap.values()) {
+            if(value instanceof AbstractManagerElementCaching)
+                list.add((AbstractManagerElementCaching<?, ?>) value);
+        }
+        return list;
     }
 
     private Collection<Manager> resolveDependencies() {
