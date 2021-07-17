@@ -30,4 +30,4 @@ jobs:
       continue-on-error: true
       if: ${{ steps.build.conclusion == 'success' }}
       with:
-        path: 'build/libs/RapidFramework-*-all.jar'
+        path: 'build/libs/RapidFramework*all.jar'
