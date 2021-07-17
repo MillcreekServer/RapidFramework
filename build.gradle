@@ -21,7 +21,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'io.github.wysohn'
-version = '3.17.25'
+version = '4.0.0'
 
 ext {
     bukkit_version = '1.15.2-R0.1-SNAPSHOT'
@@ -61,7 +61,7 @@ task writePluginYml {
     String desc = project.ext.description
 
     map.put("name", id)
-    map.put("main", "io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin")
+    map.put("main", "io.github.wysohn.rapidframework4.bukkit.plugin.FakePlugin")
     map.put("version", project.ext.plugin_version)
     map.put("author", project.ext.author)
     map.put("authors", project.ext.authors)
@@ -167,6 +167,7 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
 
     implementation fileTree(dir: "libs", includes: ['*.jar'])
     implementation "org.spigotmc:spigot-api:${bukkit_version}"
@@ -188,6 +189,7 @@ dependencies {
     api group: 'com.google.inject', name: 'guice', version: '5.0.1'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
     api group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
+    api group: 'org.hibernate', name: 'hibernate-core', version: '5.4.27.Final'
 
     testImplementation 'junit:junit:4.11'
     testImplementation 'org.mockito:mockito-core:1.9.5'
@@ -217,6 +219,7 @@ shadowJar {
     include "org/aopalliance/**"
     include "org/apache/commons/**"
     include "spark/**"
+    include "org/h2/**"
     include "**.txt"
     include "**.yml"
 }

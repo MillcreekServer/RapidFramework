@@ -1,6 +1,6 @@
 package util;
 
-import io.github.wysohn.rapidframework3.utils.Sampling;
+import io.github.wysohn.rapidframework4.utils.Sampling;
 import org.junit.Test;
 
 import java.util.HashSet;

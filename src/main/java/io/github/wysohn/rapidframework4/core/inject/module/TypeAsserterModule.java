@@ -1,0 +1,34 @@
+package io.github.wysohn.rapidframework4.core.inject.module;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import io.github.wysohn.rapidframework4.interfaces.serialize.ITypeAsserter;
+
+import java.lang.reflect.Modifier;
+
+public class TypeAsserterModule extends AbstractModule {
+    @Provides
+    @Singleton
+    ITypeAsserter getAsserter() {
+        return (type) -> {
+            //ignore interface or abstract class.
+            if (type.isInterface() || Modifier.isAbstract(type.getModifiers()))
+                return;
+
+            try {
+                type.getDeclaredConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new AssertionError(type + " does not have no-args constructor." +
+                        " Deserialization is not possible without it.");
+            }
+
+            try {
+                type.getDeclaredConstructor(type);
+            } catch (NoSuchMethodException e) {
+                throw new AssertionError(type + " does not have copy constructor." +
+                        " Serialization is not possible without it.");
+            }
+        };
+    }
+}

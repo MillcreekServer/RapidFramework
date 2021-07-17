@@ -3,19 +3,19 @@ depend: [
   ]
 author: wysohn
 permissions:
-  rapidframework:
+  rapidframework4:
     description: Grant admin permission
-name: RapidFramework
-main: io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin
+name: RapidFramework4
+main: io.github.wysohn.rapidframework4.bukkit.plugin.FakePlugin
 softdepend:
 - ProtocolLib
 - Vault
 - PlaceholderAPI
 - ProtocolLib
 - WorldGuard
-version: 3.17.24
+version: 4.0.0
 commands:
-  rapidframework:
+  rapidframework4:
     aliases:
     - rap
     description: description
