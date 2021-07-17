@@ -22,6 +22,7 @@ public class MySQLDatabase<K, V extends CachedElement<K>> extends HibernateDatab
                          String userName,
                          String password) {
         super(tableName, type, new Properties() {{
+            put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
             put("hibernate.connection.url", "jdbc:mysql://"+address+"/"+database);
             put("hibernate.connection.username", userName);
             put("hibernate.connection.password", password);
