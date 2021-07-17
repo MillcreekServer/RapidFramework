@@ -61,7 +61,7 @@ task writePluginYml {
     String desc = project.ext.description
 
     map.put("name", id)
-    map.put("main", "io.github.wysohn.rapidframework3.bukkit.plugin.FakePlugin")
+    map.put("main", "io.github.wysohn.rapidframework4.bukkit.plugin.FakePlugin")
     map.put("version", project.ext.plugin_version)
     map.put("author", project.ext.author)
     map.put("authors", project.ext.authors)
