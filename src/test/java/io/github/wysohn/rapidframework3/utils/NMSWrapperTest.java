@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.utils;
 
+import io.github.wysohn.rapidframework4.utils.NMSWrapper;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.junit.Test;
@@ -16,7 +17,7 @@ public class NMSWrapperTest {
                         .result()
                         .map(Double.class::cast)
                         .orElseThrow(RuntimeException::new),
-                0.000001);
+                     0.000001);
 
         ItemStack itemStack = new ItemStack(Material.DIAMOND);
         assertEquals(99.84, NMSWrapper.target(Test1.class)

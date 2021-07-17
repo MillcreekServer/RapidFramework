@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.utils.trie;
 
+import io.github.wysohn.rapidframework4.utils.trie.Trie;
+
 public class TestShare {
     public static void fillTrie(Trie trie) {
         trie.insert("Programming");

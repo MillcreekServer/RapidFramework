@@ -1,13 +1,16 @@
 package io.github.wysohn.rapidframework3.core.command;
 
 import com.google.inject.*;
-import io.github.wysohn.rapidframework3.core.inject.module.MainCommandsModule;
-import io.github.wysohn.rapidframework3.core.inject.module.PluginInfoModule;
-import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
-import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.interfaces.command.CommandAction;
-import io.github.wysohn.rapidframework3.interfaces.command.ITabCompleter;
-import io.github.wysohn.rapidframework3.testmodules.MockConfigModule;
+import io.github.wysohn.rapidframework4.core.command.ManagerCommand;
+import io.github.wysohn.rapidframework4.core.command.SubCommand;
+import io.github.wysohn.rapidframework4.core.command.TabCompleters;
+import io.github.wysohn.rapidframework4.core.inject.module.MainCommandsModule;
+import io.github.wysohn.rapidframework4.core.inject.module.PluginInfoModule;
+import io.github.wysohn.rapidframework4.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework4.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework4.interfaces.command.CommandAction;
+import io.github.wysohn.rapidframework4.interfaces.command.ITabCompleter;
+import io.github.wysohn.rapidframework4.testmodules.MockConfigModule;
 import org.junit.Before;
 import org.junit.Test;
 

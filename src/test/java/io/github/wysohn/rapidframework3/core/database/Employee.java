@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.core.database;
 
-import io.github.wysohn.rapidframework3.core.caching.CachedElement;
+import io.github.wysohn.rapidframework4.core.caching.CachedElement;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

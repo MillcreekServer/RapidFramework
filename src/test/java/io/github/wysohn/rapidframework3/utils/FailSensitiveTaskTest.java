@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.utils;
 
-import io.github.wysohn.rapidframework3.interfaces.IMemento;
+import io.github.wysohn.rapidframework4.interfaces.IMemento;
+import io.github.wysohn.rapidframework4.utils.FailSensitiveTask;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -2,16 +2,17 @@ package io.github.wysohn.rapidframework3.core.language;
 
 import com.google.inject.Guice;
 import com.google.inject.Module;
-import io.github.wysohn.rapidframework3.core.inject.module.DecimalFormatModule;
-import io.github.wysohn.rapidframework3.core.inject.module.LanguagesModule;
-import io.github.wysohn.rapidframework3.core.message.Message;
-import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
-import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.interfaces.IPluginObject;
-import io.github.wysohn.rapidframework3.interfaces.language.ILang;
-import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
-import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.testmodules.*;
+import io.github.wysohn.rapidframework4.core.inject.module.DecimalFormatModule;
+import io.github.wysohn.rapidframework4.core.inject.module.LanguagesModule;
+import io.github.wysohn.rapidframework4.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework4.core.message.Message;
+import io.github.wysohn.rapidframework4.core.message.MessageBuilder;
+import io.github.wysohn.rapidframework4.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework4.interfaces.IPluginObject;
+import io.github.wysohn.rapidframework4.interfaces.language.ILang;
+import io.github.wysohn.rapidframework4.interfaces.language.ILangSessionFactory;
+import io.github.wysohn.rapidframework4.interfaces.message.IBroadcaster;
+import io.github.wysohn.rapidframework4.testmodules.*;
 import org.junit.Before;
 import org.junit.Test;
 

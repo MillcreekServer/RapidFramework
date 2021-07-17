@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.utils.trie;
 
+import io.github.wysohn.rapidframework4.utils.trie.Trie;
 import org.junit.Before;
 import org.junit.Test;
 

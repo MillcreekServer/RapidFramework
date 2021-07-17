@@ -1,7 +1,8 @@
 package io.github.wysohn.rapidframework3.bukkit.plugin;
 
-import io.github.wysohn.rapidframework3.bukkit.testutils.AbstractBukkitTest;
-import io.github.wysohn.rapidframework3.bukkit.testutils.SimpleBukkitPluginMainTest;
+import io.github.wysohn.rapidframework4.bukkit.plugin.FakePlugin;
+import io.github.wysohn.rapidframework4.bukkit.testutils.AbstractBukkitTest;
+import io.github.wysohn.rapidframework4.bukkit.testutils.SimpleBukkitPluginMainTest;
 import org.bukkit.Server;
 import org.junit.Test;
 

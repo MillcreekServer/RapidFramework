@@ -1,8 +1,9 @@
 package io.github.wysohn.rapidframework3.core.serialize;
 
 import com.google.inject.Inject;
-import io.github.wysohn.rapidframework3.data.SimpleChunkLocation;
-import io.github.wysohn.rapidframework3.data.SimpleLocation;
+import io.github.wysohn.rapidframework4.core.serialize.GsonSerializer;
+import io.github.wysohn.rapidframework4.data.SimpleChunkLocation;
+import io.github.wysohn.rapidframework4.data.SimpleLocation;
 import org.junit.Test;
 
 import java.util.UUID;

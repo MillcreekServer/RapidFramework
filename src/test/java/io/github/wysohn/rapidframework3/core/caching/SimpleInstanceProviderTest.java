@@ -1,7 +1,10 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
-import io.github.wysohn.rapidframework3.interfaces.IPluginObject;
-import io.github.wysohn.rapidframework3.interfaces.caching.IInstanceProvider;
+import io.github.wysohn.rapidframework4.core.caching.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework4.core.caching.CachedElement;
+import io.github.wysohn.rapidframework4.core.caching.SimpleInstanceProvider;
+import io.github.wysohn.rapidframework4.interfaces.IPluginObject;
+import io.github.wysohn.rapidframework4.interfaces.caching.IInstanceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -127,7 +130,7 @@ public class SimpleInstanceProviderTest {
     @Test
     public void constructor() {
         IInstanceProvider<Interface1> provider = new SimpleInstanceProvider<>(Interface1.class,
-                mockManager1, null, null);
+                                                                              mockManager1, null, null);
 
         assertEquals(1, Array.getLength(Whitebox.getInternalState(provider, "managers")));
         assertEquals(mockManager1, Array.get(Whitebox.getInternalState(provider, "managers"), 0));

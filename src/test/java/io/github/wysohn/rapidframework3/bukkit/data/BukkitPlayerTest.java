@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.bukkit.data;
 
+import io.github.wysohn.rapidframework4.bukkit.data.BukkitPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

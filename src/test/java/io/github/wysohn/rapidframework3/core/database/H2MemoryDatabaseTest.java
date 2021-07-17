@@ -1,6 +1,6 @@
 package io.github.wysohn.rapidframework3.core.database;
 
-import io.github.wysohn.rapidframework3.core.database.hibernate.H2MemoryDatabase;
+import io.github.wysohn.rapidframework4.core.database.hibernate.H2MemoryDatabase;
 import org.junit.Test;
 
 import java.util.UUID;

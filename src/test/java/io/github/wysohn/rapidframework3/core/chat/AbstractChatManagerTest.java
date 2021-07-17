@@ -1,17 +1,18 @@
 package io.github.wysohn.rapidframework3.core.chat;
 
 import com.google.inject.*;
-import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
-import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
-import io.github.wysohn.rapidframework3.core.inject.factory.IStorageFactory;
-import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
-import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.interfaces.chat.IPlaceholderSupport;
-import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
-import io.github.wysohn.rapidframework3.testmodules.MockLoggerModule;
-import io.github.wysohn.rapidframework3.testmodules.MockPlaceholderModule;
-import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
-import io.github.wysohn.rapidframework3.testmodules.MockStorageFactoryModule;
+import io.github.wysohn.rapidframework4.core.chat.AbstractChatManager;
+import io.github.wysohn.rapidframework4.core.inject.annotations.PluginDirectory;
+import io.github.wysohn.rapidframework4.core.inject.annotations.PluginLogger;
+import io.github.wysohn.rapidframework4.core.inject.factory.IStorageFactory;
+import io.github.wysohn.rapidframework4.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework4.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework4.interfaces.chat.IPlaceholderSupport;
+import io.github.wysohn.rapidframework4.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework4.testmodules.MockLoggerModule;
+import io.github.wysohn.rapidframework4.testmodules.MockPlaceholderModule;
+import io.github.wysohn.rapidframework4.testmodules.MockPluginDirectoryModule;
+import io.github.wysohn.rapidframework4.testmodules.MockStorageFactoryModule;
 import org.junit.Before;
 import org.junit.Test;
 

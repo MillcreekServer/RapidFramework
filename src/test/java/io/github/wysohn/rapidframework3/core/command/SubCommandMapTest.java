@@ -1,13 +1,15 @@
 package io.github.wysohn.rapidframework3.core.command;
 
 import com.google.inject.*;
-import io.github.wysohn.rapidframework3.core.language.DefaultLangs;
-import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
-import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
-import io.github.wysohn.rapidframework3.interfaces.command.CommandAction;
-import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
-import io.github.wysohn.rapidframework3.utils.DoubleChecker;
+import io.github.wysohn.rapidframework4.core.command.SubCommand;
+import io.github.wysohn.rapidframework4.core.command.SubCommandMap;
+import io.github.wysohn.rapidframework4.core.language.DefaultLangs;
+import io.github.wysohn.rapidframework4.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework4.core.main.PluginMain;
+import io.github.wysohn.rapidframework4.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework4.interfaces.command.CommandAction;
+import io.github.wysohn.rapidframework4.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework4.utils.DoubleChecker;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

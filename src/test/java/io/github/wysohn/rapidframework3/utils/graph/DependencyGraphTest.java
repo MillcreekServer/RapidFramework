@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.utils.graph;
 
+import io.github.wysohn.rapidframework4.utils.graph.DependencyGraph;
 import org.junit.Test;
 
 import java.util.LinkedList;

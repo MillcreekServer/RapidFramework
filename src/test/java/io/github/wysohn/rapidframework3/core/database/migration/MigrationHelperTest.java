@@ -1,8 +1,10 @@
 package io.github.wysohn.rapidframework3.core.database.migration;
 
-import io.github.wysohn.rapidframework3.core.caching.CachedElement;
-import io.github.wysohn.rapidframework3.core.database.Database;
-import io.github.wysohn.rapidframework3.utils.Pair;
+import io.github.wysohn.rapidframework4.core.caching.CachedElement;
+import io.github.wysohn.rapidframework4.core.database.Database;
+import io.github.wysohn.rapidframework4.core.database.migration.MigrationHelper;
+import io.github.wysohn.rapidframework4.core.database.migration.MigrationSteps;
+import io.github.wysohn.rapidframework4.utils.Pair;
 import org.junit.Test;
 
 import java.util.ArrayList;

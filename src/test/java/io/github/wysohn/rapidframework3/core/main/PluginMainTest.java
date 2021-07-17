@@ -1,18 +1,20 @@
 package io.github.wysohn.rapidframework3.core.main;
 
 import com.google.inject.*;
-import io.github.wysohn.rapidframework3.core.api.ExternalAPI;
-import io.github.wysohn.rapidframework3.core.inject.module.*;
-import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
-import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
-import io.github.wysohn.rapidframework3.interfaces.language.ILang;
-import io.github.wysohn.rapidframework3.interfaces.language.ILangSessionFactory;
-import io.github.wysohn.rapidframework3.interfaces.message.IBroadcaster;
-import io.github.wysohn.rapidframework3.interfaces.plugin.ITaskSupervisor;
-import io.github.wysohn.rapidframework3.interfaces.store.IKeyValueStorage;
 import io.github.wysohn.rapidframework3.modules.GuiceDebug;
-import io.github.wysohn.rapidframework3.testmodules.*;
-import io.github.wysohn.rapidframework3.utils.Pair;
+import io.github.wysohn.rapidframework4.core.api.ExternalAPI;
+import io.github.wysohn.rapidframework4.core.inject.module.*;
+import io.github.wysohn.rapidframework4.core.main.Manager;
+import io.github.wysohn.rapidframework4.core.main.PluginMain;
+import io.github.wysohn.rapidframework4.interfaces.io.file.IFileReader;
+import io.github.wysohn.rapidframework4.interfaces.io.file.IFileWriter;
+import io.github.wysohn.rapidframework4.interfaces.language.ILang;
+import io.github.wysohn.rapidframework4.interfaces.language.ILangSessionFactory;
+import io.github.wysohn.rapidframework4.interfaces.message.IBroadcaster;
+import io.github.wysohn.rapidframework4.interfaces.plugin.ITaskSupervisor;
+import io.github.wysohn.rapidframework4.interfaces.store.IKeyValueStorage;
+import io.github.wysohn.rapidframework4.testmodules.*;
+import io.github.wysohn.rapidframework4.utils.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,8 +55,8 @@ public class PluginMainTest {
         moduleList.add(new DefaultManagersModule());
         moduleList.add(new ExecutorServiceModule());
         moduleList.add(new ManagerModule(Manager1.class,
-                Manager2.class,
-                Manager3.class));
+                                         Manager2.class,
+                                         Manager3.class));
         moduleList.add(new MediatorModule());
         moduleList.add(new LanguagesModule());
         moduleList.add(new ExternalAPIModule(Pair.of("SomeOtherPlugin", SomeExternalAPISupport.class)));

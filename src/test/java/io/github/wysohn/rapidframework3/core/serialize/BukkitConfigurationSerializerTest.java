@@ -3,6 +3,7 @@ package io.github.wysohn.rapidframework3.core.serialize;
 import com.google.common.collect.Multimap;
 import copy.com.google.gson.Gson;
 import copy.com.google.gson.GsonBuilder;
+import io.github.wysohn.rapidframework4.core.serialize.BukkitConfigurationSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;

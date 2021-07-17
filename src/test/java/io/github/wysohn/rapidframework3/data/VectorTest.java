@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.data;
 
+import io.github.wysohn.rapidframework4.data.Vector;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

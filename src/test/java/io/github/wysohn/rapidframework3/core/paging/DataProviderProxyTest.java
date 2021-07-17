@@ -1,6 +1,7 @@
 package io.github.wysohn.rapidframework3.core.paging;
 
-import io.github.wysohn.rapidframework3.interfaces.paging.DataProvider;
+import io.github.wysohn.rapidframework4.core.paging.DataProviderProxy;
+import io.github.wysohn.rapidframework4.interfaces.paging.DataProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class DataProviderProxyTest {
     public void size() {
         DataProvider<Integer> dataProvider = new DataProviderProxy<>(range ->
                 list.subList(range.index, Math.min(list.size(), range.index + range.size)),
-                list::size);
+                                                                     list::size);
 
         assertEquals(33, dataProvider.size());
     }

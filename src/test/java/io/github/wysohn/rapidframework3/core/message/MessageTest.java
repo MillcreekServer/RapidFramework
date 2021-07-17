@@ -1,5 +1,7 @@
 package io.github.wysohn.rapidframework3.core.message;
 
+import io.github.wysohn.rapidframework4.core.message.Message;
+import io.github.wysohn.rapidframework4.core.message.MessageBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

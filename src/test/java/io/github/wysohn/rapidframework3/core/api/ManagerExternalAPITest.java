@@ -2,12 +2,14 @@ package io.github.wysohn.rapidframework3.core.api;
 
 import com.google.inject.Guice;
 import com.google.inject.Module;
-import io.github.wysohn.rapidframework3.core.inject.module.ExternalAPIModule;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
-import io.github.wysohn.rapidframework3.testmodules.MockGlobalPluginManager;
-import io.github.wysohn.rapidframework3.testmodules.MockLoggerModule;
-import io.github.wysohn.rapidframework3.testmodules.MockMainModule;
-import io.github.wysohn.rapidframework3.utils.Pair;
+import io.github.wysohn.rapidframework4.core.api.ExternalAPI;
+import io.github.wysohn.rapidframework4.core.api.ManagerExternalAPI;
+import io.github.wysohn.rapidframework4.core.inject.module.ExternalAPIModule;
+import io.github.wysohn.rapidframework4.core.main.PluginMain;
+import io.github.wysohn.rapidframework4.testmodules.MockGlobalPluginManager;
+import io.github.wysohn.rapidframework4.testmodules.MockLoggerModule;
+import io.github.wysohn.rapidframework4.testmodules.MockMainModule;
+import io.github.wysohn.rapidframework4.utils.Pair;
 import org.junit.Before;
 import org.junit.Test;
 

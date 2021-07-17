@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.utils;
 
+import io.github.wysohn.rapidframework4.utils.DoubleChecker;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 

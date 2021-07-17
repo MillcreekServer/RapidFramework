@@ -1,9 +1,11 @@
 package io.github.wysohn.rapidframework3.core.paging;
 
-import io.github.wysohn.rapidframework3.core.language.ManagerLanguage;
-import io.github.wysohn.rapidframework3.core.main.PluginMain;
-import io.github.wysohn.rapidframework3.core.message.MessageBuilder;
-import io.github.wysohn.rapidframework3.interfaces.ICommandSender;
+import io.github.wysohn.rapidframework4.core.language.ManagerLanguage;
+import io.github.wysohn.rapidframework4.core.main.PluginMain;
+import io.github.wysohn.rapidframework4.core.message.MessageBuilder;
+import io.github.wysohn.rapidframework4.core.paging.ListWrapper;
+import io.github.wysohn.rapidframework4.core.paging.Pagination;
+import io.github.wysohn.rapidframework4.interfaces.ICommandSender;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +41,7 @@ public class PaginationTest {
 
         String cmd = "/some command";
         Pagination<String> pagination = new Pagination<>(mockLang, ListWrapper.wrap(messages), 6,
-                "title", cmd);
+                                                         "title", cmd);
 
         pagination.show(mockSender, 0, (sender, message, i) -> MessageBuilder.forMessage(message).build());
         pagination.shutdown();
