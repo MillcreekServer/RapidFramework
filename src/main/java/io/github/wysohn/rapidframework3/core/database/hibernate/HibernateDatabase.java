@@ -29,7 +29,7 @@ public abstract class HibernateDatabase<K, T extends CachedElement<K>> extends D
         this.properties = properties;
 
         properties.put("hibernate.hbm2ddl.auto", "update");
-        properties.put("hibernate.show_sql", "true");
+        //properties.put("hibernate.show_sql", "true");
 
         // create session factory
         factory = new Configuration()
