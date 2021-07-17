@@ -61,6 +61,8 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
         for (int i = 0; i < size; i++) {
             currentPool.submit(new MigrationRunnable(queue, size));
         }
+
+        currentPool.shutdown();
         return true;
     }
 
@@ -72,7 +74,7 @@ public class MigrationHelper<K, FROM extends CachedElement<K>, TO extends Cached
         return true;
     }
 
-    void waitForTermination(long time, TimeUnit unit){
+    public void waitForTermination(long time, TimeUnit unit){
         Optional.ofNullable(currentPool).ifPresent(pool -> {
             try {
                 pool.awaitTermination(time, unit);

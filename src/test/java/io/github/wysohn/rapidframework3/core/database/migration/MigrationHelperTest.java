@@ -35,9 +35,9 @@ public class MigrationHelperTest {
                                                 .map(pair -> pair.key)
                                                 .collect(Collectors.toSet()));
         when(from.load(any())).then(invocation -> {
-            String strKey = (String) invocation.getArguments()[0];
+            UUID key = (UUID) invocation.getArguments()[0];
             for (Pair<UUID, Data1> pair : fromDatabase) {
-                if(pair.key.toString().equals(strKey))
+                if(pair.key.equals(key))
                     return pair.value;
             }
 
@@ -55,7 +55,6 @@ public class MigrationHelperTest {
                                                 .build());
 
         helper.start();
-        helper.stop();
         helper.waitForTermination(5, TimeUnit.SECONDS);
 
         for (int i = 0; i < 4; i++) {

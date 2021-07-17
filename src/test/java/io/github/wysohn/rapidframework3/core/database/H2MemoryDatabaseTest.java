@@ -11,9 +11,7 @@ public class H2MemoryDatabaseTest {
     @Test
     public void test() throws Exception{
         H2MemoryDatabase<UUID, Employee> db = new H2MemoryDatabase<>(Employee.class,
-                                                               "Employee",
-                                                               "user",
-                                                               "password");
+                                                               "Employee");
 
         UUID uuid1 = UUID.randomUUID();
         Employee employee1 = new Employee(uuid1);

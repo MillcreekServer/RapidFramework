@@ -5,8 +5,12 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import io.github.wysohn.rapidframework3.core.api.ManagerExternalAPI;
+import io.github.wysohn.rapidframework3.core.caching.AbstractManagerElementCaching;
+import io.github.wysohn.rapidframework3.core.command.ArgumentMappers;
 import io.github.wysohn.rapidframework3.core.command.ManagerCommand;
 import io.github.wysohn.rapidframework3.core.command.SubCommand;
+import io.github.wysohn.rapidframework3.core.command.TabCompleters;
+import io.github.wysohn.rapidframework3.core.database.migration.MigrationHelper;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginAsyncExecutor;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginPlatform;
@@ -80,6 +84,8 @@ public class PluginMain implements PluginRuntime {
     private ManagerLanguage lang;
 
     private final List<Manager> orderedManagers = new ArrayList<>();
+
+    private MigrationProcess migrationProcess;
 
     PluginMain() {
     }
@@ -214,6 +220,44 @@ public class PluginMain implements PluginRuntime {
                                     }
                                     return true;
                                 })));
+
+        comm.addCommand(new SubCommand.Builder("migrate", 0)
+                                .withDescription(DefaultLangs.Command_Migrate_Description)
+                                .addUsage(DefaultLangs.Command_Migrate_Usage)
+                                .addArgumentMapper(0, ArgumentMappers.STRING)
+                                .addTabCompleter(0, TabCompleters.simple("mysql", "file", "h2"))
+                                .action((sender, args) -> {
+                                    String from = args.get(0).map(String.class::cast).orElse(null);
+                                    if (from == null) {
+                                        sender.sendMessageRaw("Invalid dbType");
+                                        return true;
+                                    }
+
+                                    String to = conf.get("dbType")
+                                            .map(String.class::cast)
+                                            .orElse("h2");
+
+                                    if (from.equals(to)) {
+                                        sender.sendMessageRaw("You are already using " + from + " data source");
+                                        return true;
+                                    }
+
+                                    if(migrationProcess != null && migrationProcess.getState() != Thread.State.TERMINATED){
+                                        sender.sendMessageRaw("Already under progress.");
+                                        return true;
+                                    }
+
+                                    sender.sendMessageRaw("Migration scheduled (" + from + " -> " + to + ")");
+                                    migrationProcess = new MigrationProcess(logger,
+                                                                            managerMap.values().stream()
+                                                                                    .filter(AbstractManagerElementCaching.class::isInstance)
+                                                                                    .map(AbstractManagerElementCaching.class::cast)
+                                                                                    .collect(Collectors.toList()),
+                                                                            from);
+                                    migrationProcess.start();
+
+                                    return true;
+                                }));
     }
 
     private Collection<Manager> resolveDependencies() {
@@ -283,5 +327,32 @@ public class PluginMain implements PluginRuntime {
 
     public void shutdown() {
         shutdownHandle.shutdown();
+    }
+
+    private static class MigrationProcess extends Thread{
+        private final Logger logger;
+        private final List<AbstractManagerElementCaching<?, ?>> managers;
+        private final String from;
+
+        public MigrationProcess(Logger logger,
+                                List<AbstractManagerElementCaching<?, ?>> managers,
+                                String from) {
+            this.logger = logger;
+            this.managers = managers;
+            this.from = from;
+        }
+
+        @Override
+        public void run() {
+            managers.forEach(manager -> {
+                MigrationHelper<?, ?, ?> helper = manager.migrateFrom(from);
+
+                logger.info("Migration started for "+manager);
+                helper.start();
+                helper.waitForTermination(1, TimeUnit.DAYS);
+                logger.info("Migration is done for "+manager);
+            });
+            logger.info("All managers are migrated");
+        }
     }
 }

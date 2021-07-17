@@ -78,6 +78,14 @@ public enum DefaultLangs implements ILang {
     Command_Debug_Usage("&6/... debug &8- &7toggle debug mode on/off."),
     Command_Debug_State("&7Debug &8: &f${string}"),
 
+    Command_Migrate_Description("Migrate from the specified data source. This does" +
+                                        " not delete the current data, yet it may overwrite" +
+                                        " the duplicated data if the source database has the" +
+                                        " data with the same key."),
+    Command_Migrate_Usage("&6/... migrate <dbType> &8- &7Migrate all data from the" +
+                                  " <dbType>.",
+                          "&ddbType &8: &amysql, file, h2"),
+
     Command_Status_Description("Show status of the plugin."),
     Command_Status_Usage("&6/... status &8- &7show status of all modules",
             "&6/... status <module> &8- &7show status of 'module'", "&bModules &8: &d${string}"),

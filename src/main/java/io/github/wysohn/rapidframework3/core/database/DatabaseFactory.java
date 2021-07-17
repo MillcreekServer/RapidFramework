@@ -36,6 +36,7 @@ public class DatabaseFactory implements IDatabaseFactory {
     public <K, V extends CachedElement<K>> IDatabase<K, V> create(String tableName,
                                                                   Class<V> type,
                                                                   Function<String, K> strToKey) {
+        File file = new File(pluginDir, tableName);
         switch (typeName) {
             case "mysql":
                 return new MySQLDatabase<>(type,
@@ -57,11 +58,15 @@ public class DatabaseFactory implements IDatabaseFactory {
                         FileUtil::writeToFile,
                         FileUtil.join(pluginDir, tableName),
                         strToKey);
+            case "test":
+                if(!pluginDir.exists())
+                    pluginDir.mkdirs();
+
+                return new H2MemoryDatabase<>(type, tableName);
             default:
                 if (!pluginDir.exists())
                     pluginDir.mkdirs();
 
-                File file = new File(pluginDir, tableName);
                 return new H2PersistDatabase<>(type,
                                                file.getAbsolutePath(),
                                                (String) config.get("db.username").orElse("root"),

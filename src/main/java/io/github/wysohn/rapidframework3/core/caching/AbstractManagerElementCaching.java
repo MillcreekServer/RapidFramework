@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import io.github.wysohn.rapidframework3.core.database.IDatabase;
 import io.github.wysohn.rapidframework3.core.database.IDatabaseFactory;
 import io.github.wysohn.rapidframework3.core.database.migration.FieldToFieldMappingStep;
+import io.github.wysohn.rapidframework3.core.database.migration.IMigrationStep;
 import io.github.wysohn.rapidframework3.core.database.migration.MigrationHelper;
 import io.github.wysohn.rapidframework3.core.database.migration.MigrationSteps;
 import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
@@ -149,7 +150,7 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
 
     @Override
     public void enable() throws Exception {
-        dbFactory = factoryCreator.create((String) config.get("dbType").orElse("file"));
+        dbFactory = factoryCreator.create((String) config.get("dbType").orElse("h2"));
 
         // prevent any other works before initializing caches
         synchronized (cacheLock) {
@@ -183,21 +184,20 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         }
     }
 
-    protected MigrationHelper<K, V, V> migrateFrom(String dbType, MigrationSteps<K, V, V> steps) {
-        IDatabase<K, V> from = dbFactory.create(tableName, type, this::fromString);
+    public MigrationHelper<K, V, V> migrateFrom(String dbType) {
+        IDatabaseFactory factory = factoryCreator.create(dbType);
+        IDatabase<K, V> from = factory.create(tableName, type, this::fromString);
         if (from == null)
-            return null;
-
-        if (from.getClass() == db.getClass())
             return null;
 
         return new MigrationHelper<>(logger,
                                      from,
                                      db,
                                      this::fromString,
-                                     key -> getOrNew(key).orElseThrow(RuntimeException::new),
+                                     this::newInstance,
                                      MigrationSteps.Builder.<K, V, V>begin()
                                              .step(new FieldToFieldMappingStep<>(type))
+                                             .step(new ResetCacheStep())
                                              .build());
     }
 
@@ -428,14 +428,22 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         return Collections.unmodifiableList(observers);
     }
 
-    public interface IConstructionHandle<K, V extends CachedElement<K>> {
-        /**
-         * Called after the object is created. It can be useful if some data has to be filled
-         * manually after the object is instantiated.
-         *
-         * @param obj the object that was created.
-         */
-        void after(V obj);
+    private class ResetCacheStep implements IMigrationStep<V, V>{
+        @Override
+        public void migrate(V from, V to) {
+            synchronized (cachedElements){
+                V currentCache = cachedElements.get(to.getKey());
+                try{
+                    deCache(to.getKey());
+                    cache(to.getKey(), to);
+                } catch (Exception ex){
+                    // if something went wrong, at least preserve what we already have
+                    Optional.ofNullable(currentCache)
+                            .ifPresent(previous -> cachedElements.put(previous.getKey(), previous));
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
     private class CachedElementObserver implements IObserver {

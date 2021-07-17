@@ -1,9 +1,8 @@
 package io.github.wysohn.rapidframework3.core.caching;
 
 import com.google.inject.*;
-import io.github.wysohn.rapidframework3.core.database.Database;
-import io.github.wysohn.rapidframework3.core.database.IDatabase;
-import io.github.wysohn.rapidframework3.core.database.IDatabaseFactory;
+import io.github.wysohn.rapidframework3.core.database.*;
+import io.github.wysohn.rapidframework3.core.database.migration.MigrationHelper;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginLogger;
 import io.github.wysohn.rapidframework3.core.inject.factory.IDatabaseFactoryCreator;
@@ -19,6 +18,7 @@ import io.github.wysohn.rapidframework3.testmodules.MockConfigModule;
 import io.github.wysohn.rapidframework3.testmodules.MockLoggerModule;
 import io.github.wysohn.rapidframework3.testmodules.MockPluginDirectoryModule;
 import io.github.wysohn.rapidframework3.testmodules.MockShutdownModule;
+import io.github.wysohn.rapidframework3.utils.Pair;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +41,8 @@ import static org.mockito.Mockito.*;
 
 public class AbstractManagerElementCachingTest {
     private static Database mockDatabase;
+    private static DatabaseFactory factory;
+    private static DatabaseFactoryCreator factoryCreator;
 
     private List<Module> moduleList = new LinkedList<>();
 
@@ -48,10 +50,17 @@ public class AbstractManagerElementCachingTest {
     @Before
     public void init() {
         mockDatabase = mock(Database.class);
+        factory = mock(DatabaseFactory.class);
+        factoryCreator = mock(DatabaseFactoryCreator.class);
+
+        when(factoryCreator.create(anyString())).thenReturn(factory);
+        when(factory.create(anyString(), any(), any())).thenReturn(mockDatabase);
 
         moduleList.add(new PluginInfoModule("test", "test", "test"));
         moduleList.add(new MockLoggerModule());
-        moduleList.add(new MockConfigModule());
+        moduleList.add(new MockConfigModule(
+                Pair.of("dbType", "test")
+        ));
         moduleList.add(new MockPluginDirectoryModule());
         moduleList.add(new MockShutdownModule(() -> {
         }));
@@ -60,14 +69,7 @@ public class AbstractManagerElementCachingTest {
         moduleList.add(new AbstractModule() {
             @Provides
             public IDatabaseFactoryCreator creator(){
-                return typeName -> new IDatabaseFactory() {
-                    @Override
-                    public <K, V extends CachedElement<K>> IDatabase<K, V> create(String tableName,
-                                                                                  Class<V> type,
-                                                                                  Function<String, K> fn) {
-                        return mockDatabase;
-                    }
-                };
+                return factoryCreator;
             }
         });
     }
@@ -86,13 +88,12 @@ public class AbstractManagerElementCachingTest {
         };
 
         when(mockDatabase.getKeys()).thenReturn(Arrays.stream(uuids)
-                .map(UUID::toString)
                 .collect(Collectors.toSet()));
-        when(mockDatabase.load(Mockito.anyString())).then(invocation -> {
-            String key = (String) invocation.getArguments()[0];
+        when(mockDatabase.load(any(UUID.class))).then(invocation -> {
+            UUID key = (UUID) invocation.getArguments()[0];
 
             for (int i = 0; i < uuids.length; i++) {
-                if (key.equals(uuids[i].toString())) {
+                if (key.equals(uuids[i])) {
                     TempValue tempValue = new TempValue(uuids[i]);
                     tempValue.str = "value"+i;
                     return tempValue;
@@ -114,7 +115,7 @@ public class AbstractManagerElementCachingTest {
             assertEquals(manager, cachedElements.get(uuids[i]).manager);
             assertEquals("value" + i, cachedElements.get(uuids[i]).str);
 
-            Mockito.verify(mockDatabase).load(eq(uuids[i].toString()));
+            Mockito.verify(mockDatabase).load(eq(uuids[i]));
 
             List<Observer> obs = (List<Observer>) Whitebox.getInternalState(cachedElements.get(uuids[i]), "observers");
             assertTrue(observers.stream().allMatch(obs::contains));
@@ -163,7 +164,7 @@ public class AbstractManagerElementCachingTest {
         TempValue value = new TempValue(uuid);
 
         //get (will load from db as it's not loaded yet)
-        when(mockDatabase.load(Mockito.eq(uuid.toString()))).thenReturn(value);
+        when(mockDatabase.load(Mockito.eq(uuid))).thenReturn(value);
         assertEquals(value.getKey(), manager.get(uuid)
                 .map(CachedElement::getKey)
                 .orElse(null));
@@ -173,7 +174,7 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid));
     }
 
     @Test
@@ -196,7 +197,7 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid));
     }
 
     @Test
@@ -223,7 +224,7 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString())); // cache not exist so try from db
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid)); // cache not exist so try from db
         // new data no longer saves unless required
     }
 
@@ -275,7 +276,7 @@ public class AbstractManagerElementCachingTest {
 
         //end the db life-cycle
         manager.disable();
-        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString())); // cache not exist so try from db
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid)); // cache not exist so try from db
         // new data no longer saves unless required
     }
 
@@ -310,8 +311,8 @@ public class AbstractManagerElementCachingTest {
         //end the db life-cycle
         manager.disable();
         Mockito.verify(mockDatabase).getKeys();
-        Mockito.verify(mockDatabase).load(Mockito.eq(uuid.toString()));
-        Mockito.verify(mockDatabase).save(Mockito.eq(uuid.toString()), isNull(TempValue.class));
+        Mockito.verify(mockDatabase).load(Mockito.eq(uuid));
+        Mockito.verify(mockDatabase).save(Mockito.eq(uuid), isNull(TempValue.class));
     }
 
     @Test
@@ -350,7 +351,7 @@ public class AbstractManagerElementCachingTest {
         manager.disable();
         //2 for setStr() and 1 for delete()
         Mockito.verify(mockDatabase, Mockito.times(3))
-                .save(Mockito.eq(uuid.toString()), Mockito.any());
+                .save(Mockito.eq(uuid), Mockito.any());
     }
 
     @Test(expected = RuntimeException.class)
@@ -551,6 +552,70 @@ public class AbstractManagerElementCachingTest {
         TempManager2 manager = injector.getInstance(TempManager2.class);
     }
 
+    @Test
+    public void migrateFrom() throws Exception {
+        Injector injector = Guice.createInjector(moduleList);
+        TempManager manager = injector.getInstance(TempManager.class);
+        Database databaseFrom = mock(Database.class);
+
+        when(factoryCreator.create("file")).thenReturn(new IDatabaseFactory() {
+            @Override
+            public <K, V extends CachedElement<K>> IDatabase<K, V> create(String tableName,
+                                                                          Class<V> valueType,
+                                                                          Function<String, K> strToKey) {
+                return databaseFrom;
+            }
+        });
+
+        // data from
+        Map<UUID, TempValue> fromDataMap = new HashMap<>();
+        for (int i = 0; i < 10; i++) {
+            UUID uuid = UUID.randomUUID();
+            TempValue value = new TempValue(uuid);
+            value.str = "from"+i;
+            fromDataMap.put(uuid, value);
+        }
+        when(databaseFrom.getKeys()).thenReturn(fromDataMap.keySet());
+        when(databaseFrom.load(any())).then(invocation -> {
+            UUID key = (UUID) invocation.getArguments()[0];
+            return fromDataMap.get(key);
+        });
+
+        // data to (with existing data should be overriden)
+        Map<UUID, TempValue> currentDataMap = new HashMap<>();
+        int j = 0;
+        for (Map.Entry<UUID, TempValue> entry : fromDataMap.entrySet()) {
+            if(j > 5)
+                break;
+
+            UUID uuid = entry.getKey();
+            TempValue value = new TempValue(uuid);
+            value.str = "current"+j++;
+            currentDataMap.put(uuid, value);
+        }
+        when(mockDatabase.getKeys()).thenReturn(currentDataMap.keySet());
+        when(mockDatabase.load(any())).then(invocation -> {
+            UUID key = (UUID) invocation.getArguments()[0];
+            return currentDataMap.get(key);
+        });
+
+        manager.load();
+        manager.enable();
+
+        MigrationHelper<UUID, TempValue, TempValue> helper
+                = manager.migrateFrom("file");
+
+        helper.start();
+        helper.waitForTermination(5, TimeUnit.SECONDS);
+
+        // are previous data migrated into the manager now?
+        fromDataMap.forEach((uuid, tempValue) ->
+                                    assertEquals(tempValue, manager.get(uuid).orElse(null)));
+        // but is the new data a different instance?
+        currentDataMap.forEach((uuid, tempValue) ->
+                                    assertNotSame(tempValue, manager.get(uuid).orElse(null)));
+    }
+
     @Singleton
     static class TempManager extends AbstractManagerElementCaching<UUID, TempValue> {
 
@@ -623,6 +688,26 @@ public class AbstractManagerElementCachingTest {
         public TempValue setStr(String str) {
             mutate(() -> this.str = str);
             return this;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TempValue value = (TempValue) o;
+            return Objects.equals(str, value.str);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(str);
+        }
+
+        @Override
+        public String toString() {
+            return "TempValue{" +
+                    "str='" + str + '\'' +
+                    '}';
         }
     }
 

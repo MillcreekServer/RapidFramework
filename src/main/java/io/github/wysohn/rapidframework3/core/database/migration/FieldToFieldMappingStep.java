@@ -32,7 +32,7 @@ public class FieldToFieldMappingStep<K, V extends CachedElement<K>> implements I
     public void migrate(V from, V to) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            if(!deniedModifier.test(field.getModifiers()))
+            if(deniedModifier.test(field.getModifiers()))
                 continue;
 
             field.setAccessible(true);
