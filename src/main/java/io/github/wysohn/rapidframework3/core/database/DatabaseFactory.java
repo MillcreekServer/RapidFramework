@@ -3,6 +3,11 @@ package io.github.wysohn.rapidframework3.core.database;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
+import io.github.wysohn.rapidframework3.core.database.hibernate.H2MemoryDatabase;
+import io.github.wysohn.rapidframework3.core.database.hibernate.H2PersistDatabase;
+import io.github.wysohn.rapidframework3.core.database.hibernate.MySQLDatabase;
+import io.github.wysohn.rapidframework3.core.database.naive.DatabaseFile;
+import io.github.wysohn.rapidframework3.core.database.naive.DatabaseMysql;
 import io.github.wysohn.rapidframework3.core.inject.annotations.PluginDirectory;
 import io.github.wysohn.rapidframework3.core.main.ManagerConfig;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;
@@ -45,6 +50,15 @@ public class DatabaseFactory implements IDatabaseFactory {
                                            (String) config.get("db.tablename").orElse(tableName),
                                            (String) config.get("db.username").orElse("root"),
                                            (String) config.get("db.password").orElse("1234"));
+            case "mysqlold":
+                return new DatabaseMysql<>(type,
+                                           serializer,
+                                           (String) config.get("db.address").orElse("127.0.0.1"),
+                                           (String) config.get("db.name").orElse(pluginName),
+                                           (String) config.get("db.tablename").orElse(tableName),
+                                           (String) config.get("db.username").orElse("root"),
+                                           (String) config.get("db.password").orElse("1234"),
+                                           strToKey);
             case "file":
                 if (!pluginDir.exists())
                     pluginDir.mkdirs();
@@ -59,7 +73,7 @@ public class DatabaseFactory implements IDatabaseFactory {
                         FileUtil.join(pluginDir, tableName),
                         strToKey);
             case "test":
-                if(!pluginDir.exists())
+                if (!pluginDir.exists())
                     pluginDir.mkdirs();
 
                 return new H2MemoryDatabase<>(type, tableName);

@@ -1,4 +1,4 @@
-package io.github.wysohn.rapidframework3.core.database;
+package io.github.wysohn.rapidframework3.core.database.hibernate;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
 

@@ -1,5 +1,6 @@
 package io.github.wysohn.rapidframework3.core.database;
 
+import io.github.wysohn.rapidframework3.core.database.hibernate.H2MemoryDatabase;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -11,7 +12,7 @@ public class H2MemoryDatabaseTest {
     @Test
     public void test() throws Exception{
         H2MemoryDatabase<UUID, Employee> db = new H2MemoryDatabase<>(Employee.class,
-                                                               "Employee");
+                                                                     "Employee");
 
         UUID uuid1 = UUID.randomUUID();
         Employee employee1 = new Employee(uuid1);

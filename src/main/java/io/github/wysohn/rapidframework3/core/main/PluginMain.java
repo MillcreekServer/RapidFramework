@@ -225,7 +225,7 @@ public class PluginMain implements PluginRuntime {
                                 .withDescription(DefaultLangs.Command_Migrate_Description)
                                 .addUsage(DefaultLangs.Command_Migrate_Usage)
                                 .addArgumentMapper(0, ArgumentMappers.STRING)
-                                .addTabCompleter(0, TabCompleters.simple("mysql", "file", "h2"))
+                                .addTabCompleter(0, TabCompleters.simple("mysql", "mysqlold", "file", "h2"))
                                 .action((sender, args) -> {
                                     String from = args.get(0).map(String.class::cast).orElse(null);
                                     if (from == null) {

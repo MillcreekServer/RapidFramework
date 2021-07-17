@@ -14,9 +14,10 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package io.github.wysohn.rapidframework3.core.database;
+package io.github.wysohn.rapidframework3.core.database.naive;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
+import io.github.wysohn.rapidframework3.core.database.Database;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileReader;
 import io.github.wysohn.rapidframework3.interfaces.io.file.IFileWriter;
 import io.github.wysohn.rapidframework3.interfaces.serialize.ISerializer;

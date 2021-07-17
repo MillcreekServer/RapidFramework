@@ -1,6 +1,7 @@
-package io.github.wysohn.rapidframework3.core.database;
+package io.github.wysohn.rapidframework3.core.database.hibernate;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
+import io.github.wysohn.rapidframework3.core.database.Database;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

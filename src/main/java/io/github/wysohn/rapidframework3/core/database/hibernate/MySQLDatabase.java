@@ -1,10 +1,10 @@
-package io.github.wysohn.rapidframework3.core.database;
+package io.github.wysohn.rapidframework3.core.database.hibernate;
 
 import io.github.wysohn.rapidframework3.core.caching.CachedElement;
 
 import java.util.Properties;
 
-public class MySQLDatabase<K, V extends CachedElement<K>> extends HibernateDatabase<K, V>{
+public class MySQLDatabase<K, V extends CachedElement<K>> extends HibernateDatabase<K, V> {
     /**
      * A MySQL hibernate session.
      *
