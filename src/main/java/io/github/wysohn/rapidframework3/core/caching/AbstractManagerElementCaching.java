@@ -444,7 +444,10 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
                 cache(value.getKey(), value);
 
                 // Serialize the object while blocking to ensure thread safety of the individual objects.
-                String json = serializer.serializeToString(type, value);
+                String json;
+                synchronized (value){
+                    json = serializer.serializeToString(type, value);
+                }
 
                 saveTaskPool.submit(() -> {
                     try {
@@ -481,6 +484,13 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
             }
         }
 
+        /**
+         * To avoid Gson from accessing the reference type structures (List, Map, etc.)
+         * concurrently, use this object instance as the monitor itself.
+         *
+         * Gson serialization first synchronized with the instance, so you can effectively
+         * prevent any concurrent access issues.
+         */
         protected void notifyObservers() {
             if (observers.size() < 1) {
                 throw new RuntimeException("An ObservableElement invoked notifyObservers() method, yet no observers" +
