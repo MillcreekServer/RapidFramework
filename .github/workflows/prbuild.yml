@@ -1,9 +1,10 @@
+
 # This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java#publishing-using-gradle
 
 name: Gradle Package
 
-on: push
+on: pull_request
 
 jobs:
   build:
@@ -22,27 +23,11 @@ jobs:
       run: gradle clean
     - name: Build with Gradle
       id: build
-      run: gradle build --stacktrace
-
-    # The USERNAME and PASSWORD need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
-    - name: Publish to GitHub Packages
-      run: gradle publish
-      continue-on-error: true
-      env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      run: gradle build
+      
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.1
       continue-on-error: true
       if: ${{ steps.build.conclusion == 'success' }}
       with:
         path: 'build/libs/RapidFramework*all.jar'
-    - name: Invoke deployment hook
-      uses: distributhor/workflow-webhook@v1
-      continue-on-error: true
-      if: ${{ steps.build.conclusion == 'success' }}
-      env:
-        webhook_url: ${{ secrets.WEB_HOOK }}
-        webhook_secret: ${{ secrets.WEB_HOOK_SECRET }}
