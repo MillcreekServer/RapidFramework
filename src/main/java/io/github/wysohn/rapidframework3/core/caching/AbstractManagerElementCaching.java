@@ -274,16 +274,17 @@ public abstract class AbstractManagerElementCaching<K, V extends CachedElement<K
         observers.forEach(value::addObserver);
         cachedElements.put(key, value);
 
-        String oldName = keyToNameMap.get(key);
-        if (!Objects.equals(oldName, value.getStringKey())) {
-            keyToNameMap.remove(key);
-            if (oldName != null)
-                nameToKeyMap.remove(oldName);
+        String oldName = keyToNameMap.remove(key);
+        if (oldName != null)
+            nameToKeyMap.remove(oldName);
 
-            if (value.getStringKey() != null && value.getStringKey().trim().length() > 0) {
-                keyToNameMap.put(key, value.getStringKey());
-                nameToKeyMap.put(value.getStringKey(), key);
-            }
+        if (value.getStringKey() != null && value.getStringKey().trim().length() > 0) {
+            if(nameToKeyMap.containsKey(value.getStringKey()))
+                logger.warning(getClass().getSimpleName()+"> Collision. These two key has same string key: " +
+                                       nameToKeyMap.get(value.getStringKey())+" vs "+key);
+
+            keyToNameMap.put(key, value.getStringKey());
+            nameToKeyMap.put(value.getStringKey(), key);
         }
     }
 
